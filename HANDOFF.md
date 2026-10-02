@@ -4,8 +4,8 @@ Last updated: 2026-10-01
 
 Current version: `0.14.3` (redesign beta)
 Status: compact introduction and intentional page scrolling are built, tested,
-installed and verified on the authorized live Class Planner tab. Source
-publication uses the user's fork only; GitHub CI confirmation is pending.
+installed and verified on the authorized live Class Planner tab. Source and ZIP
+are published to the user's fork; GitHub CI and release build passed for db9f48e.
 
 The pre-redesign source at aa992da is saved on the user's fork's
 planner-improvements branch and GitHub release v0.13.0, with a complete ZIP:
@@ -103,13 +103,15 @@ retained; no account contents, course names or real-page screenshots were saved.
 Never automate enrollment or plan-changing actions during live QA. Extension
 manifest permissions remain the exact Class Planner path.
 
-The source targets the user's fork's planner-redesign branch. Prior v0.14.2
-GitHub CI passed for 6e9aad0 and its release is preserved. The v0.14.3 release
-folder and ZIP are ready in outputs; GitHub publication/CI confirmation are pending.
+The source is published to the user's fork's planner-redesign branch and tag
+v0.14.3 (code SHA db9f48ec1e5cc6ad99594fe812227a14c06eb627). GitHub CI and
+release packaging passed. The current beta release is:
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.3
+The local versioned folder and ZIP are in outputs. Earlier releases are preserved.
 The existing unpacked extension folder is the installation target. All 17
 installed v0.14.3 files are SHA-256 verified against dist. The preceding v0.14.2
 build is backed up alongside earlier versions in outputs. The user reloaded and
-refreshed; live v0.14.3 verification passed. Tidy remains opt-in.
+refreshed; live v0.14.3 verification passed.
 Tidy remains opt-in.
 
 ## Archived v0.13.0 handoff
