@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-01
 
-Current version: `0.14.1` (redesign beta)
-Status: live verification found two compatibility issues; the patch is built and
-installed. Awaiting user reload before final live confirmation.
+Current version: `0.14.2` (redesign beta)
+Status: live v0.14.1 checks passed previews and Details. The BODY scroll fix in
+v0.14.2 is built, tested and installed; awaiting reload for live confirmation.
 
 The pre-redesign source at aa992da is saved on the user's fork's
 planner-improvements branch and GitHub release v0.13.0, with a complete ZIP:
@@ -46,8 +46,10 @@ and 390px), covering pointer/keyboard resizing, pane folding/reopening, all six
 modules, local course previews, no extra requests, native control/status/nav
 identity, calendar geometry, docked/inline Details, focus, partial redraws,
 restoration and long-list local dragging. Independent search and layout
-regressions passed against v0.14.1. The sibling-result, native header-help and
-tall-header/long-exam regression checks also passed. Fictional QA pictures and
+regressions passed against v0.14.2. The sibling-result, native header-help,
+tall-header/long-exam and constrained-BODY/long-sidebar scrolling checks also
+passed. The scrolling fixture confirms hidden overflow permits the old behavior
+before checking that the new clipped overflow prevents it. Fictional QA pictures and
 versioned build ZIP live outside Git under outputs. Keep dist untracked.
 
 Live inspection works after explicit human authorization for the browser
@@ -55,17 +57,25 @@ connector's required MyUCLA origin permission. Inspect only the existing exact
 Class Planner tab. Do not navigate to other MyUCLA pages or inspect private
 account data. Resizing, pane reopening, Details dismissal and all three secondary
 modules passed on v0.14.0. Live native search exposed sibling result bodies and
-an inspector overflow below a tall header; verify both fixes after reload.
+an inspector overflow below a tall header; both fixes passed live on v0.14.1.
+Live v0.14.1 confirmed real course previews, nested section expansion, native
+help visibility, local field toggles, original-form controls and Details bounds,
+exam expansion, ×/Escape and focus return. Native search redraw can scroll BODY
+behind the fixed workspace despite window.scrollY remaining zero. That hides
+navigation and makes the position marker negative. Desktop overflow:clip fixes
+the BODY scroll; panes/narrow/flow layouts retain their own scrolling. Verify
+navigation after another native search on v0.14.2 after reload.
 Never automate enrollment or plan-changing actions during live QA. Extension
 manifest permissions remain the exact Class Planner path.
 
-The source/ZIP are published to the user's fork on planner-redesign, with
-GitHub CI passing for 3d8698f. The beta release is:
+Save the new source/ZIP to the user's fork on planner-redesign. The previous
+v0.14.1 release and source (3d8698f) are published with GitHub CI passing:
 https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.1
 The existing unpacked extension folder is the
 installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
-installed v0.14.1 files are SHA-256 verified against dist and the release folder.
-The prior v0.14.0 dist is also backed up in outputs. User reload is pending.
+installed v0.14.2 files are SHA-256 verified against dist. Prior v0.14.0 and
+v0.14.1 builds are also backed up in outputs. The new versioned release folder
+and ZIP are ready. User reload is pending.
 Tidy remains opt-in.
 
 ## Archived v0.13.0 handoff

@@ -4,7 +4,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { workspaceFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.1');
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.2');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
@@ -127,6 +127,21 @@ try {
  }
  const tall=await browser.newPage({viewport:{width:2048,height:927}});
  const tallChecks=await setup(tall,workspaceFixtureHtml(6,true,true));
+ // Native layouts can constrain BODY while content outside the fixed planner
+ // extends below it. A postback/focus scroll must not hide the top navigation.
+ await tall.evaluate(()=>{
+  document.documentElement.style.overflowY='auto';
+  document.body.style.height='827px';
+  const extra=document.createElement('aside');extra.id='fixture-native-long-sidebar';
+  extra.style.cssText='height:1200px;width:1px';document.body.append(extra);
+  document.body.style.overflow='hidden';
+  document.body.scrollTop=848;
+ });
+ assert.ok(await tall.evaluate(()=>document.body.scrollTop>0),'fixture must reproduce the old hidden-overflow scroll bug');
+ await tall.evaluate(()=>{document.body.style.removeProperty('overflow');document.body.scrollTop=848;});
+ assert.equal(await tall.evaluate(()=>document.body.scrollTop),0,'native focus/postback cannot scroll BODY behind the workspace');
+ const navRect=await tall.locator('#fixture-native-navigation').boundingBox(),hostRect=await tall.locator('.pl-workspace-host').boundingBox();
+ assert.ok(navRect.y>=0&&hostRect.y>=navRect.y+navRect.height,'UCLA navigation remains visible after attempted body scroll');
  const nativeMenu=await tall.locator('.plannerTopMenuLinks').boundingBox();
  await tall.locator('[data-pl-workspace-details]').first().click();
  const assertTallDetails=async()=>{

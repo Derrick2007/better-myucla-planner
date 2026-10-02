@@ -356,13 +356,28 @@ On narrow windows move only the owned heading inline, never a native table.
 Course previews require exactly one direct .ClassSearchList beneath the existing
 .ClassSearchWidget in section.classPlanner_ClassSearchSection > #panelSearch.
 Each direct .CourseListEntry must have CourseListEntry_M<digits>, a direct
-.class-title > h3.head > a, and matching direct #container_course_M<digits>.
+.class-title > h3.head > a, and exactly one matching #container_course_M<digits>
+either directly in the entry or as a direct sibling in .ClassSearchList.
 Every recorded .row-fluid.class-info.table-width2 row must have exactly nine
-.span1 through .span9 cells, with one header (Select then the eight labels above)
+.span1 through .span9 cells, with at least one header (Select then the eight labels above)
 and at least one data_row. Incomplete/unknown sets remain native in their entirety.
+Headers also accept the exact native Day(s), Time in Pacific Time and
+Instructor(s) labels, normalizing whitespace only. Every header must match.
+Native help buttons remain accessible in their original header cells. Body
+selection handles the sibling and nested shapes independently of their headings.
 Only headings are copied as read-only index button text; section cells and actions
 remain in place. Selection never invokes a native course link or query. Retain
 all controls, messages and action rows. Only the selected native result entry is
 visible; Rooms & instructors changes local cell visibility. Edit search reveals
 the original fields. Added/replaced rows, cells, entries or headings reconcile;
 restoration removes owned labels/classes/index and preserves native hidden states.
+
+## Native BODY scrolling (0.14.2)
+
+The live native layout can constrain BODY while content outside the fixed planner
+extends below it. Native postbacks or focus can scroll BODY even when its overflow
+is hidden; window.scrollY and document.scrollingElement.scrollTop can both remain
+zero. This makes the workspace's position marker negative and hides navigation.
+Desktop workspace CSS uses overflow:clip on BODY so it is not a scroll container.
+Pane scrolling stays local. Narrow/flow layouts retain overflow:auto. Do not
+move or clone UCLA navigation to compensate for this scroll behavior.

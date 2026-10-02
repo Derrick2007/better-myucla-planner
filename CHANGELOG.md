@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.2 — 2026-10-01 (redesign beta)
+
+- Prevent native focus/postback scrolling of BODY behind the fixed workspace.
+  Use clipped overflow on desktop while preserving local pane scrolling, the
+  narrow stacked layout and the short-window flow fallback. This keeps UCLA's
+  original navigation on screen without moving or modifying it.
+- Add a constrained-body/long-sidebar regression for that native scrolling
+  behavior. Keep the existing navigation, search and layout checks.
+- Live v0.14.1 verification passed course previews, nested section expansion,
+  native header help visibility, Rooms & instructors, Edit search, Details bounds,
+  exam disclosure and both dismissal paths. It exposed the BODY scroll issue
+  after a native search redraw; v0.14.2 still needs live confirmation after reload.
+
 ## 0.14.1 — 2026-10-01 (redesign beta)
 
 - Fix live search compatibility: loaded course bodies can be siblings of their

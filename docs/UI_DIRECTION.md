@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.14.1 redesign beta, inside the existing Chrome extension
+Implemented in the 0.14.2 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -57,7 +57,9 @@ requests, calendar geometry, redraws, restoration and local dragging. Seven
 window sizes include 1536x735 and a narrow stacked fallback.
 
 Authorized live inspection verified resizing, pane reopening, all secondary
-modules and Details dismissal. It exposed sibling result bodies and a short-pane
-inspector overflow, now covered by fictional regression checks. The patched build
-still needs a reload and live confirmation of these two fixes. Enrollment and
-plan-changing actions are not automated during verification.
+modules, real course previews, nested section expansion, native help visibility,
+search reopening and Details bounds/dismissal. A native search redraw exposed
+BODY scrolling behind the fixed workspace, which could hide UCLA navigation.
+v0.14.2 prevents that scroll without moving navigation; it still needs a reload
+and live confirmation. Enrollment and plan-changing actions are not automated
+during verification.
