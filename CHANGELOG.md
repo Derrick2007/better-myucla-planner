@@ -10,6 +10,9 @@
 - Keep focus on the control and remove it with Original layout or disabling
   Tidy. Add fictional pointer/keyboard, viewport, native identity and restoration
   checks. No extra requests, storage or permissions are introduced.
+- Typecheck, 180 tests, build and production layout QA passed, followed by GitHub
+  CI/release packaging. After reload, live clicks verified both directions,
+  title/term visibility, focus and all six modules without horizontal overflow.
 
 ## 0.14.3 — 2026-10-01 (redesign beta)
 

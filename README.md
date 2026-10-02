@@ -205,6 +205,10 @@ notices visible; Show header brings UCLA's menu back. Original layout restores
 all six native section placements; turning Tidy
 off restores presentation. Native section statuses and icons are unchanged.
 
+v0.14.4 passed typecheck, 180 tests, build, fictional production layout checks
+and GitHub CI. Live verification after reload confirmed Compact header / Show
+header, retained title/term visibility, focus and all six modules.
+
 After updating a build, reload the extension and refresh the planner. Run
 `node harness/verify-workspace.mjs` against fictional data to check resizing,
 result selection, native identity, dismissal, redraws, restoration, seven window

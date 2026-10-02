@@ -10,8 +10,20 @@ compaction, keyboard restoration, title/term retention, native navigation
 identity, focus, no new requests, ordinary scrolling, redraws and restoration.
 The control scrolls the document only, never styles, hides or moves UCLA's menu.
 The existing unpacked build is updated; all 17 files are SHA-256 verified.
-The prior v0.14.3 build is backed up outside Git. Source publication and live
-verification after the user's extension reload are pending.
+The prior v0.14.3 build is backed up outside Git. Source and the ZIP are published
+to the user's fork under v0.14.4 (code SHA 8e9ad669d827273278107e61d5097da0a1b8b18f).
+GitHub CI and release packaging passed:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/36977363593
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/36977366150
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.4
+After the user reloaded/refreshed, live clicks verified compaction (banner bottom
+at zero, title/native term top at 12px), focus retention and Show header restoring
+the original menu/document position. All six modules remain, with no horizontal
+overflow or independent BODY scrolling. Never automate plan/enrollment actions.
+The browser screenshot clip uses document coordinates and can return root scroll
+to zero: inspect fresh bounds and use the owned control to restore the intended
+view afterwards. Retain only public heading crops outside Git, never account
+or course content. The planner is left compacted for the user.
 Screenshots and the versioned ZIP belong outside Git under outputs.
 
 ## v0.14.3 verification record
