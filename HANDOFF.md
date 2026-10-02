@@ -43,7 +43,12 @@ Winter future plan removed obsolete save controls and retained Show header;
 returning to Fall restored all six modules with BODY scroll zero. Show header
 then Compact header left Fall's title and term at 12px. Retain only structural
 facts, not actual course names/account contents. No live plan or enrollment
-action was taken. GitHub publication is the remaining step.
+action was taken. Source and ZIP are published to the user's fork, with v0.14.6
+explicitly marked prerelease. Code SHA c4e49940c76caeb255bf2f624d2a87cb2851afc9
+passed CI and release packaging:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37039114974
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37039176249
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.6
 Only fictional fixtures/screenshots may be retained. No live course, plan or
 enrollment change is authorized for verification. Use the existing Class Planner
 tab only. Keep dist untracked and publish only to the user's fork.
