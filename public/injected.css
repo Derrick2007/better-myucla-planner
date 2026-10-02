@@ -1355,7 +1355,7 @@ html.pl-workspace-page:has(.pl-workspace-flow) body { overflow: auto; }
 .pl-workspace-host #classPlanHeader { flex: none; margin: 0 0 4px; }
 .pl-workspace-host > .classPlanner_Messages { flex: none; margin: 2px 0; font-size: 12px; }
 .pl-workspace-host > #ctl00_MainContent_classPlanPanel { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; }
-.pl-workspace-host #ctl00_MainContent_classPlanPanel > div:not(.pl-workspace-deck) { flex: none; margin: 3px 0; font-size: 12px; }
+.pl-workspace-host #ctl00_MainContent_classPlanPanel > div:not(.pl-workspace-deck) { flex: none; margin: 3px 0 !important; font-size: 12px; }
 .pl-workspace-top { display: flex; align-items: center; flex: none; gap: 8px; margin: 8px 0 12px; }
 .pl-workspace-pane-switches { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
 .pl-workspace-top button, .pl-workspace-top summary, button.pl-workspace-return {
@@ -1434,11 +1434,15 @@ html.pl-workspace-page:has(.pl-workspace-flow) body { overflow: auto; }
 .pl-browser-index button[aria-pressed="true"] { background: #e6eff9; color: #245b90; }
 .pl-browser-index button:hover { background: #edf2f8; }
 .pl-browser-list > .pl-browser-course:not(.pl-browser-active), .pl-browser-course > .class-title { display: none !important; }
-.pl-browser-course.pl-browser-active, .pl-browser-body { display: block !important; }
+.pl-browser-course.pl-browser-active, .pl-browser-body.pl-browser-body-active { display: block !important; }
+.pl-browser-body:not(.pl-browser-body-active) { display: none !important; }
 .pl-browser-list { max-height: max(240px,calc(100dvh - var(--pl-workspace-top,12px) - 420px)); }
 /* Original section rows become labelled cards. No native control is copied. */
 .pl-section-table, .pl-section-table > tbody { display: block; width: 100% !important; }
 .pl-section-heading { display: none !important; }
+.pl-browser-list .pl-section-help-row { display: flex !important; flex-wrap: wrap; gap: 8px; min-width: 0 !important; width: 100% !important; margin: 0 0 8px; }
+.pl-section-help-row > .pl-section-help-field { display: none; }
+.pl-section-help-row > .pl-section-help-field:has(button,a,input,select) { display: block; float: none !important; width: auto !important; padding: 0 !important; }
 .pl-workspace-plan .pl-plan-root tbody.courseItem .pl-section-heading { display: none !important; }
 .pl-section-table .pl-section-card, .pl-browser-list .pl-section-card {
   display: grid !important; grid-template-columns: 30px minmax(0,1fr) minmax(0,1fr) 34px; gap: 8px 10px;
@@ -1469,11 +1473,12 @@ html.pl-workspace-page:has(.pl-workspace-flow) body { overflow: auto; }
 .pl-inspector-open > .ClassSearchWidget { display: none; }
 .pl-workspace-preview { display: flex; flex-direction: column; position: relative; box-sizing: border-box; height: 100%; padding: 12px; background: #fff; }
 .pl-workspace-preview[hidden] { display: none; }
-.pl-workspace-preview-head { padding-right: 38px; flex: none; }
-.pl-workspace-preview-head h2 { margin: 0 0 10px; font-size: 15px; font-weight: 600; line-height: 1.4; }
+.pl-workspace-preview-head { padding-right: 38px; flex: none; max-height: 40%; overflow: auto; }
+.pl-workspace-preview-head h2 { margin: 0 0 6px; font-size: 15px; font-weight: 600; line-height: 1.4; }
+.pl-workspace-preview-head summary { cursor: pointer; color: #42617f; font-size: 12px; }
 .pl-workspace-preview-head p { margin: 0; font-size: 12px; line-height: 1.5; color: #677486; }
-.pl-workspace-preview-more { margin: 12px 0; align-self: start; flex: none; }
-.pl-workspace-preview-content { flex: 1; min-height: 80px; }
+.pl-workspace-preview-more { margin: 4px 0; align-self: start; flex: none; }
+.pl-workspace-preview-content { flex: 1; min-height: 0; }
 .pl-workspace-preview button.pl-workspace-preview-close { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; border-radius: 7px; color: #345577; background: transparent; font: 26px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-workspace-preview button.pl-workspace-preview-close:hover { background: #edf2f7; }
 .pl-workspace-preview button.pl-workspace-preview-close:focus-visible { outline: 2px solid #4184c2; outline-offset: -3px; }
@@ -1494,6 +1499,7 @@ html.pl-workspace-page:has(.pl-workspace-flow) body { overflow: auto; }
   .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-inline > tr:nth-child(3) { position: static; width: 100%; max-height: none; margin-top: 10px; }
   .pl-preview-inline .pl-workspace-preview { height: auto; padding: 12px 0; }
   .pl-preview-inline .pl-workspace-preview-content { display: none; }
+  .pl-preview-inline .pl-workspace-preview-head { max-height: none; }
   .pl-workspace-search > .pl-pane-body.pl-inspector-open { height: auto; }
   .pl-inspector-open > .ClassSearchWidget { display: block; }
   .pl-browser-list { max-height: 500px; }
@@ -1510,5 +1516,6 @@ html.pl-workspace-page:has(.pl-workspace-flow) body { overflow: auto; }
   .pl-workspace-plan tbody.courseItem, .pl-workspace-plan tbody.courseItem > tr:first-child { display: table-row-group; }
   .pl-workspace-plan tbody.courseItem > tr:nth-child(2), .pl-workspace-plan tbody.courseItem > tr:nth-child(3), .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-workspace-preview-card > tr:nth-child(3) { display: table-row; position: static; width: auto; max-height: none; overflow: visible; }
   .pl-browser-list > .pl-browser-course, .pl-browser-course > .class-title { display: block !important; }
+  .pl-browser-body:not(.pl-browser-body-active) { display: block !important; }
   .pl-browser-list { max-height: none; }
 }

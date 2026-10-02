@@ -256,9 +256,13 @@ export class PlannerWorkspace {
     this.selected=course.node;this.selectedHadStyle=course.node.hasAttribute("style");this.returnFocus=trigger;
     this.selectedTable=course.node.querySelector<HTMLTableElement>("table.coursetable");
     this.detailCards=new SectionCards();if(this.selectedTable)this.detailCards.table(this.selectedTable);
-    const title=s.doc.createElement("h2");title.textContent=course.label;s.head.replaceChildren(title);
+    const title=s.doc.createElement("h2");title.textContent=course.label.replace(/^Class\s+\d+:\s*/,"");s.head.replaceChildren(title);
     const exam=course.node.querySelector(":scope > tr:nth-child(2) .final_exam_info");
-    if(exam){const line=s.doc.createElement("p");line.textContent=officialText(exam);s.head.append(line);}
+    if(exam){
+      const disclosure=s.doc.createElement("details"),summary=s.doc.createElement("summary"),line=s.doc.createElement("p");
+      summary.textContent="Final exam";line.textContent=officialText(exam);disclosure.append(summary,line);s.head.append(disclosure);
+      disclosure.addEventListener("toggle",()=>this.positionPreview());
+    }
     course.node.classList.add("pl-workspace-preview-card");s.preview.hidden=false;s.more.setAttribute("aria-expanded","false");
     s.panes[2].body.classList.add("pl-inspector-open");this.positionPreview();s.close.focus({preventScroll:true});
   }
@@ -271,7 +275,8 @@ export class PlannerWorkspace {
     if(destination && s.preview.parentElement!==destination)destination.prepend(s.preview);
     if(inline)return;
     const box=s.content.getBoundingClientRect();
-    for(const [name,value] of [["left",box.left],["top",box.top],["width",box.width],["height",box.height]] as const)
+    const height=Math.min(box.height,Math.max(0,s.panes[2].section.getBoundingClientRect().bottom-12-box.top),Math.max(0,view.innerHeight-16-box.top));
+    for(const [name,value] of [["left",box.left],["top",box.top],["width",box.width],["height",height]] as const)
       this.selected.style.setProperty(`--pl-detail-${name}`,`${Math.max(0,value)}px`);
   }
 

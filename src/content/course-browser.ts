@@ -16,7 +16,10 @@ function read(doc: Document): {root:HTMLElement;entries:Entry[]} | null {
   for (const node of nodes) {
     const match = /^CourseListEntry_M(\d+)$/.exec(node.id);
     const heading = node.querySelector<HTMLElement>(":scope > .class-title > h3.head > a");
-    const body = match && node.querySelector<HTMLElement>(`:scope > #container_course_M${match[1]}`);
+    const bodies = match ? [...root.querySelectorAll<HTMLElement>(`#container_course_M${match[1]}`)] : [];
+    // MyUCLA emits headings and loaded bodies as siblings. Older known markup
+    // nests the body in its entry. Preserve either topology without moving it.
+    const body = bodies.length === 1 && (bodies[0].parentElement === root || bodies[0].parentElement === node) ? bodies[0] : null;
     // Incomplete or unfamiliar results stay in MyUCLA's native presentation.
     // Never load a missing course in the background just to create a preview.
     const rows = body && SectionCards.knownResultRows(body);
@@ -76,6 +79,7 @@ export class CourseBrowserPresentation {
     s.selected=key; this.lastKey=key; this.lastLabel=s.entries.find(entry=>entry.key===key)?.label || "";
     for (const entry of s.entries) {
       const selected=entry.key===key; entry.node.classList.toggle("pl-browser-active",selected);
+      entry.body.classList.toggle("pl-browser-body-active",selected);
       entry.button?.setAttribute("aria-pressed",String(selected));
     }
     s.root.scrollTop=0;
@@ -87,7 +91,7 @@ export class CourseBrowserPresentation {
     s.widget.classList.remove("pl-browser-results","pl-browser-editing");
     s.root.classList.remove("pl-browser-list","pl-section-more");
     for(const entry of s.entries) {
-      entry.node.classList.remove("pl-browser-course","pl-browser-active");entry.body.classList.remove("pl-browser-body");
+      entry.node.classList.remove("pl-browser-course","pl-browser-active");entry.body.classList.remove("pl-browser-body","pl-browser-body-active");
       if (!entry.bodyHadClass && !entry.body.getAttribute("class")) entry.body.removeAttribute("class");
     }
   }

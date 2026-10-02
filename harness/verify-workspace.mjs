@@ -4,7 +4,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { workspaceFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.0');
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.1');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
@@ -41,20 +41,22 @@ try {
   assert.ok(await page.locator('#ctl00_MainContent_termSessionChooser').isVisible());
   assert.ok(await page.evaluate(()=>document.body.scrollWidth<=innerWidth+1),`page overflow ${width}`);
   assert.equal(await page.locator('.pl-browser-index button').count(),3);
-  assert.equal(await page.locator('.pl-browser-list > .CourseListEntry:visible').count(),1);
+  assert.equal(await page.locator('.pl-browser-list > .pl-browser-body:visible').count(),1);
   await page.locator('.pl-browser-index button').nth(2).click();
-  assert.equal(await page.locator('#CourseListEntry_M2').isVisible(),true);
+  assert.equal(await page.locator('#CourseListEntry_M2').evaluate(node=>node.classList.contains('pl-browser-active')),true);
   assert.equal(await page.evaluate(()=>window.nativeResultClickCount),0,'preview selection must not send native requests');
   assert.ok(await page.locator('#container_course_M2').isVisible(),'loaded hidden course must preview locally');
   assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'result cards fit the browser pane');
-  assert.equal(await page.locator('.pl-browser-active .data_row > .span7').first().isVisible(),false);
+  assert.equal(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible(),false);
   await page.locator('.pl-browser-toolbar button').getByText('Rooms & instructors',{exact:true}).click();
-  assert.equal(await page.locator('.pl-browser-active .data_row > .span7').first().isVisible(),true);
+  assert.equal(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible(),true);
   await page.locator('.pl-browser-toolbar button').getByText('Rooms & instructors',{exact:true}).click();
   await page.locator('.pl-browser-toolbar button').getByText('Edit search',{exact:true}).click();
   assert.ok(await page.locator('input#searchTier0').isVisible());
   await page.locator('.pl-browser-toolbar button').getByText('Hide search fields',{exact:true}).click();
   assert.ok(await nativePreserved());
+  assert.ok(await page.locator('.pl-browser-body-active .header-Status').isVisible(),'native header help remains accessible');
+  assert.ok(await page.locator('#fixture-result-footer button').isVisible(),'global native result actions remain accessible');
   if(width>1240){
    const nav=await page.locator('#fixture-native-navigation').boundingBox(),host=await page.locator('.pl-workspace-host').boundingBox();
    assert.ok(host.y>=nav.y+nav.height,'UCLA navigation remains unobscured');
@@ -123,6 +125,19 @@ try {
   assert.ok(await page.evaluate(()=>window.redrawFields.every(node=>node.isConnected&&node.form===document.getElementById('aspnetForm'))));
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log(`Workspace verified: ${width}px`);
  }
+ const tall=await browser.newPage({viewport:{width:2048,height:927}});
+ const tallChecks=await setup(tall,workspaceFixtureHtml(6,true,true));
+ const nativeMenu=await tall.locator('.plannerTopMenuLinks').boundingBox();
+ await tall.locator('[data-pl-workspace-details]').first().click();
+ const assertTallDetails=async()=>{
+  const row=await tall.locator('tbody.pl-workspace-preview-card > tr:nth-child(3)').boundingBox();
+  const pane=await tall.locator('.pl-workspace-search').boundingBox();
+  assert.ok(row.height>=60&&row.y+row.height<=Math.min(927,pane.y+pane.height),`short pane inspector fits: ${JSON.stringify(row)}`);
+ };
+ await assertTallDetails();await tall.locator('.pl-workspace-preview-head summary').click();await assertTallDetails();
+ const afterMenu=await tall.locator('.plannerTopMenuLinks').boundingBox();assert.deepEqual(afterMenu,nativeMenu,'native plan menus stay put');
+ assert.deepEqual(tallChecks.errors,[]);assert.deepEqual(tallChecks.requests,[]);
+ await tall.screenshot({path:resolve(out,'tall-header-details.png')});await tall.close();console.log('Tall native header and long exam details verified');
  const page=await browser.newPage({viewport:{width:1440,height:600}});
  const {errors,requests}=await setup(page,workspaceFixtureHtml(12));
  await page.evaluate(()=>{window.nativeActionCount=0;window.courseListAction=()=>window.nativeActionCount++;});

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.14.1 — 2026-10-01 (redesign beta)
+
+- Fix live search compatibility: loaded course bodies can be siblings of their
+  headings; recognize the native Day(s), Pacific Time and Instructor(s) labels.
+  Select only the chosen body locally and retain original native result actions.
+- Keep native column help buttons accessible in a compact header row. Ambiguous,
+  unknown and unloaded bodies still retain their native presentation.
+- Keep Details within short panes below tall native headers. Make the final-exam
+  note expandable, bound the heading and reserve only the available row height.
+  Preserve UCLA's original navigation, term chooser and plan menus.
+- Add fictional sibling-result, help-button and tall-header regression checks.
+  Live inspection found these issues after verifying resizing, reopening,
+  Details dismissal and all three secondary modules in v0.14.0.
+
 ## 0.14.0 — 2026-10-01 (redesign beta)
 
 - Rebuild the presentation around Classes on the left, Schedule in the center,

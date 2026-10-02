@@ -17,6 +17,8 @@ describe('local course browser',()=>{
   expect(buttons).toHaveLength(3);buttons[2].click();
   expect(buttons.map(button=>button.getAttribute('aria-pressed'))).toEqual(['false','false','true']);
   expect(document.querySelector('#CourseListEntry_M2')!.classList.contains('pl-browser-active')).toBe(true);
+  expect(document.querySelector('#container_course_M2')!.classList.contains('pl-browser-body-active')).toBe(true);
+  expect(document.querySelector('#container_course_M0')!.classList.contains('pl-browser-body-active')).toBe(false);
   expect(click).not.toHaveBeenCalled();
   expect([...document.querySelectorAll('.ClassSearchList input')]).toEqual(original);
   expect(original.every(node=>node.closest('form')===document.getElementById('aspnetForm'))).toBe(true);
@@ -48,5 +50,25 @@ describe('local course browser',()=>{
   expect(browser.needsReconcile(document)).toBe(true);browser.reconcile(document);
   expect(document.querySelector('.pl-browser-index')).toBeNull();expect(document.querySelector('.pl-section-card')).toBeNull();
   expect(document.querySelectorAll('.CourseListEntry')).toHaveLength(3);
+ });
+ it('preserves sibling bodies, native header help, and the global result actions',()=>{
+  const root=document.querySelector('.ClassSearchList')!;
+  const bodies=[...root.querySelectorAll('[id^="container_course_M"]')];
+  const helps=[...root.querySelectorAll('.header-row button')];
+  const footer=document.getElementById('fixture-result-footer')!;
+  const helpClick=vi.fn();helps[0].addEventListener('click',helpClick);
+  browser.reconcile(document);
+  expect(bodies.every(node=>node.parentElement===root)).toBe(true);
+  expect(helps.every(node=>node.closest('.pl-section-help-row')&&!node.closest('.pl-section-heading'))).toBe(true);
+  (helps[0] as HTMLButtonElement).click();expect(helpClick).toHaveBeenCalledOnce();
+  expect(footer.parentElement).toBe(root);expect(footer.closest('.pl-browser-body,.pl-browser-course')).toBeNull();
+  expect([...root.querySelectorAll('.header-row button')]).toEqual(helps);
+ });
+ it('supports the older nested body shape but rejects an ambiguous duplicate',()=>{
+  for(let i=0;i<3;i++)document.getElementById(`CourseListEntry_M${i}`)!.append(document.getElementById(`container_course_M${i}`)!);
+  browser.reconcile(document);expect(document.querySelectorAll('.pl-browser-index button')).toHaveLength(3);
+  browser.restore();const body=document.getElementById('container_course_M0')!;
+  document.querySelector('.ClassSearchList')!.append(body.cloneNode(true));
+  const before=document.body.innerHTML;browser.reconcile(document);expect(document.body.innerHTML).toBe(before);
  });
 });

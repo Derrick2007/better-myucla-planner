@@ -3,7 +3,7 @@ import { JSDOM } from 'jsdom';
 import { calendarFixtureHtml } from './calendar-fixture.mjs';
 import { searchMarkup, recordedSearchOptions } from './search-fixture.mjs';
 
-export function workspaceFixtureHtml(count = 5, includeResults = false) {
+export function workspaceFixtureHtml(count = 5, includeResults = false, tallHeader = false) {
   const dom = new JSDOM(calendarFixtureHtml(count));
   const doc = dom.window.document;
   const navigation = doc.createElement('nav'); navigation.id = 'fixture-native-navigation';
@@ -26,6 +26,12 @@ export function workspaceFixtureHtml(count = 5, includeResults = false) {
   term.className = 'enroll_term'; term.id = 'ctl00_MainContent_termSessionChooser';
   wrapper.before(term);
   term.append(doc.getElementById('ctl00_MainContent_termSessionChooser_TermChooser'));
+  if (tallHeader) {
+    navigation.style.height = '228px'; term.style.cssText = 'height:108px;box-sizing:border-box';
+    menu.style.cssText = 'height:22px;margin:10px 0';
+    panel.insertAdjacentHTML('beforebegin','<div class="classPlanner_Messages noprint" style="height:27px">Example planner notice</div><div class="classPlanner_Messages noprint" style="height:27px">Another example notice</div>');
+    panel.insertAdjacentHTML('afterbegin','<div style="margin-top:12px;margin-bottom:12px">Example study list refresh</div>');
+  }
   const calendar = doc.createElement('section');
   calendar.className = 'classPlanner_CalendarSection';
   calendar.innerHTML = '<div id="plannerSectionCal" class="classPlanner_SectionTitle">Weekly schedule</div><div id="ctl00_MainContent_panelGrid"></div>';
@@ -38,18 +44,19 @@ export function workspaceFixtureHtml(count = 5, includeResults = false) {
   if (includeResults) {
     const widths = [6,10,19,5,9,15,12,7,17];
     const cells = values => values.map((value,i) => `<div class="span${i+1}" style="float:left;width:${widths[i]}%;box-sizing:border-box;padding:8px">${value}</div>`).join('');
-    const header = cells(['Select','Section','Status','Info','Days','Time','Location','Units','Instructor']);
+    const header = cells(['Select','Section','<button type="button" class="header-Status link">Status</button>','Info','Day(s)','Time in Pacific Time','Location','<button type="button" class="header-Unit link">Units</button>','<button type="button" class="header-Instructor link">Instructor(s)</button>']);
     const rows = Array.from({length:5}, (_,i) => `<div class="row-fluid data_row class-info scrollable-collapse table-width2">${cells([
       `<input type="checkbox" name="exampleSection${i}" aria-label="Example section ${i+1}">`,i ? `Dis 1${String.fromCharCode(64+i)}` : 'Lec 1',
       'Open<br>10 of 30 seats left','Info',i ? 'F' : 'MWF','10am–10:50am','Example Hall 100',i ? '0.0' : '4.0','Example Instructor'
     ])}</div>`).join('');
     doc.querySelector('#resultHeaderDiv').textContent = 'Example search results';
-    doc.querySelector('.ClassSearchWidget').insertAdjacentHTML('beforeend', `<div class="ClassSearchList search_results">${Array.from({length:3}, (_,c) => `<div id="CourseListEntry_M${c}" class="CourseListEntry"><div class="row-fluid class-title"><h3 class="head"><a href="#" onclick="document.getElementById('container_course_M${c}').hidden = !document.getElementById('container_course_M${c}').hidden; return false">EXAMPLE ${101+c} — Example course ${String.fromCharCode(65+c)}</a></h3></div><div id="container_course_M${c}"${c ? ' hidden' : ''}><div class="row-fluid header-row class-info scrollable-collapse table-width2">${header}</div>${rows.replaceAll('exampleSection', `exampleCourse${c}Section`)}</div></div>`).join('')}</div>`);
+    doc.querySelector('.ClassSearchWidget').insertAdjacentHTML('beforeend', `<div class="ClassSearchList search_results"><div id="searchLabel">Example results</div>${Array.from({length:3}, (_,c) => `<div id="CourseListEntry_M${c}" class="CourseListEntry"><div class="row-fluid class-title"><h3 class="head"><a href="#" onclick="document.getElementById('container_course_M${c}').hidden = !document.getElementById('container_course_M${c}').hidden; return false">EXAMPLE ${101+c} — Example course ${String.fromCharCode(65+c)}</a></h3></div></div><div id="container_course_M${c}"${c ? ' hidden style="display:none"' : ''}><div></div><div class="classSearchTableSubSectionHeader info-bar">Example section group</div><div class="row-fluid header-row class-info scrollable-collapse table-width2">${header}</div>${rows.replaceAll('exampleSection', `exampleCourse${c}Section`)}</div>`).join('')}<div id="fixture-result-footer"><button type="button">Example native result action</button></div></div>`);
   }
   doc.querySelectorAll('tbody.courseItem').forEach((card, i) => {
     const labels = card.querySelectorAll(':scope > tr:first-child .SubjectAreaName_ClassName p');
     labels[0].textContent = `Class ${i + 1}: Example Studies`;
     labels[1].textContent = `${101 + i} - Example course ${String.fromCharCode(65 + i)}`;
+    if (tallHeader) card.querySelector('.final_exam_info').textContent = 'Example final exam: a long fictional explanation of the exam time and the later location announcement. This deliberately exercises a lengthy native exam note.';
     card.querySelectorAll('table.coursetable tr:not(:first-child)').forEach(row => {
       row.cells[6].textContent = 'Example Hall'; row.cells[8].textContent = 'Example instructor';
     });

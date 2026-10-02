@@ -1,5 +1,6 @@
 const OWNED = "data-planner-lift-owned";
 const LABELS = ["Change", "Section", "Status", "Info", "Days", "Time", "Location", "Units", "Instructor"];
+const RESULT_LABELS = [["Select"],["Section"],["Status"],["Info"],["Days","Day(s)"],["Time","Time in Pacific Time"],["Location"],["Units"],["Instructor","Instructor(s)"]];
 interface Mark { node: HTMLElement; className: string | null; added: string; field: string | null; }
 
 /** Presentation only. Native cells, controls, values and row ancestry stay put. */
@@ -36,7 +37,7 @@ export class SectionCards {
     if (!rows.length || !rows.some(row=>row.classList.contains("data_row"))) return null;
     if (rows.some(row=>row.children.length !== 9 || [...row.children].some((cell,i)=>!cell.classList.contains(`span${i+1}`)))) return null;
     const headers = rows.filter(row=>row.classList.contains("header-row"));
-    if (headers.length !== 1 || [...headers[0].children].some((cell,i)=>cell.textContent?.trim() !== (i === 0 ? "Select" : LABELS[i]))) return null;
+    if (!headers.length || headers.some(header=>[...header.children].some((cell,i)=>!RESULT_LABELS[i].includes((cell.textContent || "").replace(/\s+/g," ").trim())))) return null;
     return rows;
   }
 
@@ -44,7 +45,14 @@ export class SectionCards {
     const rows = SectionCards.knownResultRows(body);
     if (!rows) return false;
     for (const row of rows) {
-      if (row.classList.contains("header-row")) this.mark(row,"pl-section-heading");
+      if (row.classList.contains("header-row")) {
+        // Native column headings can contain help buttons. Keep those original
+        // controls accessible rather than hiding the entire header.
+        if (row.querySelector("button,a,input,select")) {
+          this.mark(row,"pl-section-help-row");
+          [...row.children].forEach(cell=>this.mark(cell as HTMLElement,"pl-section-help-field"));
+        } else this.mark(row,"pl-section-heading");
+      }
       else if (row.classList.contains("data_row")) {
         this.mark(row,"pl-section-card");
         [...row.children].forEach((cell,i)=>this.mark(cell as HTMLElement,"pl-section-field",i));

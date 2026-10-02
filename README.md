@@ -174,7 +174,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.14.0` redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.14.1` redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. This build presents
 Classes, Schedule and Browse inside the original MyUCLA page. Desktop panes
@@ -183,8 +183,9 @@ divider to reset its width. Named pane buttons reopen hidden panes. Narrow
 windows stack the same modules for legibility.
 
 Details dock beside the schedule, preserving native section controls and status
-wording. Close with × or Escape; focus returns to the selected class. Other page
-controls remain interactive. Rooms and instructors expand when needed.
+wording. The final-exam note expands separately. Close with × or Escape; focus
+returns to the selected class. Other page controls remain interactive. Rooms and
+instructors expand when needed.
 
 For complete, already-rendered results, the browser lists course headings and
 previews one course's native section rows at a time. Selection is local. Edit
@@ -201,8 +202,9 @@ off restores presentation. Native section statuses and icons are unchanged.
 After updating a build, reload the extension and refresh the planner. Run
 `node harness/verify-workspace.mjs` against fictional data to check resizing,
 result selection, native identity, dismissal, redraws, restoration, seven window
-sizes and local panel dragging. The v0.14.0 redesign has not been verified on a
-student's live page; manual verification is still required.
+sizes, tall native headers and local panel dragging. Authorized live inspection
+verified the pane controls and exposed native search topology and inspector
+height issues; v0.14.1 fixes both. Reload the patched build before its live check.
 
 ---
 

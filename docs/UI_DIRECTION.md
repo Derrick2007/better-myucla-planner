@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.14.0 redesign beta, inside the existing Chrome extension
+Implemented in the 0.14.1 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -26,7 +26,8 @@ course's native sections. Selecting a heading is instant and local; it never
 clicks a native disclosure or issues a query. Section cards show section, native
 status, days, time, units and existing selection/info controls. Rooms and
 instructors reveal together on demand. Edit search exposes the original fields.
-Native actions after the rows remain within their original course entry.
+Native column help buttons remain accessible. Section bodies retain their native
+sibling or nested placement, and global result actions remain visible.
 
 Unfamiliar or incomplete results keep MyUCLA's original presentation and loading
 controls. The extension cannot show information MyUCLA has not loaded. Subject
@@ -40,6 +41,8 @@ The native details row stays in its original course tbody and form. CSS position
 it over the reserved content area without cloning a control. The visible close
 button or Escape returns to browsing and restores focus. There is no backdrop or
 outside-click interception. Narrow windows reveal the same details inline.
+The final-exam note expands separately. The heading and section content fit the
+available height, including below tall native headers.
 
 Native status wording and icons remain unchanged; there are no aggregate status
 badges. Section labels are appended as extension-owned read-only text and removed
@@ -53,7 +56,8 @@ six modules, native navigation/control/status identity, result switching without
 requests, calendar geometry, redraws, restoration and local dragging. Seven
 window sizes include 1536x735 and a narrow stacked fallback.
 
-Live inspection remains blocked by automatic approval review despite exact-page
-user authorization. The installed beta needs a manual check with real native
-search results, especially incomplete result bodies and nested section controls.
-This is an implemented beta design, not a claim of live compatibility verification.
+Authorized live inspection verified resizing, pane reopening, all secondary
+modules and Details dismissal. It exposed sibling result bodies and a short-pane
+inspector overflow, now covered by fictional regression checks. The patched build
+still needs a reload and live confirmation of these two fixes. Enrollment and
+plan-changing actions are not automated during verification.

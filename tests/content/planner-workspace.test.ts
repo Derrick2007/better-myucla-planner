@@ -47,6 +47,14 @@ describe("one-page native planner workspace", () => {
     expect(course.node.classList.contains("pl-workspace-preview-card")).toBe(false);
     expect(document.activeElement).toBe(details);
   });
+  it("keeps a long exam note in a separate disclosure and preserves its native source", () => {
+    const course=adapter.inspectContract().courses[0],exam=course.node.querySelector('.final_exam_info')!;
+    const native=exam.innerHTML;mount();course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();
+    const disclosure=document.querySelector<HTMLDetailsElement>('.pl-workspace-preview-head details')!;
+    expect(disclosure.open).toBe(false);expect(disclosure.querySelector('summary')!.textContent).toBe('Final exam');
+    expect(disclosure.querySelector('p')!.textContent).toBe(exam.textContent!.replace(/\s+/g,' ').trim());
+    expect(exam.innerHTML).toBe(native);
+  });
   it("restores native sections, term and tools exactly", () => {
     const original = document.body.innerHTML;
     mount(); document.querySelector<HTMLButtonElement>("[data-pl-workspace-details]")!.click(); workspace.restore();

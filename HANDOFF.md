@@ -2,15 +2,16 @@
 
 Last updated: 2026-10-01
 
-Current version: `0.14.0` (redesign beta)
-Status: redesign beta; production build ready in `dist/`, installed update pending reload.
+Current version: `0.14.1` (redesign beta)
+Status: live verification found two compatibility issues; the patch is built and
+installed. Awaiting user reload before final live confirmation.
 
 The pre-redesign source at aa992da is saved on the user's fork's
 planner-improvements branch and GitHub release v0.13.0, with a complete ZIP:
 https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.13.0
 Do not rewrite that snapshot or push to upstream.
 
-v0.14.0 lives on the separate planner-redesign branch. The presentation has been
+The redesign lives on the separate planner-redesign branch. The presentation has been
 rebuilt around Classes (left), Schedule (center) and Browse (right). Side panes
 resize with pointer/keyboard dividers. All three remain independently foldable
 and reopenable. Widths/choices are in memory only. UCLA navigation, term chooser
@@ -18,7 +19,10 @@ and plan menus retain their original nodes and placement. All three secondary
 modules remain native under Tools (3); Original layout restores all six sections.
 
 CourseBrowserPresentation indexes only complete, already-rendered public result
-headings and shows one native course entry locally. SectionCards formats exact
+headings and shows one native course body locally. Bodies can be direct siblings
+of their headings or the older nested shape; duplicates fail closed. SectionCards
+recognizes the exact native header labels including Day(s), Time in Pacific Time
+and Instructor(s). Native help buttons stay accessible. SectionCards formats exact
 nine-column section rows into labelled cards, appending owned text after native
 children. Native controls/status innerHTML/action rows remain unchanged. Edit
 search reveals original fields. Rooms/instructors expand locally. Unknown or
@@ -32,26 +36,35 @@ inspector area. Other planner controls remain interactive. ×/Escape closes with
 focus return; narrow windows move only the owned heading inline. There is no
 backdrop or outside-click capture. Header identity and status wording remain
 native. Never mark containers holding native descendants as extension-owned.
+The exam note is a separate disclosure; the inspector heading is bounded and
+content height is clamped to its pane and viewport. Native refresh-row inline
+margins are compacted by scoped CSS, restored by removing workspace classes.
 
-Typecheck, 173 tests across 18 files and production build passed. Production
+Typecheck, 176 tests across 18 files and the production build passed for the patch. Production
 Chrome QA used isolated fictional fixtures at seven widths (including 1536x735
 and 390px), covering pointer/keyboard resizing, pane folding/reopening, all six
 modules, local course previews, no extra requests, native control/status/nav
 identity, calendar geometry, docked/inline Details, focus, partial redraws,
 restoration and long-list local dragging. Independent search and layout
-regressions passed; the popup identifies v0.14.0. Fictional QA pictures and
+regressions passed against v0.14.1. The sibling-result, native header-help and
+tall-header/long-exam regression checks also passed. Fictional QA pictures and
 versioned build ZIP live outside Git under outputs. Keep dist untracked.
 
-Live inspection is still blocked by repeated automatic approval review rejection,
-even with exact-page human authorization. Do not retry using alternate browser
-surfaces or broader MyUCLA access. Ask the user to reload the extension, refresh
-the planner and manually verify native results, nested section controls, Details,
-menu preservation and all module reopening. Never automate enrollment actions.
+Live inspection works after explicit human authorization for the browser
+connector's required MyUCLA origin permission. Inspect only the existing exact
+Class Planner tab. Do not navigate to other MyUCLA pages or inspect private
+account data. Resizing, pane reopening, Details dismissal and all three secondary
+modules passed on v0.14.0. Live native search exposed sibling result bodies and
+an inspector overflow below a tall header; verify both fixes after reload.
+Never automate enrollment or plan-changing actions during live QA. Extension
+manifest permissions remain the exact Class Planner path.
 
 Publish the rebuilt source/ZIP to the user's fork on planner-redesign,
 with CI enabled on that branch. The existing unpacked extension folder is the
 installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
-installed v0.14.0 files are SHA-256 verified. User reload is pending. Tidy remains opt-in.
+installed v0.14.1 files are SHA-256 verified against dist and the release folder.
+The prior v0.14.0 dist is also backed up in outputs. User reload is pending.
+Tidy remains opt-in.
 
 ## Archived v0.13.0 handoff
 
