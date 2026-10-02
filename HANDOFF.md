@@ -59,8 +59,10 @@ an inspector overflow below a tall header; verify both fixes after reload.
 Never automate enrollment or plan-changing actions during live QA. Extension
 manifest permissions remain the exact Class Planner path.
 
-Publish the rebuilt source/ZIP to the user's fork on planner-redesign,
-with CI enabled on that branch. The existing unpacked extension folder is the
+The source/ZIP are published to the user's fork on planner-redesign, with
+GitHub CI passing for 3d8698f. The beta release is:
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.1
+The existing unpacked extension folder is the
 installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
 installed v0.14.1 files are SHA-256 verified against dist and the release folder.
 The prior v0.14.0 dist is also backed up in outputs. User reload is pending.
