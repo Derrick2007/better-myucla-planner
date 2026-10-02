@@ -11,7 +11,9 @@
 - Live v0.14.1 verification passed course previews, nested section expansion,
   native header help visibility, Rooms & instructors, Edit search, Details bounds,
   exam disclosure and both dismissal paths. It exposed the BODY scroll issue
-  after a native search redraw; v0.14.2 still needs live confirmation after reload.
+  after a native search redraw. After reload, v0.14.2 passed native search and
+  section expansion with BODY scrollTop zero and the original header/term chooser
+  visible; course previews, native form controls and Details bounds/focus passed.
 
 ## 0.14.1 — 2026-10-01 (redesign beta)
 

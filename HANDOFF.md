@@ -3,8 +3,8 @@
 Last updated: 2026-10-01
 
 Current version: `0.14.2` (redesign beta)
-Status: live v0.14.1 checks passed previews and Details. The BODY scroll fix in
-v0.14.2 is built, tested and installed; awaiting reload for live confirmation.
+Status: v0.14.2 is built, tested, installed and verified on the authorized live
+Class Planner tab. Native search and section expansion keep UCLA navigation visible.
 
 The pre-redesign source at aa992da is saved on the user's fork's
 planner-improvements branch and GitHub release v0.13.0, with a complete ZIP:
@@ -63,8 +63,14 @@ help visibility, local field toggles, original-form controls and Details bounds,
 exam expansion, ×/Escape and focus return. Native search redraw can scroll BODY
 behind the fixed workspace despite window.scrollY remaining zero. That hides
 navigation and makes the position marker negative. Desktop overflow:clip fixes
-the BODY scroll; panes/narrow/flow layouts retain their own scrolling. Verify
-navigation after another native search on v0.14.2 after reload.
+the BODY scroll; panes/narrow/flow layouts retain their own scrolling. Live
+v0.14.2 confirmed clipped overflow is loaded, BODY scrollTop stays zero through
+native subject/course selection, search and section expansion, and the workspace
+marker and original header/term chooser remain on screen. Loaded course previews
+and two section cards retain native form controls without horizontal overflow.
+Details stays within Browse and the viewport; Escape returns focus and restores
+the loaded results. All six native modules remain present. Record only these
+structural checks, never account contents or actual course names.
 Never automate enrollment or plan-changing actions during live QA. Extension
 manifest permissions remain the exact Class Planner path.
 
@@ -75,7 +81,8 @@ The existing unpacked extension folder is the
 installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
 installed v0.14.2 files are SHA-256 verified against dist. Prior v0.14.0 and
 v0.14.1 builds are also backed up in outputs. The new versioned release folder
-and ZIP are ready. User reload is pending.
+and ZIP are ready. The user reloaded the extension and refreshed the planner;
+the installed clipped-overflow patch is confirmed live.
 Tidy remains opt-in.
 
 ## Archived v0.13.0 handoff

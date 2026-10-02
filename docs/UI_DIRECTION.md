@@ -60,6 +60,9 @@ Authorized live inspection verified resizing, pane reopening, all secondary
 modules, real course previews, nested section expansion, native help visibility,
 search reopening and Details bounds/dismissal. A native search redraw exposed
 BODY scrolling behind the fixed workspace, which could hide UCLA navigation.
-v0.14.2 prevents that scroll without moving navigation; it still needs a reload
-and live confirmation. Enrollment and plan-changing actions are not automated
-during verification.
+The reloaded v0.14.2 build passed native subject/course selection, search and
+section expansion with BODY scrollTop remaining zero and UCLA's original header
+and term chooser visible. Course previews retain native form controls, and
+Details fits Browse, closes with Escape and restores focus/results. All six
+native modules remain available. Enrollment and plan-changing actions are not
+automated during verification.

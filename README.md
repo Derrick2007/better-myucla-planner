@@ -205,7 +205,9 @@ result selection, native identity, dismissal, redraws, restoration, seven window
 sizes, tall native headers and local panel dragging. Authorized live inspection
 verified the pane controls, course previews, section expansion and Details.
 v0.14.2 also prevents native BODY scrolling behind the workspace after searches,
-keeping original UCLA navigation visible. Reload the patched build before its live check.
+keeping original UCLA navigation visible. The reloaded v0.14.2 build passed live
+native search and section expansion with the header and term chooser on screen,
+zero BODY scroll, native-form controls and Details bounds/focus intact.
 
 ---
 

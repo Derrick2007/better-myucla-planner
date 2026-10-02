@@ -381,3 +381,8 @@ zero. This makes the workspace's position marker negative and hides navigation.
 Desktop workspace CSS uses overflow:clip on BODY so it is not a scroll container.
 Pane scrolling stays local. Narrow/flow layouts retain overflow:auto. Do not
 move or clone UCLA navigation to compensate for this scroll behavior.
+
+Authorized live v0.14.2 verification after reload confirmed overflow:clip and
+BODY scrollTop zero through native subject/course selection, search and section
+expansion. The original header and term chooser stay on screen and the workspace
+position marker stays stable. Only structural measurements were retained.
