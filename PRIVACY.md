@@ -120,6 +120,12 @@ choices introduce no saved preference. Notes, collapsed state and draft offers
 reload under the existing term/plan key after a switch; a stale asynchronous
 response cannot apply another plan's data, and its persisted draft is preserved.
 
+The 0.14.7 selection reminder reads only the checked boolean of native
+checkbox/radio controls in validated section-selection cells. If a selected
+section is in another course preview, a local count/disclosure lets you return
+to it. No checkbox value, query text or personal information is read or stored;
+reviewing does not change the selection or invoke a native action.
+
 ## Compact introduction (0.14.3)
 
 The extension checks the known planner introduction's public heading and DOM

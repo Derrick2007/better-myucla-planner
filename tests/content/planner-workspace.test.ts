@@ -136,6 +136,21 @@ describe("one-page native planner workspace", () => {
     expect(document.querySelectorAll(".pl-workspace-deck > section")).toHaveLength(3);
     expect(document.querySelectorAll(".pl-workspace-extra-content > section")).toHaveLength(3);
   });
+  it("returns from docked details to results before expanding Browse", () => {
+    mount();
+    const course=adapter.inspectContract().courses[0],row=course.node.children[2],parent=row.parentElement;
+    const nativeFields=[...row.querySelectorAll('input,select,button')];
+    course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();
+    expect(document.querySelector<HTMLElement>('.pl-workspace-preview')!.hidden).toBe(false);
+    const expand=document.querySelector<HTMLButtonElement>('.pl-browse-expand')!;expand.click();
+    expect(document.querySelector<HTMLElement>('.pl-workspace-preview')!.hidden).toBe(true);
+    expect(document.querySelector('.pl-inspector-open')).toBeNull();
+    expect(document.querySelector('.pl-workspace-preview-card')).toBeNull();
+    expect(document.querySelector('.pl-browse-expanded')).not.toBeNull();
+    expect(row.parentElement).toBe(parent);
+    expect([...row.querySelectorAll('input,select,button')]).toEqual(nativeFields);
+    expect(document.activeElement).toBe(expand);
+  });
   it("keeps the return to workspace control after an original-layout redraw", () => {
     mount();document.querySelector<HTMLButtonElement>('.pl-workspace-original')!.click();
     const replacement=new DOMParser().parseFromString(workspaceFixtureHtml(), 'text/html');

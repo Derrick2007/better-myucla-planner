@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.14.6 redesign beta, inside the existing Chrome extension
+Implemented in the 0.14.7 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -62,6 +62,17 @@ The preview repeats the selected course heading so its sections have context;
 Up/Down/Home/End move through visible choices. Filter text, disclosures, focus
 and list scroll survive section-row redraws while the same result set remains.
 New result sets reset them. This state is in memory only.
+
+A single result opens directly with its heading and sections; repeating it in a
+course list and filter adds no useful choice. Multi-course results retain those
+controls. Expand Browse also closes any docked class inspector before hiding its
+original class row, so switching tasks cannot leave an empty inspector.
+
+Checked sections in other course previews receive a count and Show selections
+disclosure only while needed. Review opens the existing selected course and
+clears the local filter without changing native selections. Both list and preview
+scroll survive row redraws. Unknown extra controls in a native course heading
+keep that result set in its original layout.
 
 The default three-pane layout remains useful for comparing a plan against the
 schedule, but it cannot make dense section results comfortable in a narrow

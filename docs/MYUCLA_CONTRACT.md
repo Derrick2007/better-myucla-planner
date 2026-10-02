@@ -473,3 +473,19 @@ preserve prior-context persisted drafts. Recheck the strict native contract and
 active context before any local move/tag/save. Invalid/future contexts remove
 obsolete course/save UI and allow only independently validated introduction
 presentation. The native adapter and permissions remain unchanged.
+
+## Interaction follow-up (0.14.7)
+
+Expand Browse closes the owned inspector before hiding Classes, since native
+details must stay inside their course row. Single-course results omit only the
+owned duplicate index/filter/count. Original notices remain visible with reduced
+spacing. Preserve both list and preview scroll on a same-result row redraw.
+
+Read only checked booleans on checkbox/radio inputs in validated data rows'
+first selection cell. When another preview hides those selections, an owned
+disclosure shows a count and per-course review buttons. Review clears only the
+owned filter, shows that native course body and focuses its checked input; it
+never changes selection state, reads input values or invokes a native action.
+The reminder is removed on restoration and omitted from print, which already
+shows every course. Additional interactive controls in a .class-title make the
+result shape unknown; restore the native layout so those controls remain usable.

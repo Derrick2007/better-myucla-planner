@@ -39,6 +39,10 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **One-page workspace** | With tidy enabled: Classes on the left, Schedule in the center and Browse on the right. Resize supporting panes with drag or arrow keys, fold/reopen each independently, and inspect classes beside the schedule. Loaded course results switch locally without new requests. Tools (3) contains the other native modules. UCLA navigation, term chooser and plan menus stay in place; Original layout restores all six sections. |
 | **Expand Browse** | Give search the whole workspace, with a course list beside its preview on wider screens. Filter already-loaded course titles/numbers, navigate with arrow keys, and press Escape or Restore panes to return. Native searches still load through MyUCLA. |
 
+Single-course results open directly without a duplicate index. When a selected
+section is in another course preview, a small selection reminder lets you review
+it without changing the native checkbox.
+
 The pane layout remains a work in progress. [UI direction](docs/UI_DIRECTION.md)
 describes the shipped design and the remaining limits of native search.
 

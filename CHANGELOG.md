@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.14.7 — 2026-10-02 (redesign beta)
+
+- Fix the live Details → Expand Browse transition: close the docked inspector
+  before hiding its original class row, then show search results. This prevents
+  the empty inspector left behind in 0.14.6.
+- Show a single loaded course directly, without a redundant course list,
+  filter and count. Multi-course results keep the list-and-preview layout.
+  Reduce extra spacing below native planner notices while retaining every notice.
+- If checked sections are hidden in another course preview, show their count
+  with a disclosure to review them. Reviewing clears only the local course
+  filter and reveals the existing selection; it never changes a checkbox.
+- Preserve preview scroll through section-row redraws. Retain native results
+  if an unfamiliar course heading contains extra controls that would be hidden.
+
 ## 0.14.6 — 2026-10-02 (redesign beta)
 
 - Give Browse the full workspace with Expand Browse. A wide pane places the

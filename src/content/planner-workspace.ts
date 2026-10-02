@@ -184,6 +184,9 @@ export class PlannerWorkspace {
     const primaryPanes=sections.map((matches,i)=>addPane(matches[0] as HTMLElement,PRIMARY[i][3])!);
     const expandBrowse=owned(doc.createElement("button"),"pl-browse-expand");expandBrowse.type="button";
     expandBrowse.addEventListener("click",()=>{
+      // Details belongs to its original class row. Hiding Classes would hide
+      // that row too, leaving an empty inspector. Expanded Browse shows results.
+      this.closePreview(false);
       this.expandedBrowse=!this.expandedBrowse;
       primaryPanes[2].collapsed=false;this.paneChoices.set(primaryPanes[2].title.id,false);
       this.updatePanes();expandBrowse.focus({preventScroll:true});

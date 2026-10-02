@@ -2,7 +2,37 @@
 
 Last updated: 2026-10-02
 
-Current version: `0.14.6` (redesign beta)
+Current version: `0.14.7` (redesign beta)
+
+The user asked for another hands-on review. Live inspection of v0.14.6 reproduced
+an empty inspector after Details followed by Expand Browse: Classes was hidden
+with the native details row still inside it. The expand action now closes that
+inspector before revealing results. Single-course searches show only their
+preview, without duplicate course index/filter/count. Known native planner
+notice spacing is reduced; content and navigation remain unchanged.
+
+Independent fictional-browser review found checked sections hidden in other
+course previews and preview scroll resetting on section-row redraw. A normally
+hidden count/disclosure now offers review buttons for off-preview selections;
+these reveal/focus existing checked controls without changing their state.
+Only checked booleans from validated selection cells are read, never values.
+Both index and preview scroll survive same-result redraw. Unknown extra course
+heading controls trigger native fallback instead of being hidden. Partially
+loaded result sets still use MyUCLA's native loading flow; no prefetch added.
+
+Typecheck, 201 tests across 20 files and build passed. Production fixtures passed
+at seven widths, including Details-to-Browse, checked selection review, native
+identity and print; single-result presentation passed at 1440, 960 and 390px.
+Five-width intro/root scrolling, persistent header, future/current transitions
+and local dragging also passed. Single-result and selection-reminder screenshots
+were visually inspected using fictional courses only.
+
+The installed build is v0.14.7; all 17 files are SHA-256 verified. v0.14.6 is
+backed up outside Git. User reload/live re-verification and publication are
+pending. Never automate live enrollment/plan changes during QA. Preserve all
+original UCLA navigation. Use only the authorized Class Planner tab.
+
+## v0.14.6 verification record
 
 This review adds Expand Browse / Restore panes and a responsive list-and-preview
 view inside the existing native search section. The loaded-course filter is

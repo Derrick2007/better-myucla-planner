@@ -4,7 +4,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { workspaceFixtureHtml, introductionFixtureHtml, futureQuarterFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.6');
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.7');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
@@ -81,6 +81,16 @@ try {
   assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'expanded previews do not overflow');
   assert.ok(await nativePreserved());
   if(width===1440||width===960||width===390)await page.screenshot({path:resolve(out,`browse-expanded-${width}.png`)});
+  const fictionalSelection=page.locator('#container_course_M2 .data_row input').first();
+  await fictionalSelection.check();await page.locator('.pl-browser-index button').first().click();
+  assert.ok(await page.locator('.pl-browser-selections').isVisible(),'hidden checked sections have a visible reminder');
+  assert.equal(await fictionalSelection.evaluate(n=>n.checked),true);
+  await page.locator('.pl-browser-selections > summary').click();
+  if(width===1440)await page.screenshot({path:resolve(out,'selection-reminder.png')});
+  await page.locator('.pl-browser-selection-actions button').click();
+  assert.ok(await fictionalSelection.isVisible());assert.equal(await fictionalSelection.evaluate(n=>n.checked),true);
+  assert.ok(await fictionalSelection.evaluate(n=>n===document.activeElement));
+  await fictionalSelection.uncheck();assert.equal(await page.locator('.pl-browser-selections').isVisible(),false);
   if(width===1440){
    await page.emulateMedia({media:'print'});
    assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3,'printing restores panes hidden by expanded Browse');
@@ -142,6 +152,10 @@ try {
   assert.equal(await details.evaluate(node=>document.activeElement===node),true);
   await details.click();const close=page.getByRole('button',{name:'Close details',exact:true}),closeBox=await close.boundingBox();
   assert.ok(closeBox.width>=44&&closeBox.height>=44);await close.click();assert.equal(await details.evaluate(node=>document.activeElement===node),true);
+  await details.click();await expandBrowse.click();
+  assert.equal(await page.locator('.pl-workspace-preview').isVisible(),false,'expanding Browse must close the inspector before hiding its native class row');
+  assert.ok(await page.locator('.pl-browser-list').isVisible(),'results remain available after switching from Details');
+  assert.ok(await nativePreserved());await expandBrowse.click();
   await page.locator('.pl-workspace-extras > summary').click();assert.equal(await page.locator('.pl-workspace-section-links button').count(),3);
   await page.locator('.pl-workspace-section-links button').getByText('Personal Entries',{exact:true}).click();
   const fold=page.locator('#plannerSectionPer > .pl-pane-toggle');await fold.click();assert.equal(await page.locator('input[name="examplePersonalEntry"]').isVisible(),false);
@@ -160,6 +174,22 @@ try {
   assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(),6);assert.equal(await page.locator('[data-pl-workspace-details],.pl-section-label,.pl-browser-index').count(),0);
   assert.ok(await page.evaluate(()=>window.redrawFields.every(node=>node.isConnected&&node.form===document.getElementById('aspnetForm'))));
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log(`Workspace verified: ${width}px`);
+ }
+ for(const width of [1440,960,390]){
+  const single=await browser.newPage({viewport:{width,height:900}});
+  const singleChecks=await setup(single,fixture);
+  await single.evaluate(()=>{for(const index of [1,2]){document.getElementById(`CourseListEntry_M${index}`).remove();document.getElementById(`container_course_M${index}`).remove();}});
+  await single.waitForFunction(()=>document.querySelectorAll('.pl-browser-index button').length===1);
+  assert.equal(await single.locator('.pl-browser-index').isVisible(),false,'a single course does not need an index or filter');
+  assert.ok(await single.locator('.pl-browser-preview-title').isVisible());
+  const list=single.locator('.pl-browser-list'),narrowHeight=(await list.boundingBox()).height;
+  assert.ok(narrowHeight>100);
+  await single.locator('.pl-browse-expand').click();
+  assert.ok(await list.evaluate(n=>n.scrollWidth<=n.clientWidth+1));
+  assert.ok(await list.evaluate(n=>n.getBoundingClientRect().width>=n.parentElement.getBoundingClientRect().width-30),'single preview uses available width');
+  if(width===1440)await single.screenshot({path:resolve(out,'single-course-browse.png')});
+  assert.deepEqual(singleChecks.errors,[]);assert.deepEqual(singleChecks.requests,[]);
+  await single.close();console.log(`Single-course presentation verified: ${width}px`);
  }
  const tall=await browser.newPage({viewport:{width:2048,height:927}});
  const tallChecks=await setup(tall,workspaceFixtureHtml(6,true,true));

@@ -7,6 +7,7 @@ interface BrowserState {
   root: HTMLElement; widget: HTMLElement; entries: Entry[]; toolbar: HTMLElement; index: HTMLElement;
   edit: HTMLButtonElement; more: HTMLButtonElement; cards: SectionCards; selected: string;
   filter: HTMLInputElement; filterStatus: HTMLElement; previewTitle: HTMLElement;
+  selections: HTMLDetailsElement; selectionLabel: HTMLElement; selectionActions: HTMLElement; changed: () => void;
 }
 function read(doc: Document): {root:HTMLElement;entries:Entry[]} | null {
   const roots = doc.querySelectorAll<HTMLElement>(ROOT);
@@ -17,6 +18,10 @@ function read(doc: Document): {root:HTMLElement;entries:Entry[]} | null {
   for (const node of nodes) {
     const match = /^CourseListEntry_M(\d+)$/.exec(node.id);
     const heading = node.querySelector<HTMLElement>(":scope > .class-title > h3.head > a");
+    const title = node.querySelector<HTMLElement>(":scope > .class-title");
+    // The local index replaces only the known native course disclosure. Never
+    // hide an additional native action or help control with that heading.
+    if (title && [...title.querySelectorAll("a,button,input,select,textarea,summary,[tabindex],[contenteditable]")].some(control=>control!==heading)) return null;
     const bodies = match ? [...root.querySelectorAll<HTMLElement>(`#container_course_M${match[1]}`)] : [];
     // MyUCLA emits headings and loaded bodies as siblings. Older known markup
     // nests the body in its entry. Preserve either topology without moving it.
@@ -55,6 +60,7 @@ export class CourseBrowserPresentation {
       editing: previous.widget.classList.contains("pl-browser-editing"),
       more: previous.root.classList.contains("pl-section-more"),
       scrollTop: previous.index.scrollTop,
+      previewScrollTop: previous.root.scrollTop,
       focus: doc.activeElement === previous.filter ? "filter" : doc.activeElement === previous.edit ? "edit" : doc.activeElement === previous.more ? "more" : previous.entries.find(entry=>entry.button === doc.activeElement)?.key
     } : null;
     if (this.needsReconcile(doc)) {
@@ -89,7 +95,11 @@ export class CourseBrowserPresentation {
     index.append(filterLabel,filterStatus,choices);
     const previewTitle = owned(doc.createElement("h3"),"pl-browser-preview-title");
     previewTitle.setAttribute("aria-live","polite"); next.root.prepend(previewTitle);
-    next.root.before(toolbar,index);
+    const selections = owned(doc.createElement("details"),"pl-browser-selections"); selections.hidden=true;
+    const selectionLabel=doc.createElement("summary"); selectionLabel.setAttribute("aria-live","polite");
+    const selectionActions=doc.createElement("div"); selectionActions.className="pl-browser-selection-actions";
+    selections.append(selectionLabel,selectionActions);
+    next.root.before(toolbar,selections,index);
     const cards = new SectionCards();
     for (const entry of next.entries) {
       cards.results(entry.body); entry.node.classList.add("pl-browser-course"); entry.body.classList.add("pl-browser-body");
@@ -98,7 +108,9 @@ export class CourseBrowserPresentation {
       button.addEventListener("click",()=>this.select(entry.key)); choices.append(button);
     }
     widget.classList.add("pl-browser-results"); next.root.classList.add("pl-browser-list");
-    this.state={...next,widget,toolbar,index,edit,more,cards,selected:"",filter,filterStatus,previewTitle};
+    const changed=()=>this.syncSelections();
+    this.state={...next,widget,toolbar,index,edit,more,cards,selected:"",filter,filterStatus,previewTitle,selections,selectionLabel,selectionActions,changed};
+    next.root.addEventListener("change",changed);
     filter.addEventListener("input",()=>this.filterCourses());
     // This owned filter lives inside UCLA's form but must never submit it.
     filter.addEventListener("keydown",event=>{if(event.key === "Enter") event.preventDefault();});
@@ -123,7 +135,7 @@ export class CourseBrowserPresentation {
       edit.setAttribute("aria-expanded",String(retained.editing)); edit.textContent=retained.editing ? "Hide search fields" : "Edit search";
       next.root.classList.toggle("pl-section-more",retained.more); more.setAttribute("aria-expanded",String(retained.more));
       const focus=retained.focus === "filter" ? filter : retained.focus === "edit" ? edit : retained.focus === "more" ? more : next.entries.find(entry=>entry.key===retained.focus)?.button;
-      focus?.focus({preventScroll:true}); index.scrollTop=retained.scrollTop;
+      focus?.focus({preventScroll:true}); index.scrollTop=retained.scrollTop; next.root.scrollTop=retained.previewScrollTop;
     }
   }
 
@@ -149,11 +161,39 @@ export class CourseBrowserPresentation {
       entry.button?.setAttribute("aria-pressed",String(selected));
     }
     s.root.scrollTop=0;
+    this.syncSelections();
+  }
+
+  private syncSelections(): void {
+    const s=this.state; if(!s) return;
+    // Inspect only checked state in validated section selection cells. Never
+    // read native search text, checkbox values or construct a native action.
+    const selected=s.entries.filter(entry=>entry.key!==s.selected).map(entry=>({entry,controls:entry.rows.filter(row=>row.classList.contains("data_row")).flatMap(row=>[...row.children[0].querySelectorAll<HTMLInputElement>('input[type="checkbox"],input[type="radio"]')]).filter(input=>input.checked)})).filter(item=>item.controls.length);
+    const count=selected.reduce((sum,item)=>sum+item.controls.length,0);
+    s.selections.hidden=count===0;
+    if(!count) {s.selections.open=false;s.selectionActions.replaceChildren();return;}
+    s.selectionLabel.textContent=`${count} selected in other courses · Show selections`;
+    const buttons=selected.map(({entry,controls})=>{
+      const button=s.root.ownerDocument.createElement("button");button.type="button";
+      button.textContent=`${entry.label} (${controls.length} selected)`;
+      button.addEventListener("click",()=>{
+        s.filter.value="";this.filterCourses();this.select(entry.key);
+        const target=controls.find(control=>control.isConnected&&control.checked);
+        if(!target) return;
+        target.focus({preventScroll:true});
+        const viewport=s.root.getBoundingClientRect(),bounds=target.getBoundingClientRect();
+        if(bounds.top<viewport.top) s.root.scrollTop-=viewport.top-bounds.top;
+        else if(bounds.bottom>viewport.bottom) s.root.scrollTop+=bounds.bottom-viewport.bottom;
+      });
+      return button;
+    });
+    s.selectionActions.replaceChildren(...buttons);
   }
 
   restore(): void {
     const s=this.state; if(!s) return; this.state=null;
-    s.cards.restore(); s.toolbar.remove(); s.index.remove(); s.previewTitle.remove();
+    s.root.removeEventListener("change",s.changed);
+    s.cards.restore(); s.toolbar.remove(); s.index.remove(); s.previewTitle.remove(); s.selections.remove();
     s.widget.classList.remove("pl-browser-results","pl-browser-editing");
     s.root.classList.remove("pl-browser-list","pl-section-more");
     for(const entry of s.entries) {

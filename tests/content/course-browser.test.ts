@@ -66,6 +66,39 @@ describe('local course browser',()=>{
   buttons[2].focus();key(buttons[2],'Home');expect(document.activeElement).toBe(buttons[2]);
   filter.focus();key(filter,'ArrowDown');expect(document.activeElement).toBe(filter);
  });
+ it('keeps checked sections in other courses visible through a review disclosure without changing their selection',()=>{
+  browser.reconcile(document);
+  const checkbox=document.querySelector<HTMLInputElement>('#container_course_M0 .data_row input')!;
+  checkbox.checked=true;checkbox.dispatchEvent(new Event('change',{bubbles:true}));
+  const disclosure=document.querySelector<HTMLDetailsElement>('.pl-browser-selections')!;
+  expect(disclosure.hidden).toBe(true);
+  document.querySelectorAll<HTMLButtonElement>('.pl-browser-index button')[1].click();
+  expect(disclosure.hidden).toBe(false);
+  expect(disclosure.querySelector('summary')!.textContent).toContain('1 selected in other courses');
+  const filter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
+  filter.value='missing';filter.dispatchEvent(new Event('input',{bubbles:true}));
+  expect(disclosure.hidden).toBe(false);expect(checkbox.checked).toBe(true);
+  disclosure.open=true;
+  disclosure.querySelector<HTMLButtonElement>('button')!.click();
+  expect(filter.value).toBe('');expect(document.querySelector('.pl-browser-body-active')!.id).toBe('container_course_M0');
+  expect(document.activeElement).toBe(checkbox);expect(checkbox.checked).toBe(true);
+  expect(disclosure.hidden).toBe(true);expect(disclosure.open).toBe(false);
+  expect(document.querySelector('#container_course_M0 .data_row input')).toBe(checkbox);
+ });
+ it('updates hidden selection counts on native changes and does not clear them on restore',()=>{
+  browser.reconcile(document);
+  const first=document.querySelector<HTMLInputElement>('#container_course_M1 .data_row input')!;
+  const second=document.querySelector<HTMLInputElement>('#container_course_M2 .data_row input')!;
+  first.checked=true;second.checked=true;second.dispatchEvent(new Event('change',{bubbles:true}));
+  const disclosure=document.querySelector<HTMLDetailsElement>('.pl-browser-selections')!;
+  expect(disclosure.querySelector('summary')!.textContent).toContain('2 selected in other courses');
+  expect(disclosure.querySelectorAll('button')).toHaveLength(2);
+  first.checked=false;first.dispatchEvent(new Event('change',{bubbles:true}));
+  expect(disclosure.querySelector('summary')!.textContent).toContain('1 selected in other courses');
+  expect(disclosure.querySelectorAll('button')).toHaveLength(1);
+  browser.restore();expect(second.checked).toBe(true);expect(first.checked).toBe(false);
+  expect(document.querySelector('.pl-browser-selections')).toBeNull();
+ });
  it('restores exact markup including original collapsed courses and action handlers',()=>{
   const before=document.body.innerHTML;
   browser.reconcile(document);document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.click();
@@ -74,6 +107,20 @@ describe('local course browser',()=>{
  it('leaves incomplete or unknown results in native form',()=>{
   document.querySelector('#container_course_M1 .data_row')!.lastElementChild!.remove();
   const before=document.body.innerHTML;browser.reconcile(document);expect(document.body.innerHTML).toBe(before);
+ });
+ it('leaves extra native course-title controls visible by declining the unknown heading shape',()=>{
+  const extra=document.createElement('button');extra.type='button';extra.textContent='Native course help';
+  document.querySelector('#CourseListEntry_M0 .class-title')!.append(extra);
+  const before=document.body.innerHTML;browser.reconcile(document);
+  expect(document.body.innerHTML).toBe(before);expect(document.querySelector('.pl-browser-index')).toBeNull();
+ });
+ it('restores native results when an extra course-title control arrives after mounting',()=>{
+  browser.reconcile(document);
+  const extra=document.createElement('a');extra.href='#example-help';extra.textContent='Native course help';
+  document.querySelector('#CourseListEntry_M0 .class-title')!.append(extra);
+  expect(browser.needsReconcile(document)).toBe(true);browser.reconcile(document);
+  expect(document.querySelector('.pl-browser-index')).toBeNull();
+  expect(extra.isConnected).toBe(true);expect(extra.closest('.pl-browser-course')).toBeNull();
  });
  it('reconciles new native rows without duplicating labels or reviving replaced controls',()=>{
   browser.reconcile(document);
@@ -92,6 +139,7 @@ describe('local course browser',()=>{
   const filter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   filter.value='102';filter.dispatchEvent(new Event('input',{bubbles:true}));filter.focus();
   document.querySelector<HTMLElement>('.pl-browser-index')!.scrollTop=40;
+  document.querySelector<HTMLElement>('.pl-browser-list')!.scrollTop=120;
   const row=document.querySelector<HTMLElement>('#container_course_M1 .data_row')!;
   const next=row.cloneNode(true) as HTMLElement;next.querySelectorAll('[data-planner-lift-owned]').forEach(node=>node.remove());
   next.classList.remove('pl-section-card');next.querySelectorAll('.pl-section-field').forEach(node=>{node.classList.remove('pl-section-field');node.removeAttribute('data-pl-field');});
@@ -101,6 +149,7 @@ describe('local course browser',()=>{
   expect(document.querySelector('.pl-browser-results')!.classList.contains('pl-browser-editing')).toBe(true);
   expect(document.querySelector('.pl-browser-list')!.classList.contains('pl-section-more')).toBe(true);
   expect(document.querySelector<HTMLElement>('.pl-browser-index')!.scrollTop).toBe(40);
+  expect(document.querySelector<HTMLElement>('.pl-browser-list')!.scrollTop).toBe(120);
   expect(document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button')!.getAttribute('aria-expanded')).toBe('true');
   expect(document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.getAttribute('aria-expanded')).toBe('true');
   expect(document.querySelector('.pl-browser-body-active')!.id).toBe('container_course_M1');
