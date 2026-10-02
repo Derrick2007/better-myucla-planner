@@ -25,7 +25,12 @@ compact choice survived Fall reload. Native header class/style remained unchange
 BODY scroll remained zero, there was no horizontal overflow, and all six modules
 returned. Only structural checks and a public heading crop outside Git were saved.
 No class/plan/enrollment action was automated. Final page is Fall, compact.
-Source publication and release CI are pending.
+Source and ZIP are published on the user's fork under v0.14.5, redesign beta.
+Code SHA: db1acee521ee6b855719e4ab459f4cef9882f1f3. Exact-commit CI and release
+packaging passed; the release is explicitly marked prerelease:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/36980554461
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/36980556043
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.5
 Never automate plan/enrollment actions.
 
 ## v0.14.4 verification record
