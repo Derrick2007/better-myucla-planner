@@ -14,14 +14,22 @@ import {
 import { releaseBootHold } from "./boot-hold";
 import {
   applyHeadline,
+  dismissStatusDetails,
   markHeaderRows,
   readHeadline,
+  restoreExamDetails,
   restoreHeadline,
+  restoreSectionStatuses,
   restoreWeekGrid,
   tidyWeekGrid,
+  tidyExamDetails,
+  tidySectionStatuses,
   unmarkHeaderRows
 } from "./page-polish";
 import { FastReorderCoordinator } from "./fast-reorder";
+import { ClassSearchPresentation } from "./class-search";
+import { restorePlannerFrame, tidyPlannerFrame } from "./planner-frame";
+import { PlannerWorkspace } from "./planner-workspace";
 import { buildFinalsWeek, type FinalsEntry } from "./finals-week";
 import {
   conflictCodes,
@@ -109,6 +117,8 @@ interface DragState {
   handle: HTMLElement;
   /** Document-space, not viewport-space: the page moves under a long drag. */
   startPageY: number;
+  /** The workspace class list scrolls independently of the document. */
+  scrollHost: HTMLElement | null;
   lastClientY: number;
   fromIndex: number;
   toIndex: number;
@@ -127,6 +137,8 @@ const IDLE_STATUS: QueueProgress = { kind: "idle", message: "", completed: 0, to
 
 export class MyUclaPlannerController {
   private readonly repository = new AnnotationRepository();
+  private readonly classSearch = new ClassSearchPresentation();
+  private readonly workspace = new PlannerWorkspace();
   private readonly fastCoordinator: FastReorderCoordinator;
   private annotations: Record<string, CourseAnnotation> = {};
   private observer: MutationObserver | null = null;
@@ -217,8 +229,13 @@ export class MyUclaPlannerController {
     this.stopLayoutWatch = null;
     this.detachEvents();
     this.hideJumpChip();
+    this.workspace.restore();
+    this.classSearch.restore();
+    restorePlannerFrame(document);
     restoreWeekGrid(document);
     restoreHeadline(document);
+    restoreExamDetails(document);
+    restoreSectionStatuses(document);
     unmarkHeaderRows(document);
     document.documentElement.classList.remove("pl-has-actionbar");
     document.querySelectorAll(`[${OWNED_ATTRIBUTE}]`).forEach((node) => node.remove());
@@ -268,9 +285,14 @@ export class MyUclaPlannerController {
     if (this.tidyLayout === tidy) return;
     this.tidyLayout = tidy;
     if (!tidy) {
+      this.workspace.restore();
+      this.classSearch.restore();
+      restorePlannerFrame(document);
       restoreWeekGrid(document);
       document.getElementById(FINALS_TOGGLE_ID)?.remove();
       restoreHeadline(document);
+      restoreExamDetails(document);
+      restoreSectionStatuses(document);
       unmarkHeaderRows(document);
     }
     this.reconcile();
@@ -296,6 +318,8 @@ export class MyUclaPlannerController {
     if (!document.getElementById(TOOLBAR_ID)) return true;
     const cards = root.querySelectorAll(":scope > tbody.courseItem").length;
     if (cards !== this.lastCourseCount) return true;
+    if (this.tidyLayout && this.classSearch.needsReconcile(document)) return true;
+    if (this.tidyLayout && this.workspace.needsReconcile(document)) return true;
     // MyUCLA re-renders the weekly grid on its own toggles, which does not
     // touch the plan table but does undo our line wrapping.
     if (
@@ -327,6 +351,9 @@ export class MyUclaPlannerController {
   private reconcile(): void {
     const contract = this.adapter.inspectContract();
     if (!contract.ok) {
+      this.workspace.restore();
+      this.classSearch.restore();
+      restorePlannerFrame(document);
       this.contractHealthy = false;
       this.status = {
         kind: "error",
@@ -360,7 +387,13 @@ export class MyUclaPlannerController {
     this.ensureToolbar();
     this.ensureActionBar();
     if (this.tidyLayout) {
-      if (root) markHeaderRows(root);
+      this.classSearch.reconcile(document);
+      tidyPlannerFrame(document);
+      if (root) {
+        markHeaderRows(root);
+        tidyExamDetails(root);
+        tidySectionStatuses(root);
+      }
       // The weekly grid is MyUCLA's, lives outside the plan table, and is
       // re-rendered by its own toggles, so it is re-checked on every pass.
       tidyWeekGrid(document);
@@ -376,6 +409,7 @@ export class MyUclaPlannerController {
     });
     if (this.isDirty) this.renumberLabels(effectiveOrder);
     this.applyViewState();
+    if (this.tidyLayout) this.workspace.reconcile(document, contract.courses);
   }
 
   // ---------------------------------------------------------------- toolbar
@@ -601,11 +635,10 @@ export class MyUclaPlannerController {
       dragHandle.append(makeIcon(ICONS.grip));
       dragHandle.setAttribute("aria-label", `Drag ${courseLabel} to reorder`);
 
-      const topButton = this.createActionButton("top", "");
-      topButton.className = "pl-icon";
+      const topButton = this.createActionButton("top", "Move to top");
+      topButton.className = "pl-menu-item";
       topButton.title = "Move to the top of the plan";
       topButton.setAttribute("aria-label", `Move ${courseLabel} to the top`);
-      topButton.append(makeIcon(ICONS.top));
 
       const positionSelect = document.createElement("select");
       positionSelect.className = "pl-pos";
@@ -613,11 +646,10 @@ export class MyUclaPlannerController {
       positionSelect.setAttribute("aria-label", `Position of ${courseLabel} in the plan`);
       positionSelect.title = "Move this class to a position";
 
-      const tagButton = this.createActionButton("tag", "");
-      tagButton.className = "pl-icon";
+      const tagButton = this.createActionButton("tag", "Add or edit note");
+      tagButton.className = "pl-menu-item";
       tagButton.title = "Add a private note (stays on this computer)";
       tagButton.setAttribute("aria-label", `Note for ${courseLabel}`);
-      tagButton.append(makeIcon(ICONS.tag));
 
       const collapseButton = this.createActionButton("toggle-course", "");
       collapseButton.className = "pl-icon pl-chevron";
@@ -625,7 +657,19 @@ export class MyUclaPlannerController {
       collapseButton.setAttribute("aria-label", `Hide details for ${courseLabel}`);
       collapseButton.append(makeIcon(ICONS.chevron));
 
-      rail.append(dragHandle, topButton, positionSelect, tagButton, collapseButton);
+      const more = document.createElement("details");
+      more.className = "pl-course-menu";
+      more.dataset.plCourseMenu = "true";
+      const moreToggle = document.createElement("summary");
+      moreToggle.className = "pl-course-more";
+      moreToggle.title = "More course tools";
+      moreToggle.setAttribute("aria-label", `More tools for ${courseLabel}`);
+      moreToggle.append(makeIcon(ICONS.more));
+      const moreItems = document.createElement("div");
+      moreItems.className = "pl-course-menu-items";
+      moreItems.append(topButton, tagButton);
+      more.append(moreToggle, moreItems);
+      rail.append(dragHandle, positionSelect, more, collapseButton);
 
       const tagEditor = document.createElement("div");
       tagEditor.className = "pl-tag-editor";
@@ -1483,6 +1527,10 @@ export class MyUclaPlannerController {
     const fromIndex = cards.findIndex((card) => card.id === courseId);
     if (fromIndex === -1 || cards.some(({ height }) => height <= 0)) return;
 
+    this.workspace.closePreview(false);
+    const panel = handle.closest<HTMLElement>(".pl-workspace-plan");
+    const scrollHost = panel && getComputedStyle(panel).overflowY === "auto" ? panel : null;
+
     event.preventDefault();
     handle.setPointerCapture?.(event.pointerId);
     this.clearSettleTimer();
@@ -1490,7 +1538,8 @@ export class MyUclaPlannerController {
       courseId,
       pointerId: event.pointerId,
       handle,
-      startPageY: event.pageY,
+      startPageY: event.clientY + (scrollHost?.scrollTop ?? window.scrollY),
+      scrollHost,
       lastClientY: event.clientY,
       fromIndex,
       toIndex: fromIndex,
@@ -1507,7 +1556,7 @@ export class MyUclaPlannerController {
     if (!drag || event.pointerId !== drag.pointerId) return;
     event.preventDefault();
     drag.lastClientY = event.clientY;
-    this.updateDrag(event.pageY);
+    this.updateDrag(event.clientY + (drag.scrollHost?.scrollTop ?? window.scrollY));
   };
 
   /**
@@ -1522,23 +1571,27 @@ export class MyUclaPlannerController {
       if (!drag) return;
       drag.autoScrollFrame = window.requestAnimationFrame(step);
 
-      const height = window.innerHeight;
+      const bounds = drag.scrollHost?.getBoundingClientRect();
+      const top = bounds ? bounds.top + (drag.scrollHost?.querySelector(".classPlanner_SectionTitle")?.getBoundingClientRect().height || 0) : 0;
+      const bottom = bounds?.bottom ?? window.innerHeight;
+      const edge = Math.min(DRAG_EDGE_PX, (bottom - top) / 3);
       let speed = 0;
-      if (drag.lastClientY < DRAG_EDGE_PX) {
-        const depth = (DRAG_EDGE_PX - drag.lastClientY) / DRAG_EDGE_PX;
+      if (drag.lastClientY < top + edge) {
+        const depth = Math.min(1, (top + edge - drag.lastClientY) / edge);
         speed = -DRAG_SCROLL_MAX * depth * depth;
-      } else if (drag.lastClientY > height - DRAG_EDGE_PX) {
-        const depth = (drag.lastClientY - (height - DRAG_EDGE_PX)) / DRAG_EDGE_PX;
+      } else if (drag.lastClientY > bottom - edge) {
+        const depth = Math.min(1, (drag.lastClientY - (bottom - edge)) / edge);
         speed = DRAG_SCROLL_MAX * depth * depth;
       }
       if (speed === 0) return;
 
-      const before = window.scrollY;
-      window.scrollBy(0, speed);
-      if (window.scrollY === before) return;
+      const before = drag.scrollHost?.scrollTop ?? window.scrollY;
+      if (drag.scrollHost) drag.scrollHost.scrollBy(0, speed); else window.scrollBy(0, speed);
+      const after = drag.scrollHost?.scrollTop ?? window.scrollY;
+      if (after === before) return;
       // The pointer has not moved, but the document under it has, so the drag
       // has to be recomputed from the new document-space position.
-      this.updateDrag(drag.lastClientY + window.scrollY);
+      this.updateDrag(drag.lastClientY + after);
     };
     step();
   }
@@ -1760,10 +1813,12 @@ export class MyUclaPlannerController {
     const button = target.closest<HTMLButtonElement>("[data-pl-action]");
     if (!button) {
       this.closeMenu();
+      this.closeCourseMenus(target.closest("[data-pl-course-menu]"));
       return;
     }
 
     const action = button.dataset.plAction;
+    this.closeCourseMenus();
     if (action !== "menu") this.closeMenu();
 
     if (action === "cancel") {
@@ -1841,6 +1896,7 @@ export class MyUclaPlannerController {
     if (action === "top") {
       this.applyLocalMove(courseId, 0);
     } else if (action === "toggle-course") {
+      if (this.workspace.openCourse(this.adapter.getCourse(courseId), button)) return;
       if (this.collapsedCourses.has(courseId)) this.collapsedCourses.delete(courseId);
       else this.collapsedCourses.add(courseId);
       this.applyViewState();
@@ -1863,6 +1919,14 @@ export class MyUclaPlannerController {
         .querySelector<HTMLButtonElement>('[data-pl-action="menu"]')
         ?.setAttribute("aria-expanded", "false");
     }
+  }
+
+  private closeCourseMenus(except: Element | null = null): void {
+    document.querySelectorAll<HTMLDetailsElement>("details[data-pl-course-menu][open]").forEach((menu) => {
+      if (menu === except) return;
+      if (menu.contains(document.activeElement)) menu.querySelector<HTMLElement>("summary")?.focus();
+      menu.open = false;
+    });
   }
 
   private onChange = (event: Event): void => {
@@ -1890,6 +1954,8 @@ export class MyUclaPlannerController {
         return;
       }
       this.closeMenu();
+      this.closeCourseMenus();
+      dismissStatusDetails(document);
       return;
     }
 

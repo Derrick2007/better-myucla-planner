@@ -1,8 +1,161 @@
 # Better MyUCLA — Agent handoff
 
-Last updated: 2026-08-23  
-Current version: `0.10.1`  
+Last updated: 2026-10-01
+
+Current version: `0.12.2` (local build)
 Status: working local beta; build is ready in `dist/`
+
+v0.12.2 adds outside-click dismissal, an accessible 44px × close button and
+an Escape hint to course details. Outside clicks are captured before they can
+activate page actions, while the original third-row contents remain interactive.
+Focus returns without scrolling. The owned backdrop and document listener are
+removed on restore/redraw. Typecheck, all 165 tests and build passed. Isolated
+production Chrome checks passed dismissal, focus, native controls, restoration,
+redraw and responsive geometry at six widths; search/layout regressions passed.
+The installed v0.12.2 build was hash-verified across all 17 files. After the
+user reloaded, live QA passed outside-click dismissal, Escape, the × button,
+focus return, native section-table interaction/form ancestry and zero page
+scroll. All six original sections remain present. No enrollment or plan change
+was performed. The planner is left open with details closed. The prior installed
+build and fictional QA images are retained locally outside the repository.
+The working Git branch is `planner-improvements`. Publish reviewed source to
+the user's `comet-ctrl/better-myucla-planner` fork, whose main currently matches
+the local base. Do not push to the upstream `Astro-wen` repository. Build files
+and local QA screenshots remain untracked. CI runs on main and
+planner-improvements. Future live updates require the user to reload the
+unpacked extension and refresh the planner; Chrome's internal extensions page
+cannot be operated by the browser-control tool.
+
+v0.12.1 widens desktop search to at least 520px and adds Expand search /
+Restore columns (Escape also returns) on the existing MyUCLA page. Only the
+known `.ClassSearchList .row-fluid.class-info.table-width2` rows get a 940px
+minimum width; the narrow column scrolls locally, expanded results use the full
+workspace width. No native nodes/controls are replaced or cloned. The three
+other panels now have named shortcuts in Other sections (3) & actions:
+Plan Optimizer, study list outside this plan, and Personal Entries. Original
+layout restores all six native sections; Escape closes the tools disclosure.
+Typecheck, 163 tests and build passed. Production-bundle isolated Chrome QA
+passed at 1920/1440/1536/1280/960/390px, including fictional nine-column results,
+native disclosure/controls, expansion/focus, all six sections, restoration,
+partial redraw and local dragging. Search/layout regression harnesses passed.
+Live pre-change testing confirmed search was 395px wide at 1536px; native result
+rows became ~196px tall from wrapping. First native query returned a MyUCLA
+error; a clean page and second query produced section results. Only public
+search and course disclosure were used, never Add/Enroll or other plan actions.
+The build is installed in `<existing unpacked extension folder>/dist`,
+with all 17 build files hash-verified. Prior installed v0.12.0 is backed up in
+`outputs/installed-backup-v0.12.0`; release folder/ZIP and fictional QA pictures
+are in `outputs/`. User reload and live verification are still pending.
+
+v0.12.0 has been copied into the user's existing
+`<existing unpacked extension folder>/dist` and all 17 build files
+hash-verified. The prior v0.11.1 files are backed up at
+`outputs/installed-backup-v0.11.1`; release folder/ZIP and fictional screenshots
+are in `outputs/`. Typecheck, 161 tests and build passed. Isolated Chrome checks
+passed workspace bounds at 1920/1440/1536/1280/960/390px, native control identity,
+Details/Escape/focus, exact restoration, panel redraw and long-list dragging;
+existing search/layout regression checks also passed. Live inspection confirmed
+the current native section structure, tidy enabled and no unsaved order before
+the update. The user's first reload showed all three panels at 1536x735px,
+but Details was missing: MyUCLA's coursetable has a header tbody plus one tbody
+per section, so the original first-child selector counted 27 cells. The final
+check uses only the first actual header row (nine cells), and the fictional
+fixture now reproduces these groups. Corrected Details was verified live: six
+buttons, original course-row/form ancestry preserved, headings visible, drawer
+within viewport, Escape/focus return, and no unsaved order. Live CSS exposed
+native title-cell margins (20px top/5px bottom) and landing margins (30px), which
+made cards taller than the original fixture. These are now reset within the
+workspace and reproduced in the fixture; six compact test cards fit at the
+actual 1536x735 viewport. Final spacing build is installed and hash-verified;
+live QA completed after the user's reload. Card heights shrank from roughly
+116/96px to 77/57px. All three primary panels fit the viewport, with internal
+scrolling for the weekly grid and longer content. First/last class Details,
+native column headings/form ancestry, Escape/focus return and Original layout
+restoration/return passed live. The main page stayed at scrollY=0. Workspace is
+left open, with six Details buttons and no unsaved order. Native search loading
+still remains; no full-catalog browsing or background loading was added. No
+enrollment action was clicked and no account content was saved.
+
+Latest product direction (2026-10-01): the user explicitly rejected a separate
+page and switching between Week/My classes/Find classes. Work only through the
+existing Chrome extension on the existing MyUCLA page. Keep schedule, class list
+and search visible together in one desktop workspace, reducing page scrolling
+and information density. Keep important conflicts and enrollment state visible.
+
+`PlannerWorkspace` moves whole known native sections into a three-column deck
+inside their original form. The term chooser remains accessible at the top;
+native plan actions and secondary tools go in a disclosure. Compact cards open
+their ORIGINAL third row as a fixed details overlay without changing its DOM
+ancestry, controls or handlers. Only the read-only heading is copied. Close and
+Escape return focus. Original layout restores the stacked sections; disabling
+tidy also restores their presentation. Native replacement panels remount via
+the controller, without resurrecting disconnected old nodes. Containers with
+native content are deliberately not marked owned. Dragging scrolls the class
+panel; windows at 1150px or less stack for readability.
+
+Live search inspection found 92 native subject autocomplete rows before
+submitting Go. The public titles are already available to browse; full section
+times/seats arrive through the native result request. No enrollment/plan action
+was clicked. Do not promise all live section details without loading them, or
+silently add background requests. The current extension still uses its original
+native search flow. The earlier separate course-browser visualization was
+rejected; do not present it as the extension or continue building a separate app.
+
+Previously installed copy updated and hash-verified at
+`<existing unpacked extension folder>/dist` (folder name remains old,
+manifest was 0.11.1). The previous installed build was 0.11.0, so installation
+was not the cause of the missing UI. A backup is in the workspace's
+`outputs/installed-backup-v0.11.0`. The following turn's live inspection confirmed
+the search controls mount after the user's reload. This validates mounting,
+not the broader desired course-browsing workflow, which remains unimplemented.
+The original live autocomplete and explicit Go search were exercised, without
+any plan or enrollment action. No live account content was copied into fixtures.
+
+Search presentation: `ClassSearchPresentation` adds Subject / Instructor / GE
+shortcuts, field labels and a More searches disclosure around the existing
+native search controls. Native autocomplete inputs, full dropdown, Go input,
+form association and handlers remain intact. Shortcut mode changes are explicit
+user actions; there is no automatic query submission or extra request.
+The live page exposed a v0.11.0 mounting failure: its native options contain
+recorded online classes instead of CUTF. Offerings and their order vary by term.
+Require exact known common mappings, and validate each grouped action's exact
+value/label immediately before forwarding a change. Unknown modes retain the
+original dropdown; never guess actions from similar labels. Grouped choices
+appear only when offered, and changed options wake reconciliation.
+Desktop fields share a row; mobile fields stack. A hint tracks Go's native
+disabled state. Required autocomplete selections, not arbitrary typed text,
+enable the native Go control (verified with an explicit live search).
+The submit caption uses a pointer-transparent overlay. Its temporary aria-label
+is restored. Navigation/More/submit wrappers contain native nodes and must not
+be marked owned; restore the presentation before general owned-node cleanup.
+A comment anchor restores the dropdown panel to its exact original position.
+Search-only redraws must wake reconciliation even when the plan table is unchanged.
+The optional tidy setting also enables a calm page theme, without hiding sections.
+`harness/verify-search.mjs` covers native submit identity, mode choices, field
+label updates, search-only replacement, restoration and four viewport widths.
+
+Local layout update: the course rail keeps drag, position and collapse visible,
+with top/note actions inside an ellipsis menu. The optional tidy switch also
+adds reversible nine-column colgroups and folds recognized exam location
+advisories. Originals remain intact. Calendar text insets are on the wrapped
+lines, never outer box padding: native content-box `calc(100% - 3px/7px)`
+widths already account for solid/double borders. Do not switch these blocks
+to border-box or overwrite native positions, dimensions or border styles.
+
+`harness/verify-layout.mjs` exercises fictional percentage-width, overlapping
+meetings at four viewport widths, detects the old padding overflow, checks
+short-meeting text, menu keyboard behavior, layout reversal and popup version.
+The popup identifies the manifest version so an old unpacked build can be distinguished.
+
+Section status update: tidySectionStatuses adds short per-row wording inside
+the existing Status column. Native nodes move into a reversible wrapper that
+is NOT marked extension-owned, so readOfficialText still reads the originals.
+The compact summary is owned and ignored by source readers. The wrapper becomes
+a tooltip on hover/focus; Escape dismisses it. Only static known icons/text in
+the exact nine-column table shape are supported. Waitlist Taken counts describe
+capacity filled, never the student's queue position. No status text is stored
+or refreshed by requests. restoreSectionStatuses must run before owned-node
+cleanup, and when the tidy switch is disabled.
 
 `README.md` is the project tracker and the place to start. This file is the
 architecture and trap list.
@@ -24,7 +177,8 @@ npm test -- --run
 npm run build
 ```
 
-Last verified result: TypeScript passed, 50 tests passed across 11 files, and the build completed.
+Last verified result: TypeScript passed, 155 tests passed across 15 files,
+the build completed, and the browser layout/search checks passed at four widths.
 
 Session timeouts (verified in page source, 2026-08-20): `Timeout.js` extends the
 idle timer on any `mousedown keydown click` and, when `keepAlive` is set, pings
@@ -238,7 +392,8 @@ before implementing one.
 - Tags stay in the local browser and do not sync to MyUCLA.
 - Status summaries reflect the currently rendered MyUCLA page; they are not independently refreshed.
 - Bruinwalk, DARS, reminders, additional seat polling, and automatic lecture/discussion/lab combination management are not implemented.
-- The folder is not currently a Git repository.
+- The working branch is `planner-improvements`; upstream origin is read-only
+  for this task, and the user's GitHub fork is the publication target.
 
 ## Recommended next work
 

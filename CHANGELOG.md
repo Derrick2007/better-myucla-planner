@@ -1,5 +1,110 @@
 # Changelog
 
+## 0.12.2 — 2026-10-01 (local build)
+
+- Close course details by clicking outside, pressing Escape or using the visible
+  × button. Show a short dismissal hint; return focus without scrolling the page.
+- Consume outside clicks before they can activate a page action underneath.
+  Keep the original native details row interactive and in its original form.
+- Remove the backdrop and dismissal listener during restoration and native
+  redraws. Check all dismissal paths in unit and production browser tests.
+- Run CI on the planner-improvements branch as well as main.
+
+## 0.12.1 — 2026-10-01 (local build)
+
+- Widen the default desktop search column (minimum 520px). Expand search uses
+  the existing workspace width on the same page; Restore columns or Escape
+  returns the schedule and class list. Keep original fields/results/handlers.
+- Give known nine-column native section results a readable minimum width,
+  with local horizontal scrolling in the column and room in expanded search.
+- Rename the top disclosure to Other sections (3) & actions and add named
+  shortcuts to Plan Optimizer, study list outside this plan and Personal Entries.
+  Original layout restores all six native sections. Escape closes the disclosure.
+- Verify fictional section results, all six sections, control identity,
+  native course disclosure, expansion/focus, restoration and responsive bounds.
+- No new request, query storage or enrollment action; native search loads remain.
+
+## 0.12.0 — 2026-10-01 (local build)
+
+- Arrange the original MyUCLA schedule, compact class list and course search
+  together in one desktop workspace, through the existing Chrome extension.
+  Long lists scroll within their panel; no new page or external service.
+- Open each class's original section table in place through Details, with
+  Escape/close and focus return. Keep seat/conflict summaries visible on cards.
+- Validate the first header row rather than counting the first row of every
+  tbody. Live tables use a header group plus one group per section. Compact
+  cards show course codes and statuses; full titles are in Details.
+- Reset native title-cell and list margins inside the workspace, and retain
+  column headings when opening any class's details. Keep these native shapes
+  in the fictional regression fixture.
+- Put native plan actions and secondary tools in a disclosure. Keep the native
+  term chooser and notices accessible. Original layout restores the stacked
+  sections, and disabling tidy restores their original presentation.
+- Preserve original form controls, table ancestry and native handlers. No
+  catalog prefetch, extra MyUCLA requests, query storage or enrollment changes.
+- Remount after native panel redraws and scroll long lists during local dragging.
+  Narrow windows use a stacked fallback. Verify restoration, native identity,
+  drawer bounds and calendar geometry with unit and isolated browser checks.
+
+## 0.11.1 — 2026-10-01 (local build)
+
+- Fix search controls failing to appear when MyUCLA offers recorded online
+  classes instead of CUTF seminars. Validate each shortcut's exact public
+  option mapping, rather than requiring one entire option list and order.
+  Unknown options stay available through the original native dropdown.
+- Group secondary search types into Course details, Requirements, Programs
+  and Format. Show only choices that the native dropdown currently offers.
+- Keep desktop autocomplete fields on one row, shorten their visible labels,
+  and explain that required dropdown suggestions enable Search classes.
+- Preserve native autocomplete, submitter and mode handlers; add no automatic
+  searches, query storage or network requests. Restore the original layout
+  when the tidy switch is disabled.
+
+
+## 0.11.0 — 2026-10-01 (local build)
+
+- Add visible Subject / Instructor / GE search choices and keep the full native
+  search dropdown under More searches. Each choice forwards one user action to
+  MyUCLA's existing mode-change handler; no query is submitted automatically.
+- Label the original autocomplete inputs using their current native labels.
+  Present the original Go submit input as Search classes while preserving its
+  identity, form association, disabled state, and submission behavior.
+- Give the optional tidy layout quieter section headers, consistent spacing,
+  neutral card borders and system typography. All sections stay accessible.
+- Restore search nodes and attributes when the tidy switch is turned off;
+  reattach after search-only partial redraws. Unfamiliar search shapes stay native.
+- Check source contracts, native submission, redraws and restoration, with
+  responsive browser verification at 1920, 1440, 960 and 390px.
+
+## 0.10.5 — 2026-10-01 (local build)
+
+- Shorten each section's existing Status column to Enrolled, Closed,
+  Open with seats left, or Waitlist with places filled. Lecture and discussion
+  rows keep their own statuses. Waitlist capacity is never called a position.
+- Keep the original status nodes and wording in a hover/keyboard-focus tooltip.
+  Escape dismisses it; the optional tidy switch restores the original cells.
+- Leave unfamiliar wording, invalid counts, interactive notices, and enrollment
+  action rows native. Existing filters and enrolled-unit readers still use the
+  original status text. No requests or stored status data are added.
+- Verify status meanings and restoration in 138 tests, plus hover/focus,
+  keyboard dismissal and layout at four browser viewport widths.
+
+## 0.10.4 — 2026-10-01 (local build)
+
+- Keep native calendar widths, heights and border meanings. Text padding is
+  applied inside each line so percentage-width boxes and collision lanes stay
+  inside their day. Short meetings use smaller text so all three lines fit.
+- Align the supported nine-column section tables across course cards using
+  reversible colgroups, including when repeated headers are hidden.
+- Put Move to top and Add or edit note inside each course's ellipsis menu;
+  keep drag, position and collapse directly accessible.
+- Fold recognized final-exam location advisories behind Location details.
+  Preserve the original text and leave unfamiliar exam content unchanged.
+- Display the build version in the popup to distinguish updated builds from
+  an older unpacked installation.
+- Add browser geometry checks at 1920, 1440, 960 and 780px, using fictional
+  percentage-width meetings with solid/double borders and overlapping lanes.
+
 ## 0.10.3 — 2026-08-23
 
 **The extension has a face.** Until now Chrome drew the default grey puzzle

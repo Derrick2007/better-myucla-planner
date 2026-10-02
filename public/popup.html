@@ -49,6 +49,8 @@
         letter-spacing: 0.01em;
       }
 
+      #version { margin-left: 5px; font-size: 10px; font-weight: 400; color: #cfe4f5; }
+
       .state {
         margin: 3px 0 0;
         color: #cfe4f5;
@@ -172,7 +174,7 @@
   <body>
     <header>
       <div class="row">
-        <h1>Better MyUCLA</h1>
+        <h1>Better MyUCLA <span id="version"></span></h1>
         <label class="switch">
           <input id="toggle" type="checkbox" aria-label="Turn Better MyUCLA on or off" />
           <span class="track"></span>
@@ -200,10 +202,13 @@
         </label>
       </div>
       <p class="note">
-        Off by default, because this is the page you already know. Turn it on and each class
-        leads with its code (<strong>MGMT 170</strong>), the nine column labels are printed once
-        instead of once per class, and the weekly schedule stops cutting room names in half.
-        Nothing about your plan changes, and switching it back off restores the page instantly.
+        Off by default. Turn it on to keep your schedule, class list and search together
+        in one desktop workspace on this page. Open a class's Details without scrolling
+        down the page. Close Details with ×, Escape or a click outside.
+        Expand search gives results the full workspace width.
+        Other sections (3) &amp; actions contains Plan Optimizer, your study list
+        outside the plan, Personal Entries and plan actions.
+        Use Original layout or switch this off to return to the stacked view.
       </p>
     </section>
 

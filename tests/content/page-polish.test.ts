@@ -4,13 +4,19 @@ import { describe, expect, it } from "vitest";
 
 import {
   applyHeadline,
+  dismissStatusDetails,
   markHeaderRows,
   readHeadline,
+  restoreExamDetails,
   restoreHeadline,
+  restoreSectionStatuses,
   restoreWeekGrid,
   tidyWeekGrid,
+  tidyExamDetails,
+  tidySectionStatuses,
   unmarkHeaderRows
 } from "../../src/content/page-polish";
+import { inspectCourse, readEnrolledUnits } from "../../src/content/plan-insights";
 
 /** The two-paragraph title cell recorded in docs/MYUCLA_CONTRACT.md. */
 function titleCell(head: string, body: string): HTMLElement {
@@ -147,6 +153,11 @@ describe("section table headers", () => {
     expect(rows.filter((r) => r.classList.contains("pl-thead"))).toHaveLength(1);
     expect(rows[0].classList.contains("pl-thead")).toBe(true);
     expect(root.querySelector("table.coursetable")?.classList.contains("pl-cols-9")).toBe(true);
+    expect(root.querySelectorAll("colgroup[data-pl-columns] > col")).toHaveLength(9);
+    markHeaderRows(root);
+    expect(root.querySelectorAll("colgroup[data-pl-columns]")).toHaveLength(1);
+    unmarkHeaderRows(document);
+    expect(root.querySelector("colgroup")).toBeNull();
   });
 
   it("leaves the automatic layout alone when the shape is different", () => {
@@ -158,5 +169,127 @@ describe("section table headers", () => {
 
     unmarkHeaderRows(document);
     expect(root.querySelectorAll("tr.pl-thead")).toHaveLength(0);
+  });
+
+  it("preserves an existing native column layout", () => {
+    const root = plan(9);
+    const table = root.querySelector("table.coursetable")!;
+    const columns = document.createElement("colgroup");
+    columns.innerHTML = '<col style="width: 20%">';
+    table.prepend(columns);
+    markHeaderRows(root);
+    expect(table.classList.contains("pl-cols-9")).toBe(false);
+    expect(table.querySelector("[data-pl-columns]")).toBeNull();
+    unmarkHeaderRows(document);
+    expect(table.firstElementChild).toBe(columns);
+  });
+});
+
+describe("exam advisories", () => {
+  it("folds the advisory while preserving original content and conflict controls", () => {
+    document.body.innerHTML = `<div id="root"><div class="final_exam_info">
+      <span>Final Exam:</span><span>Monday December 7, 2026 8am-11am<br>Check back on Monday for final exam location<br></span>
+      <a data-content="conflict">Warning</a></div></div>`;
+    const root = document.getElementById("root")!;
+    const before = root.innerHTML;
+    const native = root.querySelectorAll(".final_exam_info > span")[1];
+    const warning = root.querySelector("a");
+    tidyExamDetails(root);
+    tidyExamDetails(root);
+    expect(root.querySelectorAll("[data-pl-exam-details]")).toHaveLength(1);
+    expect(root.querySelector("details")?.open).toBe(false);
+    expect(root.querySelector("details p")?.textContent).toBe("Check back on Monday for final exam location");
+    expect(root.querySelectorAll(".final_exam_info > span")[1]).toBe(native);
+    expect(root.querySelector("a")).toBe(warning);
+    restoreExamDetails(document);
+    expect(root.innerHTML).toBe(before);
+  });
+
+  it("leaves unfamiliar markup and interactive notices intact", () => {
+    document.body.innerHTML = `<div id="root"><div class="final_exam_info">
+      <span>Final Exam:</span><span>Monday 8am<br><a href="#room">Room</a></span>
+      </div></div>`;
+    const root = document.getElementById("root")!;
+    const before = root.innerHTML;
+    tidyExamDetails(root);
+    expect(root.innerHTML).toBe(before);
+  });
+});
+
+describe("per-section status presentation", () => {
+  function plan(statuses: string[]): HTMLElement {
+    const row = (status: string, index: number) => `<tr><td><button>Change</button></td><td>${index ? "Dis 1A" : "Lec 1"}</td><td class="native-status">${status}</td><td></td><td>MW</td><td>10am</td><td>Example Hall</td><td>${index ? "0.0" : "4.0"}</td><td>Example Instructor</td></tr>`;
+    document.body.innerHTML = `<table id="root"><tbody class="courseItem">
+      <tr><td>Example course</td></tr><tr><td>Final Exam: Consult instructor</td></tr>
+      <tr><td colspan="2"><table class="coursetable">
+        <tr>${["Change", "Section", "Status", "Info", "Days", "Time", "Location", "Units", "Instructor"].map(label => `<th>${label}</th>`).join("")}</tr>
+        ${statuses.map(row).join("")}
+        <tr class="actions"><td colspan="9">Enrollment Actions <button>Enroll</button></td></tr>
+      </table></td></tr></tbody></table>`;
+    return document.getElementById("root")!;
+  }
+
+  it("keeps lecture/discussion facts separate and restores the same original nodes", () => {
+    const root = plan(['<i class="icon-unlock"></i>Waitlist<br>1 of 8 Taken', '<i class="icon-unlock"></i>Open<br>12 of 80 Left']);
+    const before = root.innerHTML;
+    const icon = root.querySelector("i");
+    const actions = root.querySelector(".actions");
+    tidySectionStatuses(root);
+    tidySectionStatuses(root);
+    const summaries = [...root.querySelectorAll<HTMLElement>("[data-pl-section-status]")];
+    expect(summaries.map(node => node.textContent)).toEqual(["Waitlist · 1/8 places filled", "Open · 12 seats left"]);
+    expect(summaries.every(node => node.tabIndex === 0)).toBe(true);
+    expect(root.querySelector("i")).toBe(icon);
+    expect(root.querySelector(".actions")).toBe(actions);
+    expect(actions?.querySelector("[data-pl-status-original]")).toBeNull();
+    const described = summaries.map(node => document.getElementById(node.getAttribute("aria-describedby")!));
+    expect(new Set(described).size).toBe(2);
+    expect(described[0]?.innerHTML).toBe('<i class="icon-unlock"></i>Waitlist<br>1 of 8 Taken');
+    dismissStatusDetails(document);
+    expect(summaries[0].parentElement?.classList.contains("pl-status-dismissed")).toBe(true);
+    summaries[0].focus();
+    expect(summaries[0].parentElement?.classList.contains("pl-status-dismissed")).toBe(false);
+    restoreSectionStatuses(document);
+    expect(root.innerHTML).toBe(before);
+    expect(root.querySelector("i")).toBe(icon);
+  });
+
+  it("keeps filtering, enrolled units and original text readers unchanged", () => {
+    const root = plan(["Enrolled Class Full (36)", "Open: 12 of 80 Left"]);
+    const course = { id: "example", label: "Example course", node: root.querySelector<HTMLElement>("tbody.courseItem")! };
+    const insight = inspectCourse(course);
+    const units = readEnrolledUnits(course);
+    tidySectionStatuses(root);
+    expect(inspectCourse(course)).toEqual(insight);
+    expect(readEnrolledUnits(course)).toBe(units);
+    expect(units).toBe(4);
+  });
+
+  it("does not hide unknown wording or native interactive controls", () => {
+    const root = plan(["Open - restricted", '<a href="#help">Open: 12 of 80 Left</a>', '<i class="icon-warning-sign"></i>Enrolled']);
+    const before = root.innerHTML;
+    tidySectionStatuses(root);
+    expect(root.innerHTML).toBe(before);
+  });
+
+  it("leaves a mismatched header shape native", () => {
+    const root = plan(["Open: 12 of 80 Left"]);
+    root.querySelectorAll("th")[2].textContent = "Something else";
+    const before = root.innerHTML;
+    tidySectionStatuses(root);
+    expect(root.innerHTML).toBe(before);
+  });
+
+  it("refreshes a summary from changed native text and restores unfamiliar updates", () => {
+    const root = plan(["Open: 12 of 80 Left"]);
+    tidySectionStatuses(root);
+    const source = root.querySelector<HTMLElement>("[data-pl-status-original]")!;
+    source.textContent = "Closed Class Full (80)";
+    tidySectionStatuses(root);
+    expect(root.querySelector("[data-pl-section-status]")?.textContent).toBe("Closed");
+    source.textContent = "Open - restricted";
+    tidySectionStatuses(root);
+    expect(root.querySelector("[data-pl-section-status]")).toBeNull();
+    expect(root.querySelector("td.native-status")?.textContent).toBe("Open - restricted");
   });
 });

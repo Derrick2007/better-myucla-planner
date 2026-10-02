@@ -1,5 +1,44 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Class search presentation (2026-10-01, structural inspection only)
+
+- Section: `section.classPlanner_ClassSearchSection`, title `#classSearchTitle`.
+- Widget: `#panelSearch > .ClassSearchWidget`; controls `.ClassSearchControls`.
+- Native mode: `.searchType select#ctl00_MainContent_cs_searchBy.searchBy`.
+  Its change handler triggers the existing native postback. Only an explicit
+  user shortcut click dispatches that change; mounting does not change the mode.
+- Offerings vary by term: a second live list has `onlinerecorded` in place of
+  `cutf`. Require unique option values and exact common value/label mappings;
+  do not require a fixed total or order. Every injected action checks its
+  exact approved value/label, enabled state and current control contract again
+  on click. Unrecognized core controls or common mappings leave search native.
+  Grouped secondary choices contain only recognized options actually offered.
+  The complete native dropdown remains intact and is visible under More when
+  any option is unknown. Never create a shortcut for an unknown option.
+- Three `.searchFields > input.ClassSearchBox` text inputs have IDs
+  `searchTier0`, `searchTier1`, `searchTier2`. Their aria-label/placeholder and
+  inline visibility change after a mode switch. Labels can briefly be empty
+  during native initialization; observe only those input attributes to update
+  presentation, without reading query values or making requests. Shortened
+  visible labels preserve the original wording as their title. Native Go's
+  disabled state updates a selection hint: typed text alone may not enable
+  search until a required autocomplete suggestion has been selected.
+- Native submit: `.goPanel input#ctl00_MainContent_cs_goButton.csGoButton`,
+  `type=submit`, `value=Go`. All controls belong to the original POST form on
+  the exact Class Planner path. Foreign form overrides reject the presentation.
+- Preserve original input/select nodes, names, placeholders, values and handlers.
+  The submit caption is a pointer-transparent owned span over the original input;
+  no replacement button or automatic submit is used. Its temporary aria-label
+  is restored when disabling tidy.
+- Navigation, More-search and submit wrappers are deliberately NOT marked owned because they
+  contain native nodes. Unwrap them before the general owned-node cleanup.
+- Search-only redraws may replace `#panelSearch` without replacing the plan
+  table. Reconcile on changed search widget/control identity or public options
+  as well. Restore the mode panel at its original comment anchor before
+  removing a wrapper that contains it.
+- Optional calm section styling requires `.classPlannerWrapper` containing the
+  known class-plan panel. No section is hidden or moved by the page theme.
+
 验证日期：2026-08-19。本文只记录实现需要的结构，不包含课程名称、用户标识、凭证或请求内容。
 
 ## 页面边界
@@ -158,6 +197,13 @@ MyUCLA 自己写的 popover HTML：
 
 方块本身**没有 id，也没有任何 data 属性**，三行文字依次是课程代号、section、地点。
 
+Layout sizing check (2026-10-01, numeric DOM measurements only): day columns
+and meeting blocks use content-box sizing. Full-day blocks use
+`calc(100% - 3px)` for solid borders or `calc(100% - 7px)` for double borders;
+collisions use the same deductions with 50% widths and 0%/50% positions.
+Adding outer horizontal padding makes these boxes spill into the next lane.
+Keep native inline geometry and apply text insets to owned inner line spans.
+
 ## 周历上方的三个显示开关（2026-08-27 只读验证）
 
 容器是 `div.classPlanner_SectionMenu.plannerMenuLinks.checkboxStateHolder`，
@@ -191,6 +237,14 @@ Change | Section | Status | Info | Days | Time | Location | Units | Instructor
 表格最后一行是 Plan Actions / Enrollment Actions，其中包含 **Enroll 按钮**。任何
 注入行为都不得触碰这一行。
 
+Status-cell structure check (2026-10-01, element structure only): the third
+cell uses an empty `i.icon-ok` or `i.icon-unlock`, text, and an optional `br`
+before capacity text. The compact view also supports the previously recorded
+empty span icons. Only known static status text is folded. Interactive notices
+and unfamiliar markup remain native. The original nodes must remain readable
+by source readers and be restored on disabling the tidy layout. A waitlist
+"Taken" count means filled capacity, not a student's position in the queue.
+
 ## 会话超时：只补在场信号，不做后台心跳
 
 `IWE/js/Timeout.js` 的事实：
@@ -219,3 +273,39 @@ Change | Section | Status | Info | Days | Time | Location | Units | Instructor
 
 **仍然不做**：后台定时心跳、自动重新登录。绝对上限（约 239 分钟）无法续期，
 重新登录需要凭据和 Duo，本项目从不接触这两样。
+## Optional one-page workspace (0.12.0)
+
+Mount only when `#ctl00_MainContent_classPlanPanel` is directly inside
+`.classPlannerWrapper` in `form#aspnetForm`, with one direct section/title pair
+for Calendar (`classPlanner_CalendarSection` / `plannerSectionCal`), Plan
+(`classPlanner_ClassesInPlanSection` / `plannerSectionClip`) and Search
+(`classPlanner_ClassSearchSection` / `classSearchTitle`). Move the whole native
+sections with restoration anchors, preserving the form and descendants.
+Native-containing containers must not carry `data-planner-lift-owned`.
+
+The Details view requires the recorded three-row course-card/nine-column
+section-table shape. Its native third row stays inside its original tbody; CSS
+positions it over an owned, read-only heading. Never clone controls or rewrite
+native handlers. All move-button contracts continue to apply. Escape closes and
+restores focus. Partial panel replacement drops old anchors and remounts without
+reinserting stale native nodes. No additional query, polling or submit is added.
+
+Live coursetables contain a COLGROUP, a header TBODY and one TBODY per section;
+each section has its normal row and a hidden controls row. Inspect the first
+actual TR for its nine columns, never `tr:first-child` across all row groups.
+If any card's details shape becomes unfamiliar, restore the stacked layout so
+native information cannot be hidden behind a missing Details button.
+
+Workspace search sizing (0.12.1): the native result row shape is
+`.ClassSearchList .row-fluid.class-info.table-width2`, with `.span1` through
+`.span9` cells. Only that known row class gets a readable minimum width.
+Expand search is a local CSS mode on the existing deck, with no native node
+cloning or submission. The original result controls and course disclosure stay
+in their form. Other sections remain native inside the top disclosure, with
+owned scroll shortcuts; Original layout restores all six section placements.
+
+Details dismissal (0.12.2): an owned backdrop provides an outside-click target.
+A capture listener consumes clicks outside both the owned heading and the
+original third row before they can invoke native page actions. Clicks inside
+the original row are untouched. Escape and the accessible × button also close;
+focus returns without scrolling. Restore removes the listener and backdrop.

@@ -13,6 +13,8 @@ const keepAlive = document.getElementById("keep-alive") as HTMLInputElement | nu
 const cap = document.getElementById("cap") as HTMLSelectElement | null;
 const capRow = document.getElementById("cap-row");
 const tidy = document.getElementById("tidy") as HTMLInputElement | null;
+const version = document.getElementById("version");
+if (version) version.textContent = `v${chrome.runtime.getManifest().version}`;
 
 function renderEnabled(enabled: boolean): void {
   if (toggle) toggle.checked = enabled;

@@ -16,6 +16,16 @@ plan's numeric id, each class's numeric id and display name, the current order,
 the seat / waitlist / conflict text already on screen, and the structure and
 enabled state of MyUCLA's own ordering buttons.
 
+With the optional tidy layout enabled it also reads the class-search dropdown's
+mode and public options, input labels, and control structure. It does not read
+or store the text you type into the search fields. A search shortcut forwards
+your explicit mode choice to MyUCLA's own dropdown handler; the Search classes
+control is the original native submit input, with its native disabled state.
+Public search offerings may vary by term. Grouped buttons use only exact known
+options present on the page; unknown options remain in the native dropdown.
+The required-selection hint reads only whether the original Go input is disabled.
+The extension does not submit searches automatically or make extra requests.
+
 It does not read or store passwords, cookies, tokens, your UID, grades, DARS, or
 anything about Duo, and it does not visit any other MyUCLA page.
 
@@ -39,6 +49,13 @@ There is no `fetch`, no `XHR`, no WebSocket, and no polling for open seats. The
 extension never constructs a network request of its own.
 
 ## What you control
+
+The optional workspace rearranges the original sections within the same MyUCLA
+form. It reads only the course titles/exam text already allowed on this page,
+for an ephemeral details heading; it stores no new data and sends no requests.
+The original section table remains under its original course card. Original
+layout restores section placement, and turning tidy off restores presentation.
+Unknown section structures keep the native layout.
 
 - Every action that could change the order MyUCLA has stored asks first, states
   how many steps it will take, and can be stopped part-way.

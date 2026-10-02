@@ -89,7 +89,7 @@ const probe = (index) =>
     return {
       scrollY: Math.round(window.scrollY),
       cardTop: node ? Math.round(node.getBoundingClientRect().top) : null,
-      order: cards.map((c) => (c.querySelector(".pl-code")?.textContent || "").trim())
+      order: cards.map((c) => c.className.match(/\bClass(\d+)\b/)?.[1] || "unknown")
     };
   }, index);
 
