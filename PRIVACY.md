@@ -58,7 +58,7 @@ layout restores section placement, and turning tidy off restores presentation.
 Unknown section structures keep the native layout.
 
 Pane folding changes only local presentation. Named pane choices are kept in
-memory for this page session, using public section identifiers; they are not
+memory for this page session, using public section identifiers; pane widths are also in memory only. They are not
 stored or sent. Native section-toggle clicks are handled locally only inside
 the validated workspace, and their original handlers return with Original
 layout. Header spacing reads element bounds only. UCLA navigation, term chooser
@@ -96,3 +96,15 @@ It reads no other page variable and no page content, never shortens a session,
 never bypasses sign-in or Duo, and sends nothing anywhere outside MyUCLA. Walk
 away and the session still expires on its original schedule; MyUCLA's roughly
 four-hour hard limit is untouched.
+
+## Local course previews (0.14.0)
+
+The course browser reads only public headings and the structural shape of course
+results already rendered by MyUCLA. It formats existing section cells in place;
+native status text/icons, checkboxes, actions and form association are preserved.
+The selected public heading/id exists only in memory for the current page and is
+never logged, stored or sent. Search input values are neither read nor cached by
+this presentation. There is no new network API, background load or catalog cache.
+Unknown or incomplete results remain native. Details docking measures element
+bounds only and never copies a native control. Rooms/instructors remain in their
+original cells; the toggle changes local visibility only.

@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.14.0 — 2026-10-01 (redesign beta)
+
+- Rebuild the presentation around Classes on the left, Schedule in the center,
+  and Browse on the right. Resize side panes with pointer or keyboard controls;
+  preserve independent folding and persistent reopening buttons.
+- Replace modal details with a docked inspector. Close with × or Escape; other
+  planner controls stay interactive. Keep native section rows and handlers in
+  their original form. Narrow windows use inline details.
+- Browse complete, already-rendered course results through a local course index.
+  Show labelled section cards and reveal rooms/instructors on demand. Retain
+  native statuses, selection controls, messages and action rows. Edit search
+  restores the original fields. Unknown/incomplete results stay native.
+- Preserve UCLA top navigation, term chooser and plan menus; expose the other
+  three native modules under Tools (3). Original layout restores all six sections.
+- Add native identity/restoration/redraw tests and production-browser checks at
+  seven widths, including keyboard/pointer resizing and no-request previews.
+  Live verification remains blocked; this build needs a manual native-page check.
+- Preserve the pre-redesign source/build as GitHub release v0.13.0 before creating
+  the separate planner-redesign branch. CI covers both development branches.
+
 ## 0.13.0 — 2026-10-01 (local build)
 
 - Add consistent local pane folding. Closing a primary pane reclaims its

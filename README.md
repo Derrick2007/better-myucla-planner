@@ -36,11 +36,10 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **Filter** | By course, instructor, page text, or your own note. |
 | **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
 | **Clearer search** | With the optional tidy layout: Subject / Instructor / GE choices, compact labeled fields, grouped secondary searches and guidance for required dropdown selections. Uses the search types MyUCLA currently offers. |
-| **One-page workspace** | With tidy enabled on desktop: schedule, compact class list and native search together beneath UCLA's original navigation. Fold panes with a consistent chevron; reopen them from the persistent named buttons. Expand search uses the workspace width; Restore columns or Escape returns. Other sections (3) contains Plan Optimizer, study list outside this plan and Personal Entries. Original term and plan menus stay in place; Original layout restores all six stacked sections. |
+| **One-page workspace** | With tidy enabled: Classes on the left, Schedule in the center and Browse on the right. Resize supporting panes with drag or arrow keys, fold/reopen each independently, and inspect classes beside the schedule. Loaded course results switch locally without new requests. Tools (3) contains the other native modules. UCLA navigation, term chooser and plan menus stay in place; Original layout restores all six sections. |
 
 The pane layout remains a work in progress. [UI direction](docs/UI_DIRECTION.md)
-distinguishes implemented behavior from the proposed improvements to course
-results and adjustable panes.
+describes the shipped design and the remaining limits of native search.
 
 `docs/ROADMAP.md` has the rest, including the optional layout switch and the
 things that were considered and declined.
@@ -175,34 +174,35 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.12.2` local build. Not on the Chrome Web Store.
+**Status:** working local beta, `0.14.0` redesign beta. Not on the Chrome Web Store.
 
-The popup shows the installed version beside its title. With the optional tidy
-switch enabled, this build arranges the original schedule, class list and search
-into a single workspace inside MyUCLA. Class details open over the workspace;
-the original section table and controls stay in their form. Narrow windows use
-a stacked fallback. Reload the unpacked extension and then refresh the planner
-after replacing a build; the tidy switch remains opt-in.
+The popup shows the installed version. Tidy remains opt-in. This build presents
+Classes, Schedule and Browse inside the original MyUCLA page. Desktop panes
+resize with drag or arrow keys (Shift makes larger changes); double-click a
+divider to reset its width. Named pane buttons reopen hidden panes. Narrow
+windows stack the same modules for legibility.
 
-Course details close with the × button, Escape or a click outside. An outside
-click only dismisses the details; it does not activate the page control underneath.
-Focus returns to the course without moving the page.
+Details dock beside the schedule, preserving native section controls and status
+wording. Close with × or Escape; focus returns to the selected class. Other page
+controls remain interactive. Rooms and instructors expand when needed.
 
-Search gets a wider column. Expand search temporarily uses the whole workspace
-on this same page; Restore columns or Escape brings the schedule and plan back.
-The nine-column section results keep a readable minimum width rather than
-compressing every field. The other three original panels have named shortcuts
-under Other sections (3) & actions; their native disclosure controls remain intact.
+For complete, already-rendered results, the browser lists course headings and
+previews one course's native section rows at a time. Selection is local. Edit
+search reopens the original fields; native checkboxes, submissions and handlers
+remain in the original form. Unknown or incomplete results retain native controls.
+MyUCLA still loads missing data through its explicit native searches: this does
+not prefetch a catalog, bypass loading, or add background requests.
 
-Search still uses MyUCLA's autocomplete selections and explicit native submit.
-This layout does not remove server loading or prefetch the entire catalog.
-Run `node harness/verify-workspace.mjs` to check the production bundle against
-fictional data at six widths, including restoration and local panel dragging.
+Tools (3) exposes Plan Optimizer, the study list outside this plan and Personal
+Entries. UCLA's original top navigation, term chooser and plan menus stay in
+place. Original layout restores all six native section placements; turning Tidy
+off restores presentation. Native section statuses and icons are unchanged.
 
-With Tidy enabled, each lecture/discussion row also shows a shorter status
-(for example, Open · 12 seats left or Waitlist · 1/8 places filled).
-Hover or keyboard-focus the status to read MyUCLA's original wording;
-Escape dismisses the tooltip. Counts come from the currently rendered page.
+After updating a build, reload the extension and refresh the planner. Run
+`node harness/verify-workspace.mjs` against fictional data to check resizing,
+result selection, native identity, dismissal, redraws, restoration, seven window
+sizes and local panel dragging. The v0.14.0 redesign has not been verified on a
+student's live page; manual verification is still required.
 
 ---
 

@@ -335,3 +335,34 @@ is positioned below its summary using geometric measurements.
 Native section statuses are no longer folded or summarized. Existing compact
 wrappers are unwrapped as migration cleanup; icons, text and node identity must
 remain unchanged while tidy is enabled. No aggregate status badge is inserted.
+
+## Resizable workspace and course browser (0.14.0)
+
+This replaces the rigid columns, full-width search mode and modal details.
+Primary order is Classes, Schedule, Browse. Owned dividers resize side columns
+locally, via pointer or keyboard. Width clamps reserve schedule room; no stored
+preference or native request is added. All original navigation placement and
+folding contracts above still apply.
+
+Dock details in the Browse pane. The original third row remains under its
+original tbody; only its CSS coordinates change. Section-card formatting requires
+an exact nine-TH header: Change, Section, Status, Info, Days, Time, Location, Units,
+Instructor. Mark only nine-TD data rows with unit colspans/rowspans; hidden action
+rows remain untouched. Append owned labels after existing children, preserving
+first-child controls and native status innerHTML. Never label or rewrite status
+content. Close/Escape restores focus; other planner controls remain interactive.
+On narrow windows move only the owned heading inline, never a native table.
+
+Course previews require exactly one direct .ClassSearchList beneath the existing
+.ClassSearchWidget in section.classPlanner_ClassSearchSection > #panelSearch.
+Each direct .CourseListEntry must have CourseListEntry_M<digits>, a direct
+.class-title > h3.head > a, and matching direct #container_course_M<digits>.
+Every recorded .row-fluid.class-info.table-width2 row must have exactly nine
+.span1 through .span9 cells, with one header (Select then the eight labels above)
+and at least one data_row. Incomplete/unknown sets remain native in their entirety.
+Only headings are copied as read-only index button text; section cells and actions
+remain in place. Selection never invokes a native course link or query. Retain
+all controls, messages and action rows. Only the selected native result entry is
+visible; Rooms & instructors changes local cell visibility. Edit search reveals
+the original fields. Added/replaced rows, cells, entries or headings reconcile;
+restoration removes owned labels/classes/index and preserves native hidden states.

@@ -2,8 +2,58 @@
 
 Last updated: 2026-10-01
 
-Current version: `0.13.0` (local build)
-Status: working local beta; build is ready in `dist/`
+Current version: `0.14.0` (redesign beta)
+Status: redesign beta; production build ready in `dist/`, installed update pending reload.
+
+The pre-redesign source at aa992da is saved on the user's fork's
+planner-improvements branch and GitHub release v0.13.0, with a complete ZIP:
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.13.0
+Do not rewrite that snapshot or push to upstream.
+
+v0.14.0 lives on the separate planner-redesign branch. The presentation has been
+rebuilt around Classes (left), Schedule (center) and Browse (right). Side panes
+resize with pointer/keyboard dividers. All three remain independently foldable
+and reopenable. Widths/choices are in memory only. UCLA navigation, term chooser
+and plan menus retain their original nodes and placement. All three secondary
+modules remain native under Tools (3); Original layout restores all six sections.
+
+CourseBrowserPresentation indexes only complete, already-rendered public result
+headings and shows one native course entry locally. SectionCards formats exact
+nine-column section rows into labelled cards, appending owned text after native
+children. Native controls/status innerHTML/action rows remain unchanged. Edit
+search reveals original fields. Rooms/instructors expand locally. Unknown or
+incomplete results retain native controls; no prefetching, input-value reads,
+polling, storage or extra query is introduced. Last selected heading/id is memory
+only. Row/cell replacement triggers reconciliation without reviving stale nodes.
+
+Details dock in Browse instead of opening a blocking overlay. The native third
+row remains under its original course tbody; CSS positions it in the reserved
+inspector area. Other planner controls remain interactive. ×/Escape closes with
+focus return; narrow windows move only the owned heading inline. There is no
+backdrop or outside-click capture. Header identity and status wording remain
+native. Never mark containers holding native descendants as extension-owned.
+
+Typecheck, 173 tests across 18 files and production build passed. Production
+Chrome QA used isolated fictional fixtures at seven widths (including 1536x735
+and 390px), covering pointer/keyboard resizing, pane folding/reopening, all six
+modules, local course previews, no extra requests, native control/status/nav
+identity, calendar geometry, docked/inline Details, focus, partial redraws,
+restoration and long-list local dragging. Independent search and layout
+regressions passed; the popup identifies v0.14.0. Fictional QA pictures and
+versioned build ZIP live outside Git under outputs. Keep dist untracked.
+
+Live inspection is still blocked by repeated automatic approval review rejection,
+even with exact-page human authorization. Do not retry using alternate browser
+surfaces or broader MyUCLA access. Ask the user to reload the extension, refresh
+the planner and manually verify native results, nested section controls, Details,
+menu preservation and all module reopening. Never automate enrollment actions.
+
+Publish the rebuilt source/ZIP to the user's fork on planner-redesign,
+with CI enabled on that branch. The existing unpacked extension folder is the
+installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
+installed v0.14.0 files are SHA-256 verified. User reload is pending. Tidy remains opt-in.
+
+## Archived v0.13.0 handoff
 
 v0.13.0 restores native status text/icons and removes aggregate course badges.
 Known title + one DIV body modules now fold locally with consistent chevrons;
