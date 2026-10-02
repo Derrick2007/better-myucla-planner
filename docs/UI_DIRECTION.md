@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.14.2 redesign beta, inside the existing Chrome extension
+Implemented in the 0.14.3 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -16,8 +16,25 @@ service. Tidy remains opt-in.
   choices are in memory only, with no new storage.
 - Tools (3) exposes Plan Optimizer, Study list outside this plan, and Personal
   Entries. Shortcuts open folded content; Escape closes the tools disclosure.
-- UCLA's original navigation, term chooser and plan actions retain their original
-  nodes, handlers and placement. Original layout restores all six sections.
+- UCLA's original navigation and plan actions retain their original nodes,
+  handlers and placement. Original layout restores all six sections.
+
+## Compact planner introduction
+
+The UCLA banner and navigation are unchanged and scroll away with normal page
+scrolling. The planner grows into the available viewport as the introduction
+leaves the screen; Classes, Schedule and Browse still scroll independently.
+BODY is not a scroll container, preventing its earlier hidden scrolling bug.
+
+Below UCLA's header, the planner heading is smaller and the original term
+selector appears alongside it on desktop. Its native form, parent, options and
+handlers remain intact. The original explanatory text and links live under
+About this planner; both term notices and native alerts remain visible.
+Links & help in the workspace toolbar opens every original sidebar widget in
+place, including planner links and enrollment information. Close or Escape
+returns focus. Unknown introduction structures keep their native presentation.
+Narrow windows place the term control beneath the heading. Original layout or
+turning Tidy off restores the native introduction and sidebar.
 
 ## Course browsing
 
@@ -66,3 +83,12 @@ and term chooser visible. Course previews retain native form controls, and
 Details fits Browse, closes with Escape and restores focus/results. All six
 native modules remain available. Enrollment and plan-changing actions are not
 automated during verification.
+
+The v0.14.3 production fixture adds five introduction widths, ordinary root
+scrolling away/back, full-height workspace bounds, native redraws while scrolled,
+Details tracking, notices, all sidebar widgets, dismissal/focus and restoration.
+Authorized live v0.14.3 verification after reload passed the compact heading and
+term/notices, explanatory disclosure spacing, all original sidebar widgets,
+close/Escape/focus, scrolling away/back and Details bounds. Native course search
+retained the scrolled document position, compact presentation, native form
+controls and loaded preview without horizontal overflow.

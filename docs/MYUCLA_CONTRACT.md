@@ -386,3 +386,32 @@ Authorized live v0.14.2 verification after reload confirmed overflow:clip and
 BODY scrollTop zero through native subject/course selection, search and section
 expansion. The original header and term chooser stay on screen and the workspace
 position marker stays stable. Only structural measurements were retained.
+
+## Compact introduction and intentional document scrolling (0.14.3)
+
+This supersedes the desktop overflow:clip rule above. The user explicitly wants
+UCLA's unchanged banner to scroll away. HTML is the document scroll container;
+BODY has visible overflow and cannot scroll independently. A passive root-scroll
+listener reads the marker's viewport position (without adding window.scrollY),
+updates workspace/Details bounds, and reserves a stable full-height owned spacer.
+Narrow and short-window flow fallbacks retain normal document flow. Remove the
+spacer/listener/CSS state on restoration. Never style or move UCLA's masthead/menu.
+
+Compact only the exact section#layoutContentArea containing direct h2#titleText
+with public text Class Planner, #div_page_title_section2 > div#page_title_text,
+and layout-columnwrapper.col-2MR > main-content#main-content + right-sidebar.
+The term container must be main-content's direct #ctl00_MainContent_termSessionChooser
+with div.term_display + div.term and exactly one native select with the recorded
+term chooser ID, directly under div.term and associated with form#aspnetForm.
+Unknown shapes leave the introduction native.
+
+The native term container, selector and sidebar keep their parents/handlers.
+An owned Term label identifies the existing selector. Only the duplicate static
+term display is visually hidden. Native introductory text/links are wrapped in
+an unowned details container with an owned summary. Preserve native replacement
+children when unwrapping; never resurrect disconnected text. Static, control-free
+direct notice DIVs get compact spacing and remain visible; #AlertDiv is untouched.
+Links & help toggles a CSS class on the original sidebar; no widget content is
+read or copied. Its close control/Escape returns focus. Containers with native
+descendants must not be marked extension-owned. Restoration removes only owned
+controls/classes and restores the original text placement and sidebar styles.

@@ -82,3 +82,23 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
   doc.head.append(style);
   return dom.serialize();
 }
+
+/** Recorded introduction hierarchy, populated entirely with fictional content. */
+export function introductionFixtureHtml(count = 6, includeResults = true) {
+  const dom = new JSDOM(workspaceFixtureHtml(count, includeResults)), doc = dom.window.document;
+  doc.querySelector('.pagehead').remove();
+  doc.querySelector('#main_wrapper > label')?.remove();
+  doc.getElementById('fixture-native-navigation').style.height = '166px';
+  const layout = doc.createElement('section'); layout.id = 'layoutContentArea';
+  layout.innerHTML = '<h2 id="titleText">Class Planner</h2><div id="div_page_title_section2"><div id="page_title_text">Example introduction explaining how this fictional planner works. <a href="#example-guide">Example guide</a></div></div><layout-columnwrapper class="col-2MR"><main-content id="main-content"><div id="AlertDiv"></div></main-content><right-sidebar><div id="ctl00_CustomSidePanel">Example planner links <a href="#example-links">Example link</a></div><div class="enroll_appt_widget_container">Example enrollment information</div><iwe-widget id="widgetNeedHelp"><button type="button">Example help</button></iwe-widget><iwe-widget id="voter_widget_container">Example public information</iwe-widget></right-sidebar></layout-columnwrapper>';
+  const term = doc.getElementById('ctl00_MainContent_termSessionChooser'), select = term.querySelector('select');
+  term.innerHTML = '<div class="term_display">Example term</div><div class="term"></div>'; term.lastElementChild.append(select);
+  const main = layout.querySelector('main-content');
+  main.append(term);
+  main.insertAdjacentHTML('beforeend', '<div style="margin-top:10px"><span class="label warning">Example term notice</span> Example public term information. <strong>Example emphasis</strong></div><div>All times use <span class="badge info">Pacific Time (PT)</span>.</div>');
+  main.append(doc.querySelector('.classPlannerWrapper'));
+  doc.getElementById('main_wrapper').append(layout);
+  const style = doc.createElement('style');
+  style.textContent = 'html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}';
+  doc.head.append(style); return dom.serialize();
+}

@@ -108,3 +108,15 @@ this presentation. There is no new network API, background load or catalog cache
 Unknown or incomplete results remain native. Details docking measures element
 bounds only and never copies a native control. Rooms/instructors remain in their
 original cells; the toggle changes local visibility only.
+
+## Compact introduction (0.14.3)
+
+The extension checks the known planner introduction's public heading and DOM
+structure. It wraps existing introductory text/links in a local disclosure and
+styles the original term selector without moving it from its native parent/form.
+Term notices and native alerts stay visible. Links & help changes the visibility
+of the original sidebar widgets; it does not read, copy, summarize, log or store
+their contents. All widget controls retain their native parents and handlers.
+Document scrolling lets the unchanged UCLA banner scroll away. Scroll handling
+reads element bounds only and sends no requests. These choices are local to the
+page; no new storage, permissions or data collection is added.

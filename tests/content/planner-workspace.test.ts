@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PlannerWorkspace } from "../../src/content/planner-workspace";
 import { MyUclaPlannerAdapter } from "../../src/adapters/myucla-adapter";
 // @ts-expect-error Shared browser fixture is plain JavaScript.
-import { workspaceFixtureHtml } from "../../harness/workspace-fixture.mjs";
+import { workspaceFixtureHtml, introductionFixtureHtml } from "../../harness/workspace-fixture.mjs";
 
 describe("one-page native planner workspace", () => {
   let workspace: PlannerWorkspace;
@@ -212,5 +212,46 @@ describe("one-page native planner workspace", () => {
     expect(document.querySelector<HTMLElement>(".pl-workspace-preview")!.hidden).toBe(true);
     expect(adapter.inspectContract().ok).toBe(true);
     expect(workspace.needsReconcile(document)).toBe(false);
+  });
+  it("compacts the known introduction without moving the term or changing UCLA navigation", () => {
+    document.body.innerHTML = new DOMParser().parseFromString(introductionFixtureHtml(), "text/html").body.innerHTML;
+    const original = document.body.innerHTML, nav = document.getElementById('fixture-native-navigation')!;
+    const navHtml = nav.outerHTML, term = document.getElementById('ctl00_MainContent_termSessionChooser_TermChooser')!;
+    const termParent = term.parentElement, fields = [...document.querySelectorAll('input,select')];
+    const text = document.getElementById('page_title_text')!, textHtml = text.innerHTML;
+    mount(); mount();
+    expect(nav.outerHTML).toBe(navHtml); expect(term.parentElement).toBe(termParent);
+    expect(new Set(document.querySelectorAll('input,select'))).toEqual(new Set(fields));
+    const about = document.querySelector<HTMLDetailsElement>('.pl-intro-about')!;
+    expect(about.open).toBe(false); expect(text.parentElement).toBe(about); expect(text.innerHTML).toBe(textHtml);
+    expect(document.querySelectorAll('.pl-intro-term-label')).toHaveLength(1);
+    expect(document.querySelectorAll('.pl-intro-notice')).toHaveLength(2);
+    workspace.restore(); expect(document.body.innerHTML).toBe(original);
+  });
+  it("keeps every sidebar widget accessible with close and Escape returning focus", () => {
+    document.body.innerHTML = new DOMParser().parseFromString(introductionFixtureHtml(), "text/html").body.innerHTML;
+    const sidebar = document.querySelector('right-sidebar')!, parent = sidebar.parentElement;
+    const widgets = [...sidebar.children], help = sidebar.querySelector<HTMLButtonElement>('button')!, handler = vi.fn();
+    help.addEventListener('click', handler); mount();
+    const info = document.querySelector<HTMLButtonElement>('.pl-intro-info')!;
+    info.click(); expect(sidebar.classList.contains('pl-intro-sidebar-open')).toBe(true);
+    expect(info.getAttribute('aria-expanded')).toBe('true'); expect(sidebar.parentElement).toBe(parent);
+    help.click(); expect(handler).toHaveBeenCalledOnce();
+    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    expect(info.getAttribute('aria-expanded')).toBe('false'); expect(document.activeElement).toBe(info);
+    info.click(); document.querySelector<HTMLButtonElement>('.pl-intro-info-close')!.click();
+    expect(document.activeElement).toBe(info); workspace.restore(); expect([...sidebar.children]).toEqual(widgets);
+  });
+  it("leaves unfamiliar introductions native and preserves replacement text on reconciliation", () => {
+    document.body.innerHTML = new DOMParser().parseFromString(introductionFixtureHtml(), "text/html").body.innerHTML;
+    const sidebar = document.querySelector('right-sidebar')!; sidebar.remove(); mount();
+    expect(document.querySelector('.pl-intro-about')).toBeNull(); expect(document.querySelector('.pl-intro-info')).toBeNull();
+    workspace.restore(); document.querySelector('layout-columnwrapper')!.append(sidebar); mount();
+    const old = document.getElementById('page_title_text')!, next = old.cloneNode(true) as HTMLElement;
+    next.textContent = 'New example introduction'; old.replaceWith(next);
+    expect(workspace.needsReconcile(document)).toBe(true); mount();
+    expect(document.getElementById('page_title_text')).toBe(next); expect(old.isConnected).toBe(false);
+    workspace.restore(); expect(next.parentElement?.id).toBe('div_page_title_section2');
+    expect(document.querySelectorAll('#page_title_text')).toHaveLength(1);
   });
 });

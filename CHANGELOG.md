@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.14.3 — 2026-10-01 (redesign beta)
+
+- Compact the planner introduction below UCLA's untouched banner/navigation:
+  smaller heading, native term selector alongside it, and the original explanatory
+  text and links under About this planner. Keep term notices and alerts visible.
+- Let normal document scrolling move UCLA's banner out of view. The planner
+  expands into the freed space while each pane keeps its own scrolling. BODY is
+  no longer an independent scroll container. Scrolled native panel redraws retain
+  the user's position, and Details tracks the viewport.
+- Expose every original sidebar widget through Links & help without changing its
+  parent, controls or contents. ×/Escape closes and returns focus. Original layout
+  and disabling Tidy restore the introduction and sidebar. Unfamiliar shapes stay
+  native; no extra requests, permissions or storage are introduced.
+- Add fictional introduction, root scrolling, scrolled redraw, sidebar and
+  restoration checks. After reload, live verification passed the compact heading,
+  disclosures, original widgets, scrolling away/back, Details and native search
+  redraw while scrolled, with native controls and no horizontal overflow.
+
 ## 0.14.2 — 2026-10-01 (redesign beta)
 
 - Prevent native focus/postback scrolling of BODY behind the fixed workspace.

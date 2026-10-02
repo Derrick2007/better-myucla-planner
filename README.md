@@ -174,7 +174,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.14.2` redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.14.3` redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. This build presents
 Classes, Schedule and Browse inside the original MyUCLA page. Desktop panes
@@ -195,8 +195,12 @@ MyUCLA still loads missing data through its explicit native searches: this does
 not prefetch a catalog, bypass loading, or add background requests.
 
 Tools (3) exposes Plan Optimizer, the study list outside this plan and Personal
-Entries. UCLA's original top navigation, term chooser and plan menus stay in
-place. Original layout restores all six native section placements; turning Tidy
+Entries. UCLA's original top navigation and plan menus stay intact. The planner
+introduction is compact: the original term selector appears beside the heading,
+the explanation expands under About this planner, and term notices remain visible.
+Links & help opens the original sidebar widgets, with ×/Escape dismissal. Page
+scrolling lets the unchanged UCLA banner scroll away and the planner use the freed
+space. Original layout restores all six native section placements; turning Tidy
 off restores presentation. Native section statuses and icons are unchanged.
 
 After updating a build, reload the extension and refresh the planner. Run
@@ -208,6 +212,14 @@ v0.14.2 also prevents native BODY scrolling behind the workspace after searches,
 keeping original UCLA navigation visible. The reloaded v0.14.2 build passed live
 native search and section expansion with the header and term chooser on screen,
 zero BODY scroll, native-form controls and Details bounds/focus intact.
+v0.14.3 replaces the scroll lock with intentional document scrolling while BODY
+remains non-scrollable. Fictional checks cover the compact introduction at five
+widths, header scrolling in both directions, native redraws while scrolled,
+Details bounds, sidebar reopening, notices and original-control restoration.
+Authorized live v0.14.3 verification after reload passed the compact heading,
+native term selector/notices, explanatory disclosure, all original sidebar widgets,
+close/Escape/focus, scrolling away/back, Details bounds and a native search that
+preserved the scrolled layout and native controls without horizontal overflow.
 
 ---
 

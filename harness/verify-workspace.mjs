@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
-import { workspaceFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.2');
+import { workspaceFixtureHtml, introductionFixtureHtml } from './workspace-fixture.mjs';
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.3');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
@@ -22,6 +22,10 @@ const setup=async(page,html)=>{
   window.nativeCommands=[...document.querySelectorAll('.OrderingButtons button')].map(node=>({node,command:node.getAttribute('onclick')}));
   window.nativeDetails=document.querySelector('tbody.courseItem > tr:nth-child(3)');window.nativeDetailsParent=window.nativeDetails.parentElement;
   window.nativeNavigation=document.getElementById('fixture-native-navigation');window.nativeNavigationHtml=window.nativeNavigation.outerHTML;
+  window.nativeTerm=document.getElementById('ctl00_MainContent_termSessionChooser_TermChooser');window.nativeTermParent=window.nativeTerm.parentElement;
+  window.nativeSidebar=document.querySelector('right-sidebar');window.nativeSidebarParent=window.nativeSidebar?.parentElement;
+  window.nativeIntroduction=document.getElementById('page_title_text');window.nativeIntroductionHtml=window.nativeIntroduction?.innerHTML;
+  window.nativeWorkspaceTop=document.querySelector('.classPlannerWrapper').getBoundingClientRect().top;
   window.nativeStatuses=[...document.querySelectorAll('table.coursetable td:nth-child(3),.ClassSearchList .data_row > .span3')].map(node=>({node,html:node.innerHTML}));
   window.nativeResultClickCount=0;document.querySelectorAll('.ClassSearchList .class-title a').forEach(node=>node.addEventListener('click',()=>window.nativeResultClickCount++));
  });
@@ -127,8 +131,8 @@ try {
  }
  const tall=await browser.newPage({viewport:{width:2048,height:927}});
  const tallChecks=await setup(tall,workspaceFixtureHtml(6,true,true));
- // Native layouts can constrain BODY while content outside the fixed planner
- // extends below it. A postback/focus scroll must not hide the top navigation.
+ // BODY must not scroll independently of the document, even if native code
+ // constrains its height and a sidebar extends below it.
  await tall.evaluate(()=>{
   document.documentElement.style.overflowY='auto';
   document.body.style.height='827px';
@@ -153,6 +157,54 @@ try {
  const afterMenu=await tall.locator('.plannerTopMenuLinks').boundingBox();assert.deepEqual(afterMenu,nativeMenu,'native plan menus stay put');
  assert.deepEqual(tallChecks.errors,[]);assert.deepEqual(tallChecks.requests,[]);
  await tall.screenshot({path:resolve(out,'tall-header-details.png')});await tall.close();console.log('Tall native header and long exam details verified');
+ for (const width of [2048,1440,1280,960,390]) {
+  const height=927,page=await browser.newPage({viewport:{width,height}});
+  const {errors,requests}=await setup(page,introductionFixtureHtml());
+  assert.equal(await page.locator('.pl-intro-about').evaluate(e=>e.open),false);
+  assert.equal(await page.locator('.pl-intro-notice:visible').count(),2,'term notices remain visible');
+  assert.ok(await page.evaluate(()=>window.nativeTerm.parentElement===window.nativeTermParent&&window.nativeSidebar.parentElement===window.nativeSidebarParent));
+  assert.ok(await page.evaluate(()=>window.nativeNavigation.outerHTML===window.nativeNavigationHtml&&window.nativeIntroduction.innerHTML===window.nativeIntroductionHtml));
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),`introduction overflow ${width}`);
+  if (width>1240) {
+   const before=await page.locator('.pl-workspace-host').boundingBox();
+   assert.ok(await page.evaluate(y=>y<window.nativeWorkspaceTop-60,before.y),'introduction gives the planner more room');
+   await page.screenshot({path:resolve(out,`compact-introduction-${width}.png`)});
+   await page.mouse.move(20,40);await page.mouse.wheel(0,240);
+   await page.waitForFunction(()=>scrollY>100);
+   await page.waitForFunction(()=>document.querySelector('.pl-workspace-host').getBoundingClientRect().bottom<=innerHeight);
+   await page.mouse.wheel(0,800);
+   await page.waitForFunction(()=>Math.abs(document.querySelector('.pl-workspace-host').getBoundingClientRect().top-12)<1);
+   const after=await page.locator('.pl-workspace-host').boundingBox(),nav=await page.locator('#fixture-native-navigation').boundingBox();
+   assert.ok(nav.y<0,'native UCLA header scrolls away through ordinary page scrolling');
+   assert.ok(after.y>=11&&after.y<before.y&&after.height>before.height,'planner expands as the header scrolls away');
+   assert.equal(await page.evaluate(()=>document.body.scrollTop),0);
+   await page.locator('[data-pl-workspace-details]').first().click();
+   const row=await page.locator('tbody.pl-workspace-preview-card > tr:nth-child(3)').boundingBox(),pane=await page.locator('.pl-workspace-search').boundingBox();
+   assert.ok(row.y>=pane.y&&row.y+row.height<=Math.min(height,pane.y+pane.height),'Details tracks page scrolling');
+   await page.keyboard.press('Escape');
+   const scrollBefore=await page.evaluate(()=>scrollY);
+   await page.evaluate(html=>{const next=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('ctl00_MainContent_classPlanPanel'),true);document.getElementById('ctl00_MainContent_classPlanPanel').replaceWith(next);},introductionFixtureHtml());
+   await page.waitForSelector('.pl-workspace-deck .pl-browser-index');
+   assert.ok(Math.abs(await page.evaluate(()=>scrollY)-scrollBefore)<=1,'native redraw preserves intentional document scrolling');
+   assert.ok(Math.abs((await page.locator('.pl-workspace-host').boundingBox()).y-12)<=1);
+   await page.screenshot({path:resolve(out,`scrolled-workspace-${width}.png`)});
+   await page.mouse.move(8,40);await page.mouse.wheel(0,-1000);await page.waitForFunction(()=>scrollY===0);
+   assert.equal((await page.locator('#fixture-native-navigation').boundingBox()).y,0,'scrolling back reveals unchanged navigation');
+  }
+  await page.locator('.pl-intro-about > summary').click();assert.ok(await page.locator('#page_title_text').isVisible());
+  await page.locator('.pl-intro-about > summary').click();
+  await page.locator('.pl-intro-info').click();assert.ok(await page.locator('right-sidebar').isVisible());
+  assert.equal(await page.locator('right-sidebar > :not([data-planner-lift-owned])').count(),4);
+  const sidebar=await page.locator('right-sidebar').boundingBox();assert.ok(sidebar.y>=0&&sidebar.y+sidebar.height<=height);
+  await page.keyboard.press('Escape');assert.equal(await page.locator('right-sidebar').isVisible(),false);
+  assert.ok(await page.locator('.pl-intro-info').evaluate(e=>e===document.activeElement));
+  await page.locator('.pl-intro-info').click();await page.locator('.pl-intro-info-close').click();
+  assert.equal(await page.locator('right-sidebar').isVisible(),false);
+  await page.evaluate(()=>window.toggleTidy(false));await page.waitForSelector('.pl-workspace-deck',{state:'detached'});
+  assert.equal(await page.locator('.pl-intro-about,.pl-intro-info,.pl-intro-term-label').count(),0);
+  assert.ok(await page.evaluate(()=>window.nativeTerm.parentElement===window.nativeTermParent&&window.nativeSidebar.parentElement===window.nativeSidebarParent&&window.nativeNavigation.outerHTML===window.nativeNavigationHtml));
+  assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log(`Compact introduction and root scrolling verified: ${width}px`);
+ }
  const page=await browser.newPage({viewport:{width:1440,height:600}});
  const {errors,requests}=await setup(page,workspaceFixtureHtml(12));
  await page.evaluate(()=>{window.nativeActionCount=0;window.courseListAction=()=>window.nativeActionCount++;});

@@ -2,9 +2,10 @@
 
 Last updated: 2026-10-01
 
-Current version: `0.14.2` (redesign beta)
-Status: v0.14.2 is built, tested, installed and verified on the authorized live
-Class Planner tab. Native search and section expansion keep UCLA navigation visible.
+Current version: `0.14.3` (redesign beta)
+Status: compact introduction and intentional page scrolling are built, tested,
+installed and verified on the authorized live Class Planner tab. Source
+publication uses the user's fork only; GitHub CI confirmation is pending.
 
 The pre-redesign source at aa992da is saved on the user's fork's
 planner-improvements branch and GitHub release v0.13.0, with a complete ZIP:
@@ -14,9 +15,23 @@ Do not rewrite that snapshot or push to upstream.
 The redesign lives on the separate planner-redesign branch. The presentation has been
 rebuilt around Classes (left), Schedule (center) and Browse (right). Side panes
 resize with pointer/keyboard dividers. All three remain independently foldable
-and reopenable. Widths/choices are in memory only. UCLA navigation, term chooser
-and plan menus retain their original nodes and placement. All three secondary
+and reopenable. Widths/choices are in memory only. UCLA navigation and plan menus
+retain their original nodes and placement. The term selector keeps its native
+parent/form but appears beside the compact title. All three secondary
 modules remain native under Tools (3); Original layout restores all six sections.
+
+The user explicitly wants UCLA's untouched banner/menu to scroll away normally.
+PlannerIntroduction compacts only the known lower introduction, wraps existing
+text/links in About this planner, leaves term notices/alerts visible and exposes
+all original sidebar widgets through Links & help. Sidebar/term parents, controls
+and handlers remain native; its contents are never copied or logged. Unknown
+introduction shapes remain native. ×/Escape closes info with focus return.
+Root document scrolling replaces the old clipped BODY rule; BODY has visible
+overflow and cannot scroll independently. A full-height owned flow spacer gives
+the page room to scroll the banner away. Marker viewport bounds position/expand
+the fixed workspace; a passive root-scroll listener updates Details and tools.
+Narrow/short-window fallbacks remain normal flow. Restoration removes the spacer,
+listener, compact classes and controls and unwraps native replacement text safely.
 
 CourseBrowserPresentation indexes only complete, already-rendered public result
 headings and shows one native course body locally. Bodies can be direct siblings
@@ -40,16 +55,20 @@ The exam note is a separate disclosure; the inspector heading is bounded and
 content height is clamped to its pane and viewport. Native refresh-row inline
 margins are compacted by scoped CSS, restored by removing workspace classes.
 
-Typecheck, 176 tests across 18 files and the production build passed for the patch. Production
+Typecheck, 179 tests across 18 files and the production build passed for the patch. Production
 Chrome QA used isolated fictional fixtures at seven widths (including 1536x735
 and 390px), covering pointer/keyboard resizing, pane folding/reopening, all six
 modules, local course previews, no extra requests, native control/status/nav
 identity, calendar geometry, docked/inline Details, focus, partial redraws,
 restoration and long-list local dragging. Independent search and layout
-regressions passed against v0.14.2. The sibling-result, native header-help,
+regressions passed against v0.14.3. The sibling-result, native header-help,
 tall-header/long-exam and constrained-BODY/long-sidebar scrolling checks also
 passed. The scrolling fixture confirms hidden overflow permits the old behavior
-before checking that the new clipped overflow prevents it. Fictional QA pictures and
+before checking that non-scrollable BODY prevents it. Five introduction widths
+(2048, 1440, 1280, 960 and 390px) also passed compact headings, term/notice
+visibility, sidebar reopening/close/Escape/focus and restoration. Desktop checks
+passed header scrolling away/back, full-height planner bounds, scrolled native
+redraw position and Details tracking without any new requests. Fictional QA pictures and
 versioned build ZIP live outside Git under outputs. Keep dist untracked.
 
 Live inspection works after explicit human authorization for the browser
@@ -71,18 +90,26 @@ and two section cards retain native form controls without horizontal overflow.
 Details stays within Browse and the viewport; Escape returns focus and restores
 the loaded results. All six native modules remain present. Record only these
 structural checks, never account contents or actual course names.
+v0.14.3 deliberately allows document scrolling of the unchanged header at the
+user's request. Do not interpret its intentional offscreen position after a user
+scroll as the old BODY bug. After the user reloaded v0.14.3, live checks confirmed
+the smaller heading and native term selector, visible notices, explanatory
+disclosure spacing, all four sidebar widgets, close/Escape/focus, all six modules,
+document scrolling away/back and Details bounds when fully scrolled. A native
+subject/course selection and search preserved the document's scrolled position
+and compact presentation, with a loaded course preview, native-form controls and
+no horizontal overflow. BODY scrollTop remained zero. Only structural facts were
+retained; no account contents, course names or real-page screenshots were saved.
 Never automate enrollment or plan-changing actions during live QA. Extension
 manifest permissions remain the exact Class Planner path.
 
-The source/ZIP are published to the user's fork on planner-redesign. GitHub CI
-passed for 6e9aad0. The current beta release is:
-https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.2
-The existing unpacked extension folder is the
-installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
-installed v0.14.2 files are SHA-256 verified against dist. Prior v0.14.0 and
-v0.14.1 builds are also backed up in outputs. The new versioned release folder
-and ZIP are ready. The user reloaded the extension and refreshed the planner;
-the installed clipped-overflow patch is confirmed live.
+The source targets the user's fork's planner-redesign branch. Prior v0.14.2
+GitHub CI passed for 6e9aad0 and its release is preserved. The v0.14.3 release
+folder and ZIP are ready in outputs; GitHub publication/CI confirmation are pending.
+The existing unpacked extension folder is the installation target. All 17
+installed v0.14.3 files are SHA-256 verified against dist. The preceding v0.14.2
+build is backed up alongside earlier versions in outputs. The user reloaded and
+refreshed; live v0.14.3 verification passed. Tidy remains opt-in.
 Tidy remains opt-in.
 
 ## Archived v0.13.0 handoff
