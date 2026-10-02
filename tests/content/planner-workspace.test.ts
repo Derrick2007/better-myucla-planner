@@ -242,6 +242,27 @@ describe("one-page native planner workspace", () => {
     info.click(); document.querySelector<HTMLButtonElement>('.pl-intro-info-close')!.click();
     expect(document.activeElement).toBe(info); workspace.restore(); expect([...sidebar.children]).toEqual(widgets);
   });
+  it("compacts and restores the banner by scrolling while preserving native navigation", () => {
+    document.body.innerHTML = new DOMParser().parseFromString(introductionFixtureHtml(), "text/html").body.innerHTML;
+    const nav = document.getElementById('fixture-native-navigation')!, navHtml = nav.outerHTML;
+    const title = document.getElementById('titleText')!;
+    let scrollY = 0;
+    const scroll = vi.spyOn(window, 'scrollY', 'get').mockImplementation(() => scrollY);
+    const bounds = vi.spyOn(title, 'getBoundingClientRect').mockImplementation(() => ({top: 178 - scrollY}) as DOMRect);
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation((options: ScrollToOptions | number) => {
+      scrollY = typeof options === 'number' ? options : options.top || 0;
+      window.dispatchEvent(new Event('scroll'));
+    });
+    try {
+      mount(); const button = document.querySelector<HTMLButtonElement>('.pl-intro-header-toggle')!;
+      expect(button.type).toBe('button'); expect(button.textContent).toBe('Compact header');
+      button.click(); expect(scrollY).toBe(166); expect(button.textContent).toBe('Show header');
+      expect(button.getAttribute('aria-pressed')).toBe('true'); expect(document.activeElement).toBe(button);
+      expect(nav.outerHTML).toBe(navHtml); expect(document.getElementById('fixture-native-navigation')).toBe(nav);
+      button.click(); expect(scrollY).toBe(0); expect(button.textContent).toBe('Compact header');
+      expect(nav.outerHTML).toBe(navHtml); workspace.restore(); expect(button.isConnected).toBe(false);
+    } finally { scrollTo.mockRestore(); bounds.mockRestore(); scroll.mockRestore(); }
+  });
   it("leaves unfamiliar introductions native and preserves replacement text on reconciliation", () => {
     document.body.innerHTML = new DOMParser().parseFromString(introductionFixtureHtml(), "text/html").body.innerHTML;
     const sidebar = document.querySelector('right-sidebar')!; sidebar.remove(); mount();

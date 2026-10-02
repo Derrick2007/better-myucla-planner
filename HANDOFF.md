@@ -1,9 +1,22 @@
 # Better MyUCLA — Agent handoff
 
-Last updated: 2026-10-01
+Last updated: 2026-10-02
 
-Current version: `0.14.3` (redesign beta)
-Status: compact introduction and intentional page scrolling are built, tested,
+Current version: `0.14.4` (redesign beta)
+Status: explicit Compact header / Show header is built and verified on fictional
+production fixtures. Typecheck, 180 tests across 18 files and build passed.
+Seven-width workspace and five-width introduction QA passed, including pointer
+compaction, keyboard restoration, title/term retention, native navigation
+identity, focus, no new requests, ordinary scrolling, redraws and restoration.
+The control scrolls the document only, never styles, hides or moves UCLA's menu.
+The existing unpacked build is updated; all 17 files are SHA-256 verified.
+The prior v0.14.3 build is backed up outside Git. Source publication and live
+verification after the user's extension reload are pending.
+Screenshots and the versioned ZIP belong outside Git under outputs.
+
+## v0.14.3 verification record
+
+The preceding compact introduction and intentional page scrolling were built, tested,
 installed and verified on the authorized live Class Planner tab. Source and ZIP
 are published to the user's fork; GitHub CI and release build passed for db9f48e.
 

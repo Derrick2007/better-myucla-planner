@@ -120,3 +120,8 @@ their contents. All widget controls retain their native parents and handlers.
 Document scrolling lets the unchanged UCLA banner scroll away. Scroll handling
 reads element bounds only and sends no requests. These choices are local to the
 page; no new storage, permissions or data collection is added.
+
+Compact header / Show header (0.14.4) changes only the document scroll position
+after an explicit click and reads the existing public heading's bounds. It does
+not read menu contents or alter native navigation, and has no stored preference
+or network request.

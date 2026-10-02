@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.14.4 — 2026-10-02 (redesign beta)
+
+- Add Compact header / Show header in the existing workspace. One explicit
+  click scrolls UCLA's banner away while retaining the planner title, original
+  term selector and notices; another returns to the original menu. Native menu
+  nodes, placement, styling and handlers are unchanged. No search or plan action
+  is submitted. The control also follows ordinary page scrolling.
+- Keep focus on the control and remove it with Original layout or disabling
+  Tidy. Add fictional pointer/keyboard, viewport, native identity and restoration
+  checks. No extra requests, storage or permissions are introduced.
+
 ## 0.14.3 — 2026-10-01 (redesign beta)
 
 - Compact the planner introduction below UCLA's untouched banner/navigation:

@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.14.3 redesign beta, inside the existing Chrome extension
+Implemented in the 0.14.4 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -25,6 +25,10 @@ The UCLA banner and navigation are unchanged and scroll away with normal page
 scrolling. The planner grows into the available viewport as the introduction
 leaves the screen; Classes, Schedule and Browse still scroll independently.
 BODY is not a scroll container, preventing its earlier hidden scrolling bug.
+Compact header explicitly scrolls the banner away in one click, stopping with
+the title, native term selector and notices still visible. Show header returns
+to UCLA's menu. The owned button follows manual scrolling and keeps keyboard
+focus; no native navigation nodes, styling or handlers change.
 
 Below UCLA's header, the planner heading is smaller and the original term
 selector appears alongside it on desktop. Its native form, parent, options and

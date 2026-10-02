@@ -415,3 +415,14 @@ Links & help toggles a CSS class on the original sidebar; no widget content is
 read or copied. Its close control/Escape returns focus. Containers with native
 descendants must not be marked extension-owned. Restoration removes only owned
 controls/classes and restores the original text placement and sidebar styles.
+
+## Explicit header compaction (0.14.4)
+
+The owned Compact header / Show header button mounts only with the validated
+introduction. Its type is button, never submit. An explicit click scrolls the
+root document until the existing title is 12px from the viewport top, retaining
+the native term chooser and notices. Show header returns to scrollTop zero.
+The button follows manual root scrolling and retains focus without scrolling.
+It does not inspect, style, hide, move or clone UCLA masthead/menu nodes, invoke
+native handlers, submit a form, store state or introduce requests. Original
+layout and Tidy restoration remove the owned control.

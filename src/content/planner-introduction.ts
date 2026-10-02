@@ -1,9 +1,9 @@
 const OWNED = "data-planner-lift-owned";
 const TERM = "ctl00_MainContent_termSessionChooser_TermChooser";
 interface Introduction {
-  doc: Document; layout: HTMLElement; description: HTMLElement; text: HTMLElement;
+  doc: Document; layout: HTMLElement; title: HTMLElement; description: HTMLElement; text: HTMLElement;
   anchor: Comment; about: HTMLDetailsElement; term: HTMLElement; label: HTMLLabelElement;
-  sidebar: HTMLElement; info: HTMLButtonElement; close: HTMLButtonElement; notices: HTMLElement[];
+  sidebar: HTMLElement; header: HTMLButtonElement; info: HTMLButtonElement; close: HTMLButtonElement; notices: HTMLElement[];
   sidebarHadClass: boolean; sidebarHadStyle: boolean; layoutHadClass: boolean; noticeHadClass: boolean[];
 }
 
@@ -48,6 +48,8 @@ export class PlannerIntroduction {
     about.addEventListener("toggle", onLayout);
     const label = owned(doc.createElement("label"), "pl-intro-term-label"); label.htmlFor = TERM; label.textContent = "Term";
     select.before(label);
+    const header = owned(doc.createElement("button"), "pl-intro-header-toggle"); header.type = "button";
+    toolbar.append(header);
     const info = owned(doc.createElement("button"), "pl-intro-info"); info.type = "button";
     info.textContent = "Links & help"; info.setAttribute("aria-expanded", "false");
     info.title = "Planner links, enrollment appointments and help"; toolbar.append(info);
@@ -60,18 +62,32 @@ export class PlannerIntroduction {
     const sidebarHadClass = sidebar.hasAttribute("class"), sidebarHadStyle = sidebar.hasAttribute("style"), layoutHadClass = layout.hasAttribute("class");
     notices.forEach(e => e.classList.add("pl-intro-notice"));
     layout.classList.add("pl-planner-introduction"); term.classList.add("pl-intro-term"); sidebar.classList.add("pl-intro-sidebar");
-    this.state = {doc, layout, description, text, anchor, about, term, label, sidebar, info, close, notices,
+    this.state = {doc, layout, title, description, text, anchor, about, term, label, sidebar, header, info, close, notices,
       sidebarHadClass, sidebarHadStyle, layoutHadClass, noticeHadClass};
+    header.addEventListener("click", () => {
+      const view = doc.defaultView; if (!view) return;
+      // Scroll the original banner away; never hide, move or restyle its menu.
+      // Stop at the title so the term selector and notices remain accessible.
+      const top = title.getBoundingClientRect().top;
+      view.scrollTo({top: top <= 13 && view.scrollY > 0 ? 0 : Math.max(0, view.scrollY + top - 12), behavior: "instant"});
+      onLayout(); header.focus({preventScroll: true});
+    });
     info.addEventListener("click", () => {
       if (sidebar.classList.contains("pl-intro-sidebar-open")) { this.closeInfo(); return; }
       sidebar.classList.add("pl-intro-sidebar-open"); info.setAttribute("aria-expanded", "true");
       this.positionInfo(); close.focus({preventScroll: true});
     });
     close.addEventListener("click", () => this.closeInfo());
+    this.positionInfo();
   }
 
   positionInfo(): void {
-    const s = this.state; if (!s || !s.sidebar.classList.contains("pl-intro-sidebar-open")) return;
+    const s = this.state; if (!s) return;
+    const compact = (s.doc.defaultView?.scrollY || 0) > 0 && s.title.getBoundingClientRect().top <= 13;
+    s.header.textContent = compact ? "Show header" : "Compact header";
+    s.header.setAttribute("aria-pressed", String(compact));
+    s.header.title = compact ? "Return to UCLA's menu" : "Scroll UCLA's banner out of view";
+    if (!s.sidebar.classList.contains("pl-intro-sidebar-open")) return;
     const top = Math.max(12, Math.min(s.doc.defaultView!.innerHeight - 160, s.info.getBoundingClientRect().bottom + 8));
     s.sidebar.style.setProperty("--pl-info-top", `${Math.ceil(top)}px`);
   }
@@ -96,6 +112,6 @@ export class PlannerIntroduction {
       if (s.anchor.isConnected) s.anchor.before(child); else s.about.before(child);
     }
     s.anchor.remove();
-    s.about.remove(); s.label.remove(); s.info.remove(); s.close.remove();
+    s.about.remove(); s.label.remove(); s.header.remove(); s.info.remove(); s.close.remove();
   }
 }
