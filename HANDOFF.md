@@ -2,7 +2,54 @@
 
 Last updated: 2026-10-02
 
-Current version: `0.14.5` (redesign beta)
+Current version: `0.14.6` (redesign beta)
+
+This review adds Expand Browse / Restore panes and a responsive list-and-preview
+view inside the existing native search section. The loaded-course filter is
+owned, unnamed and memory-only; Enter never submits. The selected heading is
+shown above its native sections, with arrow/Home/End index navigation. Local
+filter/disclosure/focus/list-scroll choices survive a section-row redraw, and
+new result sets reset them. Widening Browse preserves previous pane choices;
+Escape or named pane buttons restore them. Native controls/statuses/handlers
+and original UCLA navigation remain unchanged. Incomplete result sets remain
+native; no background load or request is added.
+
+The review also fixes controller disposal/startup races and wrong-plan local
+notes/view/draft state after partial context changes. Stale async responses are
+ignored; prior plans' persisted drafts survive. Invalid/future quarters remove
+obsolete save controls while retaining independently validated introduction UI.
+Original layout reattaches its return button after redraw. Print reveals all
+loaded courses and optional room/instructor fields without viewport clipping.
+
+Automatic workspace remounts now preserve root scroll across the temporary
+document-height clamp caused by removing the old spacer. This does not change
+explicit Original layout or disable behavior. Saved compaction still supplies
+its minimum scroll after the new layout is positioned.
+
+Typecheck, 196 tests across 20 files and the production build passed. Final
+workspace/browser fixtures passed at seven widths, including print, a five-width
+introduction/root-scroll series, compact preference across redraw/reload/tab
+return, both future/current transitions and local dragging. Independent native
+search and calendar/layout regressions passed. Screenshots were visually reviewed
+at 1440, 960 and 390px. No new requests were observed in isolated fixtures.
+The existing unpacked build is updated to v0.14.6; all 17 files SHA-256 verified.
+Prior v0.14.5 is backed up outside Git. After user reload, authorized live QA
+passed full-width Browse and persistence through native subject/course/search
+updates. Loaded index and preview were side by side, selected heading matched,
+native controls retained their form, and there was no horizontal overflow.
+Local no-match filtering and Enter kept Browse open; clearing restored the
+preview. Escape restored all three panes and button focus. Switching Fall to
+Winter future plan removed obsolete save controls and retained Show header;
+returning to Fall restored all six modules with BODY scroll zero. Show header
+then Compact header left Fall's title and term at 12px. Retain only structural
+facts, not actual course names/account contents. No live plan or enrollment
+action was taken. GitHub publication is the remaining step.
+Only fictional fixtures/screenshots may be retained. No live course, plan or
+enrollment change is authorized for verification. Use the existing Class Planner
+tab only. Keep dist untracked and publish only to the user's fork.
+
+## v0.14.5 verification record
+
 Status: persistent Compact header / Show header is built and verified on fictional
 production fixtures. Typecheck, 182 tests across 19 files and build passed.
 Seven-width workspace and five-width introduction QA passed. A saved one-boolean

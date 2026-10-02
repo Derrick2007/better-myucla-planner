@@ -1405,6 +1405,12 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-top button:hover, .pl-workspace-top summary:hover { background: #fff; }
 .pl-workspace-top button:focus-visible, .pl-pane-toggle:focus-visible, .pl-browser-toolbar button:focus-visible, .pl-browser-index button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 .pl-workspace-deck { display: grid; grid-template-columns: var(--pl-workspace-columns); flex: 1; min-height: 0; }
+.pl-browse-expanded > .pl-workspace-plan, .pl-browse-expanded > .pl-workspace-calendar { display: none !important; }
+.pl-workspace-search { container-type: inline-size; }
+.classPlannerWrapper button.pl-browse-expand { min-height: 32px; margin-left: auto; padding: 5px 9px; border: 1px solid #dce3eb; border-radius: 6px; background: #fff; color: #42617f; font: 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.classPlannerWrapper button.pl-browse-expand:hover { background: #edf3f9; }
+.classPlannerWrapper button.pl-browse-expand:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
+.pl-workspace-search .pl-pane-toggle { margin-left: 0 !important; }
 .pl-workspace-deck > section { min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; margin: 0 !important; padding: 0 0 10px; background: #fff; border: 1px solid #e0e5eb; border-radius: 9px; }
 .pl-workspace-deck > section > .classPlanner_SectionTitle, .pl-workspace-extra-content .classPlanner_SectionTitle {
   position: sticky; top: 0; z-index: 4; margin: 0 0 8px; padding: 8px 10px !important;
@@ -1468,10 +1474,37 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-browser-toolbar strong { flex: 1; font-size: 12px; }
 .pl-browser-toolbar button, .pl-workspace-preview-more { border: 1px solid #dce3eb; border-radius: 6px; padding: 6px 8px; color: #42617f; background: #fff; font-size: 11px; cursor: pointer; }
 .pl-browser-toolbar button[aria-expanded="true"], .pl-workspace-preview-more[aria-expanded="true"] { background: #edf3f9; border-color: #b9cde1; }
-.pl-browser-index { display: flex; flex-direction: column; max-height: 134px; overflow: auto; margin-bottom: 12px; padding: 4px; border: 1px solid #e0e6ee; border-radius: 7px; background: #f7f9fb; }
+.pl-browser-index { display: flex; flex-direction: column; flex-shrink: 0; max-height: 200px; overflow: auto; margin-bottom: 12px; padding: 4px; border: 1px solid #e0e6ee; border-radius: 7px; background: #f7f9fb; }
 .pl-browser-index button { text-align: left; min-height: 36px; padding: 7px 9px; border: 0; border-radius: 5px; background: transparent; color: #56677c; font: 12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; white-space: normal; cursor: pointer; }
 .pl-browser-index button[aria-pressed="true"] { background: #e6eff9; color: #245b90; }
 .pl-browser-index button:hover { background: #edf2f8; }
+.pl-browser-choices { display: flex; flex-direction: column; gap: 3px; }
+.pl-browser-index .pl-browser-filter { display: block; position: sticky; top: -4px; z-index: 1; margin: 0 0 4px; padding: 4px; background: #f7f9fb; }
+.pl-browser-filter > span { display: block; margin-bottom: 4px; color: #697586; font-size: 11px; }
+.pl-browser-index input[type="search"] { box-sizing: border-box; width: 100%; min-height: 36px; height: auto; margin: 0; padding: 7px 9px; border: 1px solid #dce3eb; border-radius: 6px; background: #fff; color: #29435f; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-browser-index input[type="search"]:focus-visible { outline: 2px solid #4184c2; outline-offset: 1px; }
+.pl-browser-filter-status { margin: 4px 8px 8px; color: #697586; font-size: 12px; line-height: 1.5; }
+.pl-browser-filter-status:empty { display: none; }
+.ClassSearchList h3.pl-browser-preview-title { margin: 0 0 14px; padding: 0 0 10px; border-bottom: 1px solid #e5e9ef; color: #29435f; font: 600 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
+.pl-browser-index button[hidden] { display: none !important; }
+@container (min-width: 700px) {
+  .ClassSearchWidget.pl-browser-results { display: grid; grid-template-columns: minmax(200px, 28%) minmax(0, 1fr); column-gap: 24px; align-content: start; }
+  .pl-browser-results > * { grid-column: 1 / -1; min-width: 0; }
+  .pl-browser-results > .pl-browser-index { grid-column: 1; align-self: start; max-height: max(260px,calc(100dvh - var(--pl-workspace-top,12px) - 240px)); margin: 0; padding: 4px; }
+  .pl-browser-results > .pl-browser-list { grid-column: 2; max-height: max(260px,calc(100dvh - var(--pl-workspace-top,12px) - 240px)); padding-left: 20px; border-left: 1px solid #e5e9ef; box-sizing: border-box; }
+  .ClassSearchList.pl-browser-list .pl-section-card { border-width: 0 0 1px; border-radius: 0; margin-bottom: 0; }
+}
+@container (min-width: 1100px) {
+  .ClassSearchList.pl-browser-list .pl-section-card { grid-template-columns: 28px minmax(90px,1fr) minmax(140px,1.4fr) minmax(70px,.8fr) minmax(100px,1.2fr) 40px; }
+  .pl-browser-list .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
+  .pl-browser-list .pl-section-field[data-pl-field="2"] { grid-column: 3; grid-row: 1; padding-top: 14px !important; }
+  .pl-browser-list .pl-section-field[data-pl-field="3"] { grid-column: 1; grid-row: 2; }
+  .pl-browser-list .pl-section-field[data-pl-field="4"] { grid-column: 4; grid-row: 1; }
+  .pl-browser-list .pl-section-field[data-pl-field="5"] { grid-column: 5; grid-row: 1; }
+  .pl-browser-list .pl-section-field[data-pl-field="7"] { grid-column: 6; grid-row: 1; }
+  .pl-browser-list .pl-section-field[data-pl-field="6"] { grid-column: 2 / 4; grid-row: 2; }
+  .pl-browser-list .pl-section-field[data-pl-field="8"] { grid-column: 4 / 7; grid-row: 2; }
+}
 .pl-browser-list > .pl-browser-course:not(.pl-browser-active), .pl-browser-course > .class-title { display: none !important; }
 .pl-browser-course.pl-browser-active, .pl-browser-body.pl-browser-body-active { display: block !important; }
 .pl-browser-body:not(.pl-browser-body-active) { display: none !important; }
@@ -1560,6 +1593,11 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-deck > section { overflow: visible; }
   .pl-workspace-top, .pl-workspace-preview, .pl-workspace-detail-button, .pl-workspace-splitter, .pl-pane-toggle, .pl-browser-toolbar, .pl-browser-index { display: none !important; }
   .pl-workspace-deck > section.pl-pane-collapsed, .pl-pane-collapsed > .pl-pane-body, .pl-inspector-open > .ClassSearchWidget { display: block !important; }
+  .pl-browse-expanded > .pl-workspace-plan, .pl-browse-expanded > .pl-workspace-calendar { display: block !important; }
+  .pl-browse-expand, .pl-browser-preview-title { display: none !important; }
+  .ClassSearchWidget.pl-browser-results { display: block; }
+  .pl-browser-results > .pl-browser-list { border: 0; padding: 0; max-height: none; overflow: visible; }
+  .pl-section-more .pl-section-field[data-pl-field="6"], .pl-section-more .pl-section-field[data-pl-field="8"], .pl-section-field[data-pl-field="6"], .pl-section-field[data-pl-field="8"] { display: block; }
   .pl-workspace-empty { display: none; }
   .pl-workspace-plan #panelPlan { max-height: none; overflow: visible; }
   .pl-workspace-plan tbody.courseItem, .pl-workspace-plan tbody.courseItem > tr:first-child { display: table-row-group; }

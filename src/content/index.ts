@@ -7,6 +7,7 @@ import { PlannerController } from "./controller";
 import { MyUclaPlannerController } from "./myucla-controller";
 
 type ActivePlannerController = PlannerController | MyUclaPlannerController;
+let startGeneration = 0;
 
 declare global {
   interface Window {
@@ -28,20 +29,23 @@ function createController(): ActivePlannerController | null {
 }
 
 export async function startPlannerLift(): Promise<ActivePlannerController | null> {
+  const generation = ++startGeneration;
   window.__plannerLiftController?.dispose();
   window.__plannerLiftController = undefined;
 
-  if (!(await readEnabled())) return null;
+  const enabled = await readEnabled();
+  if (generation !== startGeneration || !enabled) return null;
 
   const controller = createController();
   if (!controller) return null;
 
   window.__plannerLiftController = controller;
   await controller.start();
-  return controller;
+  return generation === startGeneration ? controller : null;
 }
 
 export function stopPlannerLift(): void {
+  startGeneration += 1;
   window.__plannerLiftController?.dispose();
   window.__plannerLiftController = undefined;
   releaseBootHold();

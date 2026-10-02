@@ -448,3 +448,28 @@ future-plan content stays native. This does not relax inspectContract or mount
 course controls when it fails. Observe the existing BODY for native replacement;
 initialize course tools only after the original adapter contract passes, then
 restore presentation-only mode if a later quarter has no editable table.
+
+## Browser presentation and lifecycle review (0.14.6)
+
+Expand Browse is an owned button on the validated search title. It changes the
+existing deck's CSS columns/visibility only. Restore panes, Escape and named pane
+buttons restore access; no native section handler is invoked. The original-layout
+return button is reattached only inside the known wrapper/form after redraw.
+
+An unnamed owned search input filters only the already-copied public result
+headings. Enter is prevented from submitting the native form. Arrow keys and
+Home/End select visible owned index buttons; aria-controls points to the existing
+native course body. An owned preview heading repeats that course label. Retain
+local filter/disclosure/scroll/focus only when root, entry, body and heading
+identities and heading text still match; new results reset these local choices.
+Restore removes all owned nodes and preserves the native class-attribute state.
+Print reveals all loaded bodies and optional room/instructor cells without
+viewport clipping. No native query input is read and no extra request is sent.
+
+Controller startup/redraw/save continuations are generation- and disposal-guarded.
+Every term/plan transition clears obsolete in-memory course state and reloads
+the existing keyed notes/view/draft records. Ignore stale asynchronous results;
+preserve prior-context persisted drafts. Recheck the strict native contract and
+active context before any local move/tag/save. Invalid/future contexts remove
+obsolete course/save UI and allow only independently validated introduction
+presentation. The native adapter and permissions remain unchanged.

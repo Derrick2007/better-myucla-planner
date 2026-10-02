@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.14.5 redesign beta, inside the existing Chrome extension
+Implemented in the 0.14.6 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -54,6 +54,20 @@ instructors reveal together on demand. Edit search exposes the original fields.
 Native column help buttons remain accessible. Section bodies retain their native
 sibling or nested placement, and global result actions remain visible.
 
+Expand Browse gives this task the full workspace. At sufficient pane width the
+course list and selected-course preview sit side by side; narrow screens stack
+them. Restore panes, Escape, or a Classes/Schedule button returns to the earlier
+pane choices. Filtering course numbers/titles works only on loaded headings.
+The preview repeats the selected course heading so its sections have context;
+Up/Down/Home/End move through visible choices. Filter text, disclosures, focus
+and list scroll survive section-row redraws while the same result set remains.
+New result sets reset them. This state is in memory only.
+
+The default three-pane layout remains useful for comparing a plan against the
+schedule, but it cannot make dense section results comfortable in a narrow
+sidebar. Expanded browsing deliberately trades simultaneous panes for readable
+results within the same page, with one action to return.
+
 Unfamiliar or incomplete results keep MyUCLA's original presentation and loading
 controls. The extension cannot show information MyUCLA has not loaded. Subject
 selection and explicit searches still use native autocomplete and server
@@ -100,3 +114,16 @@ term/notices, explanatory disclosure spacing, all original sidebar widgets,
 close/Escape/focus, scrolling away/back and Details bounds. Native course search
 retained the scrolled document position, compact presentation, native form
 controls and loaded preview without horizontal overflow.
+
+The 0.14.6 review passed 196 automated tests and production-browser fixtures at
+seven widths, including expanded Browse, filtering without submission, preview
+headings, keyboard selection, print completeness and native identity checks.
+Five introduction widths and root-scroll remount checks also passed, together
+with saved header choices across redraws/reloads and both future/current quarter
+transitions. Search and calendar/layout regression checks passed. After user
+reload, live v0.14.6 verification passed full-width Browse, persistence through
+native search updates, side-by-side loaded previews, local filtering/Enter,
+Escape/focus return and native form association without horizontal overflow.
+Future/current quarter changes retained compact choice and removed obsolete
+save controls, then restored all six modules. No plan/enrollment action was
+automated; only structural facts were retained.

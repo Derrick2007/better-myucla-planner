@@ -142,6 +142,12 @@ export class MyUclaPlannerController {
   private annotations: Record<string, CourseAnnotation> = {};
   private observer: MutationObserver | null = null;
   private reconcileQueued = false;
+  private reconcileFrame: number | null = null;
+  private disposed = false;
+  private activeContextKey: string | null = null;
+  private loadingContextKey: string | null = null;
+  private contextGeneration = 0;
+  private reloadTimer: number | null = null;
   private initialized = false;
   private starting = false;
   private contractHealthy = false;
@@ -180,21 +186,26 @@ export class MyUclaPlannerController {
 
   constructor(private readonly adapter: MyUclaPlannerAdapter) {
     this.fastCoordinator = new FastReorderCoordinator(adapter, (progress) => {
+      if (this.disposed || !this.saving) return;
       this.status = progress;
       this.renderStatus();
     });
   }
 
   async start(): Promise<void> {
-    if (this.starting || this.initialized) return;
+    if (this.disposed || this.starting || this.initialized) return;
     this.starting = true;
+    try {
     if (!this.observer) {
       this.tidyLayout = (await readLayoutSettings()).tidy;
+      if (this.disposed) return;
       this.workspace.setHeaderCompact((await readHeaderSettings()).compact);
+      if (this.disposed) return;
       this.stopLayoutWatch = watchLayoutSettings(({ tidy }) => this.setTidyLayout(tidy));
       // The native UpdatePanel is replaced wholesale on partial postbacks.
       // Watch outside it, including quarters with no editable class table.
       this.observer = new MutationObserver((records) => {
+        if (this.disposed) return;
         if (this.isExtensionOnlyMutation(records)) return;
         if (this.initialized) this.scheduleReconcile();
         else if (!this.starting) void this.start();
@@ -204,27 +215,80 @@ export class MyUclaPlannerController {
     const contract = this.adapter.inspectContract();
     if (!contract.ok) {
       if (this.tidyLayout) this.workspace.reconcileIntroductionOnly(document);
-      releaseBootHold(); this.starting = false; return;
+      return;
     }
+    await this.activateContext(this.adapter.getContextKey());
+    } finally {
+      this.starting = false;
+      if (!this.disposed) releaseBootHold();
+    }
+  }
 
-    const contextKey = this.adapter.getContextKey();
-    this.annotations = await this.repository.getContext(contextKey);
-    const view = await readViewState(contextKey);
+  private async activateContext(contextKey: string): Promise<void> {
+    this.leaveContext();
+    const generation = this.contextGeneration;
+    this.loadingContextKey = contextKey;
+    const [annotations, view] = await Promise.all([
+      this.repository.getContext(contextKey), readViewState(contextKey)
+    ]);
+    if (this.disposed || generation !== this.contextGeneration) return;
+    this.loadingContextKey = null;
+    if (!this.adapter.inspectContract().ok || this.adapter.getContextKey() !== contextKey) {
+      this.reconcile(); return;
+    }
+    this.activeContextKey = contextKey;
+    this.annotations = annotations;
     this.viewStateSeen = view.seen;
     view.collapsed.forEach((id) => this.collapsedCourses.add(id));
-    this.initialized = true; this.starting = false;
-    this.attachEvents();
-    this.stopSessionWatch = watchSessionCountdown((countdown) => {
-      this.sessionCountdown = countdown;
-      this.renderSaveState();
-    });
+    if (!this.initialized) {
+      this.initialized = true;
+      this.attachEvents();
+      this.stopSessionWatch = watchSessionCountdown((countdown) => {
+        if (this.disposed) return;
+        this.sessionCountdown = countdown;
+        this.renderSaveState();
+      });
+    }
     this.reconcile();
     this.restoreAfterSync();
-    await this.loadDraft(contextKey);
-    releaseBootHold();
+    await this.loadDraft(contextKey, generation);
+  }
+
+  /** Keep saved drafts in their originating plan; clear only obsolete page state. */
+  private leaveContext(): void {
+    this.contextGeneration += 1;
+    this.contractHealthy = false;
+    this.activeContextKey = null;
+    this.loadingContextKey = null;
+    this.saving = false;
+    this.fastCoordinator.cancel();
+    this.cancelDrag();
+    this.hideJumpChip();
+    this.restoreLabels();
+    this.savedOrder = null; this.desiredOrder = null; this.restorableDraft = null;
+    this.movedByUser.clear(); this.collapsedCourses.clear(); this.openTagEditors.clear();
+    this.annotations = {}; this.courses = []; this.insights.clear();
+    this.searchQuery = ""; this.viewStateSeen = false; this.lastRoot = null; this.lastCourseCount = -1;
+    this.status = IDLE_STATUS; this.offerReload = false;
+    window.removeEventListener("beforeunload", this.onBeforeUnload);
+    if (this.reloadTimer !== null) window.clearTimeout(this.reloadTimer);
+    this.reloadTimer = null;
+    for (const id of [TOOLBAR_ID, ACTIONBAR_ID, TOPBAR_ID, FINALS_TOGGLE_ID]) document.getElementById(id)?.remove();
+    document.querySelectorAll(`[${OWNED_ATTRIBUTE}][data-pl-real-tools], [data-pl-finals], [data-pl-conflict-badge], [data-pl-tag-badge]`).forEach(node => node.remove());
+    document.querySelectorAll(".pl-filtered-out, .pl-course-collapsed, .pl-lead-card, .pl-syncing").forEach(node => {
+      node.classList.remove("pl-filtered-out", "pl-course-collapsed", "pl-lead-card", "pl-syncing");
+    });
+    document.documentElement.classList.remove("pl-has-actionbar");
   }
 
   dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.contextGeneration += 1;
+    if (this.reconcileFrame !== null) window.cancelAnimationFrame(this.reconcileFrame);
+    this.reconcileFrame = null; this.reconcileQueued = false;
+    if (this.reloadTimer !== null) window.clearTimeout(this.reloadTimer);
+    this.reloadTimer = null;
     this.cancelDrag();
     this.restoreLabels();
     this.savedOrder = null;
@@ -292,6 +356,7 @@ export class MyUclaPlannerController {
   /** Flipping the switch must restore MyUCLA's markup immediately, not on the
    *  next reload. */
   private setTidyLayout(tidy: boolean): void {
+    if (this.disposed) return;
     if (this.tidyLayout === tidy) return;
     this.tidyLayout = tidy;
     if (!tidy) {
@@ -309,10 +374,12 @@ export class MyUclaPlannerController {
   }
 
   private scheduleReconcile(): void {
-    if (this.reconcileQueued || this.drag) return;
+    if (this.disposed || this.reconcileQueued || this.drag) return;
     this.reconcileQueued = true;
-    window.requestAnimationFrame(() => {
+    this.reconcileFrame = window.requestAnimationFrame(() => {
+      this.reconcileFrame = null;
       this.reconcileQueued = false;
+      if (this.disposed) return;
       if (this.needsReconcile()) this.reconcile();
     });
   }
@@ -359,20 +426,21 @@ export class MyUclaPlannerController {
   }
 
   private reconcile(): void {
+    if (this.disposed) return;
     const contract = this.adapter.inspectContract();
     if (!contract.ok) {
+      if (this.activeContextKey || this.loadingContextKey) this.leaveContext();
       this.classSearch.restore();
       restorePlannerFrame(document);
       if (this.tidyLayout) this.workspace.reconcileIntroductionOnly(document);
       else this.workspace.restore();
       this.contractHealthy = false;
-      this.status = {
-        kind: "error",
-        message: contract.reason || "MyUCLA's page layout changed, so reordering stopped.",
-        completed: 0,
-        total: 0
-      };
-      this.renderStatus();
+      return;
+    }
+
+    const contextKey = this.adapter.getContextKey();
+    if (contextKey !== this.activeContextKey) {
+      if (contextKey !== this.loadingContextKey) void this.activateContext(contextKey);
       return;
     }
 
@@ -879,8 +947,8 @@ export class MyUclaPlannerController {
   }
 
   private persistViewState(): void {
-    if (!this.contractHealthy) return;
-    void saveViewState(this.adapter.getContextKey(), {
+    if (!this.contractHealthy || !this.activeContextKey) return;
+    void saveViewState(this.activeContextKey, {
       collapsed: [...this.collapsedCourses],
       seen: true
     }).catch(() => undefined);
@@ -1011,7 +1079,7 @@ export class MyUclaPlannerController {
    */
   private applyLocalMove(courseId: string, targetIndex: number): void {
     try {
-      if (!this.contractHealthy || this.saving) return;
+      if (!this.isActiveContext() || this.saving) return;
       const current = this.currentOrder();
       if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= current.length) {
         throw new Error("That position isn't valid.");
@@ -1046,8 +1114,8 @@ export class MyUclaPlannerController {
   private persistDraft(): void {
     const savedOrder = this.savedOrder;
     const desiredOrder = this.desiredOrder;
-    if (!savedOrder || !desiredOrder || !this.contractHealthy) return;
-    void saveDraft(this.adapter.getContextKey(), {
+    if (!savedOrder || !desiredOrder || !this.contractHealthy || !this.activeContextKey) return;
+    void saveDraft(this.activeContextKey, {
       savedOrder: [...savedOrder],
       desiredOrder: [...desiredOrder],
       moved: [...this.movedByUser]
@@ -1056,8 +1124,8 @@ export class MyUclaPlannerController {
 
   private forgetDraft(): void {
     this.restorableDraft = null;
-    if (!this.contractHealthy) return;
-    void clearDraft(this.adapter.getContextKey()).catch(() => undefined);
+    if (!this.contractHealthy || !this.activeContextKey) return;
+    void clearDraft(this.activeContextKey).catch(() => undefined);
   }
 
   /**
@@ -1065,9 +1133,10 @@ export class MyUclaPlannerController {
    * arrangement they built. Offer it back, but only while MyUCLA's own order is
    * still the one the draft was built on.
    */
-  private async loadDraft(contextKey: string): Promise<void> {
+  private async loadDraft(contextKey: string, generation = this.contextGeneration): Promise<void> {
     if (this.isDirty || !this.contractHealthy) return;
     const draft = await readDraft(contextKey);
+    if (this.disposed || generation !== this.contextGeneration || contextKey !== this.activeContextKey || !this.isActiveContext() || this.isDirty) return;
     if (!draft) return;
     if (!ordersMatch(draft.savedOrder, this.currentOrder())) {
       await clearDraft(contextKey).catch(() => undefined);
@@ -1118,7 +1187,8 @@ export class MyUclaPlannerController {
    * roughly how long, and nothing is written to MyUCLA before it.
    */
   private async saveChanges(): Promise<void> {
-    if (!this.isDirty || this.saving) return;
+    if (!this.isActiveContext() || !this.isDirty || this.saving) return;
+    const generation = this.contextGeneration;
     const baseline = this.savedOrder!;
     const target = this.desiredOrder ?? this.currentOrder();
     if (ordersMatch(baseline, target)) {
@@ -1136,6 +1206,7 @@ export class MyUclaPlannerController {
     this.setStatus("running", "Saving to MyUCLA\u2026");
 
     const result = await this.fastCoordinator.applyOrder(target, baseline);
+    if (this.disposed || generation !== this.contextGeneration || !this.isActiveContext()) return;
     this.saving = false;
 
     if (result.status !== "unavailable") {
@@ -1174,7 +1245,10 @@ export class MyUclaPlannerController {
     } catch {
       // Restoring scroll is a nicety; never block the reload on storage.
     }
-    window.setTimeout(() => window.location.reload(), 320);
+    this.reloadTimer = window.setTimeout(() => {
+      this.reloadTimer = null;
+      if (!this.disposed) window.location.reload();
+    }, 320);
   }
 
   private restoreAfterSync(): void {
@@ -1189,12 +1263,12 @@ export class MyUclaPlannerController {
     try {
       const parsed = JSON.parse(raw) as { scrollY?: unknown; flash?: unknown };
       if (typeof parsed.scrollY === "number" && Number.isFinite(parsed.scrollY)) {
-        window.requestAnimationFrame(() => window.scrollTo(0, Number(parsed.scrollY)));
+        window.requestAnimationFrame(() => { if (!this.disposed) window.scrollTo(0, Number(parsed.scrollY)); });
       }
       if (typeof parsed.flash === "string" && parsed.flash) {
         this.setStatus("success", parsed.flash);
         window.setTimeout(() => {
-          if (this.status.kind === "success") this.setStatus("idle", "");
+          if (!this.disposed && this.status.kind === "success") this.setStatus("idle", "");
         }, 5_000);
       }
     } catch {
@@ -1966,9 +2040,12 @@ export class MyUclaPlannerController {
   // ------------------------------------------------------------------- tags
 
   private async saveTag(courseId: string, value: string): Promise<void> {
+    if (!this.isActiveContext()) return;
+    const contextKey = this.activeContextKey!, generation = this.contextGeneration;
     const annotation = { color: "none" as const, tag: value.trim().slice(0, 24) };
     this.annotations[courseId] = annotation;
-    await this.repository.save(this.adapter.getContextKey(), courseId, annotation);
+    await this.repository.save(contextKey, courseId, annotation);
+    if (this.disposed || generation !== this.contextGeneration) return;
     const course = this.courses.find(({ id }) => id === courseId);
     if (course) this.applyAnnotation(course);
     this.applyViewState();
@@ -1977,9 +2054,15 @@ export class MyUclaPlannerController {
   private async clearAllAnnotations(): Promise<void> {
     if (!window.confirm("Delete every note you have saved on this computer?")) return;
     await this.repository.clearAll();
+    if (this.disposed) return;
     this.annotations = {};
     this.openTagEditors.clear();
     this.setStatus("success", "All notes deleted.");
     this.reconcile();
+  }
+
+  private isActiveContext(): boolean {
+    return !this.disposed && this.contractHealthy && this.adapter.inspectContract().ok &&
+      this.adapter.getContextKey() === this.activeContextKey;
   }
 }

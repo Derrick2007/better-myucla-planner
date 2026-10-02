@@ -26,6 +26,7 @@ interface Workspace {
   top: HTMLElement; extras: HTMLDetailsElement; placements: Placement[];
   preview: HTMLElement; head: HTMLElement; content: HTMLElement; close: HTMLButtonElement;
   more: HTMLButtonElement; panes: Pane[]; splitters: HTMLElement[]; empty: HTMLElement;
+  expandBrowse: HTMLButtonElement;
   position: HTMLElement; scrollRoom: HTMLElement; hostHadStyle: boolean;
   resize: () => void; key: (event: KeyboardEvent) => void;
   move: (event: PointerEvent) => void; end: () => void;
@@ -55,6 +56,7 @@ export class PlannerWorkspace {
   private latestCourses: readonly CourseSnapshot[] = [];
   private paneChoices = new Map<string, boolean>();
   private widths = [240, 460];
+  private expandedBrowse = false;
   private drag: {index:number; start:number; width:number; pointerId:number} | null = null;
   private browser = new CourseBrowserPresentation();
   private introduction: PlannerIntroduction;
@@ -69,7 +71,7 @@ export class PlannerWorkspace {
   }
 
   needsReconcile(doc: Document): boolean {
-    if (this.useOriginal) return false;
+    if (this.useOriginal) return !!this.returnButton && !this.returnButton.isConnected;
     if (this.introductionOnly) return !this.introductionOnly.toolbar.isConnected || this.introduction.needsRefresh(doc);
     const s = this.state;
     return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected ||
@@ -81,9 +83,17 @@ export class PlannerWorkspace {
   reconcile(doc: Document, courses: readonly CourseSnapshot[]): void {
     if (this.introductionOnly) this.restore();
     this.latestCourses = courses;
+    if (this.useOriginal) { this.ensureReturnButton(doc); return; }
     if (courses.some(course => !hasKnownDetails(course.node))) { this.restore(); return; }
     const old = this.state;
-    if (old && (doc.getElementById(PANEL) !== old.panel || !old.deck.isConnected || old.panes.some(p => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section))) this.restore();
+    const view = doc.defaultView;
+    let redrawScroll: {left: number; top: number} | null = null;
+    if (old && (doc.getElementById(PANEL) !== old.panel || !old.deck.isConnected || old.panes.some(p => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section))) {
+      // Removing the old flow spacer can briefly shrink the document enough for
+      // the browser to clamp its scroll. Preserve it only for automatic remounts.
+      if (view) redrawScroll = {left: view.scrollX, top: view.scrollY};
+      this.restore();
+    }
     if (this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) this.closePreview(false);
     if (!this.state && !this.useOriginal) this.mount(doc);
     if (!this.state) return;
@@ -100,6 +110,11 @@ export class PlannerWorkspace {
       button.addEventListener("click", () => this.openPreview(course, button)); host.append(button);
     }
     this.state.resize();
+    if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
+      view.scrollTo({...redrawScroll, behavior: "instant"});
+      // Height is restored now; saved compaction still supplies its minimum.
+      this.state.resize();
+    }
   }
 
   /** Presentation can survive an empty/future quarter without enabling reorder. */
@@ -126,6 +141,17 @@ export class PlannerWorkspace {
   openCourse(course: CourseSnapshot, trigger?: HTMLElement): boolean {
     if (!this.state || !course.node.querySelector("[data-pl-workspace-details]")) return false;
     this.openPreview(course, trigger || null); return true;
+  }
+
+  private ensureReturnButton(doc: Document): void {
+    const host=doc.getElementById(PANEL)?.parentElement;
+    if(!host?.classList.contains("classPlannerWrapper")||!host.closest("form#aspnetForm"))return;
+    if(this.returnButton?.parentElement===host)return;
+    this.returnButton?.remove();
+    const back=doc.createElement("button");back.type="button";back.className="pl-workspace-return";
+    back.setAttribute(OWNED,"true");back.textContent="Open planner workspace";
+    host.prepend(back);this.returnButton=back;
+    back.addEventListener("click",()=>{this.useOriginal=false;back.remove();this.returnButton=null;this.reconcile(doc,this.latestCourses);});
   }
 
   private mount(doc: Document): void {
@@ -156,6 +182,13 @@ export class PlannerWorkspace {
       title.addEventListener("click",pane.click,true);panes.push(pane);return pane;
     };
     const primaryPanes=sections.map((matches,i)=>addPane(matches[0] as HTMLElement,PRIMARY[i][3])!);
+    const expandBrowse=owned(doc.createElement("button"),"pl-browse-expand");expandBrowse.type="button";
+    expandBrowse.addEventListener("click",()=>{
+      this.expandedBrowse=!this.expandedBrowse;
+      primaryPanes[2].collapsed=false;this.paneChoices.set(primaryPanes[2].title.id,false);
+      this.updatePanes();expandBrowse.focus({preventScroll:true});
+    });
+    primaryPanes[2].toggle.before(expandBrowse);
     const placements:Placement[]=[];
     const place=(node:HTMLElement,destination:HTMLElement)=>{
       const anchor=doc.createComment("planner-lift-workspace-position");node.before(anchor);
@@ -216,9 +249,7 @@ export class PlannerWorkspace {
     const original=owned(doc.createElement("button"),"pl-workspace-original");original.type="button";original.textContent="Original layout";top.append(original);
     original.addEventListener("click",()=>{
       this.restore();this.useOriginal=true;
-      const back=owned(doc.createElement("button"),"pl-workspace-return");back.type="button";back.textContent="Open planner workspace";
-      host.prepend(back);this.returnButton=back;
-      back.addEventListener("click",()=>{this.useOriginal=false;back.remove();this.returnButton=null;this.reconcile(doc,this.latestCourses);});
+      this.ensureReturnButton(doc);
     });
     const preview=owned(doc.createElement("aside"),"pl-workspace-preview");preview.hidden=true;
     preview.setAttribute("role","region");preview.setAttribute("aria-label","Selected class details");
@@ -237,13 +268,14 @@ export class PlannerWorkspace {
       if(this.introduction.closeInfo()){event.preventDefault();}
       else if(this.selected){this.closePreview();event.preventDefault();}
       else if(extras.open){extras.open=false;summary.focus();event.preventDefault();}
+      else if(this.expandedBrowse){this.expandedBrowse=false;this.updatePanes();expandBrowse.focus({preventScroll:true});event.preventDefault();}
     };
     const move=(event:PointerEvent)=>{
       if(!this.drag||event.pointerId!==this.drag.pointerId)return;
       this.widths[this.drag.index]=this.drag.width+(event.clientX-this.drag.start)*(this.drag.index===0?1:-1);this.updatePanes();
     };
     const end=()=>{this.drag=null;deck.classList.remove("pl-workspace-resizing");};
-    this.state={doc,host,panel,deck,top,extras,placements,preview,head,content,close,more,panes,splitters,empty,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end};
+    this.state={doc,host,panel,deck,top,extras,placements,preview,head,content,close,more,panes,splitters,empty,expandBrowse,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end};
     doc.defaultView?.addEventListener("resize",resize);doc.defaultView?.addEventListener("scroll",resize,{passive:true});extras.addEventListener("toggle",resize);doc.addEventListener("keydown",key);
     doc.defaultView?.addEventListener("focus",resize);doc.defaultView?.addEventListener("pageshow",resize);doc.defaultView?.addEventListener("load",resize);doc.addEventListener("visibilitychange",resize);
     doc.addEventListener("pointermove",move);doc.addEventListener("pointerup",end);doc.addEventListener("pointercancel",end);doc.defaultView?.addEventListener("blur",end);
@@ -264,6 +296,10 @@ export class PlannerWorkspace {
 
   private setPaneCollapsed(pane:Pane,collapsed:boolean,focus=false): void {
     const s=this.state;if(!s)return;
+    if(this.expandedBrowse&&s.panes.slice(0,3).includes(pane)){
+      this.expandedBrowse=false;
+      if(pane!==s.panes[2])collapsed=false;
+    }
     if(collapsed && [s.panes[0],s.panes[2]].includes(pane))this.closePreview(false);
     pane.collapsed=collapsed;this.paneChoices.set(pane.title.id,collapsed);this.updatePanes();
     if(focus)(collapsed&&pane.reopen?pane.reopen:pane.toggle).focus({preventScroll:true});
@@ -272,6 +308,10 @@ export class PlannerWorkspace {
   private updatePanes(): void {
     const s=this.state;if(!s)return;
     const primary=s.panes.slice(0,3),available=s.deck.clientWidth||1400;
+    s.deck.classList.toggle("pl-browse-expanded",this.expandedBrowse);
+    s.expandBrowse.textContent=this.expandedBrowse?"Restore panes":"Expand Browse";
+    s.expandBrowse.setAttribute("aria-pressed",String(this.expandedBrowse));
+    s.expandBrowse.title=this.expandedBrowse?"Return to your previous pane layout (Esc)":"Give course browsing the full workspace width";
     this.widths[0]=Math.max(200,Math.min(420,this.widths[0],available-24-420-(primary[2].collapsed?0:340)));
     this.widths[1]=Math.max(340,Math.min(720,this.widths[1],available-24-420-(primary[0].collapsed?0:this.widths[0])));
     for(const pane of s.panes){
@@ -279,15 +319,16 @@ export class PlannerWorkspace {
       pane.toggle.setAttribute("aria-expanded",String(!pane.collapsed));
       const action=`${pane.collapsed?"Expand":"Collapse"} ${pane.label}`;
       pane.toggle.setAttribute("aria-label",action);pane.toggle.title=action;pane.toggle.textContent=pane.collapsed?"›":"⌄";
-      pane.reopen?.setAttribute("aria-pressed",String(!pane.collapsed));
-      if(pane.reopen)pane.reopen.title=`${pane.collapsed?"Show":"Hide"} ${pane.label}`;
+      const hidden=pane.collapsed||(this.expandedBrowse&&primary.includes(pane)&&pane!==primary[2]);
+      pane.reopen?.setAttribute("aria-pressed",String(!hidden));
+      if(pane.reopen)pane.reopen.title=`${hidden?"Show":"Hide"} ${pane.label}`;
     }
     const tracks:string[]=[];
     primary.forEach((pane,i)=>{
       if(!pane.collapsed)tracks.push(i===1?"minmax(0,1fr)":primary.filter(p=>!p.collapsed).length===1?"minmax(0,1fr)":`${this.widths[i===0?0:1]}px`);
-      if(i<2){const visible=!pane.collapsed&&!primary[i+1].collapsed;s.splitters[i].hidden=!visible;if(visible)tracks.push("12px");}
+      if(i<2){const visible=!this.expandedBrowse&&!pane.collapsed&&!primary[i+1].collapsed;s.splitters[i].hidden=!visible;if(visible)tracks.push("12px");}
     });
-    s.deck.style.setProperty("--pl-workspace-columns",tracks.join(" ")||"minmax(0,1fr)");
+    s.deck.style.setProperty("--pl-workspace-columns",this.expandedBrowse?"minmax(0,1fr)":tracks.join(" ")||"minmax(0,1fr)");
     s.splitters.forEach((splitter,i)=>{
       splitter.setAttribute("aria-valuemin",String(i===0?200:340));splitter.setAttribute("aria-valuemax",String(i===0?420:720));splitter.setAttribute("aria-valuenow",String(Math.round(this.widths[i])));
     });
@@ -299,6 +340,7 @@ export class PlannerWorkspace {
     if(this.selected===course.node){this.closePreview();return;}
     this.introduction.closeInfo(false);
     this.closePreview(false);s.extras.open=false;
+    this.expandedBrowse=false;
     for(const pane of [s.panes[0],s.panes[2]]){pane.collapsed=false;this.paneChoices.set(pane.title.id,false);}this.updatePanes();
     this.selected=course.node;this.selectedHadStyle=course.node.hasAttribute("style");this.returnFocus=trigger;
     this.selectedTable=course.node.querySelector<HTMLTableElement>("table.coursetable");
@@ -358,7 +400,7 @@ export class PlannerWorkspace {
     for(const {node,anchor} of [...s.placements].reverse()){if(anchor.isConnected)anchor.replaceWith(node);else anchor.remove();}
     PRIMARY.forEach(([, ,cls])=>s.doc.querySelectorAll(`.${cls}`).forEach(n=>n.classList.remove(cls)));
     s.doc.querySelectorAll("[data-pl-workspace-details]").forEach(n=>n.remove());
-    s.preview.remove();s.deck.remove();s.top.remove();s.position.remove();s.scrollRoom.remove();["--pl-workspace-top","--pl-workspace-left","--pl-workspace-width"].forEach(p=>s.host.style.removeProperty(p));
+    s.expandBrowse.remove();s.preview.remove();s.deck.remove();s.top.remove();s.position.remove();s.scrollRoom.remove();["--pl-workspace-top","--pl-workspace-left","--pl-workspace-width"].forEach(p=>s.host.style.removeProperty(p));
     if(!s.hostHadStyle&&!s.host.getAttribute("style"))s.host.removeAttribute("style");s.host.classList.remove("pl-workspace-host","pl-workspace-flow");s.doc.documentElement.classList.remove("pl-workspace-page");
   }
 }

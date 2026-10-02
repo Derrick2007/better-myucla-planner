@@ -204,6 +204,112 @@ describe("MyUclaPlannerController UI", () => {
     expect(document.querySelectorAll("[data-pl-real-tools]")).toHaveLength(3);
   });
 
+  it("does not revive controls after disposal with a native redraw queued", async () => {
+    controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
+    await controller.start();
+    partialPostback();
+    await Promise.resolve(); // The observer has queued its animation frame.
+    controller.dispose();
+    await settle();
+    expect(document.querySelectorAll("[data-planner-lift-owned]")).toHaveLength(0);
+    expect(document.querySelectorAll(".pl-plan-root")).toHaveLength(0);
+    expect(planOrder()).toEqual(ids);
+  });
+
+  it("does not finish starting after it is disabled during a storage read", async () => {
+    let finishRead!: (value: Record<string, unknown>) => void;
+    vi.mocked(chrome.storage.local.get).mockImplementationOnce(() => new Promise(resolve => { finishRead = resolve; }));
+    controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
+    const starting = controller.start();
+    controller.dispose();
+    finishRead({});
+    await starting;
+    partialPostback();
+    await settle();
+    expect(document.querySelectorAll("[data-planner-lift-owned]")).toHaveLength(0);
+  });
+
+  it("loads notes and view preferences for the new plan without carrying an unsaved order", async () => {
+    const firstKey = "myucla-26F-plan-1234567", nextKey = "myucla-26F-plan-7654321";
+    const courseId = `myucla-class-${ids[0]}`;
+    await chrome.storage.local.set({
+      "plannerLift.annotations.v1": {schemaVersion: 1, contexts: {
+        [firstKey]: {[courseId]: {color: "none", tag: "First plan"}},
+        [nextKey]: {[courseId]: {color: "none", tag: "Second plan"}}
+      }},
+      "plannerLift.view.v1": {[nextKey]: {collapsed: [courseId], seen: true}}
+    });
+    controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
+    await controller.start();
+    expect(document.querySelector("[data-pl-tag-badge]")?.textContent).toBe("First plan");
+    document.querySelector<HTMLButtonElement>(`[data-course-id="myucla-class-${ids[1]}"] [data-pl-action="top"]`)!.click();
+    await settle();
+    const draftsBefore = await chrome.storage.local.get("plannerLift.draft.v1");
+
+    document.querySelector<HTMLInputElement>("#ctl00_MainContent_planIDField")!.value = "7654321";
+    partialPostback();
+    await settle();
+    expect(planOrder()).toEqual(ids);
+    expect(document.querySelector("[data-pl-tag-badge]")?.textContent).toBe("Second plan");
+    expect(document.querySelector(`tbody.Class${ids[0]}`)?.classList.contains("pl-course-collapsed")).toBe(true);
+    expect(document.querySelector<HTMLElement>("[data-pl-dirty]")?.hidden).toBe(true);
+    expect(await chrome.storage.local.get("plannerLift.draft.v1")).toEqual(draftsBefore);
+
+    document.querySelector<HTMLInputElement>("#ctl00_MainContent_planIDField")!.value = "1234567";
+    partialPostback();
+    await settle();
+    expect(document.querySelector("[data-pl-tag-badge]")?.textContent).toBe("First plan");
+    expect(document.querySelector<HTMLElement>("[data-pl-draft]")?.hidden).toBe(false);
+  });
+
+  it("removes stale save controls on a future quarter while preserving the prior draft", async () => {
+    controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
+    await controller.start();
+    document.querySelector<HTMLButtonElement>(`[data-course-id="myucla-class-${ids[1]}"] [data-pl-action="top"]`)!.click();
+    await settle();
+    const draftsBefore = await chrome.storage.local.get("plannerLift.draft.v1");
+    document.getElementById("ctl00_MainContent_classPlanPanel")!.innerHTML = '<p>Example future plan</p>';
+    await settle();
+    expect(document.querySelector("#planner-lift-actionbar")).toBeNull();
+    expect(document.querySelector("[data-pl-action=save]")).toBeNull();
+    expect(document.documentElement.classList.contains("pl-has-actionbar")).toBe(false);
+    expect(await chrome.storage.local.get("plannerLift.draft.v1")).toEqual(draftsBefore);
+
+    partialPostback();
+    await settle();
+    expect(document.querySelector<HTMLElement>("[data-pl-draft]")?.hidden).toBe(false);
+    expect(document.querySelector("[data-pl-status]")?.textContent).toBe("");
+    expect(planOrder()).toEqual(ids);
+  });
+
+  it("ignores an old plan's delayed storage response after a second navigation", async () => {
+    const courseId = `myucla-class-${ids[0]}`;
+    await chrome.storage.local.set({"plannerLift.annotations.v1": {schemaVersion: 1, contexts: {
+      "myucla-26F-plan-7654321": {[courseId]: {color: "none", tag: "Skipped plan"}},
+      "myucla-26F-plan-7654322": {[courseId]: {color: "none", tag: "Current plan"}}
+    }}});
+    controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
+    await controller.start();
+    const originalGet = vi.mocked(chrome.storage.local.get).getMockImplementation()! as unknown as (key: string) => Promise<Record<string, unknown>>;
+    let finish!: (value: Record<string, unknown>) => void;
+    let held = false;
+    vi.mocked(chrome.storage.local.get).mockImplementation(((key: string) => {
+      if (key === "plannerLift.annotations.v1" && !held) {
+        held = true;
+        return new Promise<Record<string, unknown>>(resolve => { finish = resolve; });
+      }
+      return originalGet(key);
+    }) as typeof chrome.storage.local.get);
+    const plan = document.querySelector<HTMLInputElement>("#ctl00_MainContent_planIDField")!;
+    plan.value = "7654321"; partialPostback(); await settle();
+    plan.value = "7654322"; partialPostback(); await settle();
+    expect(document.querySelector("[data-pl-tag-badge]")?.textContent).toBe("Current plan");
+    finish(await originalGet("plannerLift.annotations.v1"));
+    await settle();
+    expect(document.querySelector("[data-pl-tag-badge]")?.textContent).toBe("Current plan");
+    expect(document.querySelectorAll("[data-pl-real-tools]")).toHaveLength(3);
+  });
+
   it("keeps secondary actions accessible in a menu without touching native buttons", async () => {
     controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
     await controller.start();

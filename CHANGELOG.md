@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.14.6 — 2026-10-02 (redesign beta)
+
+- Give Browse the full workspace with Expand Browse. A wide pane places the
+  loaded course list beside the selected course's sections; Restore panes,
+  Escape or a named pane button returns to the previous layout. Original UCLA
+  controls, statuses and form associations stay intact.
+- Add an in-memory filter for loaded course numbers/titles, a selected-course
+  heading, and Up/Down/Home/End navigation. Filtering never submits a search.
+  Keep filter text, field disclosures, focus and list scroll through section-row
+  redraws; reset them when MyUCLA replaces the result set.
+- Recreate the Open planner workspace button after native redraws in Original
+  layout. Printing includes all loaded courses, rooms and instructors even when
+  Browse is expanded or extra fields are folded.
+- Preserve document scroll during automatic workspace remounts, preventing a
+  temporary document-height change from jumping back to the top.
+- Cancel pending startup, redraw and save continuations when disabled. Reload
+  notes, collapsed state and draft offers when the term/plan changes; ignore
+  stale responses and keep previous plans' stored drafts. Remove obsolete save
+  controls on empty/future quarters. No new storage schema, permissions,
+  background requests or catalog prefetching.
+
 ## 0.14.5 — 2026-10-02 (redesign beta)
 
 - Save the explicit Compact header / Show header choice as one local boolean.

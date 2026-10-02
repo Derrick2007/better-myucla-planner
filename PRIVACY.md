@@ -112,6 +112,14 @@ Unknown or incomplete results remain native. Details docking measures element
 bounds only and never copies a native control. Rooms/instructors remain in their
 original cells; the toggle changes local visibility only.
 
+In 0.14.6 the separate extension-owned Filter courses field reads its own text
+only to filter those loaded public headings in memory. It has no form name,
+never submits, and is neither logged nor stored. The original MyUCLA search
+input values remain unread. Expand Browse and local filter/disclosure/focus
+choices introduce no saved preference. Notes, collapsed state and draft offers
+reload under the existing term/plan key after a switch; a stale asynchronous
+response cannot apply another plan's data, and its persisted draft is preserved.
+
 ## Compact introduction (0.14.3)
 
 The extension checks the known planner introduction's public heading and DOM

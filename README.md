@@ -37,6 +37,7 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
 | **Clearer search** | With the optional tidy layout: Subject / Instructor / GE choices, compact labeled fields, grouped secondary searches and guidance for required dropdown selections. Uses the search types MyUCLA currently offers. |
 | **One-page workspace** | With tidy enabled: Classes on the left, Schedule in the center and Browse on the right. Resize supporting panes with drag or arrow keys, fold/reopen each independently, and inspect classes beside the schedule. Loaded course results switch locally without new requests. Tools (3) contains the other native modules. UCLA navigation, term chooser and plan menus stay in place; Original layout restores all six sections. |
+| **Expand Browse** | Give search the whole workspace, with a course list beside its preview on wider screens. Filter already-loaded course titles/numbers, navigate with arrow keys, and press Escape or Restore panes to return. Native searches still load through MyUCLA. |
 
 The pane layout remains a work in progress. [UI direction](docs/UI_DIRECTION.md)
 describes the shipped design and the remaining limits of native search.

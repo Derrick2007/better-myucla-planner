@@ -102,6 +102,25 @@ describe("one-page native planner workspace", () => {
     expect(controls.every(node=>node.closest('form')===document.getElementById('aspnetForm'))).toBe(true);
     workspace.restore(); expect(document.querySelector('[role="separator"]')).toBeNull();
   });
+  it("expands Browse and restores the user's pane choices without native actions", () => {
+    mount();
+    const paneButtons=[...document.querySelectorAll<HTMLButtonElement>('.pl-workspace-pane-switches button')];
+    paneButtons[0].click();
+    const expand=document.querySelector<HTMLButtonElement>('.pl-browse-expand')!;
+    const nativeForm=document.querySelector('form')!;
+    const submit=vi.fn();nativeForm.addEventListener('submit',submit);
+    expand.click();
+    expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-browse-expanded')).toBe(true);
+    expect(paneButtons.map(b=>b.getAttribute('aria-pressed'))).toEqual(['false','false','true']);
+    expect(expand.textContent).toBe('Restore panes');
+    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    expect(paneButtons.map(b=>b.getAttribute('aria-pressed'))).toEqual(['false','true','true']);
+    expect(document.activeElement).toBe(expand);
+    expand.click();paneButtons[0].click();
+    expect(document.querySelector('.pl-browse-expanded')).toBeNull();
+    expect(paneButtons.map(b=>b.getAttribute('aria-pressed'))).toEqual(['true','true','true']);
+    expect(submit).not.toHaveBeenCalled();expect(adapter.inspectContract().ok).toBe(true);
+  });
   it("lists all three other native sections and restores every section in original layout", () => {
     const sections = [...document.querySelectorAll("#ctl00_MainContent_classPlanPanel > section")];
     mount();
@@ -116,6 +135,17 @@ describe("one-page native planner workspace", () => {
     document.querySelector<HTMLButtonElement>(".pl-workspace-return")!.click();
     expect(document.querySelectorAll(".pl-workspace-deck > section")).toHaveLength(3);
     expect(document.querySelectorAll(".pl-workspace-extra-content > section")).toHaveLength(3);
+  });
+  it("keeps the return to workspace control after an original-layout redraw", () => {
+    mount();document.querySelector<HTMLButtonElement>('.pl-workspace-original')!.click();
+    const replacement=new DOMParser().parseFromString(workspaceFixtureHtml(), 'text/html');
+    document.querySelector('.classPlannerWrapper')!.replaceWith(document.importNode(replacement.querySelector('.classPlannerWrapper')!,true));
+    mount();
+    expect(document.querySelector('.pl-workspace-deck')).toBeNull();
+    expect(document.querySelectorAll('.pl-workspace-return')).toHaveLength(1);
+    document.querySelector<HTMLButtonElement>('.pl-workspace-return')!.click();
+    expect(document.querySelectorAll('.pl-workspace-deck > section')).toHaveLength(3);
+    expect(adapter.inspectContract().ok).toBe(true);
   });
   it("leaves an unknown native section structure untouched", () => {
     document.getElementById("classSearchTitle")!.id = "unexpectedSearchTitle";
@@ -199,6 +229,35 @@ describe("one-page native planner workspace", () => {
     expect(document.querySelector(".pl-workspace-deck")).toBeNull();
     expect(document.querySelector("table.coursetable")).not.toBeNull();
   });
+  it("restores root scrolling after an automatic remount temporarily shortens the page", () => {
+    mount();
+    let scrollY = 280;
+    const scroll = vi.spyOn(window, "scrollY", "get").mockImplementation(() => scrollY);
+    const restore = workspace.restore.bind(workspace);
+    const restoreSpy = vi.spyOn(workspace, "restore").mockImplementation(() => {
+      restore();
+      // Simulate Chrome clamping scroll when removing the fixed workspace spacer.
+      scrollY = 0;
+    });
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation((options: ScrollToOptions | number) => {
+      expect(document.querySelector(".pl-workspace-deck")).not.toBeNull();
+      expect(document.querySelector<HTMLElement>(".pl-workspace-scroll-room")!.style.height).not.toBe("");
+      scrollY = typeof options === "number" ? options : options.top || 0;
+    });
+    try {
+      const next = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
+      document.getElementById("ctl00_MainContent_classPlanPanel")!.replaceWith(document.importNode(next.getElementById("ctl00_MainContent_classPlanPanel")!, true));
+      mount();
+      expect(scrollY).toBe(280);
+      expect(scrollTo).toHaveBeenCalledOnce();
+      scrollTo.mockClear();
+      document.querySelector<HTMLButtonElement>(".pl-workspace-original")!.click();
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(document.querySelector(".pl-workspace-deck")).toBeNull();
+    } finally {
+      restoreSpy.mockRestore(); scrollTo.mockRestore(); scroll.mockRestore();
+    }
+  });
   it("remounts a native panel redraw without reviving old sections", () => {
     mount(); document.querySelector<HTMLButtonElement>("[data-pl-workspace-details]")!.click();
     const fixture = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
@@ -221,7 +280,7 @@ describe("one-page native planner workspace", () => {
     const text = document.getElementById('page_title_text')!, textHtml = text.innerHTML;
     mount(); mount();
     expect(nav.outerHTML).toBe(navHtml); expect(term.parentElement).toBe(termParent);
-    expect(new Set(document.querySelectorAll('input,select'))).toEqual(new Set(fields));
+    expect(new Set([...document.querySelectorAll('input,select')].filter(node=>!node.closest('[data-planner-lift-owned]')))).toEqual(new Set(fields));
     const about = document.querySelector<HTMLDetailsElement>('.pl-intro-about')!;
     expect(about.open).toBe(false); expect(text.parentElement).toBe(about); expect(text.innerHTML).toBe(textHtml);
     expect(document.querySelectorAll('.pl-intro-term-label')).toHaveLength(1);

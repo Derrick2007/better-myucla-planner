@@ -4,7 +4,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { workspaceFixtureHtml, introductionFixtureHtml, futureQuarterFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.5');
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.6');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
@@ -63,6 +63,36 @@ try {
   assert.ok(await nativePreserved());
   assert.ok(await page.locator('.pl-browser-body-active .header-Status').isVisible(),'native header help remains accessible');
   assert.ok(await page.locator('#fixture-result-footer button').isVisible(),'global native result actions remain accessible');
+  const expandBrowse=page.locator('.pl-browse-expand');await expandBrowse.click();
+  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),1,'expanded Browse has the available workspace');
+  if(width>=960){
+   const indexBox=await page.locator('.pl-browser-index').boundingBox(),previewBox=await page.locator('.pl-browser-list').boundingBox();
+   assert.ok(indexBox.x+indexBox.width<=previewBox.x,'wide Browse presents the course list beside its preview');
+   assert.ok(previewBox.width>=360,'preview retains readable space');
+  }
+  assert.ok(await page.locator('.pl-browser-preview-title').isVisible());
+  assert.equal(await page.locator('.pl-browser-preview-title').innerText(),await page.locator('.pl-browser-index button[aria-pressed="true"]').innerText());
+  const localFilter=page.getByRole('searchbox',{name:'Filter courses',exact:true});
+  await localFilter.fill('Example course B');await localFilter.press('Enter');
+  assert.equal(await page.locator('.pl-browser-index button:visible').count(),1);
+  assert.equal(await page.locator('#container_course_M1').isVisible(),true);
+  await localFilter.fill('');await page.locator('.pl-browser-index button').first().press('End');
+  assert.equal(await page.locator('.pl-browser-index button').last().getAttribute('aria-pressed'),'true');
+  assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'expanded previews do not overflow');
+  assert.ok(await nativePreserved());
+  if(width===1440||width===960||width===390)await page.screenshot({path:resolve(out,`browse-expanded-${width}.png`)});
+  if(width===1440){
+   await page.emulateMedia({media:'print'});
+   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3,'printing restores panes hidden by expanded Browse');
+   assert.equal(await page.locator('.pl-browser-body:visible').count(),3,'printing includes every loaded course');
+   assert.ok(await page.locator('.pl-browser-body .data_row > .span7').first().isVisible(),'print includes rooms without opening the extra-fields toggle');
+   assert.ok(await page.locator('.pl-browser-body .data_row > .span9').first().isVisible(),'print includes instructors');
+   assert.ok(await page.locator('.pl-browser-list').evaluate(node=>getComputedStyle(node).maxHeight==='none'&&getComputedStyle(node).overflow==='visible'),'print does not clip result rows');
+   assert.equal(await expandBrowse.isVisible(),false);
+   await page.emulateMedia({media:'screen'});
+  }
+  await expandBrowse.click();
+  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3);
   if(width>1240){
    const nav=await page.locator('#fixture-native-navigation').boundingBox(),host=await page.locator('.pl-workspace-host').boundingBox();
    assert.ok(host.y>=nav.y+nav.height,'UCLA navigation remains unobscured');
