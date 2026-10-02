@@ -1342,8 +1342,10 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
 /* Workspace v2: classes, schedule and local course browser inside the native form. */
 /* Use the document's scrollbar so the unchanged UCLA header can scroll away.
    BODY is not a scroll container: native focus cannot scroll it independently. */
-html.pl-workspace-page { height: auto; min-height: 100%; overflow: auto; }
-html.pl-workspace-page body { height: auto; min-height: 100dvh; overflow: visible; }
+html.pl-workspace-page, html.pl-intro-page { height: auto; min-height: 100%; overflow: auto; }
+html.pl-workspace-page body, html.pl-intro-page body { height: auto; min-height: 100dvh; overflow: visible; }
+html.pl-intro-page section#layoutContentArea.pl-planner-introduction { min-height: calc(100dvh - 12px); }
+.pl-intro-toolbar { justify-content: flex-end; }
 .classPlannerWrapper.pl-workspace-host {
   position: fixed; top: var(--pl-workspace-top,12px); left: 16px; z-index: 100;
   height: calc(100dvh - var(--pl-workspace-top,12px) - var(--pl-workspace-bottom,16px));

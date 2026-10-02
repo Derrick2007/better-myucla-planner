@@ -2,24 +2,42 @@
 
 Last updated: 2026-10-02
 
-Current version: `0.14.4` (redesign beta)
-Status: explicit Compact header / Show header is built and verified on fictional
-production fixtures. Typecheck, 180 tests across 18 files and build passed.
-Seven-width workspace and five-width introduction QA passed, including pointer
-compaction, keyboard restoration, title/term retention, native navigation
-identity, focus, no new requests, ordinary scrolling, redraws and restoration.
+Current version: `0.14.5` (redesign beta)
+Status: persistent Compact header / Show header is built and verified on fictional
+production fixtures. Typecheck, 182 tests across 19 files and build passed.
+Seven-width workspace and five-width introduction QA passed. A saved one-boolean
+preference survives native quarter redraws, fresh controllers and browser-tab
+return. Show header and native-menu keyboard focus release compaction. No new
+requests, polling, permissions or account/course storage were introduced.
+
+Authorized live inspection found future quarters have no editable class table.
+The exact-page bootstrap now permits independently validated introduction
+presentation there, while the adapter/reorder contract stays unchanged. Fictional
+QA covers starting on a future quarter, current/future redraws both directions,
+normal course tools only after validation, native identity and Tidy restoration.
 The control scrolls the document only, never styles, hides or moves UCLA's menu.
-The existing unpacked build is updated; all 17 files are SHA-256 verified.
-The prior v0.14.3 build is backed up outside Git. Source and the ZIP are published
-to the user's fork under v0.14.4 (code SHA 8e9ad669d827273278107e61d5097da0a1b8b18f).
-GitHub CI and release packaging passed:
+The existing unpacked build is updated to v0.14.5, all 17 files SHA-256 verified.
+The old v0.14.4 build is backed up outside Git. After the user reloaded/refreshed,
+authorized live QA passed: Fall to Winter future plan retained Show header and
+title/native term at 12px; a fresh Winter reload retained that choice. Show header
+restored root scroll zero and its off choice survived returning to Fall. A new
+compact choice survived Fall reload. Native header class/style remained unchanged,
+BODY scroll remained zero, there was no horizontal overflow, and all six modules
+returned. Only structural checks and a public heading crop outside Git were saved.
+No class/plan/enrollment action was automated. Final page is Fall, compact.
+Source publication and release CI are pending.
+Never automate plan/enrollment actions.
+
+## v0.14.4 verification record
+
+The prior build was installed with all 17 files SHA-256 verified; v0.14.3 was
+backed up outside Git. Source and ZIP were published under v0.14.4, code SHA
+8e9ad669d827273278107e61d5097da0a1b8b18f. CI/release packaging passed:
 https://github.com/comet-ctrl/better-myucla-planner/actions/runs/36977363593
 https://github.com/comet-ctrl/better-myucla-planner/actions/runs/36977366150
 https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.4
-After the user reloaded/refreshed, live clicks verified compaction (banner bottom
-at zero, title/native term top at 12px), focus retention and Show header restoring
-the original menu/document position. All six modules remain, with no horizontal
-overflow or independent BODY scrolling. Never automate plan/enrollment actions.
+Live clicks verified one-time compaction and Show header restoring the menu.
+The user reported that changing quarters resets it, motivating v0.14.5.
 The browser screenshot clip uses document coordinates and can return root scroll
 to zero: inspect fresh bounds and use the owned control to restore the intended
 view afterwards. Retain only public heading crops outside Git, never account

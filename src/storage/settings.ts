@@ -189,6 +189,17 @@ export function watchSessionSettings(listener: () => void): () => void {
 
 const LAYOUT_KEY = "plannerLift.layout.v1";
 
+const HEADER_KEY = "plannerLift.header.v1";
+export async function readHeaderSettings(): Promise<{ compact: boolean }> {
+  if (!globalThis.chrome?.storage?.local) return { compact: false };
+  const stored = await chrome.storage.local.get(HEADER_KEY), entry = stored[HEADER_KEY];
+  return { compact: !!entry && typeof entry === "object" && entry.compact === true };
+}
+export async function saveHeaderSettings(settings: { compact: boolean }): Promise<void> {
+  if (!globalThis.chrome?.storage?.local) return;
+  await chrome.storage.local.set({ [HEADER_KEY]: { compact: settings.compact === true } });
+}
+
 export interface LayoutSettings {
   /**
    * Restyle MyUCLA's own class list and weekly grid. Off by default: students

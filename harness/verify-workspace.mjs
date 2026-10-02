@@ -3,33 +3,35 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
-import { workspaceFixtureHtml, introductionFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.4');
+import { workspaceFixtureHtml, introductionFixtureHtml, futureQuarterFixtureHtml } from './workspace-fixture.mjs';
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.5');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.BETTER_MYUCLA_CHROMIUM||undefined});
-const setup=async(page,html)=>{
+const setup=async(page,html,compactHeader=false,ready='.pl-workspace-deck')=>{
  const errors=[],requests=[];
  page.on('pageerror',error=>errors.push(error.message));
  await page.route('**/*',route=>route.request().url()===url ? route.fulfill({status:200,contentType:'text/html',body:html}) : (requests.push(route.request().url()),route.abort()));
  await page.goto(url);
- await page.evaluate(()=>{
+ await page.evaluate(compactHeader=>{
   const listeners=[];
-  window.chrome={storage:{local:{get:async key=>key==='plannerLift.layout.v1'?{[key]:{tidy:true}}:{},set:async()=>{},remove:async()=>{}},onChanged:{addListener:fn=>listeners.push(fn),removeListener:()=>{}}}};
+  const stored={'plannerLift.layout.v1':{tidy:true},'plannerLift.header.v1':{compact:compactHeader}};
+  window.fixturePreferences=stored;
+  window.chrome={storage:{local:{get:async key=>({[key]:stored[key]}),set:async values=>Object.assign(stored,values),remove:async key=>delete stored[key]},onChanged:{addListener:fn=>listeners.push(fn),removeListener:()=>{}}}};
   window.toggleTidy=tidy=>listeners.forEach(fn=>fn({'plannerLift.layout.v1':{newValue:{tidy}}},'local'));
   window.nativeFields=[...document.querySelectorAll('input,select')];
   window.nativeCommands=[...document.querySelectorAll('.OrderingButtons button')].map(node=>({node,command:node.getAttribute('onclick')}));
-  window.nativeDetails=document.querySelector('tbody.courseItem > tr:nth-child(3)');window.nativeDetailsParent=window.nativeDetails.parentElement;
+  window.nativeDetails=document.querySelector('tbody.courseItem > tr:nth-child(3)');window.nativeDetailsParent=window.nativeDetails?.parentElement;
   window.nativeNavigation=document.getElementById('fixture-native-navigation');window.nativeNavigationHtml=window.nativeNavigation.outerHTML;
   window.nativeTerm=document.getElementById('ctl00_MainContent_termSessionChooser_TermChooser');window.nativeTermParent=window.nativeTerm.parentElement;
   window.nativeSidebar=document.querySelector('right-sidebar');window.nativeSidebarParent=window.nativeSidebar?.parentElement;
   window.nativeIntroduction=document.getElementById('page_title_text');window.nativeIntroductionHtml=window.nativeIntroduction?.innerHTML;
-  window.nativeWorkspaceTop=document.querySelector('.classPlannerWrapper').getBoundingClientRect().top;
+  window.nativeWorkspaceTop=document.querySelector('.classPlannerWrapper')?.getBoundingClientRect().top;
   window.nativeStatuses=[...document.querySelectorAll('table.coursetable td:nth-child(3),.ClassSearchList .data_row > .span3')].map(node=>({node,html:node.innerHTML}));
   window.nativeResultClickCount=0;document.querySelectorAll('.ClassSearchList .class-title a').forEach(node=>node.addEventListener('click',()=>window.nativeResultClickCount++));
- });
- await page.addStyleTag({content:css});await page.addScriptTag({content:js});await page.waitForSelector('.pl-workspace-deck');
+ },compactHeader);
+ await page.addStyleTag({content:css});await page.addScriptTag({content:js});await page.waitForSelector(ready);
  return {errors,requests};
 };
 try {
@@ -221,6 +223,90 @@ try {
   assert.ok(await page.evaluate(()=>window.nativeTerm.parentElement===window.nativeTermParent&&window.nativeSidebar.parentElement===window.nativeSidebarParent&&window.nativeNavigation.outerHTML===window.nativeNavigationHtml));
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log(`Compact introduction and root scrolling verified: ${width}px`);
  }
+ // Header preference must survive the real controller's lifecycle, including
+ // native quarter redraws and a new page, not merely a single click/scroll.
+ const persistent=await browser.newPage({viewport:{width:1440,height:927}});
+ const firstCheck=await setup(persistent,introductionFixtureHtml());
+ await persistent.locator('.pl-intro-header-toggle').click();
+ await persistent.waitForFunction(()=>window.fixturePreferences['plannerLift.header.v1'].compact===true);
+ await persistent.evaluate(()=>window.scrollTo(0,0));
+ await persistent.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+ await persistent.evaluate(html=>{
+  window.fixtureTermChanges=0;
+  const select=document.getElementById('ctl00_MainContent_termSessionChooser_TermChooser');
+  select.append(new Option('Example winter','27W'));
+  select.addEventListener('change',()=>{
+   window.fixtureTermChanges++;
+   const replacement=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('layoutContentArea'),true);
+   const nextSelect=replacement.querySelector('select');nextSelect.append(new Option('Example winter','27W',true,true));
+   document.getElementById('layoutContentArea').replaceWith(replacement);window.scrollTo(0,0);
+  });
+ },introductionFixtureHtml());
+ await persistent.locator('#ctl00_MainContent_termSessionChooser_TermChooser').selectOption('27W');
+ await persistent.waitForFunction(()=>document.querySelector('.pl-intro-header-toggle')?.textContent==='Show header'&&document.getElementById('titleText').getBoundingClientRect().top<=13);
+ assert.equal(await persistent.evaluate(()=>window.fixtureTermChanges),1,'original quarter change handler still runs');
+ assert.ok(await persistent.evaluate(()=>window.nativeNavigation.outerHTML===window.nativeNavigationHtml));
+ const saved=await persistent.evaluate(()=>window.fixturePreferences['plannerLift.header.v1'].compact);
+ const reloadCheck=await setup(persistent,introductionFixtureHtml(),saved);
+ await persistent.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+ assert.equal(await persistent.locator('.pl-intro-header-toggle').innerText(),'Show header','fresh controller restores saved preference');
+ const otherTab=await browser.newPage();await otherTab.bringToFront();
+ await persistent.evaluate(()=>window.scrollTo(0,0));await persistent.bringToFront();
+ await persistent.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+ await otherTab.close();
+ await persistent.screenshot({path:resolve(out,'persistent-header.png')});
+ await persistent.locator('#fixture-native-navigation button').focus();
+ await persistent.waitForFunction(()=>window.fixturePreferences['plannerLift.header.v1'].compact===false);
+ assert.equal(await persistent.evaluate(()=>scrollY),0,'keyboard focus restores access to the native menu');
+ assert.equal(await persistent.locator('.pl-intro-header-toggle').innerText(),'Compact header');
+ await persistent.locator('.pl-intro-header-toggle').click();
+ await persistent.waitForFunction(()=>window.fixturePreferences['plannerLift.header.v1'].compact===true);
+ await persistent.locator('.pl-intro-header-toggle').click();
+ await persistent.waitForFunction(()=>window.fixturePreferences['plannerLift.header.v1'].compact===false);
+ const shownCheck=await setup(persistent,introductionFixtureHtml(),false);
+ assert.equal(await persistent.evaluate(()=>scrollY),0,'Show header persists across a new page');
+ assert.ok(await persistent.evaluate(()=>window.nativeNavigation.outerHTML===window.nativeNavigationHtml));
+ for(const check of [firstCheck,reloadCheck,shownCheck]){assert.deepEqual(check.errors,[]);assert.deepEqual(check.requests,[]);}
+ await persistent.close();console.log('Header preference verified across native quarter redraw, page reload and browser tab changes');
+ const future=await browser.newPage({viewport:{width:1440,height:927}});
+ const futureCheck=await setup(future,futureQuarterFixtureHtml(),true,'.pl-intro-toolbar');
+ await future.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+ assert.equal(await future.locator('.pl-intro-header-toggle').innerText(),'Show header');
+ assert.equal(await future.locator('[data-pl-action], [data-pl-workspace-details], .pl-workspace-deck').count(),0,'future quarter must not enable course actions');
+ assert.ok(await future.locator('#fixture-future-plan button').isVisible());
+ assert.ok(await future.evaluate(()=>window.nativeTerm.parentElement===window.nativeTermParent&&window.nativeNavigation.outerHTML===window.nativeNavigationHtml));
+ await future.locator('.pl-intro-header-toggle').click();
+ await future.waitForFunction(()=>window.fixturePreferences['plannerLift.header.v1'].compact===false);
+ assert.equal(await future.evaluate(()=>scrollY),0);
+ await future.locator('.pl-intro-header-toggle').click();
+ await future.waitForFunction(()=>window.fixturePreferences['plannerLift.header.v1'].compact===true);
+ // A native redraw from an uneditable quarter must restart normal tools only
+ // after the unchanged reorder contract passes again.
+ await future.evaluate(html=>{
+  const replacement=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('layoutContentArea'),true);
+  document.getElementById('layoutContentArea').replaceWith(replacement);window.scrollTo(0,0);
+ },introductionFixtureHtml());
+ await future.waitForSelector('.pl-workspace-deck');
+ await future.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+ assert.equal(await future.locator('.pl-intro-toolbar').count(),0);
+ assert.equal(await future.locator('.pl-intro-header-toggle').count(),1);
+ assert.equal(await future.locator('[data-pl-workspace-details]').count(),6);
+ // And the populated controller must keep presentation on a future redraw.
+ await future.evaluate(html=>{
+  const replacement=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('layoutContentArea'),true);
+  document.getElementById('layoutContentArea').replaceWith(replacement);window.scrollTo(0,0);
+ },futureQuarterFixtureHtml());
+ await future.waitForSelector('.pl-intro-toolbar');
+ await future.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+ assert.equal(await future.locator('.pl-intro-header-toggle').count(),1);
+ assert.equal(await future.locator('.pl-workspace-deck').count(),0);
+ await future.evaluate(()=>window.toggleTidy(false));
+ await future.waitForFunction(()=>!document.querySelector('.pl-intro-header-toggle'));
+ assert.equal(await future.locator('html.pl-intro-page').count(),0);
+ assert.ok(await future.locator('right-sidebar').isVisible());
+ assert.ok(await future.evaluate(()=>window.nativeNavigation.outerHTML===window.nativeNavigationHtml));
+ assert.deepEqual(futureCheck.errors,[]);assert.deepEqual(futureCheck.requests,[]);
+ await future.close();console.log('Empty/future quarter header verified with unchanged fail-closed course controls');
  const page=await browser.newPage({viewport:{width:1440,height:600}});
  const {errors,requests}=await setup(page,workspaceFixtureHtml(12));
  await page.evaluate(()=>{window.nativeActionCount=0;window.courseListAction=()=>window.nativeActionCount++;});

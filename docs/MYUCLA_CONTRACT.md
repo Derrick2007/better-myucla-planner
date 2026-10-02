@@ -426,3 +426,25 @@ The button follows manual root scrolling and retains focus without scrolling.
 It does not inspect, style, hide, move or clone UCLA masthead/menu nodes, invoke
 native handlers, submit a form, store state or introduce requests. Original
 layout and Tidy restoration remove the owned control.
+
+## Persistent compaction (0.14.5)
+
+The explicit choice is a single local boolean, `plannerLift.header.v1.compact`.
+The controller reads it before mounting. Intro remounts retain the choice;
+root-scroll, load/pageshow, resize and visibility/focus events reapply the
+minimum document scroll position while compact. There are no timers or queries.
+Scrolling deeper is unaffected. Show header releases the minimum and saves false.
+Focus inside the original `layout-headerwrap` releases compaction and saves false
+so keyboard access to native navigation is never blocked. Only ancestry/bounds
+are inspected, never menu content. Preference writes are ordered, and failures
+are reported in the control tooltip. Remove all listeners on restoration.
+Native masthead/menu/term nodes, styles, handlers and forms remain unchanged.
+
+Bootstrap presentation only on the exact origin/path, including empty/future
+quarters. The validated introduction may mount its owned toolbar in normal flow
+without a course table. Its root-scroll CSS keeps BODY non-scrollable and gives
+the introduction enough flow height to scroll the original masthead away. All
+future-plan content stays native. This does not relax inspectContract or mount
+course controls when it fails. Observe the existing BODY for native replacement;
+initialize course tools only after the original adapter contract passes, then
+restore presentation-only mode if a later quarter has no editable table.

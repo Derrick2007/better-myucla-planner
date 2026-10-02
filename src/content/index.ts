@@ -1,5 +1,5 @@
 import { FixturePlannerAdapter, isFixturePlannerPage } from "../adapters/planner-adapter";
-import { MyUclaPlannerAdapter, isMyUclaPlannerPage } from "../adapters/myucla-adapter";
+import { MyUclaPlannerAdapter, plannerPageUrl } from "../adapters/myucla-adapter";
 import { readEnabled, watchEnabled } from "../storage/settings";
 import { applyBootHold, releaseBootHold } from "./boot-hold";
 import { publishSessionSettings } from "./session-keep";
@@ -16,7 +16,9 @@ declare global {
 }
 
 function createController(): ActivePlannerController | null {
-  if (isMyUclaPlannerPage()) {
+  // Empty/future quarters still have the public introduction. The controller
+  // independently requires the unchanged adapter contract for all course tools.
+  if (window.location.origin + window.location.pathname === plannerPageUrl) {
     return new MyUclaPlannerController(new MyUclaPlannerAdapter());
   }
   if (isFixturePlannerPage()) {

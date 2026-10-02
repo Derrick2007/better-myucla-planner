@@ -6,6 +6,8 @@ import {
   clearDraft,
   readDraft,
   readLayoutSettings,
+  readHeaderSettings,
+  saveHeaderSettings,
   readViewState,
   saveDraft,
   saveViewState,
@@ -135,11 +137,13 @@ const IDLE_STATUS: QueueProgress = { kind: "idle", message: "", completed: 0, to
 export class MyUclaPlannerController {
   private readonly repository = new AnnotationRepository();
   private readonly classSearch = new ClassSearchPresentation();
-  private readonly workspace = new PlannerWorkspace();
+  private readonly workspace = new PlannerWorkspace(compact => saveHeaderSettings({ compact }));
   private readonly fastCoordinator: FastReorderCoordinator;
   private annotations: Record<string, CourseAnnotation> = {};
   private observer: MutationObserver | null = null;
   private reconcileQueued = false;
+  private initialized = false;
+  private starting = false;
   private contractHealthy = false;
   private courses: CourseSnapshot[] = [];
   private insights = new Map<string, CourseInsight>();
@@ -182,25 +186,34 @@ export class MyUclaPlannerController {
   }
 
   async start(): Promise<void> {
+    if (this.starting || this.initialized) return;
+    this.starting = true;
+    if (!this.observer) {
+      this.tidyLayout = (await readLayoutSettings()).tidy;
+      this.workspace.setHeaderCompact((await readHeaderSettings()).compact);
+      this.stopLayoutWatch = watchLayoutSettings(({ tidy }) => this.setTidyLayout(tidy));
+      // The native UpdatePanel is replaced wholesale on partial postbacks.
+      // Watch outside it, including quarters with no editable class table.
+      this.observer = new MutationObserver((records) => {
+        if (this.isExtensionOnlyMutation(records)) return;
+        if (this.initialized) this.scheduleReconcile();
+        else if (!this.starting) void this.start();
+      });
+      this.observer.observe(document.body, { childList: true, subtree: true });
+    }
     const contract = this.adapter.inspectContract();
-    if (!contract.ok) return;
+    if (!contract.ok) {
+      if (this.tidyLayout) this.workspace.reconcileIntroductionOnly(document);
+      releaseBootHold(); this.starting = false; return;
+    }
 
     const contextKey = this.adapter.getContextKey();
     this.annotations = await this.repository.getContext(contextKey);
     const view = await readViewState(contextKey);
     this.viewStateSeen = view.seen;
-    this.tidyLayout = (await readLayoutSettings()).tidy;
-    this.stopLayoutWatch = watchLayoutSettings(({ tidy }) => this.setTidyLayout(tidy));
     view.collapsed.forEach((id) => this.collapsedCourses.add(id));
+    this.initialized = true; this.starting = false;
     this.attachEvents();
-    this.observer = new MutationObserver((records) => {
-      if (!this.isExtensionOnlyMutation(records)) this.scheduleReconcile();
-    });
-    // The plan lives inside the `ctl00_main_wrapper` UpdatePanel, whose contents
-    // are replaced wholesale on every partial postback (a colour change, an
-    // official ordering click, anything). Observing the table itself means the
-    // observer dies with it, so watch a node that outlives the panel instead.
-    this.observer.observe(document.body, { childList: true, subtree: true });
     this.stopSessionWatch = watchSessionCountdown((countdown) => {
       this.sessionCountdown = countdown;
       this.renderSaveState();
@@ -310,7 +323,7 @@ export class MyUclaPlannerController {
    */
   private needsReconcile(): boolean {
     const root = this.adapter.getRoot();
-    if (!root) return false;
+    if (!root) return this.contractHealthy || this.workspace.needsReconcile(document);
     if (root !== this.lastRoot) return true;
     if (!document.getElementById(TOOLBAR_ID)) return true;
     const cards = root.querySelectorAll(":scope > tbody.courseItem").length;
@@ -348,9 +361,10 @@ export class MyUclaPlannerController {
   private reconcile(): void {
     const contract = this.adapter.inspectContract();
     if (!contract.ok) {
-      this.workspace.restore();
       this.classSearch.restore();
       restorePlannerFrame(document);
+      if (this.tidyLayout) this.workspace.reconcileIntroductionOnly(document);
+      else this.workspace.restore();
       this.contractHealthy = false;
       this.status = {
         kind: "error",

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.14.5 — 2026-10-02 (redesign beta)
+
+- Save the explicit Compact header / Show header choice as one local boolean.
+  Restore it across quarter changes, native redraws, page reloads and returning
+  to a browser tab. Compaction now maintains the document's minimum scroll
+  position instead of acting as a one-time scroll shortcut. No native menu
+  nodes, styles, handlers or form actions change.
+- Show header releases compaction and saves that choice. Keyboard focus on the
+  original UCLA menu also releases it so native navigation stays accessible.
+  Disabling Tidy or Original layout removes all event handling. Report failed
+  preference writes in the control's tooltip; serialize successive choices.
+- Add fictional storage validation and controller lifecycle coverage for native
+  quarter redraw, fresh-page restoration, browser tab return and menu access.
+  No page content is stored; no polling, new requests or permissions are added.
+- Keep the validated introduction and header controls available on empty/future
+  quarters independently of course tools. Native future-plan contents stay in
+  place. The reorder adapter's strict checks are unchanged and no course actions
+  mount until that contract passes. Restore the workspace on a populated redraw.
+
 ## 0.14.4 — 2026-10-02 (redesign beta)
 
 - Add Compact header / Show header in the existing workspace. One explicit

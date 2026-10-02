@@ -38,6 +38,9 @@ Everything below lives in this browser only.
 - **View preferences.** Which classes you collapsed, and whether the optional
   "tidy up MyUCLA's own layout" switch is on. Only class identifiers, never any
   page content.
+- **Compact header.** One boolean in `chrome.storage.local` remembers your
+  Compact header / Show header choice across terms and reloads. It contains no
+  account, term, course or page content.
 - **An unsaved arrangement.** While you have rearranged a plan but not saved it,
   the order is kept so a timeout or a stray navigation does not cost you the
   work. Class identifiers only. It expires after 24 hours and is deleted as soon
@@ -121,7 +124,12 @@ Document scrolling lets the unchanged UCLA banner scroll away. Scroll handling
 reads element bounds only and sends no requests. These choices are local to the
 page; no new storage, permissions or data collection is added.
 
-Compact header / Show header (0.14.4) changes only the document scroll position
+Compact header / Show header (0.14.5) changes only the document scroll position
 after an explicit click and reads the existing public heading's bounds. It does
-not read menu contents or alter native navigation, and has no stored preference
-or network request.
+not read menu contents or alter native navigation. Only the boolean choice is
+stored locally. Lifecycle/scroll events restore that choice without polling or
+network requests. Show header or keyboard focus on the native menu releases
+compaction; disabling Tidy removes the behavior.
+The same public introduction can be compacted on an empty/future quarter without
+reading its course contents or enabling course actions. The existing mutation
+observer watches native redraws; it does not fetch or retain another page.

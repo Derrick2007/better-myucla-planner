@@ -89,6 +89,9 @@ export function introductionFixtureHtml(count = 6, includeResults = true) {
   doc.querySelector('.pagehead').remove();
   doc.querySelector('#main_wrapper > label')?.remove();
   doc.getElementById('fixture-native-navigation').style.height = '166px';
+  const navigation = doc.getElementById('fixture-native-navigation');
+  const header = doc.createElement('layout-headerwrap'); header.style.display = 'block';
+  navigation.replaceWith(header); header.append(navigation);
   const layout = doc.createElement('section'); layout.id = 'layoutContentArea';
   layout.innerHTML = '<h2 id="titleText">Class Planner</h2><div id="div_page_title_section2"><div id="page_title_text">Example introduction explaining how this fictional planner works. <a href="#example-guide">Example guide</a></div></div><layout-columnwrapper class="col-2MR"><main-content id="main-content"><div id="AlertDiv"></div></main-content><right-sidebar><div id="ctl00_CustomSidePanel">Example planner links <a href="#example-links">Example link</a></div><div class="enroll_appt_widget_container">Example enrollment information</div><iwe-widget id="widgetNeedHelp"><button type="button">Example help</button></iwe-widget><iwe-widget id="voter_widget_container">Example public information</iwe-widget></right-sidebar></layout-columnwrapper>';
   const term = doc.getElementById('ctl00_MainContent_termSessionChooser'), select = term.querySelector('select');
@@ -101,4 +104,13 @@ export function introductionFixtureHtml(count = 6, includeResults = true) {
   const style = doc.createElement('style');
   style.textContent = 'html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}';
   doc.head.append(style); return dom.serialize();
+}
+
+/** Empty/future-quarter presentation without the reorder contract. */
+export function futureQuarterFixtureHtml() {
+  const dom = new JSDOM(introductionFixtureHtml()), doc = dom.window.document;
+  doc.querySelector('.classPlannerWrapper').outerHTML = '<div id="fixture-future-plan"><h3>Example future plan</h3><button type="button">Example native future action</button></div>';
+  const select = doc.getElementById('ctl00_MainContent_termSessionChooser_TermChooser');
+  select.append(new dom.window.Option('Example future winter', '27W', true, true));
+  return dom.serialize();
 }

@@ -5,22 +5,44 @@ interface Introduction {
   anchor: Comment; about: HTMLDetailsElement; term: HTMLElement; label: HTMLLabelElement;
   sidebar: HTMLElement; header: HTMLButtonElement; info: HTMLButtonElement; close: HTMLButtonElement; notices: HTMLElement[];
   sidebarHadClass: boolean; sidebarHadStyle: boolean; layoutHadClass: boolean; noticeHadClass: boolean[];
+  focus: (event: FocusEvent) => void;
 }
 
 /** Compact only the recorded planner introduction; never touch UCLA's header. */
 export class PlannerIntroduction {
   private state: Introduction | null = null;
+  private compactHeader = false;
+  private saveFailed = false;
+  private saveSequence = 0;
+  private pendingSave: Promise<void> = Promise.resolve();
+
+  constructor(private readonly onHeaderChange: (compact: boolean) => void | Promise<void> = () => {}) {}
+
+  setHeaderCompact(compact: boolean): void {
+    this.compactHeader = compact; this.positionHeader(); this.positionInfo();
+  }
+
+  private saveChoice(compact: boolean): void {
+    const sequence = ++this.saveSequence; this.saveFailed = false;
+    this.pendingSave = this.pendingSave.catch(() => {}).then(() => this.onHeaderChange(compact));
+    this.pendingSave.then(() => {
+      if (sequence === this.saveSequence) { this.saveFailed = false; this.positionInfo(); }
+    }).catch(() => {
+      if (sequence === this.saveSequence) { this.saveFailed = true; this.positionInfo(); }
+    });
+  }
 
   needsRefresh(doc: Document): boolean {
     const s = this.state;
     return !!s && (doc.getElementById("layoutContentArea") !== s.layout ||
       doc.getElementById("div_page_title_section2") !== s.description ||
+      doc.getElementById("titleText") !== s.title || !s.header.isConnected ||
       doc.getElementById("page_title_text") !== s.text || !s.info.isConnected ||
       !s.sidebar.isConnected || doc.getElementById(TERM)?.parentElement !== s.label.parentElement);
   }
 
-  mount(doc: Document, toolbar: HTMLElement, onLayout: () => void): void {
-    if (this.state) return;
+  mount(doc: Document, toolbar: HTMLElement, onLayout: () => void): boolean {
+    if (this.state) return true;
     const layout = doc.getElementById("layoutContentArea"), title = doc.getElementById("titleText");
     const description = doc.getElementById("div_page_title_section2"), text = doc.getElementById("page_title_text");
     const main = doc.getElementById("main-content"), term = doc.getElementById("ctl00_MainContent_termSessionChooser");
@@ -35,7 +57,7 @@ export class PlannerIntroduction {
       term.children.length !== 2 || !term.children[0].matches("div.term_display") ||
       !term.children[1].matches("div.term") || select?.tagName !== "SELECT" ||
       select.parentElement !== term.children[1] || select.form !== doc.getElementById("aspnetForm") ||
-      term.querySelectorAll("input,select,button,textarea").length !== 1) return;
+      term.querySelectorAll("input,select,button,textarea").length !== 1) return false;
 
     const owned = <T extends HTMLElement>(e: T, cls: string): T => {
       e.className = cls; e.setAttribute(OWNED, "true"); return e;
@@ -62,14 +84,24 @@ export class PlannerIntroduction {
     const sidebarHadClass = sidebar.hasAttribute("class"), sidebarHadStyle = sidebar.hasAttribute("style"), layoutHadClass = layout.hasAttribute("class");
     notices.forEach(e => e.classList.add("pl-intro-notice"));
     layout.classList.add("pl-planner-introduction"); term.classList.add("pl-intro-term"); sidebar.classList.add("pl-intro-sidebar");
+    // Keyboard navigation to the untouched UCLA menu must remain reachable.
+    const focus = (event: FocusEvent) => {
+      if (!this.compactHeader || !(event.target instanceof Element) || !event.target.closest('layout-headerwrap')) return;
+      this.setHeaderCompact(false); doc.defaultView?.scrollTo({top: 0, behavior: 'instant'});
+      this.saveChoice(false); onLayout();
+    };
     this.state = {doc, layout, title, description, text, anchor, about, term, label, sidebar, header, info, close, notices,
-      sidebarHadClass, sidebarHadStyle, layoutHadClass, noticeHadClass};
+      sidebarHadClass, sidebarHadStyle, layoutHadClass, noticeHadClass, focus};
+    doc.addEventListener('focusin', focus);
     header.addEventListener("click", () => {
       const view = doc.defaultView; if (!view) return;
       // Scroll the original banner away; never hide, move or restyle its menu.
       // Stop at the title so the term selector and notices remain accessible.
       const top = title.getBoundingClientRect().top;
-      view.scrollTo({top: top <= 13 && view.scrollY > 0 ? 0 : Math.max(0, view.scrollY + top - 12), behavior: "instant"});
+      const compact = !(this.compactHeader || (top <= 13 && view.scrollY > 0));
+      this.setHeaderCompact(compact);
+      if (!compact) view.scrollTo({top: 0, behavior: "instant"});
+      this.saveChoice(compact);
       onLayout(); header.focus({preventScroll: true});
     });
     info.addEventListener("click", () => {
@@ -79,14 +111,24 @@ export class PlannerIntroduction {
     });
     close.addEventListener("click", () => this.closeInfo());
     this.positionInfo();
+    return true;
+  }
+
+  positionHeader(): void {
+    const s = this.state, view = s?.doc.defaultView;
+    if (!s || !view || !this.compactHeader || s.doc.visibilityState === 'hidden') return;
+    const top = s.title.getBoundingClientRect().top;
+    // Keep the saved compact view when native navigation resets root scrolling.
+    // Scrolling deeper stays free; Show header releases this minimum position.
+    if (top > 13) view.scrollTo({top: Math.max(0, view.scrollY + top - 12), behavior: 'instant'});
   }
 
   positionInfo(): void {
     const s = this.state; if (!s) return;
-    const compact = (s.doc.defaultView?.scrollY || 0) > 0 && s.title.getBoundingClientRect().top <= 13;
+    const compact = this.compactHeader || ((s.doc.defaultView?.scrollY || 0) > 0 && s.title.getBoundingClientRect().top <= 13);
     s.header.textContent = compact ? "Show header" : "Compact header";
     s.header.setAttribute("aria-pressed", String(compact));
-    s.header.title = compact ? "Return to UCLA's menu" : "Scroll UCLA's banner out of view";
+    s.header.title = this.saveFailed ? "Could not save the header preference. Try again." : compact ? "Show UCLA's menu and stop keeping the header compact" : "Keep UCLA's banner out of view across terms and reloads";
     if (!s.sidebar.classList.contains("pl-intro-sidebar-open")) return;
     const top = Math.max(12, Math.min(s.doc.defaultView!.innerHeight - 160, s.info.getBoundingClientRect().bottom + 8));
     s.sidebar.style.setProperty("--pl-info-top", `${Math.ceil(top)}px`);
@@ -100,6 +142,7 @@ export class PlannerIntroduction {
 
   restore(): void {
     const s = this.state; if (!s) return; this.state = null;
+    s.doc.removeEventListener('focusin', s.focus);
     s.layout.classList.remove("pl-planner-introduction"); s.term.classList.remove("pl-intro-term");
     s.sidebar.classList.remove("pl-intro-sidebar", "pl-intro-sidebar-open");
     if (!s.layoutHadClass && !s.layout.className) s.layout.removeAttribute("class");

@@ -174,7 +174,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.14.4` redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.14.5` redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. This build presents
 Classes, Schedule and Browse inside the original MyUCLA page. Desktop panes
@@ -201,7 +201,9 @@ the explanation expands under About this planner, and term notices remain visibl
 Links & help opens the original sidebar widgets, with ×/Escape dismissal. Page
 scrolling lets the unchanged UCLA banner scroll away and the planner use the freed
 space. Compact header does this in one click while keeping the title, term and
-notices visible; Show header brings UCLA's menu back. Original layout restores
+notices visible. The choice is saved locally across terms, reloads and browser
+tab changes; Show header brings UCLA's menu back and saves that choice. Keyboard
+focus on the original menu releases compaction for access. Original layout restores
 all six native section placements; turning Tidy
 off restores presentation. Native section statuses and icons are unchanged.
 
