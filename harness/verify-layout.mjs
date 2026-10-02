@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 import { calendarFixtureHtml } from "./calendar-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "..");
-const out = resolve(root, "../../outputs/planner-status-v0.11.0");
+const out = resolve(root, "../../outputs/planner-layout-v0.13.0");
 const url = "https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx";
 const css = await readFile(resolve(root, "dist/injected.css"), "utf8");
 const js = await readFile(resolve(root, "dist/content.js"), "utf8");
@@ -57,25 +57,8 @@ try {
     const overflowingBefore = await page.locator("#gridDiv .planneritembox").evaluateAll(blocks => blocks.filter(block => block.getBoundingClientRect().right > block.parentElement.getBoundingClientRect().right + 0.5).length);
     if (width > 780) assert.ok(overflowingBefore > 0, "regression fixture must reproduce the old overflow");
     await page.addStyleTag({ content: css });
-    assert.deepEqual(await page.locator("[data-pl-section-status]").allTextContents(), [
-      "Waitlist · 1/8 places filled", "Open · 12 seats left", "Closed", "Open · 12 seats left", "Enrolled", "Open · 40 seats left"
-    ]);
-    const status = page.locator("[data-pl-section-status]").first();
-    const statusTip = page.locator("[data-pl-status-original]").first();
-    assert.equal(await status.getAttribute("aria-describedby"), await statusTip.getAttribute("id"));
-    await status.focus();
-    await statusTip.waitFor({ state: "visible" });
-    assert.equal(await statusTip.innerHTML(), nativeStatuses[0]);
-    await page.keyboard.press("Escape");
-    await statusTip.waitFor({ state: "hidden" });
-    await page.locator(".pagehead").click();
-    await status.hover();
-    await statusTip.waitFor({ state: "visible" });
-    await statusTip.hover();
-    assert.ok(await statusTip.isVisible(), "tip must remain visible when the pointer moves onto it");
-    await page.keyboard.press("Escape");
-    await statusTip.waitFor({ state: "hidden" });
-    await page.locator(".pagehead").click();
+    assert.equal(await page.locator('[data-pl-section-status], [data-pl-status-original], [data-pl-status-badge]').count(), 0);
+    assert.deepEqual(await page.locator('#panelPlan table.coursetable tr td:nth-child(3)').evaluateAll(cells=>cells.map(cell=>cell.innerHTML)), nativeStatuses, 'native status wording and icons must remain unchanged while tidy is ON');
     const columns = await page.locator("table.coursetable").evaluateAll((tables) => tables.map((table) => {
       const row = [...table.rows].find((r) => r.cells.length === 9 && r.cells[0].tagName === "TD");
       return [...row.cells].map((cell) => Math.round(cell.getBoundingClientRect().left * 100) / 100);
@@ -142,7 +125,7 @@ try {
     assert.deepEqual(await page.locator("#panelPlan table.coursetable tr td:nth-child(3)").evaluateAll(cells => cells.map(cell => cell.innerHTML)), nativeStatuses);
     assert.equal(await page.locator(".planneritembox[data-pl-grid]").count(), 0);
     assert.deepEqual(await page.locator("#gridDiv .planneritembox").evaluateAll(blocks => blocks.map(block => block.getAttribute("style"))), originalGridStyles);
-    console.log(`PASS ${width}px: separate statuses, hover/focus tips, Escape, layout restoration, columns, calendar, menus, native controls`);
+    console.log(`PASS ${width}px: original status wording/icons, layout restoration, columns, calendar, menus, native controls`);
     await page.close();
   }
 

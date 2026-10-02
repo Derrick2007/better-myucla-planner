@@ -57,6 +57,13 @@ The original section table remains under its original course card. Original
 layout restores section placement, and turning tidy off restores presentation.
 Unknown section structures keep the native layout.
 
+Pane folding changes only local presentation. Named pane choices are kept in
+memory for this page session, using public section identifiers; they are not
+stored or sent. Native section-toggle clicks are handled locally only inside
+the validated workspace, and their original handlers return with Original
+layout. Header spacing reads element bounds only. UCLA navigation, term chooser
+and plan action menus are neither copied nor moved.
+
 - Every action that could change the order MyUCLA has stored asks first, states
   how many steps it will take, and can be stopped part-way.
 - **Delete all my notes** in the overflow menu removes only what this extension

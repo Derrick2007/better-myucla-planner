@@ -671,38 +671,6 @@ p.pl-headline {
   overflow-wrap: anywhere;
 }
 
-/* Compact per-section statuses; original wording remains a hover/focus tip. */
-.pl-plan-root td.pl-status-cell { position: relative; overflow: visible; }
-.pl-section-status { line-height: 1.4; cursor: help; border-radius: 2px; }
-.pl-section-status-label { font-weight: 600; white-space: nowrap; }
-.pl-section-status[data-tone="enrolled"] .pl-section-status-label { color: #276541; }
-.pl-section-status[data-tone="open"] .pl-section-status-label { color: var(--pl-blue-dark); }
-.pl-section-status[data-tone="waitlist"] .pl-section-status-label { color: var(--pl-warn); }
-.pl-section-status[data-tone="closed"] .pl-section-status-label { color: #586574; }
-.pl-section-status-count { color: var(--pl-ink); }
-.pl-section-status:focus-visible { outline: 2px solid var(--pl-blue); outline-offset: 2px; }
-.pl-status-cell > .pl-status-original {
-  display: none;
-  position: absolute;
-  left: 0;
-  top: 100%;
-  z-index: 5;
-  box-sizing: border-box;
-  width: max-content;
-  max-width: 240px;
-  padding: 7px 10px;
-  border: 1px solid var(--pl-line);
-  border-radius: 4px;
-  background: var(--pl-surface);
-  color: var(--pl-ink);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.45;
-  box-shadow: 0 3px 9px rgb(0 0 0 / 12%);
-}
-.pl-status-cell:not(.pl-status-dismissed):hover > .pl-status-original,
-.pl-status-cell:not(.pl-status-dismissed):focus-within > .pl-status-original { display: block; }
-
 /* ---------------------------------------------------------- weekly grid
    MyUCLA's own grid. Each meeting is an absolutely positioned box at
    `overflow: hidden`, as short as 48px, holding three lines of 14px text
@@ -1383,7 +1351,25 @@ html.pl-workspace-page body { overflow: hidden; }
 }
 html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { bottom: 68px; }
 .pl-workspace-host .pl-workspace-top { display: flex; align-items: center; flex: none; gap: 12px; margin-bottom: 8px; }
-.pl-workspace-top .enroll_term { margin: 0; padding: 0; flex: 1; min-width: 0; }
+.pl-workspace-position { height: 0; margin: 0; padding: 0; }
+.classPlannerWrapper.pl-workspace-host { top: var(--pl-workspace-top,12px); }
+.classPlannerWrapper.pl-workspace-host.pl-workspace-flow { position: relative; inset: auto; height: 640px; }
+html.pl-workspace-page:has(.pl-workspace-flow) body { overflow: auto; }
+.pl-workspace-pane-switches { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; flex: 1; }
+.pl-workspace-top .pl-workspace-pane-switches button { border: 1px solid transparent; background: #f2f4f6; color: #647080; }
+.pl-workspace-top .pl-workspace-pane-switches button[aria-pressed="true"] { border-color: #bacfe4; background: #e7eff8; color: #174f86; }
+.pl-workspace-top button:focus-visible, .pl-pane-toggle:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
+.pl-pane-title { display: flex; align-items: center; gap: 8px; }
+.pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; text-align: left; }
+.pl-pane-title > button.planSectionToggle > .icon-minus-sign,
+.pl-pane-title > button.planSectionToggle > .icon-plus-sign { display: none; }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; margin-left: auto; border: 0; border-radius: 5px; background: transparent; color: #52677e; font: 22px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.pl-pane-title > button.pl-pane-toggle:hover { background: #e7eff8; }
+.pl-pane-collapsed > .pl-pane-body { display: none !important; }
+.pl-pane-open > .pl-pane-body { display: block !important; }
+.pl-workspace-deck > section.pl-pane-collapsed { display: none; }
+.pl-workspace-empty { margin: 32px; color: #647080; }
+.pl-workspace-empty[hidden] { display: none; }
 .pl-workspace-top button, .pl-workspace-top summary, button.pl-workspace-return {
   box-sizing: border-box; min-height: 34px; padding: 6px 10px; border: 1px solid #d9e0e8;
   border-radius: 7px; background: #f7f8fa; color: #344b65; font: 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -1392,7 +1378,7 @@ html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { bottom: 68px; }
 .pl-workspace-host > .classPlanner_Messages { flex: none; margin: 2px 0; font-size: 12px; }
 .pl-workspace-host > #ctl00_MainContent_classPlanPanel { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; }
 .pl-workspace-host #ctl00_MainContent_classPlanPanel > div:not(.pl-workspace-deck) { flex: none; margin: 4px 0; font-size: 12px; }
-.pl-workspace-deck { display: grid; grid-template-columns: minmax(300px,1.2fr) minmax(270px,.8fr) minmax(520px,1.6fr); gap: 16px; flex: 1; min-height: 0; }
+.pl-workspace-deck { display: grid; grid-template-columns: var(--pl-workspace-columns,minmax(300px,1.2fr) minmax(270px,.8fr) minmax(520px,1.6fr)); gap: 16px; flex: 1; min-height: 0; }
 .pl-workspace-deck > section { min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; margin: 0 !important; padding: 0 0 10px; }
 .pl-workspace-deck > section > .classPlanner_SectionTitle {
   position: sticky; top: 0; z-index: 4; margin: 0 0 12px;
@@ -1424,7 +1410,8 @@ html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { bottom: 68px; }
 .pl-workspace-plan button.pl-workspace-detail-button { padding: 4px 8px; margin-left: 8px; border: 0; border-radius: 5px; color: #245886; background: #edf3f9; font-size: 12px; }
 .pl-workspace-plan .pl-status-badge, .pl-workspace-plan .pl-conflict-badge { white-space: normal; max-width: 100%; }
 .pl-workspace-plan .pl-status-badge { display: inline-block !important; }
-.pl-workspace-plan #plannerSectionClip { flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 8px; }
+.pl-workspace-plan #plannerSectionClip { flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 6px; }
+.pl-workspace-plan #plannerSectionClip > button.planSectionToggle { flex: none; }
 .pl-workspace-plan .pl-bar { display: block; width: auto; flex: 1; }
 .pl-workspace-plan .pl-bar-main { flex-wrap: nowrap; }
 .pl-workspace-plan .pl-bar input[type="search"] { flex: 1; width: 100%; min-width: 0; }
@@ -1455,8 +1442,8 @@ html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { bottom: 68px; }
 .pl-workspace-extras { flex: none; }
 .pl-workspace-extras > .pl-workspace-extra-content { display: none; }
 .pl-workspace-extras[open] > .pl-workspace-extra-content {
-  display: block; position: fixed; right: 34px; top: 68px; z-index: 170;
-  width: min(700px,calc(100vw - 68px)); max-height: calc(100dvh - 110px); overflow: auto;
+  display: block; position: fixed; right: 34px; top: var(--pl-extras-top,68px); z-index: 170;
+  width: min(700px,calc(100vw - 68px)); max-height: calc(100dvh - var(--pl-extras-top,68px) - 24px); overflow: auto;
   padding: 20px; border: 1px solid #d9e1eb; border-radius: 10px; background: #fff; box-shadow: 0 14px 60px #26384f35;
 }
 .pl-workspace-extra-content > section { margin-top: 16px; }
@@ -1479,13 +1466,12 @@ html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { bottom: 68px; }
 }
 .pl-workspace-plan tbody.pl-workspace-preview-card > tr:nth-child(3) > td { display: block; padding: 0; border: 0; width: 100%; box-sizing: border-box; }
 .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-workspace-preview-card tr.pl-thead { display: table-row !important; }
-@media(max-width:1150px) {
+@media(max-width:1200px) {
   html.pl-workspace-page body { overflow: auto; }
   .classPlannerWrapper.pl-workspace-host { position: relative; inset: auto; margin: 10px !important; overflow: visible; }
   .pl-workspace-deck { grid-template-columns: minmax(0,1fr); }
   .pl-workspace-deck > section { overflow: visible; }
   .pl-workspace-top { flex-wrap: wrap; }
-  .pl-workspace-top .enroll_term { flex-basis: 100%; }
   .pl-workspace-search button.pl-workspace-expand-search { display: none; }
   .pl-workspace-search-expanded > .pl-workspace-calendar,
   .pl-workspace-search-expanded > .pl-workspace-plan { display: block; }
@@ -1498,7 +1484,9 @@ html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { bottom: 68px; }
   .classPlannerWrapper.pl-workspace-host { position: static; display: block; border: 0; padding: 0; box-shadow: none; overflow: visible; }
   .pl-workspace-deck { display: block; }
   .pl-workspace-deck > section { overflow: visible; }
-  .pl-workspace-top, .pl-workspace-preview, .pl-workspace-detail-backdrop, .pl-workspace-detail-button, .pl-workspace-expand-search { display: none !important; }
+  .pl-workspace-top, .pl-workspace-preview, .pl-workspace-detail-backdrop, .pl-workspace-detail-button, .pl-workspace-expand-search, .pl-pane-toggle { display: none !important; }
+  .pl-workspace-deck > section.pl-pane-collapsed, .pl-pane-collapsed > .pl-pane-body { display: block !important; }
+  .pl-workspace-empty { display: none; }
   .pl-workspace-search-expanded > .pl-workspace-calendar, .pl-workspace-search-expanded > .pl-workspace-plan { display: block; }
   .pl-workspace-plan tbody.courseItem, .pl-workspace-plan tbody.courseItem > tr:first-child { display: table-row-group; }
   .pl-workspace-plan tbody.courseItem > tr:nth-child(2), .pl-workspace-plan tbody.courseItem > tr:nth-child(3) { display: table-row; position: static; }

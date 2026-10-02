@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   applyHeadline,
-  dismissStatusDetails,
   markHeaderRows,
   readHeadline,
   restoreExamDetails,
@@ -13,10 +12,8 @@ import {
   restoreWeekGrid,
   tidyWeekGrid,
   tidyExamDetails,
-  tidySectionStatuses,
   unmarkHeaderRows
 } from "../../src/content/page-polish";
-import { inspectCourse, readEnrolledUnits } from "../../src/content/plan-insights";
 
 /** The two-paragraph title cell recorded in docs/MYUCLA_CONTRACT.md. */
 function titleCell(head: string, body: string): HTMLElement {
@@ -216,80 +213,15 @@ describe("exam advisories", () => {
   });
 });
 
-describe("per-section status presentation", () => {
-  function plan(statuses: string[]): HTMLElement {
-    const row = (status: string, index: number) => `<tr><td><button>Change</button></td><td>${index ? "Dis 1A" : "Lec 1"}</td><td class="native-status">${status}</td><td></td><td>MW</td><td>10am</td><td>Example Hall</td><td>${index ? "0.0" : "4.0"}</td><td>Example Instructor</td></tr>`;
-    document.body.innerHTML = `<table id="root"><tbody class="courseItem">
-      <tr><td>Example course</td></tr><tr><td>Final Exam: Consult instructor</td></tr>
-      <tr><td colspan="2"><table class="coursetable">
-        <tr>${["Change", "Section", "Status", "Info", "Days", "Time", "Location", "Units", "Instructor"].map(label => `<th>${label}</th>`).join("")}</tr>
-        ${statuses.map(row).join("")}
-        <tr class="actions"><td colspan="9">Enrollment Actions <button>Enroll</button></td></tr>
-      </table></td></tr></tbody></table>`;
-    return document.getElementById("root")!;
-  }
-
-  it("keeps lecture/discussion facts separate and restores the same original nodes", () => {
-    const root = plan(['<i class="icon-unlock"></i>Waitlist<br>1 of 8 Taken', '<i class="icon-unlock"></i>Open<br>12 of 80 Left']);
-    const before = root.innerHTML;
-    const icon = root.querySelector("i");
-    const actions = root.querySelector(".actions");
-    tidySectionStatuses(root);
-    tidySectionStatuses(root);
-    const summaries = [...root.querySelectorAll<HTMLElement>("[data-pl-section-status]")];
-    expect(summaries.map(node => node.textContent)).toEqual(["Waitlist · 1/8 places filled", "Open · 12 seats left"]);
-    expect(summaries.every(node => node.tabIndex === 0)).toBe(true);
-    expect(root.querySelector("i")).toBe(icon);
-    expect(root.querySelector(".actions")).toBe(actions);
-    expect(actions?.querySelector("[data-pl-status-original]")).toBeNull();
-    const described = summaries.map(node => document.getElementById(node.getAttribute("aria-describedby")!));
-    expect(new Set(described).size).toBe(2);
-    expect(described[0]?.innerHTML).toBe('<i class="icon-unlock"></i>Waitlist<br>1 of 8 Taken');
-    dismissStatusDetails(document);
-    expect(summaries[0].parentElement?.classList.contains("pl-status-dismissed")).toBe(true);
-    summaries[0].focus();
-    expect(summaries[0].parentElement?.classList.contains("pl-status-dismissed")).toBe(false);
+describe("legacy status restoration", () => {
+  it("unwraps the same native status nodes and removes the retired summary", () => {
+    document.body.innerHTML = '<table><tr><td class="native-status pl-status-cell pl-status-dismissed"><span data-pl-status-original><i class="icon-unlock"></i>Waitlist<br>1 of 8 Taken</span><span data-pl-section-status>Waitlist summary</span></td></tr></table>';
+    const icon = document.querySelector("i");
     restoreSectionStatuses(document);
-    expect(root.innerHTML).toBe(before);
-    expect(root.querySelector("i")).toBe(icon);
-  });
-
-  it("keeps filtering, enrolled units and original text readers unchanged", () => {
-    const root = plan(["Enrolled Class Full (36)", "Open: 12 of 80 Left"]);
-    const course = { id: "example", label: "Example course", node: root.querySelector<HTMLElement>("tbody.courseItem")! };
-    const insight = inspectCourse(course);
-    const units = readEnrolledUnits(course);
-    tidySectionStatuses(root);
-    expect(inspectCourse(course)).toEqual(insight);
-    expect(readEnrolledUnits(course)).toBe(units);
-    expect(units).toBe(4);
-  });
-
-  it("does not hide unknown wording or native interactive controls", () => {
-    const root = plan(["Open - restricted", '<a href="#help">Open: 12 of 80 Left</a>', '<i class="icon-warning-sign"></i>Enrolled']);
-    const before = root.innerHTML;
-    tidySectionStatuses(root);
-    expect(root.innerHTML).toBe(before);
-  });
-
-  it("leaves a mismatched header shape native", () => {
-    const root = plan(["Open: 12 of 80 Left"]);
-    root.querySelectorAll("th")[2].textContent = "Something else";
-    const before = root.innerHTML;
-    tidySectionStatuses(root);
-    expect(root.innerHTML).toBe(before);
-  });
-
-  it("refreshes a summary from changed native text and restores unfamiliar updates", () => {
-    const root = plan(["Open: 12 of 80 Left"]);
-    tidySectionStatuses(root);
-    const source = root.querySelector<HTMLElement>("[data-pl-status-original]")!;
-    source.textContent = "Closed Class Full (80)";
-    tidySectionStatuses(root);
-    expect(root.querySelector("[data-pl-section-status]")?.textContent).toBe("Closed");
-    source.textContent = "Open - restricted";
-    tidySectionStatuses(root);
-    expect(root.querySelector("[data-pl-section-status]")).toBeNull();
-    expect(root.querySelector("td.native-status")?.textContent).toBe("Open - restricted");
+    expect(document.querySelector("td")!.innerHTML).toBe('<i class="icon-unlock"></i>Waitlist<br>1 of 8 Taken');
+    expect(document.querySelector("td")!.className).toBe("native-status");
+    expect(document.querySelector("i")).toBe(icon);
+    restoreSectionStatuses(document);
+    expect(document.querySelector("i")).toBe(icon);
   });
 });

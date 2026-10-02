@@ -6,7 +6,6 @@
  * `docs/MYUCLA_CONTRACT.md`, it is left untouched rather than guessed at.
  */
 
-import { formatSectionStatus } from "./section-status";
 
 const OWNED_ATTRIBUTE = "data-planner-lift-owned";
 
@@ -248,8 +247,6 @@ export function restoreExamDetails(doc: Document = document): void {
   });
 }
 
-let statusDetailId = 0;
-
 function restoreStatusCell(cell: HTMLElement): void {
   const original = cell.querySelector<HTMLElement>(":scope > [data-pl-status-original]");
   cell.querySelector(":scope > [data-pl-section-status]")?.remove();
@@ -259,91 +256,6 @@ function restoreStatusCell(cell: HTMLElement): void {
   }
   cell.classList.remove("pl-status-cell", "pl-status-dismissed");
   if (!cell.getAttribute("class")) cell.removeAttribute("class");
-}
-
-/** Only static text, line breaks and the known status icons may be folded. */
-function readStatusText(source: HTMLElement): string | null {
-  if (source.querySelector("a, button, input, select, textarea, [onclick], [tabindex], [contenteditable], [data-content]")) return null;
-  const nodes = [...source.querySelectorAll<HTMLElement>("*")];
-  if (nodes.some(node => {
-    if (node.tagName === "BR") return false;
-    if (!["I", "SPAN"].includes(node.tagName)) return true;
-    if (!node.className) return false;
-    return !/^icon-(?:ok|ok-sign|unlock|lock)$/.test(node.className) || !!node.textContent?.trim();
-  })) return null;
-  const parts: string[] = [];
-  const walker = source.ownerDocument.createTreeWalker(source, NodeFilter.SHOW_TEXT);
-  let node = walker.nextNode();
-  while (node) {
-    parts.push(node.textContent || "");
-    node = walker.nextNode();
-  }
-  return parts.join(" ");
-}
-
-/** Preserve original nodes for MyUCLA and our readers; add a compact view beside them. */
-export function tidySectionStatuses(root: HTMLElement): void {
-  root.querySelectorAll<HTMLTableElement>("table.coursetable").forEach(table => {
-    const headers = [...table.rows].filter(row => row.cells.length > 0 && [...row.cells].every(cell => cell.tagName === "TH"));
-    if (headers.length !== 1 || headers[0].cells.length !== 9 || headers[0].cells[2].textContent?.trim() !== "Status") {
-      table.querySelectorAll<HTMLElement>(".pl-status-cell").forEach(restoreStatusCell);
-      return;
-    }
-    for (const row of table.rows) {
-      const cells = [...row.cells];
-      // Action rows and unfamiliar table shapes keep their native controls.
-      if (cells.length !== 9 || cells.some(cell => cell.tagName !== "TD" || cell.colSpan !== 1 || cell.rowSpan !== 1)) continue;
-      const cell = cells[2];
-      let original = cell.querySelector<HTMLElement>(":scope > [data-pl-status-original]");
-      const text = readStatusText(original || cell);
-      const status = text === null ? null : formatSectionStatus(text);
-      if (!status) {
-        if (original) restoreStatusCell(cell);
-        continue;
-      }
-      let compact = cell.querySelector<HTMLElement>(":scope > [data-pl-section-status]");
-      if (!original) {
-        original = cell.ownerDocument.createElement("span");
-        original.className = "pl-status-original";
-        original.dataset.plStatusOriginal = "true";
-        original.setAttribute("role", "tooltip");
-        do { original.id = `planner-lift-status-detail-${++statusDetailId}`; }
-        while (cell.ownerDocument.getElementById(original.id));
-        // This wrapper deliberately lacks OWNED_ATTRIBUTE: readOfficialText
-        // must continue to see the unchanged original status, not our summary.
-        original.append(...cell.childNodes);
-        cell.append(original);
-      }
-      if (!compact) {
-        compact = cell.ownerDocument.createElement("span");
-        compact.className = "pl-section-status";
-        compact.dataset.plSectionStatus = "true";
-        compact.setAttribute(OWNED_ATTRIBUTE, "true");
-        compact.tabIndex = 0;
-        compact.setAttribute("aria-describedby", original.id);
-        const label = cell.ownerDocument.createElement("span");
-        label.className = "pl-section-status-label";
-        const detail = cell.ownerDocument.createElement("span");
-        detail.className = "pl-section-status-count";
-        compact.append(label, detail);
-        const showDetails = () => cell.classList.remove("pl-status-dismissed");
-        compact.addEventListener("focus", showDetails);
-        compact.addEventListener("pointerenter", showDetails);
-        cell.append(compact);
-      }
-      const label = compact.querySelector<HTMLElement>(".pl-section-status-label")!;
-      const detail = compact.querySelector<HTMLElement>(".pl-section-status-count")!;
-      if (label.textContent !== status.label) label.textContent = status.label;
-      const countText = status.detail ? ` · ${status.detail}` : "";
-      if (detail.textContent !== countText) detail.textContent = countText;
-      compact.dataset.tone = status.tone;
-      cell.classList.add("pl-status-cell");
-    }
-  });
-}
-
-export function dismissStatusDetails(doc: Document = document): void {
-  doc.querySelectorAll(".pl-status-cell").forEach(cell => cell.classList.add("pl-status-dismissed"));
 }
 
 export function restoreSectionStatuses(doc: Document = document): void {

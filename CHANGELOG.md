@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.13.0 — 2026-10-01 (local build)
+
+- Add consistent local pane folding. Closing a primary pane reclaims its
+  column; a persistent named button reopens it. Secondary module shortcuts
+  open their content as well as locating it. Keyboard activation and focus
+  return work without invoking native postbacks.
+- Preserve native collapse buttons and handlers for Original layout, with
+  local capture only on the exact known title/body shape. Keep pane choices
+  in memory across native redraws; unfamiliar shapes remain native.
+- Restore original section status text and icons. Retire the compact status
+  tooltip and aggregate course-status badges; native statuses remain in Details.
+- Keep the original term chooser and plan actions in place. Measure the
+  workspace's original flow position so it does not cover UCLA's top navigation.
+  If the header leaves too little room, use the page flow instead of covering it.
+- Position Other sections below its own button, so the popup cannot cover
+  the control needed to close it. Retain all six original sections.
+- Verify native navigation/status identity, local folding, keyboard reopening,
+  short-window local scrolling, redraws and restoration on fictional fixtures.
+  Live browser inspection was rejected by automatic approval review even after
+  exact-page user authorization; manual verification remains necessary.
+
 ## 0.12.2 — 2026-10-01 (local build)
 
 - Close course details by clicking outside, pressing Escape or using the visible

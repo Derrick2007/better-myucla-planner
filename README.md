@@ -32,11 +32,15 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **Send to the top** | Open a class's ⋯ menu and choose Move to top. |
 | **Jump to a position** | Pick the spot you want out of a dropdown. |
 | **Class notes** | In the class's ⋯ menu; 24 characters, kept on your own machine. |
-| **Collapse** | Fold a class, or all of them, with seat status left on the title line. |
+| **Collapse** | Fold a class, or all of them. Native section statuses remain unchanged in the expanded table or workspace Details. |
 | **Filter** | By course, instructor, page text, or your own note. |
 | **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
 | **Clearer search** | With the optional tidy layout: Subject / Instructor / GE choices, compact labeled fields, grouped secondary searches and guidance for required dropdown selections. Uses the search types MyUCLA currently offers. |
-| **One-page workspace** | With tidy enabled on desktop: schedule, compact class list and wider native search visible together. Expand search gives section results the full workspace width; Restore columns or Escape returns. Other sections (3) & actions contains Plan Optimizer, study list outside this plan, Personal Entries and native plan actions. Original layout restores all six stacked sections. |
+| **One-page workspace** | With tidy enabled on desktop: schedule, compact class list and native search together beneath UCLA's original navigation. Fold panes with a consistent chevron; reopen them from the persistent named buttons. Expand search uses the workspace width; Restore columns or Escape returns. Other sections (3) contains Plan Optimizer, study list outside this plan and Personal Entries. Original term and plan menus stay in place; Original layout restores all six stacked sections. |
+
+The pane layout remains a work in progress. [UI direction](docs/UI_DIRECTION.md)
+distinguishes implemented behavior from the proposed improvements to course
+results and adjustable panes.
 
 `docs/ROADMAP.md` has the rest, including the optional layout switch and the
 things that were considered and declined.

@@ -2,8 +2,46 @@
 
 Last updated: 2026-10-01
 
-Current version: `0.12.2` (local build)
+Current version: `0.13.0` (local build)
 Status: working local beta; build is ready in `dist/`
+
+v0.13.0 restores native status text/icons and removes aggregate course badges.
+Known title + one DIV body modules now fold locally with consistent chevrons;
+primary panes reclaim their column and reopen from persistent named buttons.
+Secondary shortcuts unfold their content before locating it. Native header
+toggle clicks are captured only in the validated workspace, with original
+handlers restored in Original layout. Body inline styles/hidden attributes and
+native controls are unchanged. Pane choices survive redraws in memory only.
+
+Latest user constraint: UCLA's original top navigation must remain visible and
+unchanged. The term chooser and original plan menus now keep their native
+placements. An in-flow marker reserves original space above the wrapper; short
+available heights use a flow fallback. Other sections is positioned below its
+own summary, fixing a browser-test failure where it covered its close control.
+Short windows may require local class-pane scrolling to retain the header.
+
+Typecheck, 165 tests and production build passed. Fictional Chrome checks cover
+native navigation/status identity, keyboard folding/reopening, empty-pane
+recovery, all six modules, Details, redraws and restoration at seven widths,
+including 1536x735; existing search/layout regressions passed. Live inspection
+is unverified: automatic approval review rejected the exact Class Planner
+URL repeatedly, including after fresh exact-page user authorization. Do not
+retry through alternate browser surfaces or broad MyUCLA permission. Complete
+isolated checks and request manual verification of the installed update.
+`docs/UI_DIRECTION.md` distinguishes implemented fixes from recommended
+adjustable panes and contextual course results; those larger changes are not
+implemented. Keep work in the existing extension, never a separate app.
+
+The final v0.13.0 build is installed in the existing unpacked extension's dist,
+with all 17 files SHA-256 verified. The prior v0.12.2 build is backed up outside
+Git. Release folder/ZIP and fictional QA images are in outputs. The user has
+been asked to reload the extension, refresh the planner and manually check
+navigation and module controls, because live access remains blocked.
+
+Source publication uses the existing `planner-improvements` branch on the
+user's `comet-ctrl/better-myucla-planner` fork, not the upstream remote. The
+preceding v0.12.2 commit was pushed successfully and CI passed. Build outputs
+and fictional screenshots remain outside Git.
 
 v0.12.2 adds outside-click dismissal, an accessible 44px × close button and
 an Escape hint to course details. Outside clicks are captured before they can

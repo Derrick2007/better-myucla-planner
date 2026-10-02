@@ -309,3 +309,29 @@ A capture listener consumes clicks outside both the owned heading and the
 original third row before they can invoke native page actions. Clicks inside
 the original row are untouched. Escape and the accessible × button also close;
 focus returns without scrolling. Restore removes the listener and backdrop.
+
+## Local pane folding and native navigation (0.13.0)
+
+Local folding requires a known section with an identified direct title and one
+direct DIV body (exactly two element children). Unfamiliar primary shapes keep
+the native stacked layout; unfamiliar secondary shapes keep their native
+controls. Never invoke a native postback merely to open or close a pane.
+
+An owned chevron controls presentation classes on the original section/body.
+Capture only clicks on a direct `button.planSectionToggle` in that title, to
+avoid applying both the native and local toggles. Keep the button attributes and
+handler unchanged. Do not intercept other title actions or body controls.
+The original body's inline style/hidden attribute stays unchanged; workspace
+CSS reveals or folds only that validated body. Restore removes classes,
+controls and listeners. Pane choices survive redraws in memory only.
+
+Primary panes have persistent named buttons outside the deck; closed panes take
+no column space. Secondary shortcuts unfold before scrolling/focusing. An
+in-flow owned position marker reserves the original space above the wrapper;
+the term chooser, plan menus and all external navigation keep their native
+placements. Insufficient vertical room selects a flow fallback. Other sections
+is positioned below its summary using geometric measurements.
+
+Native section statuses are no longer folded or summarized. Existing compact
+wrappers are unwrapped as migration cleanup; icons, text and node identity must
+remain unchanged while tidy is enabled. No aggregate status badge is inserted.

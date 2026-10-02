@@ -6,6 +6,11 @@ import { searchMarkup, recordedSearchOptions } from './search-fixture.mjs';
 export function workspaceFixtureHtml(count = 5, includeResults = false) {
   const dom = new JSDOM(calendarFixtureHtml(count));
   const doc = dom.window.document;
+  const navigation = doc.createElement('nav'); navigation.id = 'fixture-native-navigation';
+  navigation.setAttribute('aria-label','Example UCLA navigation');
+  navigation.innerHTML = '<strong>UCLA</strong><a href="#home">Home</a><a href="#academics">Academics</a><button type="button">Menu</button>';
+  navigation.style.cssText = 'display:flex;align-items:center;gap:24px;height:64px;padding:0 24px;background:#24528f;color:white;box-sizing:border-box';
+  doc.body.prepend(navigation);
   const panel = doc.getElementById('ctl00_MainContent_classPlanPanel');
   const wrapper = doc.createElement('div');
   wrapper.className = 'classPlannerWrapper';

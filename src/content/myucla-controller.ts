@@ -14,7 +14,6 @@ import {
 import { releaseBootHold } from "./boot-hold";
 import {
   applyHeadline,
-  dismissStatusDetails,
   markHeaderRows,
   readHeadline,
   restoreExamDetails,
@@ -23,7 +22,6 @@ import {
   restoreWeekGrid,
   tidyWeekGrid,
   tidyExamDetails,
-  tidySectionStatuses,
   unmarkHeaderRows
 } from "./page-polish";
 import { FastReorderCoordinator } from "./fast-reorder";
@@ -35,7 +33,6 @@ import {
   conflictCodes,
   inspectCourse,
   matchesCourse,
-  summarizeStatus,
   type CourseInsight
 } from "./plan-insights";
 import type { QueueProgress } from "./operation-queue";
@@ -386,13 +383,13 @@ export class MyUclaPlannerController {
     if (!this.drag) this.clearDragArtifacts();
     this.ensureToolbar();
     this.ensureActionBar();
+    restoreSectionStatuses(document);
     if (this.tidyLayout) {
       this.classSearch.reconcile(document);
       tidyPlannerFrame(document);
       if (root) {
         markHeaderRows(root);
         tidyExamDetails(root);
-        tidySectionStatuses(root);
       }
       // The weekly grid is MyUCLA's, lives outside the plan table, and is
       // re-rendered by its own toggles, so it is re-checked on every pass.
@@ -729,29 +726,6 @@ export class MyUclaPlannerController {
   }
 
   /**
-   * Collapsing a card is only worth doing if it does not cost the one fact the
-   * student came for, so the seat status rides along on the title line.
-   */
-  private applyStatusBadge(course: CourseSnapshot, insight: CourseInsight): void {
-    const labelHost = this.adapter.getLabelHost(course);
-    let badge = labelHost.querySelector<HTMLElement>(":scope > [data-pl-status-badge]");
-    const summary = summarizeStatus(insight);
-    if (!summary) {
-      badge?.remove();
-      return;
-    }
-    if (!badge) {
-      badge = document.createElement("span");
-      badge.className = "pl-status-badge";
-      badge.dataset.plStatusBadge = "true";
-      badge.setAttribute(OWNED_ATTRIBUTE, "true");
-      labelHost.append(badge);
-    }
-    if (badge.textContent !== summary.label) badge.textContent = summary.label;
-    badge.dataset.tone = summary.tone;
-  }
-
-  /**
    * MyUCLA hides "what does this clash with" one click deep, per course. With a
    * seventeen-course plan that is seventeen clicks to answer one question, so
    * put its own answer on the card. Codes only — which of them to give up is the
@@ -818,7 +792,7 @@ export class MyUclaPlannerController {
       const collapsed = this.collapsedCourses.has(course.id);
       course.node.classList.toggle("pl-filtered-out", !visible);
       course.node.classList.toggle("pl-course-collapsed", collapsed);
-      this.applyStatusBadge(course, insight);
+      course.node.querySelector("[data-pl-status-badge]")?.remove();
       this.applyConflictBadge(course, insight);
 
       const tools = this.findTools(course.id);
@@ -1955,7 +1929,6 @@ export class MyUclaPlannerController {
       }
       this.closeMenu();
       this.closeCourseMenus();
-      dismissStatusDetails(document);
       return;
     }
 

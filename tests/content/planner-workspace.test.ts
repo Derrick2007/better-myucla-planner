@@ -110,7 +110,7 @@ describe("one-page native planner workspace", () => {
   it("lists all three other native sections and restores every section in original layout", () => {
     const sections = [...document.querySelectorAll("#ctl00_MainContent_classPlanPanel > section")];
     mount();
-    expect(document.querySelector(".pl-workspace-extras > summary")!.textContent).toBe("Other sections (3) & actions");
+    expect(document.querySelector(".pl-workspace-extras > summary")!.textContent).toBe("Other sections (3)");
     expect([...document.querySelectorAll(".pl-workspace-section-links button")].map(n=>n.textContent)).toEqual(["Plan Optimizer","Study list outside this plan","Personal Entries"]);
     const extras = document.querySelector<HTMLDetailsElement>(".pl-workspace-extras")!;
     extras.open = true;
@@ -127,6 +127,69 @@ describe("one-page native planner workspace", () => {
     const original = document.body.innerHTML;
     mount();
     expect(document.body.innerHTML).toBe(original);
+  });
+  it("folds locally once, reclaims columns and keeps a keyboard-accessible reopening route", () => {
+    const title = document.getElementById("plannerSectionClip")!;
+    const native = title.querySelector<HTMLButtonElement>("button.planSectionToggle")!;
+    const handler = vi.fn(); native.addEventListener("click", handler);
+    const body = document.getElementById("panelPlan")!;
+    const bodyStyle = body.getAttribute("style");
+    mount();
+    const reopen = document.querySelector<HTMLButtonElement>('.pl-workspace-pane-switches button:nth-child(2)')!;
+    native.click();
+    expect(handler).not.toHaveBeenCalled();
+    expect(body.parentElement!.classList.contains("pl-pane-collapsed")).toBe(true);
+    expect(document.activeElement).toBe(reopen);
+    expect(reopen.getAttribute("aria-pressed")).toBe("false");
+    expect(document.querySelector<HTMLElement>(".pl-workspace-deck")!.style.getPropertyValue("--pl-workspace-columns")).not.toContain("270px");
+    reopen.click();
+    expect(body.parentElement!.classList.contains("pl-pane-open")).toBe(true);
+    expect(body.getAttribute("style")).toBe(bodyStyle);
+    expect(native.getAttribute("onclick")).toBeNull();
+    workspace.restore(); native.click(); expect(handler).toHaveBeenCalledOnce();
+  });
+  it("can reopen every pane after closing all three and keeps the native top menus in place", () => {
+    const term = document.getElementById("ctl00_MainContent_termSessionChooser")!;
+    const menu = document.querySelector(".plannerTopMenuLinks")!;
+    const menuParent = menu.parentElement, termParent = term.parentElement;
+    const menuNext = menu.nextSibling, termNext = term.nextSibling;
+    mount();
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>(".pl-workspace-pane-switches button")];
+    buttons.forEach(button=>button.click());
+    expect(document.querySelector<HTMLElement>(".pl-workspace-empty")!.hidden).toBe(false);
+    expect(document.querySelectorAll(".pl-workspace-deck > section.pl-pane-collapsed")).toHaveLength(3);
+    buttons.forEach(button=>button.click());
+    expect(document.querySelector<HTMLElement>(".pl-workspace-empty")!.hidden).toBe(true);
+    expect(document.querySelectorAll(".pl-workspace-deck > section.pl-pane-open")).toHaveLength(3);
+    expect(menu.parentElement).toBe(menuParent); expect(term.parentElement).toBe(termParent);
+    expect(menu.nextSibling).not.toBe(menuNext); // Only the owned control row was inserted before the panel.
+    workspace.restore(); expect(menu.nextSibling).toBe(menuNext); expect(term.nextSibling).toBe(termNext);
+  });
+  it("opens a folded secondary module through its shortcut without invoking native handlers", () => {
+    const section = document.querySelector<HTMLElement>(".classPlanner_PersonalTimeBlocksSection")!;
+    const body = section.children[1] as HTMLElement; body.style.display = "none";
+    mount();
+    const toggle = section.querySelector<HTMLButtonElement>(".pl-pane-toggle")!;
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    document.querySelector<HTMLButtonElement>(".pl-workspace-section-links button:last-child")!.click();
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(toggle);
+    toggle.click(); expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    workspace.restore(); expect(body.style.display).toBe("none");
+  });
+  it("retains local pane choices after a native redraw and rejects unknown body shapes", () => {
+    mount();
+    document.querySelector<HTMLButtonElement>(".pl-workspace-pane-switches button:last-child")!.click();
+    const fixture = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
+    document.getElementById("ctl00_MainContent_classPlanPanel")!.replaceWith(document.importNode(fixture.getElementById("ctl00_MainContent_classPlanPanel")!,true));
+    mount();
+    expect(document.querySelector(".pl-workspace-search")!.classList.contains("pl-pane-collapsed")).toBe(true);
+    document.querySelector<HTMLButtonElement>(".pl-workspace-pane-switches button:last-child")!.click();
+    expect(document.querySelector(".pl-workspace-search")!.classList.contains("pl-pane-open")).toBe(true);
+    workspace.restore();
+    document.querySelector(".classPlanner_ClassSearchSection")!.append(document.createElement("div"));
+    const before = document.body.innerHTML;
+    mount(); expect(document.body.innerHTML).toBe(before);
   });
   it("keeps native details accessible if their recorded structure changes", () => {
     const header = document.querySelector("table.coursetable tr")!;
