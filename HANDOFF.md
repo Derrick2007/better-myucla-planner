@@ -68,9 +68,9 @@ navigation after another native search on v0.14.2 after reload.
 Never automate enrollment or plan-changing actions during live QA. Extension
 manifest permissions remain the exact Class Planner path.
 
-Save the new source/ZIP to the user's fork on planner-redesign. The previous
-v0.14.1 release and source (3d8698f) are published with GitHub CI passing:
-https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.1
+The source/ZIP are published to the user's fork on planner-redesign. GitHub CI
+passed for 6e9aad0. The current beta release is:
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.2
 The existing unpacked extension folder is the
 installation target. The prior v0.13.0 dist is backed up in outputs, and all 17
 installed v0.14.2 files are SHA-256 verified against dist. Prior v0.14.0 and
