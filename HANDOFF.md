@@ -40,6 +40,12 @@ Switching My classes → Find classes preserves the fix and the adjacent calenda
 Only local navigation was clicked; no search, plan or enrollment action was run.
 No real course contents or search values were read, captured or stored.
 
+Published prerelease source: c3c3053 (planner-redesign on the user's fork).
+Release: https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.1
+CI passed: https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37155540081
+The attached ZIP is the hash-verified installed build. The regenerated website
+preview passes at 1440/1280/960/390px with zero requests and inert account actions.
+
 ## v0.17.0 historical record
 
 Current-build visualization added: `src/preview/index.ts` imports the production
