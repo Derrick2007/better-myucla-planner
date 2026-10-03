@@ -40,6 +40,12 @@ Plan actions opens and closes with Escape; UCLA's native Load/About visibility
 is preserved. Returned to My classes with the menu closed. Only local navigation
 and disclosure controls were clicked; no native plan/course action was run.
 
+Published prerelease: https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.4
+Implementation commit: 88ab790; release target with live verification: c76c418.
+CI 37161310321 and Release 37161312911 succeeded on that target.
+The published ZIP matches the installed build after the automated release job:
+SHA-256 cef4c82bf5915415a6c99bf218d6f296d8186f179f738866b3a4e1f4d9136352.
+
 ## v0.17.3 historical record
 
 The user explicitly requested trying Plan actions > New Plan. One live native
