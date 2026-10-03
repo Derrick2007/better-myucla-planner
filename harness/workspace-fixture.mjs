@@ -1,7 +1,7 @@
 /** Native section hierarchy with fictional data; never uses a student page. */
 import { JSDOM } from 'jsdom';
 import { calendarFixtureHtml } from './calendar-fixture.mjs';
-import { searchMarkup, recordedSearchOptions } from './search-fixture.mjs';
+import { searchMarkup, recordedSearchOptions, nativeSearchLayoutCss } from './search-fixture.mjs';
 
 export function workspaceFixtureHtml(count = 5, includeResults = false, tallHeader = false, resultSectionCount = 5) {
   const dom = new JSDOM(calendarFixtureHtml(count));
@@ -84,6 +84,9 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
   const style = doc.createElement('style');
   style.textContent = '.hidden{display:none}.timebox,.fixture-weekbody{height:540px}td.SubjectAreaName_ClassName{margin:20px 0 5px}#div_landing{margin:30px 0}.classPlanner_SectionTitle{background:#24528f;color:white;padding:10px}.ClassSearchControls{display:flex}.searchType{width:42%}.searchFieldPanel{display:flex;width:58%}.ClassSearchBox{display:block;width:95%;margin-bottom:10px}.ClassSearchList{width:100%;font-size:13px;line-height:1.45}.ClassSearchList .row-fluid:after{content:"";display:table;clear:both}.ClassSearchList .header-row{background:#edf1f5}.ClassSearchList .data_row{border-bottom:1px solid #e3e8ed}';
   doc.head.append(style);
+  const nativeSearchStyle = doc.createElement('style');
+  nativeSearchStyle.textContent = nativeSearchLayoutCss;
+  doc.head.append(nativeSearchStyle);
   return dom.serialize();
 }
 

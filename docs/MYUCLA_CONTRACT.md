@@ -1,5 +1,17 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Native search layout compatibility (0.17.1)
+
+The validated search row retains native `.row` clearfix pseudo-elements,
+percentage-width `.panel-5`/`.panel-7`/`.panel-10` wrappers and inputs with inline
+96% widths. Reset those dimensions only inside `.ClassSearchWidget.pl-search-widget`.
+Remove the row's generated clearfix boxes so they cannot occupy grid columns.
+Native mode updates set `.searchFieldPanel` to inline `display:block`; override
+only that visible value. Preserve inline `display:none`, hidden attributes and
+native hidden classes, including below the 600px container breakpoint.
+The Search By wrapper includes a colon text node between its label and select;
+block flow keeps the label/colon together without moving or replacing controls.
+
 ## Persistent calendar workspace (0.17.0)
 
 This supersedes the Plan/Find and inline-Details layouts below. Named modules

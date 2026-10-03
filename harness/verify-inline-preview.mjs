@@ -60,7 +60,7 @@ try {
     assert.ok(await frame.locator('#fixture-native-navigation').evaluate(node => node.getBoundingClientRect().top >= 0), 'Show header restores the original top');
     await frame.getByRole('button', { name: 'Compact header', exact: true }).click();
     assert.ok(await frame.locator('#titleText').evaluate(node => node.getBoundingClientRect().top <= 16));
-    await frame.evaluate(() => window.dispatchEvent(new CustomEvent('openai:set_globals', { detail: { globals: { widgetState: { privateContent: { build: '0.17.0', module: 'classes', details: '__proto__' } } } } })));
+    await frame.evaluate(() => window.dispatchEvent(new CustomEvent('openai:set_globals', { detail: { globals: { widgetState: { privateContent: { build: document.getElementById('better-myucla-build-preview').dataset.previewBuild, module: 'classes', details: '__proto__' } } } } })));
     assert.equal(await frame.locator('.pl-workspace-host').getAttribute('data-pl-module'), 'classes', 'saved module restores while malformed selection falls back safely');
     assert.equal(await frame.locator('.pl-workspace-preview').isVisible(), false);
     assert.equal(errors.length, 0, errors.join('\n'));

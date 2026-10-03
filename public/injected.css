@@ -1273,10 +1273,37 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
 .pl-search-widget select:focus-visible,
 .pl-search-widget input:focus-visible { outline: 2px solid #4184c2; outline-offset: 3px; }
 .pl-search-widget .ClassSearchControls.row { display: flex; flex-direction: column; margin: 0; gap: 16px; }
+/* UCLA's legacy clearfix pseudo-elements otherwise become empty grid items,
+   and its panel percentages shrink a panel again inside each grid track. */
+.ClassSearchWidget.pl-search-widget > .ClassSearchControls.row::before,
+.ClassSearchWidget.pl-search-widget > .ClassSearchControls.row::after { content: none !important; display: none !important; }
+.ClassSearchWidget.pl-search-widget > .ClassSearchControls.row > .searchType,
+.ClassSearchWidget.pl-search-widget > .ClassSearchControls.row > .searchFieldPanel {
+  float: none !important; width: 100% !important; min-width: 0; max-width: none !important;
+  margin: 0 !important; padding: 0 !important; box-sizing: border-box;
+}
+.ClassSearchWidget.pl-search-widget .searchFields,
+.ClassSearchWidget.pl-search-widget .goPanel {
+  float: none !important; width: auto !important; min-width: 0; max-width: none !important;
+  margin: 0 !important; padding: 0 !important; box-sizing: border-box;
+}
+/* Native mode changes set this wrapper to display:block. Only replace that
+   observed visible value; never override a native display:none transition. */
+.ClassSearchWidget.pl-search-widget .searchFieldPanel:is([style*="display:block" i],[style*="display: block" i]):not([hidden]):not(.hidden) {
+  display: var(--pl-search-panel-display,flex) !important;
+}
+.ClassSearchWidget.pl-search-widget .searchFieldPanel[hidden],
+.ClassSearchWidget.pl-search-widget .searchFieldPanel.hidden,
+.ClassSearchWidget.pl-search-widget .searchFields[hidden],
+.ClassSearchWidget.pl-search-widget .searchFields.hidden,
+.ClassSearchWidget.pl-search-widget .goPanel[hidden],
+.ClassSearchWidget.pl-search-widget .goPanel.hidden { display: none !important; }
 .pl-search-widget .pl-search-hint { margin: 10px 0 0; color: #627080; font-size: 12px; line-height: 1.45; }
 .pl-search-widget .searchType { float: none; width: 100%; margin-top: 10px; padding: 0; }
-.pl-search-widget .searchType > div { display: flex; flex-direction: column; gap: 6px; }
+.ClassSearchWidget.pl-search-widget .searchType > div { display: block; font: 500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.ClassSearchWidget.pl-search-widget #classearchby { font: inherit; }
 .pl-search-widget .searchType select.searchBy {
+  display: block; margin-top: 6px;
   box-sizing: border-box; width: 100%; max-width: 480px; height: auto; min-height: 40px;
   padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: #fff; color: #24282e;
   font-family: inherit; font-size: 13px;
@@ -1294,6 +1321,7 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
   border: 1px solid #cbd5e0; border-radius: 7px; background: #fff; color: #24282e;
   font-family: inherit; font-size: 14px; line-height: 1.4;
 }
+.ClassSearchWidget.pl-search-widget input.ClassSearchBox { width: 100% !important; min-width: 0; max-width: none; margin: 0 !important; }
 .pl-search-widget .goPanel { flex: 0 0 auto; width: auto; float: none; padding: 0; }
 .pl-search-widget .pl-search-submit { position: relative; display: inline-block; vertical-align: middle; }
 .pl-search-widget .pl-search-submit input.csGoButton {
@@ -1512,10 +1540,13 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-search .searchType { margin: 0; min-width: 0; }
 .pl-workspace-search .searchType select.searchBy { max-width: none; font-size: 14px; }
 .pl-workspace-search .searchFieldPanel { display: flex; flex-direction: row; align-items: end; min-width: 0; gap: 10px; }
-.pl-workspace-search .searchFields { display: grid !important; gap: 6px 10px; }
+.pl-workspace-search .ClassSearchWidget.pl-search-widget .searchFields { display: grid; gap: 6px 10px; }
 .pl-workspace-search .goPanel { align-self: end; }
 .pl-workspace-search .pl-search-submit input.csGoButton { width: 96px; }
 .pl-workspace-search label.pl-search-field-label:not(:first-child) { margin-top: 0; }
+.pl-workspace-search > .pl-pane-title > button.planSectionToggle { order: 0; flex: 1; min-width: 0; }
+.pl-workspace-search > .pl-pane-title > a { order: 1; margin-left: auto; font-size: 13px; }
+.pl-workspace-search > .pl-pane-title > .pl-pane-toggle { order: 2; }
 .pl-workspace-search .ClassSearchList { overflow: auto; }
 .pl-workspace-search > .pl-pane-body:has(> .pl-browser-bounded) { overflow: hidden; }
 .pl-workspace-search .ClassSearchWidget.pl-browser-bounded {
@@ -1698,8 +1729,8 @@ section#layoutContentArea.pl-planner-introduction {
 @container pl-search (max-width: 599px) {
   .pl-workspace-search .ClassSearchControls.row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 10px; }
   .pl-workspace-search .searchType { grid-column: 1; grid-row: 1; }
-  .pl-workspace-search .searchFieldPanel { display: contents; }
-  .pl-workspace-search .searchFields { display: grid !important; grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .pl-workspace-search .searchFieldPanel { --pl-search-panel-display: contents; display: contents; }
+  .pl-workspace-search .searchFields { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(2,minmax(0,1fr)); }
   .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="1"] .searchFields { grid-template-columns: minmax(0,1fr); }
   .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="3"] .searchFields { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .pl-workspace-search label.pl-search-field-label:not(:first-child) { margin-top: 0; }

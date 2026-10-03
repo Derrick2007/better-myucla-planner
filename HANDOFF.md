@@ -2,7 +2,45 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.0` (redesign prerelease).
+Current version: `0.17.1` (search layout fix).
+
+The user's live screenshot exposed a layout regression missed by the original
+fixtures: native `.row` clearfix pseudo-elements became grid items, percentage
+panel widths shrank again inside grid columns, and native inline `display:block`
+defeated the field panel's flex layout. Inputs could shrink to about 70px on the
+actual desktop page while Search By occupied the wrong column.
+
+Scoped CSS now removes only the validated search row's clearfix, resets its
+native panel/input widths, and overrides only the observed visible inline block
+state. Native `display:none`, hidden attributes/classes, original controls and
+form associations remain intact. The native label and colon stay together;
+the original enrollment link follows the section heading visually.
+
+Shared fictional fixtures now reproduce those native styles. The new
+`harness/verify-native-search-layout.mjs` reproduces the old failure and verifies
+the fix at 2048/1440/1366/1280/1100/960/390px, exact 599/600/699/700px container
+boundaries, three-field modes, hidden states, control identity and zero search
+events/extra requests. At 1440px inputs increased from 42px to 196px, and the
+search controls decreased from 267px to 66px high. Fictional screenshots reviewed.
+
+Typecheck, all 228 tests and production build pass. The broader production
+workspace suite also passes at 2048/1440/1280/390px and its additional lifecycle,
+long-result, print/restoration, future-term and compact-header cases.
+
+Installed v0.17.1 into Downloads/better-myucla-v0.10.3/dist; all 17 files hash-match
+production dist. The prior build is backed up at outputs/installed-backup-v0.17.0;
+the original v0.16.0 rollback remains untouched.
+
+After the user reloaded, bounded read-only checks on the actual Class Planner at
+2048x927 verified 347.5px-wide inputs (previously 69.1px), a 66.2px-high search
+band (previously 272.4px), aligned mode/inputs/submit and one-line field labels.
+The native link follows the heading, the unused field stays hidden, all fields
+remain associated with aspnetForm, and no horizontal page overflow occurs.
+Switching My classes → Find classes preserves the fix and the adjacent calendar.
+Only local navigation was clicked; no search, plan or enrollment action was run.
+No real course contents or search values were read, captured or stored.
+
+## v0.17.0 historical record
 
 Current-build visualization added: `src/preview/index.ts` imports the production
 presentation modules; `npm run preview:build` creates the offline fictional
