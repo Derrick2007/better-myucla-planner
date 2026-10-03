@@ -138,3 +138,12 @@ Escape/focus return and native form association without horizontal overflow.
 Future/current quarter changes retained compact choice and removed obsolete
 save controls, then restored all six modules. No plan/enrollment action was
 automated; only structural facts were retained.
+
+The 0.14.7 follow-up passed 201 tests and production fixtures at seven widths,
+including three single-result widths and fictional checked-selection review.
+On October 3 the installed build passed live Details-to-Expand-Browse checks
+before and after a native search. One loaded course fills the preview without
+a redundant index/filter/count. Escape restores three panes and button focus;
+three additional modules remain accessible. Native form association, compact
+header choice and zero horizontal overflow were verified. No live selection,
+plan or enrollment action was automated. Native initial loading remains.

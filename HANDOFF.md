@@ -1,6 +1,6 @@
 # Better MyUCLA — Agent handoff
 
-Last updated: 2026-10-02
+Last updated: 2026-10-03
 
 Current version: `0.14.7` (redesign beta)
 
@@ -28,9 +28,21 @@ and local dragging also passed. Single-result and selection-reminder screenshots
 were visually inspected using fictional courses only.
 
 The installed build is v0.14.7; all 17 files are SHA-256 verified. v0.14.6 is
-backed up outside Git. User reload/live re-verification and publication are
-pending. Never automate live enrollment/plan changes during QA. Preserve all
-original UCLA navigation. Use only the authorized Class Planner tab.
+backed up outside Git. After user reload, authorized live verification passed
+Details to Expand Browse both before and after a native search. A single loaded
+result hides the duplicate index/filter/count and fills the preview width.
+Escape restores all three panes and button focus. All three additional modules
+remain accessible; original search controls retain their form association.
+There is no horizontal overflow, BODY scroll remains zero, and the saved compact
+choice remains active. Checked-selection review was tested only on fictional
+fixtures. No live plan/enrollment action was taken; retain structural facts only.
+Preserve all original UCLA navigation. Use only the authorized Class Planner tab.
+
+Source and ZIP are published to the user's fork, explicitly marked prerelease.
+Code SHA 660024d09ed7aaa92807ede07e416695d5d69650 passed CI and release packaging:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37041125966
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37041133579
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.14.7
 
 ## v0.14.6 verification record
 
