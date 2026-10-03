@@ -29,10 +29,16 @@ visualization also passes at 1440/1280/960/390.
 
 Installed in Downloads/better-myucla-v0.10.3/dist; all 17 files SHA-256 match the
 tested production build. Backup: outputs/installed-backup-v0.17.3. Earlier
-rollback backups remain intact. The v0.17.4 reload question was sent; actual-page
-verification is pending. Check only the existing Class Planner tab after reload,
-using bounded DOM/geometry and local module switches. Do not trigger another
-New Plan or any plan/course mutation.
+rollback backups remain intact. After the user reloaded and refreshed, bounded
+checks on the actual Class Planner verified the empty workspace alongside the
+populated Study list. All six navigation destinations and Original layout are
+visible; the calendar is 640px wide at a 2048px viewport. The empty plan has no
+course tools, its duplicate details slot is hidden, and the page fits its width.
+Study list and Find classes both open beside the calendar with original controls
+in aspnetForm. Study has local scrolling and no extension course-editing tools.
+Plan actions opens and closes with Escape; UCLA's native Load/About visibility
+is preserved. Returned to My classes with the menu closed. Only local navigation
+and disclosure controls were clicked; no native plan/course action was run.
 
 ## v0.17.3 historical record
 
