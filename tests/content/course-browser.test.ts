@@ -8,6 +8,19 @@ describe('local course browser',()=>{
  let browser:CourseBrowserPresentation;
  beforeEach(()=>{document.body.innerHTML=new DOMParser().parseFromString(workspaceFixtureHtml(3,true),'text/html').body.innerHTML;browser=new CourseBrowserPresentation();});
  afterEach(()=>browser.restore());
+ it('bounds only the recognized widget and restores scrollable fallback for a new native sibling',()=>{
+  const widget=document.querySelector<HTMLElement>('.ClassSearchWidget')!;
+  browser.reconcile(document);
+  expect(widget.classList.contains('pl-browser-bounded')).toBe(true);
+  expect(browser.needsReconcile(document)).toBe(false);
+  const extra=document.createElement('div');const button=document.createElement('button');button.type='button';extra.append(button);widget.append(extra);
+  expect(browser.needsReconcile(document)).toBe(true);browser.reconcile(document);
+  expect(widget.classList.contains('pl-browser-bounded')).toBe(false);
+  expect(button.parentElement).toBe(extra);expect(extra.parentElement).toBe(widget);
+  expect(browser.needsReconcile(document)).toBe(false);
+  extra.remove();browser.reconcile(document);expect(widget.classList.contains('pl-browser-bounded')).toBe(true);
+  browser.restore();expect(widget.classList.contains('pl-browser-bounded')).toBe(false);
+ });
  it('switches loaded previews without invoking native links or changing their controls',()=>{
   const original=[...document.querySelectorAll('.ClassSearchList input')];
   const statuses=[...document.querySelectorAll('.ClassSearchList .data_row > .span3')].map(node=>({node,html:node.innerHTML}));
@@ -134,7 +147,6 @@ describe('local course browser',()=>{
  });
  it('retains filters, disclosure choices, focus and index scroll through a row-only redraw',()=>{
   browser.reconcile(document);
-  document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button')!.click();
   document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.click();
   const filter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   filter.value='102';filter.dispatchEvent(new Event('input',{bubbles:true}));filter.focus();
@@ -146,7 +158,8 @@ describe('local course browser',()=>{
   row.replaceWith(next);browser.reconcile(document);
   const replacementFilter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   expect(replacementFilter.value).toBe('102');expect(document.activeElement).toBe(replacementFilter);
-  expect(document.querySelector('.pl-browser-results')!.classList.contains('pl-browser-editing')).toBe(true);
+  expect(document.querySelectorAll('.pl-browser-toolbar button')).toHaveLength(1);
+  expect(document.querySelector('.ClassSearchControls')!.closest('.pl-browser-results')).not.toBeNull();
   expect(document.querySelector('.pl-browser-list')!.classList.contains('pl-section-more')).toBe(true);
   expect(document.querySelector<HTMLElement>('.pl-browser-index')!.scrollTop).toBe(40);
   expect(document.querySelector<HTMLElement>('.pl-browser-list')!.scrollTop).toBe(120);
@@ -159,7 +172,6 @@ describe('local course browser',()=>{
  });
  it('starts a fresh local filter and disclosure state for replacement search results',()=>{
   browser.reconcile(document);
-  document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button')!.click();
   document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.click();
   const filter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   filter.value='missing';filter.dispatchEvent(new Event('input',{bubbles:true}));
@@ -167,7 +179,7 @@ describe('local course browser',()=>{
   document.querySelector('.ClassSearchList')!.replaceWith(document.importNode(fresh,true));
   browser.reconcile(document);
   expect(document.querySelector<HTMLInputElement>('.pl-browser-filter input')!.value).toBe('');
-  expect(document.querySelector('.pl-browser-results')!.classList.contains('pl-browser-editing')).toBe(false);
+  expect(document.querySelectorAll('.pl-browser-toolbar button')).toHaveLength(1);
   expect(document.querySelector('.pl-browser-list')!.classList.contains('pl-section-more')).toBe(false);
   expect(document.querySelectorAll('.pl-browser-index button:not([hidden])')).toHaveLength(3);
   expect(document.querySelectorAll('.pl-browser-preview-title')).toHaveLength(1);
@@ -184,13 +196,26 @@ describe('local course browser',()=>{
   const bodies=[...root.querySelectorAll('[id^="container_course_M"]')];
   const helps=[...root.querySelectorAll('.header-row button')];
   const footer=document.getElementById('fixture-result-footer')!;
+  const footerBefore=footer.outerHTML;
+  const action=footer.querySelector('button')!;
   const helpClick=vi.fn();helps[0].addEventListener('click',helpClick);
   browser.reconcile(document);
   expect(bodies.every(node=>node.parentElement===root)).toBe(true);
   expect(helps.every(node=>node.closest('.pl-section-help-row')&&!node.closest('.pl-section-heading'))).toBe(true);
   (helps[0] as HTMLButtonElement).click();expect(helpClick).toHaveBeenCalledOnce();
   expect(footer.parentElement).toBe(root);expect(footer.closest('.pl-browser-body,.pl-browser-course')).toBeNull();
+  expect(footer.classList.contains('pl-browser-result-actions')).toBe(true);
+  expect(action.parentElement).toBe(footer);
   expect([...root.querySelectorAll('.header-row button')]).toEqual(helps);
+  browser.restore();expect(footer.outerHTML).toBe(footerBefore);
+ });
+ it('tracks a replaced global action container without reviving its old controls',()=>{
+  browser.reconcile(document);
+  const old=document.getElementById('fixture-result-footer')!;
+  const next=document.createElement('div');next.innerHTML='<button type="button" disabled>Example new native action</button>';
+  old.replaceWith(next);expect(browser.needsReconcile(document)).toBe(true);browser.reconcile(document);
+  expect(old.isConnected).toBe(false);expect(next.classList.contains('pl-browser-result-actions')).toBe(true);
+  expect(next.querySelector('button')!.disabled).toBe(true);expect(browser.needsReconcile(document)).toBe(false);
  });
  it('supports the older nested body shape but rejects an ambiguous duplicate',()=>{
   for(let i=0;i<3;i++)document.getElementById(`CourseListEntry_M${i}`)!.append(document.getElementById(`container_course_M${i}`)!);

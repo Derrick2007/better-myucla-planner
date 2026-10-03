@@ -1,11 +1,18 @@
 const OWNED = "data-planner-lift-owned";
 const TERM = "ctl00_MainContent_termSessionChooser_TermChooser";
+interface WorkspaceInformation {
+  navigation: HTMLElement;
+  onInformation: () => void;
+  onCloseInformation: () => void;
+}
 interface Introduction {
   doc: Document; layout: HTMLElement; title: HTMLElement; description: HTMLElement; text: HTMLElement;
   anchor: Comment; about: HTMLDetailsElement; term: HTMLElement; label: HTMLLabelElement;
   sidebar: HTMLElement; header: HTMLButtonElement; info: HTMLButtonElement; close: HTMLButtonElement; notices: HTMLElement[];
   sidebarHadClass: boolean; sidebarHadStyle: boolean; layoutHadClass: boolean; noticeHadClass: boolean[];
   focus: (event: FocusEvent) => void;
+  workspace?: WorkspaceInformation;
+  beforePrint: () => void; afterPrint: () => void;
 }
 
 /** Compact only the recorded planner introduction; never touch UCLA's header. */
@@ -41,7 +48,7 @@ export class PlannerIntroduction {
       !s.sidebar.isConnected || doc.getElementById(TERM)?.parentElement !== s.label.parentElement);
   }
 
-  mount(doc: Document, toolbar: HTMLElement, onLayout: () => void): boolean {
+  mount(doc: Document, toolbar: HTMLElement, onLayout: () => void, workspace?: WorkspaceInformation): boolean {
     if (this.state) return true;
     const layout = doc.getElementById("layoutContentArea"), title = doc.getElementById("titleText");
     const description = doc.getElementById("div_page_title_section2"), text = doc.getElementById("page_title_text");
@@ -73,8 +80,9 @@ export class PlannerIntroduction {
     const header = owned(doc.createElement("button"), "pl-intro-header-toggle"); header.type = "button";
     toolbar.append(header);
     const info = owned(doc.createElement("button"), "pl-intro-info"); info.type = "button";
-    info.textContent = "Links & help"; info.setAttribute("aria-expanded", "false");
-    info.title = "Planner links, enrollment appointments and help"; toolbar.append(info);
+    info.textContent = workspace ? "Information & help" : "Links & help"; info.setAttribute("aria-expanded", "false");
+    info.title = "Planner links, enrollment appointments and help";
+    if(workspace){info.dataset.plModule="information";info.setAttribute("aria-pressed","false");workspace.navigation.prepend(info);}else toolbar.append(info);
     const close = owned(doc.createElement("button"), "pl-intro-info-close"); close.type = "button";
     close.textContent = "×"; close.setAttribute("aria-label", "Close links and help"); sidebar.prepend(close);
     const notices = [...main.children].filter((e): e is HTMLElement => e instanceof HTMLElement &&
@@ -90,9 +98,15 @@ export class PlannerIntroduction {
       this.setHeaderCompact(false); doc.defaultView?.scrollTo({top: 0, behavior: 'instant'});
       this.saveChoice(false); onLayout();
     };
+    // Chromium suppresses closed details descendants even when print CSS asks
+    // for display:block. Expose the original introduction only while printing.
+    let printChoice:boolean|null=null;
+    const beforePrint=()=>{if(printChoice===null)printChoice=about.open;about.open=true;};
+    const afterPrint=()=>{if(printChoice!==null){about.open=printChoice;printChoice=null;}};
     this.state = {doc, layout, title, description, text, anchor, about, term, label, sidebar, header, info, close, notices,
-      sidebarHadClass, sidebarHadStyle, layoutHadClass, noticeHadClass, focus};
+      sidebarHadClass, sidebarHadStyle, layoutHadClass, noticeHadClass, focus, workspace, beforePrint, afterPrint};
     doc.addEventListener('focusin', focus);
+    doc.defaultView?.addEventListener('beforeprint',beforePrint);doc.defaultView?.addEventListener('afterprint',afterPrint);
     header.addEventListener("click", () => {
       const view = doc.defaultView; if (!view) return;
       // Scroll the original banner away; never hide, move or restyle its menu.
@@ -105,11 +119,12 @@ export class PlannerIntroduction {
       onLayout(); header.focus({preventScroll: true});
     });
     info.addEventListener("click", () => {
+      if(workspace){workspace.onInformation();return;}
       if (sidebar.classList.contains("pl-intro-sidebar-open")) { this.closeInfo(); return; }
       sidebar.classList.add("pl-intro-sidebar-open"); info.setAttribute("aria-expanded", "true");
       this.positionInfo(); close.focus({preventScroll: true});
     });
-    close.addEventListener("click", () => this.closeInfo());
+    close.addEventListener("click", () => {if(workspace)workspace.onCloseInformation();else this.closeInfo();});
     this.positionInfo();
     return true;
   }
@@ -129,25 +144,36 @@ export class PlannerIntroduction {
     s.header.textContent = compact ? "Show header" : "Compact header";
     s.header.setAttribute("aria-pressed", String(compact));
     s.header.title = this.saveFailed ? "Could not save the header preference. Try again." : compact ? "Show UCLA's menu and stop keeping the header compact" : "Keep UCLA's banner out of view across terms and reloads";
-    if (!s.sidebar.classList.contains("pl-intro-sidebar-open")) return;
+    if (s.workspace || !s.sidebar.classList.contains("pl-intro-sidebar-open")) return;
     const top = Math.max(12, Math.min(s.doc.defaultView!.innerHeight - 160, s.info.getBoundingClientRect().bottom + 8));
     s.sidebar.style.setProperty("--pl-info-top", `${Math.ceil(top)}px`);
+  }
+
+  /** Visually place the original sidebar in the main workspace without reparenting it. */
+  showInformationInWorkspace(active: boolean, bounds: DOMRect, selected=active): void {
+    const s=this.state;if(!s?.workspace)return;
+    s.sidebar.classList.toggle("pl-intro-sidebar-open",active);
+    s.sidebar.classList.add("pl-intro-sidebar-workspace");
+    s.info.setAttribute("aria-expanded",String(active));s.info.setAttribute("aria-pressed",String(selected));
+    for(const [key,value] of [["left",bounds.left],["top",bounds.top],["width",bounds.width],["height",bounds.height]] as const)s.sidebar.style.setProperty(`--pl-info-${key}`,`${Math.max(0,value)}px`);
   }
 
   closeInfo(focus = true): boolean {
     const s = this.state; if (!s?.sidebar.classList.contains("pl-intro-sidebar-open")) return false;
     s.sidebar.classList.remove("pl-intro-sidebar-open"); s.info.setAttribute("aria-expanded", "false");
+    if(s.workspace)s.info.setAttribute("aria-pressed","false");
     if (focus && s.info.isConnected) s.info.focus({preventScroll: true}); return true;
   }
 
   restore(): void {
     const s = this.state; if (!s) return; this.state = null;
     s.doc.removeEventListener('focusin', s.focus);
+    s.doc.defaultView?.removeEventListener('beforeprint',s.beforePrint);s.doc.defaultView?.removeEventListener('afterprint',s.afterPrint);s.afterPrint();
     s.layout.classList.remove("pl-planner-introduction"); s.term.classList.remove("pl-intro-term");
-    s.sidebar.classList.remove("pl-intro-sidebar", "pl-intro-sidebar-open");
+    s.sidebar.classList.remove("pl-intro-sidebar", "pl-intro-sidebar-open", "pl-intro-sidebar-workspace");
     if (!s.layoutHadClass && !s.layout.className) s.layout.removeAttribute("class");
     if (!s.sidebarHadClass && !s.sidebar.className) s.sidebar.removeAttribute("class");
-    s.sidebar.style.removeProperty("--pl-info-top"); if (!s.sidebarHadStyle && !s.sidebar.getAttribute("style")) s.sidebar.removeAttribute("style");
+    for(const name of ["left","top","width","height"])s.sidebar.style.removeProperty(`--pl-info-${name}`); if (!s.sidebarHadStyle && !s.sidebar.getAttribute("style")) s.sidebar.removeAttribute("style");
     s.notices.forEach((e,i) => {e.classList.remove("pl-intro-notice"); if (!s.noticeHadClass[i] && !e.className) e.removeAttribute("class");});
     // Preserve native replacements too; never revive disconnected text or discard a new child.
     for (const child of [...s.about.childNodes]) {

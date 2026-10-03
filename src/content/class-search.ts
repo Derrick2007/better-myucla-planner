@@ -16,12 +16,6 @@ const OPTIONS = [
   ["onlineasynchronous", "Online - Asynchronous"]
 ] as const;
 const COMMON = [["subject", "Subject"], ["instructor", "Instructor"], ["geclass", "GE"]] as const;
-const GROUPS = [
-  { title: "Course details", choices: [["units", "Units"], ["classidnumber", "Class ID"]] },
-  { title: "Requirements", choices: [["writing2", "Writing II"], ["diversity", "Diversity"], ["collegehonors", "College honors"]] },
-  { title: "Programs", choices: [["fiatlux", "Fiat Lux"], ["service", "Community-engaged learning"], ["cutf", "CUTF seminars"], ["usie", "USIE seminars"], ["law", "Law"]] },
-  { title: "Format", choices: [["online", "Online · not recorded"], ["onlinerecorded", "Online · recorded"], ["onlineasynchronous", "Online · asynchronous"]] }
-];
 const FIELD_LABELS: Record<string, string> = {
   "Subject Area": "Subject",
   "Catalog Number or Class Title (Required)": "Course number or title (required)",
@@ -62,8 +56,8 @@ function readControls(doc: Document): SearchControls | null {
   if (url.origin !== "https://be.my.ucla.edu" || url.pathname !== "/ClassPlanner/ClassPlan.aspx" || nativeForm.method.toLowerCase() !== "post") return null;
   if (select.form !== nativeForm || go.form !== nativeForm || go.type !== "submit" || go.value !== "Go" || ["formaction", "formmethod", "formenctype", "onclick"].some(name => go.hasAttribute(name))) return null;
   if (fields.length !== 3 || fields.some((field, index) => field.id !== `searchTier${index}` || field.type !== "text" || field.form !== nativeForm)) return null;
-  // Search offerings differ by term. Only the exact mappings our common actions
-  // need are required; every other native option remains intact, even unknown ones.
+  // Retain the established native contract. Every option stays in the original
+  // visible selector, including term-specific choices we do not interpret.
   if (COMMON.some(([value]) => {
     const matches = [...select.options].filter(option => option.value === value);
     return matches.length !== 1 || !supportedOption(matches[0]);
@@ -74,13 +68,10 @@ function readControls(doc: Document): SearchControls | null {
 }
 
 interface MountedSearch extends SearchControls {
-  nav: HTMLElement;
-  more: HTMLDetailsElement;
-  summary: HTMLElement;
   labels: HTMLLabelElement[];
   submit: HTMLElement;
   goAria: string | null;
-  typeAnchor: Comment;
+  selectAria: string | null;
   hint: HTMLElement;
   options: string;
   observer: MutationObserver;
@@ -94,15 +85,15 @@ export class ClassSearchPresentation {
     const next = readControls(doc);
     const state = this.mounted;
     if (!next || !state) return !!next !== !!state;
-    return next.widget !== state.widget || next.select !== state.select || next.go !== state.go || next.fields.some((field, index) => field !== state.fields[index]) || optionSignature(next.select) !== state.options || !next.widget.contains(state.nav);
+    return next.widget !== state.widget || next.select !== state.select || next.go !== state.go || next.fields.some((field, index) => field !== state.fields[index]) || optionSignature(next.select) !== state.options || state.labels.some(label => !next.widget.contains(label)) || !state.submit.contains(next.go);
   }
 
   reconcile(doc: Document): void {
     const next = readControls(doc);
-    if (!next || next.widget !== this.mounted?.widget || next.select !== this.mounted.select || next.go !== this.mounted.go || next.fields.some((field, i) => field !== this.mounted!.fields[i]) || optionSignature(next.select) !== this.mounted.options || !next.widget.contains(this.mounted.nav)) {
+    if (!next || this.needsReconcile(doc)) {
       this.restore();
       if (next) this.mount(next);
-    } else this.mounted.sync();
+    } else this.mounted?.sync();
   }
 
   restore(): void {
@@ -112,14 +103,14 @@ export class ClassSearchPresentation {
     state.observer.disconnect();
     state.select.removeEventListener("change", state.sync);
     state.labels.forEach(label => label.remove());
-    // Restore the exact position before removing a navigation wrapper that
-    // contains the native dropdown. Such wrappers must never be marked owned.
-    if (state.typeAnchor.parentNode && state.more.contains(state.typePanel)) state.typeAnchor.replaceWith(state.typePanel);
-    else state.typeAnchor.remove();
-    state.typePanel.classList.remove("pl-search-native-hidden");
-    state.nav.remove();
+    if (state.selectAria === null) state.select.removeAttribute("aria-label");
+    else state.select.setAttribute("aria-label", state.selectAria);
     state.hint.remove();
-    if (state.submit.contains(state.go)) state.submit.before(state.go);
+    // Native redraws may replace Go inside this wrapper. Restore the live
+    // native children rather than removing them with our presentation shell.
+    for (const child of [...state.submit.childNodes]) {
+      if (!(child instanceof Element) || !child.hasAttribute(OWNED)) state.submit.before(child);
+    }
     state.submit.remove();
     if (state.goAria === null) state.go.removeAttribute("aria-label");
     else state.go.setAttribute("aria-label", state.goAria);
@@ -128,57 +119,17 @@ export class ClassSearchPresentation {
   }
 
   private mount(native: SearchControls): void {
-    const { widget, controls, typePanel, select, fields, go } = native;
+    const { widget, controls, select, fields, go } = native;
     const doc = widget.ownerDocument;
     const owned = <T extends HTMLElement>(node: T, className: string): T => {
       node.className = className;
       node.setAttribute(OWNED, "true");
       return node;
     };
-    const nav = doc.createElement("div");
-    nav.className = "pl-search-nav";
-    nav.setAttribute("role", "group");
-    nav.setAttribute("aria-label", "Search classes by");
-    const more = doc.createElement("details");
-    more.className = "pl-search-more";
-    const summary = owned(doc.createElement("summary"), "pl-search-more-label");
-    more.append(summary);
-    const buttonFor = (value: string, label: string) => {
-      const button = owned(doc.createElement("button"), "pl-search-choice");
-      button.type = "button";
-      button.dataset.plSearchMode = value;
-      button.textContent = label;
-      button.addEventListener("click", () => {
-        const fresh = readControls(doc);
-        const option = fresh && [...fresh.select.options].find(option => option.value === value);
-        if (!fresh || fresh.widget !== widget || fresh.select !== select || select.disabled || !option || option.disabled || !supportedOption(option)) return;
-        more.open = false;
-        if (select.value === value) return;
-        // One explicit user choice, forwarded to MyUCLA's own mode-change handler.
-        // Never submit a query or trigger Add/Enroll on behalf of the user.
-        select.value = value;
-        select.dispatchEvent(new Event("change", { bubbles: true }));
-      });
-      return button;
-    };
-    for (const [value, label] of COMMON) nav.append(buttonFor(value, label));
-    const menu = owned(doc.createElement("div"), "pl-search-groups");
-    for (const group of GROUPS) {
-      const choices = group.choices.filter(([value]) => [...select.options].some(option => option.value === value && supportedOption(option)));
-      if (!choices.length) continue;
-      const section = doc.createElement("div");
-      const heading = doc.createElement("h3");
-      heading.textContent = group.title;
-      section.append(heading, ...choices.map(([value, label]) => buttonFor(value, label)));
-      menu.append(section);
-    }
-    more.append(menu);
-    const typeAnchor = doc.createComment("planner-lift-search-type-position");
-    typePanel.before(typeAnchor);
-    more.append(typePanel);
-    typePanel.classList.toggle("pl-search-native-hidden", [...select.options].every(supportedOption));
-    nav.append(more);
-    controls.prepend(nav);
+    // Native mode selection stays in its original position and keeps every
+    // available option. Mounting never forwards changes or submits a query.
+    const selectAria = select.getAttribute("aria-label");
+    if (!selectAria) select.setAttribute("aria-label", "Search by");
     const labels = fields.map(field => {
       const label = owned(doc.createElement("label"), "pl-search-field-label");
       label.htmlFor = field.id;
@@ -200,15 +151,6 @@ export class ClassSearchPresentation {
     hint.setAttribute("aria-live", "polite");
     controls.after(hint);
     const sync = () => {
-      const common = COMMON.some(([value]) => value === select.value);
-      const selected = select.selectedOptions[0]?.textContent?.trim() || "";
-      const caption = common ? "More searches" : `More searches · ${selected}`;
-      if (summary.textContent !== caption) summary.textContent = caption;
-      nav.querySelectorAll<HTMLButtonElement>("button").forEach(button => {
-        button.setAttribute("aria-pressed", String(button.dataset.plSearchMode === select.value));
-        const option = [...select.options].find(option => option.value === button.dataset.plSearchMode);
-        button.disabled = select.disabled || !option || option.disabled || !supportedOption(option);
-      });
       fields.forEach((field, index) => {
         const labelText = field.getAttribute("aria-label") || "";
         const label = labels[index];
@@ -218,15 +160,16 @@ export class ClassSearchPresentation {
         label.title = labelText;
       });
       widget.dataset.plSearchFields = String(labels.filter(label => !label.hidden).length);
-      const message = go.disabled ? "Choose dropdown suggestions in the required fields to enable Search classes." : "Ready to search.";
+      const message = go.disabled ? "Choose a dropdown suggestion in each required field." : "";
       if (hint.textContent !== message) hint.textContent = message;
+      hint.hidden = !go.disabled;
     };
     const observer = new MutationObserver(sync);
     fields.forEach(field => observer.observe(field, { attributes: true, attributeFilter: ["aria-label", "placeholder", "style"] }));
     observer.observe(select, { attributes: true, attributeFilter: ["disabled"] });
     observer.observe(go, { attributes: true, attributeFilter: ["disabled"] });
     select.addEventListener("change", sync);
-    this.mounted = { ...native, nav, more, summary, labels, submit, goAria, observer, sync, typeAnchor, hint, options: optionSignature(select) };
+    this.mounted = { ...native, labels, submit, goAria, selectAria, observer, sync, hint, options: optionSignature(select) };
     sync();
   }
 }

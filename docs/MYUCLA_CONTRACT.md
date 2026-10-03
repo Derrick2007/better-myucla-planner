@@ -1,5 +1,39 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Persistent calendar workspace (0.17.0)
+
+This supersedes the Plan/Find and inline-Details layouts below. Named modules
+occupy the main workspace beside the original calendar. Preserve every original
+section body, control parent/form and handler. Dock native course third rows only
+through presentation; they must remain under their original course tbody. Native
+status text/icons are unchanged; ephemeral section/status/days/time summaries
+must not infer a course-wide status. The original plan menu may be wrapped in an
+unowned disclosure; its buttons retain their immediate parent and handlers.
+
+Read-only live structure confirmed on October 3: Optimizer contains
+#classOptimizerTitle, #HelpOptimizerDiv.message.info and #panelOptimizer.hidden.
+Preserve the native conditional hidden state; do not force the optimizer panel
+open when selecting its module. Study list contains #plannerSectionEnip and
+#panelNotplan; Personal entries contains #plannerSectionPer and #panelPersonal.
+Host these modules intact, including unrecorded native descendants.
+
+The original Search by selector stays visible in its original parent. No mode
+shortcut forwarding or Edit search disclosure remains. Keep the exact existing
+form/field/submitter validation; mounting sends no native change or submit.
+All native options survive, including term-specific unknown choices. Only a
+trailing global result-action container outside course entries/bodies receives
+optional sticky presentation; do not change its visibility or native controls.
+Bound the result grid only when the widget's direct children match the recorded
+controls/header/results and owned presentation nodes (plus hidden inputs or
+scripts). An unfamiliar sibling restores scrollable native fallback. Cleanup of
+the Search classes wrapper must preserve a live native Go replacement inserted
+by partial redraw, rather than removing it with the old presentation wrapper.
+
+Desktop module navigation never hides the calendar. Narrow Schedule switching,
+module selection and divider sizing are in memory only. Restore and print reveal
+all native sections and remove docking, navigation and disclosure presentation.
+No navigation/masthead changes, expanded permissions, requests or new storage.
+
 ## Class actions and workspace scale (0.16.0)
 
 An owned Class actions button follows Details inside the original linkPanelRight

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.17.0 — 2026-10-03 (workspace redesign beta)
+
+- Keep the weekly schedule beside the selected workspace and expose My classes,
+  Find classes, Optimizer, Study list and Personal entries as named destinations.
+  Put information/help and Original layout within the same navigation.
+- Show per-section meeting/status summaries and dock selected class details in
+  a stable reading area, retaining the original native rows and controls.
+- Keep search modes and fields visible; remove duplicate shortcut and Edit search
+  layers. Preserve loaded course previews, native options and required fields.
+- Resize the schedule independently; use horizontal navigation on medium windows
+  and a persistent Schedule switch on narrow windows. Preserve all native modules,
+  print/restoration, original statuses and UCLA navigation.
+- Keep long results within a bounded desktop preview, with a local scrolling
+  fallback for narrow screens. Preserve replacement search controls after redraws
+  and restore the native layout if an unfamiliar module appears.
+
 ## 0.16.0 — 2026-10-03 (redesign beta)
 
 - Rework the workspace around readable typography, consistent controls and fewer

@@ -20,75 +20,79 @@ describe("native class search presentation", () => {
     const change = vi.fn();
     select().addEventListener("change", change);
     const inputs = [...document.querySelectorAll("input")];
+    const modeParent = select().parentElement;
     presentation.reconcile(document);
     presentation.reconcile(document);
     expect(change).not.toHaveBeenCalled();
     expect(select().value).toBe("subject");
     expect([...document.querySelectorAll("input")]).toEqual(inputs);
-    expect(document.querySelectorAll(".pl-search-nav")).toHaveLength(1);
+    expect(document.querySelectorAll(".pl-search-nav,.pl-search-more")).toHaveLength(0);
+    expect(select().parentElement).toBe(modeParent);
+    expect(select().getAttribute("aria-label")).toBe("Search by");
     expect(document.querySelectorAll(".pl-search-field-label:not([hidden])")).toHaveLength(2);
     expect(go().disabled).toBe(true);
     expect(go().value).toBe("Go");
   });
-  it("forwards one explicit mode choice to the native change handler", () => {
+  it("leaves explicit selection to the original native change handler", () => {
     const changed = vi.fn();
     select().addEventListener("change", changed);
     presentation.reconcile(document);
-    const instructor = document.querySelector<HTMLButtonElement>('[data-pl-search-mode="instructor"]')!;
-    instructor.click(); instructor.click();
+    select().value = "instructor";
+    select().dispatchEvent(new Event("change", { bubbles: true }));
+    presentation.reconcile(document);
     expect(select().value).toBe("instructor");
     expect(changed).toHaveBeenCalledTimes(1);
-    expect(instructor.getAttribute("aria-pressed")).toBe("true");
+    expect(document.querySelector('[data-pl-search-mode]')).toBeNull();
   });
-  it("retains the full dropdown and identifies less common searches", () => {
+  it("retains every less common search directly in the original dropdown", () => {
     presentation.reconcile(document);
     select().value = "writing2";
     select().dispatchEvent(new Event("change"));
     expect(select().options).toHaveLength(15);
-    expect(document.querySelector(".pl-search-more-label")?.textContent).toBe("More searches · Writing II Classes");
-    expect(document.querySelector('[data-pl-search-mode="writing2"]')?.getAttribute("aria-pressed")).toBe("true");
-    expect(document.querySelectorAll('.pl-search-nav > button[aria-pressed="true"]')).toHaveLength(0);
+    expect(select().selectedOptions[0].textContent).toBe("Writing II Classes");
+    expect(select().closest('.ClassSearchControls')).not.toBeNull();
+    expect(document.querySelectorAll('[data-pl-search-mode]')).toHaveLength(0);
   });
   it("supports term-specific offerings and option order without inventing unavailable modes", () => {
     document.querySelector("section")!.outerHTML = searchMarkup([...recordedSearchOptions].reverse());
     select().value = "subject";
     presentation.reconcile(document);
-    expect(document.querySelector(".pl-search-nav")).not.toBeNull();
-    expect(document.querySelector('[data-pl-search-mode="cutf"]')).toBeNull();
-    const recorded = document.querySelector<HTMLButtonElement>('[data-pl-search-mode="onlinerecorded"]')!;
+    expect(document.querySelector(".pl-search-widget")).not.toBeNull();
+    expect([...select().options].some(option=>option.value==='cutf')).toBe(false);
     const changed = vi.fn(); select().addEventListener("change", changed);
-    document.querySelector<HTMLDetailsElement>(".pl-search-more")!.open = true;
-    recorded.click();
+    select().value = "onlinerecorded";
+    select().dispatchEvent(new Event("change", { bubbles: true }));
     expect(select().value).toBe("onlinerecorded");
     expect(changed).toHaveBeenCalledTimes(1);
-    expect(document.querySelector<HTMLDetailsElement>(".pl-search-more")!.open).toBe(false);
+    expect(select().options[0].value).toBe(recordedSearchOptions.at(-1)[0]);
   });
   it("keeps an unknown search available in the original dropdown, without creating an unvalidated action", () => {
     select().append(new Option("Future search", "future"));
     presentation.reconcile(document);
-    expect(document.querySelector(".pl-search-nav")).not.toBeNull();
+    expect(document.querySelector(".pl-search-widget")).not.toBeNull();
     expect(document.querySelector(".searchType")?.classList.contains("pl-search-native-hidden")).toBe(false);
     expect(document.querySelector('[data-pl-search-mode="future"]')).toBeNull();
     expect(select().options).toHaveLength(16);
   });
-  it("rejects a changed grouped action and rebuilds its menu when offerings change", () => {
+  it("reconciles native option changes without forwarding events or replacing the selector", () => {
     presentation.reconcile(document);
     const changed = vi.fn(); select().addEventListener("change", changed);
     [...select().options].find(option => option.value === "writing2")!.textContent = "Unexpected writing option";
-    document.querySelector<HTMLButtonElement>('[data-pl-search-mode="writing2"]')!.click();
+    const original = select();
     expect(changed).not.toHaveBeenCalled();
     expect(presentation.needsReconcile(document)).toBe(true);
     presentation.reconcile(document);
+    expect(select()).toBe(original);
     expect(document.querySelector('[data-pl-search-mode="writing2"]')).toBeNull();
     expect(presentation.needsReconcile(document)).toBe(false);
   });
   it("explains the native disabled submit and updates when autocomplete enables it", async () => {
     presentation.reconcile(document);
     expect(document.querySelector('label[for="searchTier0"]')?.textContent).toBe("Subject");
-    expect(document.querySelector(".pl-search-hint")?.textContent).toContain("Choose dropdown suggestions");
+    expect(document.querySelector(".pl-search-hint")?.textContent).toContain("Choose a dropdown suggestion");
     go().disabled = false;
     await Promise.resolve();
-    expect(document.querySelector(".pl-search-hint")?.textContent).toBe("Ready to search.");
+    expect(document.querySelector<HTMLElement>(".pl-search-hint")?.hidden).toBe(true);
   });
   it("updates field labels when MyUCLA finishes changing the autocomplete fields", async () => {
     presentation.reconcile(document);
@@ -125,7 +129,22 @@ describe("native class search presentation", () => {
     expect(presentation.needsReconcile(document)).toBe(true);
     presentation.reconcile(document);
     expect(presentation.needsReconcile(document)).toBe(false);
-    expect(document.querySelectorAll(".pl-search-nav")).toHaveLength(1);
+    expect(document.querySelectorAll(".pl-search-widget")).toHaveLength(1);
+    expect(document.querySelectorAll(".pl-search-field-label")).toHaveLength(3);
+  });
+  it("preserves a native Go replacement inside the presentation wrapper", () => {
+    const nativeParent=go().parentElement;
+    presentation.reconcile(document);
+    const replacement=go().cloneNode(true) as HTMLInputElement;
+    replacement.removeAttribute('aria-label');replacement.disabled=false;
+    go().replaceWith(replacement);
+    expect(presentation.needsReconcile(document)).toBe(true);
+    presentation.reconcile(document);
+    expect(go()).toBe(replacement);expect(replacement.isConnected).toBe(true);
+    expect(replacement.form).toBe(document.querySelector('form'));
+    expect(replacement.disabled).toBe(false);expect(presentation.needsReconcile(document)).toBe(false);
+    presentation.restore();expect(replacement.parentElement).toBe(nativeParent);
+    expect(replacement.hasAttribute('aria-label')).toBe(false);
   });
   it.each(["option", "field", "form", "submitter"])("leaves an unfamiliar %s contract native", shape => {
     if (shape === "option") select().options[0].textContent = "Changed option";
@@ -136,15 +155,14 @@ describe("native class search presentation", () => {
     presentation.reconcile(document);
     expect(document.body.innerHTML).toBe(before);
   });
-  it("stops mode changes if the native contract changes after mounting", () => {
+  it("restores native presentation when the core mode contract changes after mounting", () => {
     presentation.reconcile(document);
     select().options[0].value = "unknown";
     const changed = vi.fn(); select().addEventListener("change", changed);
-    document.querySelector<HTMLButtonElement>('[data-pl-search-mode="geclass"]')!.click();
     expect(changed).not.toHaveBeenCalled();
     expect(presentation.needsReconcile(document)).toBe(true);
     presentation.reconcile(document);
-    expect(document.querySelector(".pl-search-nav")).toBeNull();
+    expect(document.querySelector(".pl-search-widget")).toBeNull();
   });
   it("restores the optional page theme without hiding sections or changing their text", () => {
     const title = document.getElementById("classSearchTitle")!;

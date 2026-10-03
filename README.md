@@ -179,31 +179,34 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.16.0` redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.17.0` workspace redesign beta. Not on the Chrome Web Store.
 
-The popup shows the installed version. Tidy remains opt-in. Plan and Find classes
-are two local views inside the original MyUCLA page. Plan shows a 360px class list
-beside the schedule. Its divider resizes with drag or arrow keys (Shift makes
-larger changes); double-click resets it. Tools reopens folded panes. Windows
-below 900px stack the plan modules for legibility.
+The popup shows the installed version. Tidy remains opt-in. Named navigation
+opens My classes, Find classes, Optimizer, Study list and Personal entries inside
+the original MyUCLA page, while the weekly schedule remains alongside. Its divider
+resizes with drag or arrow keys (Shift makes larger changes); double-click resets
+it. Navigation becomes horizontal below 1280px. Below 1100px, Schedule switches
+between the calendar and the workspace without losing their position.
 
-Details expand in the selected class card, preserving native section controls and status
-wording. The final-exam note expands separately. Close with × or Escape; focus
+Details open beside the class list while keeping native section controls inside
+their original class row. Per-section summaries show meeting time and original
+status text. The final-exam note expands separately. Close with × or Escape; focus
 returns to the selected class. Other page controls remain interactive. Rooms and
 instructors expand when needed.
 
 For complete, already-rendered results, the browser lists course headings and
-previews one course's native section rows at a time. Selection is local. Edit
-search reopens the original fields; native checkboxes, submissions and handlers
+previews one course's native section rows at a time. Selection is local. Search
+modes and fields stay visible; native checkboxes, submissions and handlers
 remain in the original form. Unknown or incomplete results retain native controls.
 MyUCLA still loads missing data through its explicit native searches: this does
 not prefetch a catalog, bypass loading, or add background requests.
 
-Tools (3) exposes Plan Optimizer, the study list outside this plan and Personal
-Entries. UCLA's original top navigation and plan menus stay intact. The planner
+Optimizer, Study list and Personal entries retain their complete native modules.
+The original plan actions remain under Plan actions, and Information & help
+opens all original sidebar widgets. UCLA's original top navigation stays intact. The planner
 introduction is compact: the original term selector appears beside the heading,
 the explanation expands under About this planner, and term notices remain visible.
-Links & help opens the original sidebar widgets, with ×/Escape dismissal. Page
+Information & help retains the original sidebar controls. Page
 scrolling lets the unchanged UCLA banner scroll away and the planner use the freed
 space. Compact header does this in one click while keeping the title, term and
 notices visible. The choice is saved locally across terms, reloads and browser

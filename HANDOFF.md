@@ -2,6 +2,55 @@
 
 Last updated: 2026-10-03
 
+Current version: `0.17.0` (redesign prerelease).
+
+The approved design replaces the Plan/Find switch with named navigation, a main
+workspace and a persistent weekly schedule. My classes details are visually
+docked beside the list; native controls remain in their original course row.
+Find keeps the original Search by selector and fields visible, with a local
+index only for courses UCLA has already loaded. Optimizer, Study list and
+Personal entries remain complete native modules. Information & help visually
+places the original sidebar in the workspace without reparenting. Plan actions
+wraps the complete original menu; its buttons retain their immediate parent.
+
+Desktop navigation is 168px; the schedule defaults to 38%, bounded at 420–640px,
+with a keyboard/pointer divider. Below 1280px navigation is horizontal; below
+1100px a Schedule/workspace switch preserves local state. Narrow Find panels
+below 600px allow local panel scrolling with usable index/preview heights;
+desktop results scroll independently while search fields stay in view.
+
+Native statuses, control identity/form association and UCLA navigation are
+preserved. Per-section summaries update when native text changes in place.
+Unknown native modules restore the complete original layout. Unknown result
+widget siblings retain scrollable fallback. Native Go replacements survive
+cleanup of the Search classes wrapper. No permission, request, server or new
+persistent storage was added. Only fictional fixtures are screenshotted.
+
+Typecheck, production build and 228 tests across 20 files pass. Production Chrome
+fixtures pass at 2048, 1440, 1366, 1536 (735px tall), 1280, 1200, 1100, 960 and
+390px. Coverage includes every module's native fields/handlers, control/status
+identity, keyboard/mouse/touch, Details docking/focus, native calendar geometry,
+print, Original layout/Tidy restoration, selections and local panel positions.
+Additional checks pass for long results (2048/1536/390), single-course results
+(1440/960/390), unknown module fallback, tall headers, five introduction widths,
+quarter/redraw/reload/tab header persistence, empty/future quarters and local drag.
+Desktop and phone screenshots were reviewed visually with fictional data.
+
+Installed v0.17.0 in Downloads/better-myucla-v0.10.3/dist. All 17 files SHA-256
+match the production dist. v0.16.0 is backed up and hash-verified at
+outputs/installed-backup-v0.16.0 outside Git. ZIP and fictional screenshots are
+also under outputs outside Git; v0.16.0 remains the published rollback release.
+
+Live read-only inspection confirmed Optimizer's help block and conditionally
+hidden panel; their native visibility is preserved. The real tab later timed
+out. The user has been asked to sign in, reload the extension and refresh Class
+Planner. Final installed-page verification is pending that action; do not infer
+it from the fixture screenshots or inspect the timeout/login page.
+
+## v0.16.0 historical record
+
+Last updated: 2026-10-03
+
 Current version: `0.16.0` (redesign beta)
 
 The user rejected the visual design of v0.15.1 and pointed to GitHub's UI-design

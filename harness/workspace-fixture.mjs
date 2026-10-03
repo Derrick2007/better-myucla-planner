@@ -3,7 +3,7 @@ import { JSDOM } from 'jsdom';
 import { calendarFixtureHtml } from './calendar-fixture.mjs';
 import { searchMarkup, recordedSearchOptions } from './search-fixture.mjs';
 
-export function workspaceFixtureHtml(count = 5, includeResults = false, tallHeader = false) {
+export function workspaceFixtureHtml(count = 5, includeResults = false, tallHeader = false, resultSectionCount = 5) {
   const dom = new JSDOM(calendarFixtureHtml(count));
   const doc = dom.window.document;
   const navigation = doc.createElement('nav'); navigation.id = 'fixture-native-navigation';
@@ -18,9 +18,9 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
   wrapper.append(panel);
   panel.className = 'contentBox';
   const header = doc.createElement('div');
-  header.id = 'classPlanHeader'; header.textContent = 'Example plan';
+  header.id = 'classPlanHeader'; header.innerHTML = '<h2 class="classPlanner_PlanNameContent">Example plan</h2><div><button type="button">Example plan information</button></div>';
   const menu = doc.createElement('div');
-  menu.className = 'plannerTopMenuLinks'; menu.textContent = 'Native plan actions';
+  menu.className = 'plannerTopMenuLinks'; menu.innerHTML = ['renamePlan','newPlanMenuEntry','savePlanAsMenuEntry','deletePlanMenuEntry','loadMenuEntry','printPlanMenuEntry','aboutMenuEntry'].map((id,index)=>`<button type="button" id="${id}">${id==='loadMenuEntry'?'<span>Example load menu</span>':`Example plan action ${index+1}`}</button>`).join('');
   panel.before(header, menu);
   const term = doc.createElement('div');
   term.className = 'enroll_term'; term.id = 'ctl00_MainContent_termSessionChooser';
@@ -39,13 +39,17 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
   doc.getElementById('ctl00_MainContent_panelGrid').remove();
   panel.prepend(calendar);
   panel.insertAdjacentHTML('beforeend', searchMarkup(recordedSearchOptions));
-  panel.insertAdjacentHTML('beforeend', '<section class="classPlanner_ClassOptimizerSection"><div id="classOptimizerTitle" class="classPlanner_SectionTitle">Plan optimizer</div><div>Native tools</div></section>');
-  panel.insertAdjacentHTML('beforeend', '<section class="classPlanner_EnrolledNotInPlanSection"><div id="plannerSectionEnip" class="classPlanner_SectionTitle"><button type="button">In Study List but Not In Current Plan</button></div><div>Example study list entries</div></section><section class="classPlanner_PersonalTimeBlocksSection"><div id="plannerSectionPer" class="classPlanner_SectionTitle"><button type="button">Personal Entries</button></div><div><input aria-label="Example personal entry" name="examplePersonalEntry"></div></section>');
+  // These controls exercise native module identity, form ownership, values and
+  // handlers. They manipulate fictional local output only, never a real plan.
+  const moduleIds = { optimizer:'panelOptimizer', study:'panelNotplan', personal:'panelPersonal' };
+  const moduleTools = (key, title, fields) => `<div id="${moduleIds[key]}"${key==='optimizer'?' class="hidden"':''} data-fixture-module="${key}"><p>${title}</p><fieldset><legend>Example preferences</legend>${fields}<button type="button" data-fixture-module-action="${key}" onclick="this.parentElement.parentElement.querySelector('output').textContent='Example ${key} preview ready'">Preview example ${key}</button></fieldset><output aria-live="polite">Example ${key} ready</output></div>`;
+  panel.insertAdjacentHTML('beforeend', `<section class="classPlanner_ClassOptimizerSection"><div id="classOptimizerTitle" class="classPlanner_SectionTitle">Plan optimizer</div><div id="HelpOptimizerDiv" class="message info">Example optimizer information <button type="button" data-fixture-optimizer-help onclick="document.getElementById('panelOptimizer').classList.toggle('hidden')">Example optimizer help</button></div>${moduleTools('optimizer','Compare fictional plan preferences.','<label>Example priority <select name="exampleOptimizerPriority"><option value="morning">Morning</option><option value="afternoon">Afternoon</option></select></label><label><input type="checkbox" name="exampleOptimizerDays"> Keep an example free day</label>')}</section>`);
+  panel.insertAdjacentHTML('beforeend', `<section class="classPlanner_EnrolledNotInPlanSection"><div id="plannerSectionEnip" class="classPlanner_SectionTitle"><button type="button">In Study List but Not In Current Plan</button></div>${moduleTools('study','Example study list entries.','<table><thead><tr><th>Course</th><th>Include</th></tr></thead><tbody><tr><td>EXAMPLE 201</td><td><label><input type="checkbox" name="exampleStudyEntry"> Example study entry</label></td></tr></tbody></table>')}</section><section class="classPlanner_PersonalTimeBlocksSection"><div id="plannerSectionPer" class="classPlanner_SectionTitle"><button type="button">Personal Entries</button></div>${moduleTools('personal','Example personal entries.','<label>Example personal entry <input aria-label="Example personal entry" name="examplePersonalEntry"></label><label>Example weekday <select name="examplePersonalDay"><option value="monday">Monday</option><option value="friday">Friday</option></select></label>')}</section>`);
   if (includeResults) {
     const widths = [6,10,19,5,9,15,12,7,17];
     const cells = values => values.map((value,i) => `<div class="span${i+1}" style="float:left;width:${widths[i]}%;box-sizing:border-box;padding:8px">${value}</div>`).join('');
     const header = cells(['Select','Section','<button type="button" class="header-Status link">Status</button>','Info','Day(s)','Time in Pacific Time','Location','<button type="button" class="header-Unit link">Units</button>','<button type="button" class="header-Instructor link">Instructor(s)</button>']);
-    const rows = Array.from({length:5}, (_,i) => `<div class="row-fluid data_row class-info scrollable-collapse table-width2">${cells([
+    const rows = Array.from({length:resultSectionCount}, (_,i) => `<div class="row-fluid data_row class-info scrollable-collapse table-width2">${cells([
       `<input type="checkbox" name="exampleSection${i}" aria-label="Example section ${i+1}">`,i ? `Dis 1${String.fromCharCode(64+i)}` : 'Lec 1',
       'Open<br>10 of 30 seats left','Info',i ? 'F' : 'MWF','10am–10:50am','Example Hall 100',i ? '0.0' : '4.0','Example Instructor'
     ])}</div>`).join('');
@@ -67,7 +71,7 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
     const headerRow = table.rows[0], lecture = table.rows[1];
     const headerBody = doc.createElement('tbody'); headerBody.append(headerRow);
     const discussion = lecture.cloneNode(true);
-    discussion.cells[1].textContent = 'Dis 1A'; discussion.cells[7].textContent = '0.0';
+    discussion.cells[1].textContent = 'Dis 1A'; discussion.cells[4].textContent = 'F'; discussion.cells[5].textContent = '11am-11:50am'; discussion.cells[7].textContent = '0.0';
     const groups = [lecture, discussion].map(row => {
       const group = doc.createElement('tbody');
       const extra = doc.createElement('tr'); extra.style.display = 'none';
@@ -78,8 +82,15 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
     card.querySelectorAll('[data-content]').forEach(link => link.setAttribute('data-content', '&lt;div&gt;Example time conflict&lt;/div&gt;'));
   });
   const style = doc.createElement('style');
-  style.textContent = '.timebox,.fixture-weekbody{height:540px}td.SubjectAreaName_ClassName{margin:20px 0 5px}#div_landing{margin:30px 0}.classPlanner_SectionTitle{background:#24528f;color:white;padding:10px}.ClassSearchControls{display:flex}.searchType{width:42%}.searchFieldPanel{display:flex;width:58%}.ClassSearchBox{display:block;width:95%;margin-bottom:10px}.ClassSearchList{width:100%;font-size:13px;line-height:1.45}.ClassSearchList .row-fluid:after{content:"";display:table;clear:both}.ClassSearchList .header-row{background:#edf1f5}.ClassSearchList .data_row{border-bottom:1px solid #e3e8ed}';
+  style.textContent = '.hidden{display:none}.timebox,.fixture-weekbody{height:540px}td.SubjectAreaName_ClassName{margin:20px 0 5px}#div_landing{margin:30px 0}.classPlanner_SectionTitle{background:#24528f;color:white;padding:10px}.ClassSearchControls{display:flex}.searchType{width:42%}.searchFieldPanel{display:flex;width:58%}.ClassSearchBox{display:block;width:95%;margin-bottom:10px}.ClassSearchList{width:100%;font-size:13px;line-height:1.45}.ClassSearchList .row-fluid:after{content:"";display:table;clear:both}.ClassSearchList .header-row{background:#edf1f5}.ClassSearchList .data_row{border-bottom:1px solid #e3e8ed}';
   doc.head.append(style);
+  return dom.serialize();
+}
+
+/** A new native module must fail closed without dropping any original content. */
+export function unknownModuleFixtureHtml() {
+  const dom = new JSDOM(workspaceFixtureHtml(6,true)), doc = dom.window.document;
+  doc.getElementById('ctl00_MainContent_classPlanPanel').insertAdjacentHTML('beforeend','<section id="fixture-unknown-module"><h3>Example additional native module</h3><label>Example extra preference <input name="exampleUnknownPreference"></label><button type="button" onclick="this.nextElementSibling.textContent=\'Example native action complete\'">Example additional native action</button><output>Example native action ready</output></section>');
   return dom.serialize();
 }
 

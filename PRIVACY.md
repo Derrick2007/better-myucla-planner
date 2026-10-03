@@ -18,11 +18,11 @@ enabled state of MyUCLA's own ordering buttons.
 
 With the optional tidy layout enabled it also reads the class-search dropdown's
 mode and public options, input labels, and control structure. It does not read
-or store the text you type into the search fields. A search shortcut forwards
-your explicit mode choice to MyUCLA's own dropdown handler; the Search classes
+or store the text you type into the search fields. Search modes remain in the
+original dropdown, with its native change handler; the Search classes
 control is the original native submit input, with its native disabled state.
-Public search offerings may vary by term. Grouped buttons use only exact known
-options present on the page; unknown options remain in the native dropdown.
+Public search offerings may vary by term. Every native option remains available;
+the extension does not create a second set of mode actions.
 The required-selection hint reads only whether the original Go input is disabled.
 The extension does not submit searches automatically or make extra requests.
 
@@ -64,8 +64,10 @@ Pane folding changes only local presentation. Named pane choices are kept in
 memory for this page session, using public section identifiers; pane widths are also in memory only. They are not
 stored or sent. Native section-toggle clicks are handled locally only inside
 the validated workspace, and their original handlers return with Original
-layout. Header spacing reads element bounds only. UCLA navigation, term chooser
-and plan action menus are neither copied nor moved.
+layout. Header spacing reads element bounds only. UCLA navigation and the term
+chooser keep their original placement. The complete plan action menu is placed
+inside a disclosure; its controls keep their original parent and form, and are
+never copied.
 
 - Every action that could change the order MyUCLA has stored asks first, states
   how many steps it will take, and can be stopped part-way.
@@ -136,6 +138,14 @@ In 0.16.0, Class actions locally reveals the existing order/color controls and
 extension tools inside their original class cell. Opening or closing it changes
 presentation and focus only. No new page data is read or stored, and no native
 action or request is triggered. Original layout restores all controls.
+
+In 0.17.0, named module navigation and the calendar divider change local display
+only. My classes summarizes the already-rendered section label, status, days and
+time as ephemeral read-only text; no course-wide status is inferred. Selected
+details keep their native course-row parent. Original module bodies, sidebar
+widgets and plan-action controls remain intact. Module choice, sizing, selection
+and scroll positions live only in page memory. No new permissions, storage,
+server access or catalog requests are introduced.
 
 ## Compact introduction (0.14.3)
 
