@@ -1,0 +1,56 @@
+<div id="better-myucla-build-preview" aria-label="Better MyUCLA interactive build preview"></div>
+<style>
+  /* Bound the conversation preview so viewport-sized workspace panels cannot
+     create a feedback loop with the host's automatic frame sizing. */
+  #better-myucla-build-preview { height: 800px; overflow: auto; color-scheme: light; }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('better-myucla-build-preview');
+  if (!root) return;
+  let applying = false;
+  const version = root.dataset.previewBuild;
+  const read = () => ({
+    build: version,
+    module: root.querySelector('.pl-workspace-host')?.dataset.plModule || 'original',
+    result: root.querySelector('.pl-browser-index button[aria-pressed="true"]')?.textContent?.trim() || null,
+    filter: root.querySelector('.pl-browser-filter input')?.value || '',
+    schedule: !!root.querySelector('.pl-show-schedule'),
+    details: [...root.querySelectorAll('[data-pl-workspace-details]')].findIndex(button => button.getAttribute('aria-expanded') === 'true')
+  });
+  const apply = state => {
+    const saved = state?.privateContent;
+    if (!saved || saved.build !== version) return;
+    applying = true;
+    if (saved.module !== 'original') root.querySelector('.pl-workspace-return')?.click();
+    const nav = [...root.querySelectorAll('button[data-pl-module]')].find(button => button.dataset.plModule === saved.module);
+    nav?.click();
+    const result = [...root.querySelectorAll('.pl-browser-index button')].find(button => button.textContent?.trim() === saved.result);
+    result?.click();
+    const filter = root.querySelector('.pl-browser-filter input');
+    if (filter && typeof saved.filter === 'string') {
+      filter.value = saved.filter.slice(0, 120);
+      filter.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const detailButtons = root.querySelectorAll('[data-pl-workspace-details]');
+    const details = Number.isInteger(saved.details) && saved.details >= 0 && saved.details < detailButtons.length ? detailButtons[saved.details] : null;
+    if (saved.module === 'classes' && details && details.getAttribute('aria-expanded') !== 'true') details.click();
+    if (saved.module === 'classes' && !details) root.querySelector('.pl-workspace-preview-close')?.click();
+    if (saved.schedule && !root.querySelector('.pl-show-schedule')) root.querySelector('[data-pl-mobile-view="schedule"]')?.click();
+    if (saved.module === 'original') root.querySelector('.pl-workspace-original')?.click();
+    applying = false;
+  };
+  const save = () => {
+    if (applying || !window.openai?.setWidgetState) return;
+    const state = read();
+    window.openai.setWidgetState({
+      modelContent: { plannerBuild: version, module: state.module, selectedFictionalCourse: state.result, scheduleVisible: state.schedule },
+      privateContent: state
+    }).catch(() => {});
+  };
+  apply(window.openai?.widgetState);
+  window.addEventListener('openai:set_globals', event => apply(event.detail?.globals?.widgetState));
+  root.addEventListener('click', () => { if (!applying) queueMicrotask(save); });
+  root.addEventListener('change', () => { if (!applying) queueMicrotask(save); });
+})();
+</script>

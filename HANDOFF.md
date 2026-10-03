@@ -4,6 +4,26 @@ Last updated: 2026-10-03
 
 Current version: `0.17.0` (redesign prerelease).
 
+Current-build visualization added: `src/preview/index.ts` imports the production
+presentation modules; `npm run preview:build` creates the offline fictional
+`site/workspace-preview.html`. Exact CSS and production content hashes are
+embedded. Shared modules must match dist/content.js.map before generation, so
+stale JavaScript cannot silently produce a different preview. Live origin guards,
+permissions and runtime code are unchanged. All 17 rebuilt dist files still
+hash-match the installed extension; no user reload is needed for preview changes.
+
+Preview-only native search is a local simulation; account actions are blocked.
+Fixtures approximate native calendar/module content. Navigation, Details,
+resizing, loaded result filtering and section selections use production code.
+Standalone checks pass at 1440/1280/960/390. The inline wrapper also passes at
+1440/1024/736/390; its bounded 800px scroll surface maps document scrolling so
+Compact header/Show header work without host auto-height feedback. The old
+course-browser visualization has been replaced. Source scripts are
+`scripts/build-inline-preview.mjs` and `scripts/preview-fragment.html`.
+Only fictional content was captured. The website hero now shows the current
+workspace; public/demo.html remains explicitly documented as the legacy reorder
+fixture. Pages deployment from main is separate from this branch's preview.
+
 The approved design replaces the Plan/Find switch with named navigation, a main
 workspace and a persistent weekly schedule. My classes details are visually
 docked beside the list; native controls remain in their original course row.

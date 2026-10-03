@@ -9,7 +9,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "harness": "node harness/run.mjs"
+    "harness": "node harness/run.mjs",
+    "preview:build": "node scripts/build-preview.mjs",
+    "preview:verify": "node harness/verify-preview.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.326",

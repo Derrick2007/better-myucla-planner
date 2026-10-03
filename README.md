@@ -4,17 +4,22 @@
 
 # Better MyUCLA
 
-**Your class plan, in the order you actually want it.**
+**Browse courses beside your weekly schedule.**
 
 An unofficial Chrome extension for the MyUCLA Class Planner.
 
-[Install guide](https://astro-wen.github.io/better-myucla-planner/) ·
-[Latest release](https://github.com/Astro-wen/better-myucla-planner/releases/latest) ·
+[Install guide](site/index.html) ·
+[v0.17.0 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.0) ·
 [Contributing](CONTRIBUTING.md)
 
 </div>
 
-<img src="site/demo.gif" width="100%" alt="A class being dragged up the plan while a bar at the bottom counts the unsaved moves.">
+<img src="site/workspace-preview.png" width="100%" alt="v0.17.0 workspace with fictional course browsing beside a weekly schedule.">
+
+The optional workspace provides named destinations for My classes, Find classes,
+Optimizer, Study list, Personal entries and Information & help. The original
+calendar stays beside the selected module on desktop; narrower screens have a
+Schedule switch. Original layout remains available.
 
 MyUCLA moves a class one place per click, and every click is a full page
 postback. Getting a class from 13th to 2nd costs eleven clicks and eleven page
@@ -35,9 +40,10 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **Collapse** | Fold a class, or all of them. Native section statuses remain unchanged in the expanded table or workspace Details. |
 | **Filter** | By course, instructor, page text, or your own note. |
 | **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
-| **Clearer search** | With the optional tidy layout: Subject / Instructor / GE choices, compact labeled fields, grouped secondary searches and guidance for required dropdown selections. Uses the search types MyUCLA currently offers. |
-| **Plan** | Your classes beside a larger weekly schedule. Resize the class list with drag or arrow keys; Details expands within the selected class. Tools contains pane controls, the three additional native modules and Original layout. UCLA navigation, term chooser and plan menus stay in place. |
-| **Find classes** | Use the full workspace for native search and a course list beside its preview. Filter loaded course titles/numbers, navigate with arrow keys, and press Escape or Plan to return. Original fields and selections stay in the same form. Native searches still load through MyUCLA. |
+| **Clearer search** | The original Search by selector and native fields remain visible, including UCLA's required selections and loading behavior. No automatic searches or extra course requests. |
+| **My classes** | Per-section native status and meeting summaries; Details opens beside the list. Class actions exposes reorder and note tools. UCLA navigation, quarter selector and original plan actions remain available. |
+| **Find classes** | Native search with a list of loaded courses beside the selected preview. Filter loaded titles/numbers locally; original controls and selections stay in the same form. |
+| **Schedule** | Persistent beside the main workspace above 1100px; adjust its width with the divider or arrow keys. Below 1100px, the Schedule switch keeps the current module's state. |
 
 Single-course results open directly without a duplicate index. When a selected
 section is in another course preview, a small selection reminder lets you review
@@ -48,6 +54,23 @@ describes the shipped design and the remaining limits of native search.
 
 `docs/ROADMAP.md` has the rest, including the optional layout switch and the
 things that were considered and declined.
+
+## Preview the current build
+
+Run `npm run build`, then `npm run preview:build`, and open
+`site/workspace-preview.html` in Chrome. This self-contained preview imports the
+production presentation modules and embeds the exact built stylesheet. Generation
+checks shared source against the production source map and records build hashes.
+`npm run preview:verify` checks the preview at desktop and phone widths.
+
+Everything shown is fictional. Searches run locally over three sample courses;
+account actions, saving, notes, drag and session features are unavailable. The
+native calendar and secondary modules are fixture approximations. Production
+origin guards are unchanged. The older `public/demo.html` remains a reordering
+fixture, not a representation of the current workspace.
+
+The repository includes the current preview in `site/`; it is not automatically
+published from the `planner-redesign` branch. The Pages workflow deploys `main`.
 
 ---
 

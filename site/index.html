@@ -7,7 +7,7 @@
     <link rel="icon" href="icon.png" />
     <meta
       name="description"
-      content="An unofficial browser extension for the MyUCLA Class Planner. Drag your classes into the order you want, then save the whole arrangement in one go."
+      content="An unofficial Chrome extension for MyUCLA Class Planner. Browse courses beside your weekly schedule, with original modules and controls still accessible."
     />
     <style>
       :root {
@@ -224,8 +224,8 @@
     <header>
       <h1>Better MyUCLA</h1>
       <p class="sub">
-        <span class="en">Your class plan, in the order you actually want it.</span>
-        <span class="zh">选课计划，想怎么排就怎么排。</span>
+        <span class="en">Browse courses beside your weekly schedule.</span>
+        <span class="zh">一边浏览课程，一边查看每周课表。</span>
       </p>
       <span class="badge">
         <span class="en">Not made by, endorsed by, or affiliated with UCLA</span>
@@ -233,18 +233,30 @@
       </span>
     </header>
 
+    <a class="cta" href="workspace-preview.html">
+      <span class="en">Explore the v0.17.0 workspace</span>
+      <span class="zh">体验 v0.17.0 工作区</span>
+    </a>
+    <p>
+      <span class="en">Interactive preview using the build’s layout code and styles, with fictional courses. Search is simulated; account actions are unavailable. The extension still runs inside the original MyUCLA page.</span>
+      <span class="zh">交互预览使用此版本的布局代码和样式，课程数据均为虚构。搜索仅作演示，不执行账户操作。扩展仍在原有 MyUCLA 页面内运行。</span>
+    </p>
     <figure>
-      <img class="shot" src="demo.gif" alt="A class being dragged up the plan while a bar at the bottom counts the unsaved moves." />
+      <a href="workspace-preview.html"><img class="shot" src="workspace-preview.png" alt="v0.17.0 with named navigation on the left, fictional course search and section details in the center, and the weekly schedule on the right." /></a>
       <figcaption>
-        <span class="en">Drag a class up the list. The bar at the bottom counts what you have not saved yet.</span>
-        <span class="zh">把一门课拖到上面去。底部那条会数着你还没保存的改动。</span>
+        <span class="en">Actual production presentation code with sample content. On narrow screens, Schedule switches between the calendar and the current module.</span>
+        <span class="zh">实际布局代码配合示例内容。在窄屏上，可用“Schedule”切换课表与当前模块。</span>
       </figcaption>
     </figure>
 
     <h2>
-      <span class="en">What the buttons do</span>
-      <span class="zh">这些按钮都是干什么的</span>
+      <span class="en">Reordering controls</span>
+      <span class="zh">课程排序工具</span>
     </h2>
+    <p>
+      <span class="en">The images below show the earlier list view. In the workspace, open Class actions to reach the ordering tools, or Details to view each section’s original status and meeting times.</span>
+      <span class="zh">以下图片展示的是早期列表视图。在工作区中，打开“Class actions”使用排序工具，或打开“Details”查看各节课程的原始状态与上课时间。</span>
+    </p>
 
     <figure>
       <img class="shot" src="planner.png" alt="A Class Planner list with extra controls on each class." />
@@ -386,9 +398,9 @@
       <span class="zh">大概两分钟就好，Chrome 或者任何基于 Chrome 的浏览器都可以。</span>
     </p>
 
-    <a class="cta" href="https://github.com/Astro-wen/better-myucla-planner/releases/latest">
-      <span class="en">Download the latest version</span>
-      <span class="zh">下载最新版</span>
+    <a class="cta" href="https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.0">
+      <span class="en">Download v0.17.0 redesign prerelease</span>
+      <span class="zh">下载 v0.17.0 重新设计预发布版</span>
     </a>
 
     <ol class="steps">
