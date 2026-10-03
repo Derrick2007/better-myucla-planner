@@ -2,7 +2,40 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.14.7` (redesign beta)
+Current version: `0.15.0` (redesign beta)
+
+The user approved replacing three competing panes with two task views within
+the same extension/page. Plan shows a resizable 320px class list beside Schedule;
+Find classes fills the workspace with native search and loaded course previews.
+The segmented task control keeps the chosen view through partial remounts.
+Original fields, selections, statuses and native handlers remain unchanged.
+Escape in Find returns to Plan and focuses Find classes; native autocomplete
+gets first Escape. No new storage, permission, network request or separate page.
+
+Details now stays inline inside its original class card at every width. Only
+the owned heading/disclosures move. Find closes Details before hiding its card.
+Tools contains the two plan-pane reopen controls, three additional modules and
+Original layout. One divider resizes Classes from 260 to 440px while reserving
+Schedule room. Two columns remain at 900px and above; narrower windows stack.
+UCLA navigation, native term and plan menus remain untouched. Header compaction
+keeps its existing saved choice. Type/spacing are calmer; preview rows size
+against their actual available width rather than the entire search area.
+
+Typecheck, production build and all 211 tests across 20 files passed, as did the
+full production fixture suite at seven widths, including intro/header lifecycle,
+future-quarter transitions and local dragging. Final focused checks passed at
+1440, 960 and 390px after narrow class-control wrapping, printing all six modules
+from Tools initially open/closed, and revealing inline Details at the pane's
+lower edge. No browser errors or additional requests. Final desktop/mobile
+screenshots were visually reviewed using fictional data only.
+
+Installed v0.15.0 in the existing Downloads/better-myucla-v0.10.3/dist folder;
+all 17 files SHA-256 verified. v0.14.7 is backed up outside Git. User reload/live
+verification and publication are pending. Never
+automate live enrollment/plan changes; only structural browser facts may be
+retained. Screenshots/fixtures must use invented course/account content.
+
+## v0.14.7 verification record
 
 The user asked for another hands-on review. Live inspection of v0.14.6 reproduced
 an empty inspector after Details followed by Expand Browse: Classes was hidden

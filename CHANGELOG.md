@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.0 — 2026-10-03 (redesign beta)
+
+- Organize the existing page around Plan and Find classes. Plan shows a resizable
+  class list beside the weekly schedule; Find classes gives native search and
+  loaded course previews the full workspace. Switching retains the original
+  fields and selections; Escape returns to Plan. No separate page or request.
+- Expand Details within its original class card at every width, keeping the
+  schedule available. Close/Escape restores focus. Move supporting pane controls
+  and Original layout into Tools alongside the three additional native modules.
+- Simplify the toolbar, use clearer type hierarchy and calmer dividers, and fit
+  section rows to the preview's actual width. Wide search fields sit side by
+  side. Preserve original UCLA navigation, statuses, form controls and print.
+
 ## 0.14.7 — 2026-10-02 (redesign beta)
 
 - Fix the live Details → Expand Browse transition: close the docked inspector

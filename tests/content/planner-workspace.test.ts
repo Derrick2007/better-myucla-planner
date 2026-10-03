@@ -55,12 +55,40 @@ describe("one-page native planner workspace", () => {
     expect(disclosure.querySelector('p')!.textContent).toBe(exam.textContent!.replace(/\s+/g,' ').trim());
     expect(exam.innerHTML).toBe(native);
   });
+  it.each(['body','section'] as const)("reveals newly opened Details in the scrolling Plan %s without moving the document", kind => {
+    mount();
+    const section=document.querySelector<HTMLElement>('.pl-workspace-plan')!;
+    const body=document.getElementById('panelPlan')!;
+    const container=kind==='body'?body:section;
+    container.style.overflowY='auto';container.scrollTop=40;
+    const preview=document.querySelector<HTMLElement>('.pl-workspace-preview')!;
+    const close=preview.querySelector<HTMLElement>('.pl-workspace-preview-close')!;
+    const head=preview.querySelector<HTMLElement>('.pl-workspace-preview-head')!;
+    const rect=(top:number,bottom:number)=>({top,bottom,height:bottom-top,left:0,right:320,width:320,x:0,y:top,toJSON:()=>({})}) as DOMRect;
+    const spies=[
+      vi.spyOn(container,'clientHeight','get').mockReturnValue(200),
+      vi.spyOn(container,'scrollHeight','get').mockReturnValue(600),
+      vi.spyOn(container,'getBoundingClientRect').mockReturnValue(rect(100,300)),
+      vi.spyOn(document.getElementById('plannerSectionClip')!,'getBoundingClientRect').mockReturnValue(rect(100,140)),
+      vi.spyOn(head,'getBoundingClientRect').mockReturnValue(rect(280,316)),
+      vi.spyOn(close,'getBoundingClientRect').mockReturnValue(rect(288,324)),
+      vi.spyOn(window,'scrollTo').mockImplementation(()=>{})
+    ];
+    try {
+      const details=document.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!;details.click();
+      expect(container.scrollTop).toBe(72);expect(document.activeElement).toBe(close);
+      expect(spies[spies.length-1]).not.toHaveBeenCalled();
+      container.scrollTop=120;window.dispatchEvent(new Event('resize'));
+      expect(container.scrollTop).toBe(120);
+      close.click();expect(document.activeElement).toBe(details);
+    } finally {spies.forEach(spy=>spy.mockRestore());}
+  });
   it("restores native sections, term and tools exactly", () => {
     const original = document.body.innerHTML;
     mount(); document.querySelector<HTMLButtonElement>("[data-pl-workspace-details]")!.click(); workspace.restore();
     expect(document.body.innerHTML).toBe(original);
   });
-  it("keeps the planner interactive while details are docked", () => {
+  it("keeps the schedule and original navigation interactive while details are inline", () => {
     mount();
     const details = document.querySelector<HTMLButtonElement>("[data-pl-workspace-details]")!;
     const native = document.querySelector<HTMLButtonElement>('#fixture-native-navigation button')!;
@@ -89,37 +117,63 @@ describe("one-page native planner workspace", () => {
     const controls = [...document.querySelectorAll(".ClassSearchWidget input,.ClassSearchWidget select")];
     mount();
     const separators = [...document.querySelectorAll<HTMLElement>('[role="separator"]')];
-    expect(separators).toHaveLength(2);
+    expect(separators).toHaveLength(1);
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
-    expect(separators[0].getAttribute('aria-valuenow')).toBe('256');
-    separators[1].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}));
-    expect(separators[1].getAttribute('aria-valuenow')).toBe('476');
+    expect(separators[0].getAttribute('aria-valuenow')).toBe('336');
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));
-    expect(separators[0].getAttribute('aria-valuenow')).toBe('420');
+    expect(separators[0].getAttribute('aria-valuenow')).toBe('440');
     separators[0].dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
-    expect(separators[0].getAttribute('aria-valuenow')).toBe('240');
+    expect(separators[0].getAttribute('aria-valuenow')).toBe('320');
     expect([...document.querySelectorAll(".ClassSearchWidget input,.ClassSearchWidget select")]).toEqual(controls);
     expect(controls.every(node=>node.closest('form')===document.getElementById('aspnetForm'))).toBe(true);
     workspace.restore(); expect(document.querySelector('[role="separator"]')).toBeNull();
   });
-  it("expands Browse and restores the user's pane choices without native actions", () => {
+  it("changes tasks without replacing native inputs or submitting, and restores focus with Escape", () => {
     mount();
-    const paneButtons=[...document.querySelectorAll<HTMLButtonElement>('.pl-workspace-pane-switches button')];
-    paneButtons[0].click();
-    const expand=document.querySelector<HTMLButtonElement>('.pl-browse-expand')!;
-    const nativeForm=document.querySelector('form')!;
+    const plan=document.querySelector<HTMLButtonElement>('[data-pl-task-view="plan"]')!;
+    const find=document.querySelector<HTMLButtonElement>('[data-pl-task-view="find"]')!;
+    const nativeForm=document.querySelector('form')!,input=document.querySelector<HTMLInputElement>('#searchTier0')!;
+    const controls=[...document.querySelectorAll('.ClassSearchWidget input,.ClassSearchWidget select')];
+    input.value='Example query';
     const submit=vi.fn();nativeForm.addEventListener('submit',submit);
-    expand.click();
-    expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-browse-expanded')).toBe(true);
-    expect(paneButtons.map(b=>b.getAttribute('aria-pressed'))).toEqual(['false','false','true']);
-    expect(expand.textContent).toBe('Restore panes');
+    expect(plan.getAttribute('aria-pressed')).toBe('true');expect(find.getAttribute('aria-pressed')).toBe('false');
+    expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-task-plan')).toBe(true);
+    expect(document.querySelector('.pl-workspace-top > .pl-workspace-pane-switches')).toBeNull();
+    expect(document.querySelector('.pl-browse-expand')).toBeNull();
+    expect(document.querySelector('.pl-workspace-original')!.closest('.pl-workspace-extra-content')).not.toBeNull();
+    find.click();
+    expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-task-find')).toBe(true);
+    expect(plan.getAttribute('aria-pressed')).toBe('false');expect(find.getAttribute('aria-pressed')).toBe('true');
+    expect(document.querySelector<HTMLElement>('[role="separator"]')!.hidden).toBe(true);
     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-    expect(paneButtons.map(b=>b.getAttribute('aria-pressed'))).toEqual(['false','true','true']);
-    expect(document.activeElement).toBe(expand);
-    expand.click();paneButtons[0].click();
-    expect(document.querySelector('.pl-browse-expanded')).toBeNull();
-    expect(paneButtons.map(b=>b.getAttribute('aria-pressed'))).toEqual(['true','true','true']);
+    expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-task-plan')).toBe(true);
+    expect(document.activeElement).toBe(find);expect(input.value).toBe('Example query');
+    expect([...document.querySelectorAll('.ClassSearchWidget input,.ClassSearchWidget select')]).toEqual(controls);
+    expect(controls.every(control=>control.closest('form')===nativeForm)).toBe(true);
     expect(submit).not.toHaveBeenCalled();expect(adapter.inspectContract().ok).toBe(true);
+  });
+  it("supports task keyboard navigation and respects a native consumed Escape", () => {
+    mount();
+    const plan=document.querySelector<HTMLButtonElement>('[data-pl-task-view="plan"]')!;
+    const find=document.querySelector<HTMLButtonElement>('[data-pl-task-view="find"]')!;
+    plan.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+    expect(find.getAttribute('aria-pressed')).toBe('true');expect(document.activeElement).toBe(find);
+    const escape=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});escape.preventDefault();
+    document.dispatchEvent(escape);expect(find.getAttribute('aria-pressed')).toBe('true');
+    find.dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}));
+    expect(plan.getAttribute('aria-pressed')).toBe('true');expect(document.activeElement).toBe(plan);
+  });
+  it("leaves the first Escape to an open native autocomplete", () => {
+    mount();
+    const find=document.querySelector<HTMLButtonElement>('[data-pl-task-view="find"]')!;find.click();
+    const input=document.querySelector<HTMLInputElement>('#searchTier0')!;
+    const menu=document.createElement('ul');menu.className='ui-autocomplete';menu.innerHTML='<li>Example subject</li>';document.body.append(menu);
+    try {
+      const escape=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});input.dispatchEvent(escape);
+      expect(find.getAttribute('aria-pressed')).toBe('true');expect(escape.defaultPrevented).toBe(false);
+      menu.style.display='none';input.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+      expect(find.getAttribute('aria-pressed')).toBe('false');expect(document.activeElement).toBe(find);
+    } finally {menu.remove();}
   });
   it("lists all three other native sections and restores every section in original layout", () => {
     const sections = [...document.querySelectorAll("#ctl00_MainContent_classPlanPanel > section")];
@@ -136,20 +190,44 @@ describe("one-page native planner workspace", () => {
     expect(document.querySelectorAll(".pl-workspace-deck > section")).toHaveLength(3);
     expect(document.querySelectorAll(".pl-workspace-extra-content > section")).toHaveLength(3);
   });
-  it("returns from docked details to results before expanding Browse", () => {
+  it.each([false,true])("temporarily discloses Tools for printing and restores its prior open=%s choice", open => {
     mount();
-    const course=adapter.inspectContract().courses[0],row=course.node.children[2],parent=row.parentElement;
-    const nativeFields=[...row.querySelectorAll('input,select,button')];
-    course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();
-    expect(document.querySelector<HTMLElement>('.pl-workspace-preview')!.hidden).toBe(false);
-    const expand=document.querySelector<HTMLButtonElement>('.pl-browse-expand')!;expand.click();
-    expect(document.querySelector<HTMLElement>('.pl-workspace-preview')!.hidden).toBe(true);
-    expect(document.querySelector('.pl-inspector-open')).toBeNull();
-    expect(document.querySelector('.pl-workspace-preview-card')).toBeNull();
-    expect(document.querySelector('.pl-browse-expanded')).not.toBeNull();
-    expect(row.parentElement).toBe(parent);
-    expect([...row.querySelectorAll('input,select,button')]).toEqual(nativeFields);
-    expect(document.activeElement).toBe(expand);
+    const extras=document.querySelector<HTMLDetailsElement>('.pl-workspace-extras')!;extras.open=open;
+    const modules=[...extras.querySelectorAll('section')];
+    window.dispatchEvent(new Event('beforeprint'));expect(extras.open).toBe(true);
+    window.dispatchEvent(new Event('beforeprint'));expect(extras.open).toBe(true);
+    window.dispatchEvent(new Event('afterprint'));expect(extras.open).toBe(open);
+    window.dispatchEvent(new Event('afterprint'));expect(extras.open).toBe(open);
+    expect([...extras.querySelectorAll('section')]).toEqual(modules);
+  });
+  it("restores the Tools choice and removes print handlers when disposing during printing", () => {
+    mount();
+    const extras=document.querySelector<HTMLDetailsElement>('.pl-workspace-extras')!;
+    window.dispatchEvent(new Event('beforeprint'));expect(extras.open).toBe(true);
+    workspace.restore();expect(extras.open).toBe(false);
+    window.dispatchEvent(new Event('beforeprint'));expect(extras.open).toBe(false);
+    extras.open=true;window.dispatchEvent(new Event('afterprint'));expect(extras.open).toBe(true);
+    expect(document.querySelectorAll('#ctl00_MainContent_classPlanPanel > section')).toHaveLength(6);
+  });
+  it.each([1920,960,390])("keeps native details inline at %ipx and closes them before Find classes", width => {
+    const descriptor=Object.getOwnPropertyDescriptor(window,'innerWidth');
+    Object.defineProperty(window,'innerWidth',{configurable:true,value:width});
+    try {
+      mount();
+      const course=adapter.inspectContract().courses[0],row=course.node.children[2],parent=row.parentElement;
+      const nativeFields=[...row.querySelectorAll('input,select,button')];
+      course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();
+      const preview=document.querySelector<HTMLElement>('.pl-workspace-preview')!;
+      expect(preview.hidden).toBe(false);expect(row.contains(preview)).toBe(true);
+      expect(course.node.classList.contains('pl-preview-inline')).toBe(true);
+      expect(document.querySelector('.pl-workspace-calendar')!.classList.contains('pl-pane-open')).toBe(true);
+      expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-task-plan')).toBe(true);
+      const find=document.querySelector<HTMLButtonElement>('[data-pl-task-view="find"]')!;find.click();
+      expect(preview.hidden).toBe(true);expect(document.querySelector('.pl-workspace-preview-card')).toBeNull();
+      expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-task-find')).toBe(true);
+      expect(row.parentElement).toBe(parent);expect([...row.querySelectorAll('input,select,button')]).toEqual(nativeFields);
+      expect(document.activeElement).toBe(find);
+    } finally {if(descriptor)Object.defineProperty(window,'innerWidth',descriptor);}
   });
   it("keeps the return to workspace control after an original-layout redraw", () => {
     mount();document.querySelector<HTMLButtonElement>('.pl-workspace-original')!.click();
@@ -181,14 +259,14 @@ describe("one-page native planner workspace", () => {
     expect(body.parentElement!.classList.contains("pl-pane-collapsed")).toBe(true);
     expect(document.activeElement).toBe(reopen);
     expect(reopen.getAttribute("aria-pressed")).toBe("false");
-    expect(document.querySelector<HTMLElement>(".pl-workspace-deck")!.style.getPropertyValue("--pl-workspace-columns")).not.toContain("240px");
+    expect(document.querySelector<HTMLElement>(".pl-workspace-deck")!.style.getPropertyValue("--pl-workspace-columns")).not.toContain("320px");
     reopen.click();
     expect(body.parentElement!.classList.contains("pl-pane-open")).toBe(true);
     expect(body.getAttribute("style")).toBe(bodyStyle);
     expect(native.getAttribute("onclick")).toBeNull();
     workspace.restore(); native.click(); expect(handler).toHaveBeenCalledOnce();
   });
-  it("can reopen every pane after closing all three and keeps the native top menus in place", () => {
+  it("can reopen both Plan panes after closing them and keeps the native top menus in place", () => {
     const term = document.getElementById("ctl00_MainContent_termSessionChooser")!;
     const menu = document.querySelector(".plannerTopMenuLinks")!;
     const menuParent = menu.parentElement, termParent = term.parentElement;
@@ -197,7 +275,7 @@ describe("one-page native planner workspace", () => {
     const buttons = [...document.querySelectorAll<HTMLButtonElement>(".pl-workspace-pane-switches button")];
     buttons.forEach(button=>button.click());
     expect(document.querySelector<HTMLElement>(".pl-workspace-empty")!.hidden).toBe(false);
-    expect(document.querySelectorAll(".pl-workspace-deck > section.pl-pane-collapsed")).toHaveLength(3);
+    expect(document.querySelectorAll(".pl-workspace-deck > section.pl-pane-collapsed")).toHaveLength(2);
     buttons.forEach(button=>button.click());
     expect(document.querySelector<HTMLElement>(".pl-workspace-empty")!.hidden).toBe(true);
     expect(document.querySelectorAll(".pl-workspace-deck > section.pl-pane-open")).toHaveLength(3);
@@ -217,19 +295,34 @@ describe("one-page native planner workspace", () => {
     toggle.click(); expect(toggle.getAttribute("aria-expanded")).toBe("false");
     workspace.restore(); expect(body.style.display).toBe("none");
   });
-  it("retains local pane choices after a native redraw and rejects unknown body shapes", () => {
+  it("retains the task and folded Plan panes after a native redraw and rejects unknown body shapes", () => {
     mount();
-    document.querySelector<HTMLButtonElement>(".pl-workspace-pane-switches button:last-child")!.click();
-    const fixture = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
+    document.querySelector<HTMLButtonElement>('.pl-workspace-pane-switches button:first-child')!.click();
+    document.querySelector<HTMLButtonElement>('[data-pl-task-view="find"]')!.click();
+    const fixture=new DOMParser().parseFromString(workspaceFixtureHtml(),"text/html");
     document.getElementById("ctl00_MainContent_classPlanPanel")!.replaceWith(document.importNode(fixture.getElementById("ctl00_MainContent_classPlanPanel")!,true));
     mount();
-    expect(document.querySelector(".pl-workspace-search")!.classList.contains("pl-pane-collapsed")).toBe(true);
-    document.querySelector<HTMLButtonElement>(".pl-workspace-pane-switches button:last-child")!.click();
-    expect(document.querySelector(".pl-workspace-search")!.classList.contains("pl-pane-open")).toBe(true);
+    expect(document.querySelector('.pl-workspace-deck')!.classList.contains('pl-task-find')).toBe(true);
+    expect(document.querySelector('[data-pl-task-view="find"]')!.getAttribute('aria-pressed')).toBe('true');
+    document.querySelector<HTMLButtonElement>('[data-pl-task-view="plan"]')!.click();
+    expect(document.querySelector('.pl-workspace-plan')!.classList.contains('pl-pane-collapsed')).toBe(true);
+    expect(document.querySelector('.pl-workspace-calendar')!.classList.contains('pl-pane-open')).toBe(true);
     workspace.restore();
-    document.querySelector(".classPlanner_ClassSearchSection")!.append(document.createElement("div"));
-    const before = document.body.innerHTML;
-    mount(); expect(document.body.innerHTML).toBe(before);
+    document.querySelector('.classPlanner_ClassSearchSection')!.append(document.createElement('div'));
+    const before=document.body.innerHTML;mount();expect(document.body.innerHTML).toBe(before);
+  });
+  it("reopens a folded search using Find classes without exposing a duplicate Browse control", () => {
+    mount();
+    const find=document.querySelector<HTMLButtonElement>('[data-pl-task-view="find"]')!;find.click();
+    document.querySelector<HTMLButtonElement>('.pl-workspace-search .pl-pane-toggle')!.click();
+    expect(document.activeElement).toBe(find);
+    expect(document.querySelector<HTMLElement>('.pl-workspace-empty')!.hidden).toBe(false);
+    expect(document.querySelector<HTMLDetailsElement>('.pl-workspace-extras')!.open).toBe(false);
+    expect(find.getAttribute('aria-pressed')).toBe('true');
+    find.click();
+    expect(document.querySelector<HTMLElement>('.pl-workspace-empty')!.hidden).toBe(true);
+    expect(document.querySelector('.pl-workspace-search')!.classList.contains('pl-pane-open')).toBe(true);
+    expect([...document.querySelectorAll('.pl-workspace-pane-switches button')].map(button=>button.textContent)).toEqual(['My classes','Schedule']);
   });
   it("keeps native details accessible if their recorded structure changes", () => {
     const header = document.querySelector("table.coursetable tr")!;

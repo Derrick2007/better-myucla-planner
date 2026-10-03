@@ -126,6 +126,12 @@ section is in another course preview, a local count/disclosure lets you return
 to it. No checkbox value, query text or personal information is read or stored;
 reviewing does not change the selection or invoke a native action.
 
+In 0.15.0, Plan and Find classes switch only the visibility of existing native
+sections. The view choice and class-list width are held in memory, with no new
+storage or requests. Switching preserves the original query fields without
+reading their values. Class Details opens inside its original card; status
+contents, form controls and native actions are not copied or rewritten.
+
 ## Compact introduction (0.14.3)
 
 The extension checks the known planner introduction's public heading and DOM

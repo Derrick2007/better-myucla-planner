@@ -36,8 +36,8 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **Filter** | By course, instructor, page text, or your own note. |
 | **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
 | **Clearer search** | With the optional tidy layout: Subject / Instructor / GE choices, compact labeled fields, grouped secondary searches and guidance for required dropdown selections. Uses the search types MyUCLA currently offers. |
-| **One-page workspace** | With tidy enabled: Classes on the left, Schedule in the center and Browse on the right. Resize supporting panes with drag or arrow keys, fold/reopen each independently, and inspect classes beside the schedule. Loaded course results switch locally without new requests. Tools (3) contains the other native modules. UCLA navigation, term chooser and plan menus stay in place; Original layout restores all six sections. |
-| **Expand Browse** | Give search the whole workspace, with a course list beside its preview on wider screens. Filter already-loaded course titles/numbers, navigate with arrow keys, and press Escape or Restore panes to return. Native searches still load through MyUCLA. |
+| **Plan** | Your classes beside a larger weekly schedule. Resize the class list with drag or arrow keys; Details expands within the selected class. Tools contains pane controls, the three additional native modules and Original layout. UCLA navigation, term chooser and plan menus stay in place. |
+| **Find classes** | Use the full workspace for native search and a course list beside its preview. Filter loaded course titles/numbers, navigate with arrow keys, and press Escape or Plan to return. Original fields and selections stay in the same form. Native searches still load through MyUCLA. |
 
 Single-course results open directly without a duplicate index. When a selected
 section is in another course preview, a small selection reminder lets you review
@@ -179,15 +179,15 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.14.5` redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.15.0` redesign beta. Not on the Chrome Web Store.
 
-The popup shows the installed version. Tidy remains opt-in. This build presents
-Classes, Schedule and Browse inside the original MyUCLA page. Desktop panes
-resize with drag or arrow keys (Shift makes larger changes); double-click a
-divider to reset its width. Named pane buttons reopen hidden panes. Narrow
-windows stack the same modules for legibility.
+The popup shows the installed version. Tidy remains opt-in. Plan and Find classes
+are two local views inside the original MyUCLA page. Plan shows a 320px class list
+beside the schedule. Its divider resizes with drag or arrow keys (Shift makes
+larger changes); double-click resets it. Tools reopens folded panes. Windows
+below 900px stack the plan modules for legibility.
 
-Details dock beside the schedule, preserving native section controls and status
+Details expand in the selected class card, preserving native section controls and status
 wording. The final-exam note expands separately. Close with × or Escape; focus
 returns to the selected class. Other page controls remain interactive. Rooms and
 instructors expand when needed.

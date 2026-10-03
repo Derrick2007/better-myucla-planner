@@ -1,23 +1,24 @@
 # Planner UI direction
 
-Implemented in the 0.14.7 redesign beta, inside the existing Chrome extension
+Implemented in the 0.15.0 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
 ## Working layout
 
-- Classes occupy the left sidebar (240px initially); the schedule is the central
-  work area; Browse occupies the right sidebar (460px initially).
-- Drag the dividers or use Left/Right arrows to resize. Shift adjusts in larger
-  steps; Home/End reach the bounds; double-click resets a side pane. The schedule
-  retains room while all three panes are open.
-- Each pane folds locally once. Its name remains in the toolbar for reopening.
-  Closing a supporting pane gives the schedule more space. Widths and pane
-  choices are in memory only, with no new storage.
+- Plan and Find classes are the two main toolbar choices, inside the same page.
+  Plan shows a 320px class list beside a larger schedule; Find classes dedicates
+  the workspace to native search and course previews. Switching preserves the
+  original fields and local selections without remounting them.
+- Drag the Plan divider or use Left/Right arrows to resize. Shift adjusts in
+  larger steps; Home/End reach the bounds; double-click resets the list width.
+  Below 900px, Plan stacks its two modules for legibility.
+- Folded plan panes reopen from Tools. Width, view and pane choices are in
+  memory only, with no new storage. Escape in Find classes returns to Plan.
 - Tools (3) exposes Plan Optimizer, Study list outside this plan, and Personal
   Entries. Shortcuts open folded content; Escape closes the tools disclosure.
 - UCLA's original navigation and plan actions retain their original nodes,
-  handlers and placement. Original layout restores all six sections.
+  handlers and placement. Original layout in Tools restores all six sections.
 
 ## Compact planner introduction
 
@@ -54,10 +55,10 @@ instructors reveal together on demand. Edit search exposes the original fields.
 Native column help buttons remain accessible. Section bodies retain their native
 sibling or nested placement, and global result actions remain visible.
 
-Expand Browse gives this task the full workspace. At sufficient pane width the
+Find classes gives this task the full workspace. At sufficient pane width the
 course list and selected-course preview sit side by side; narrow screens stack
-them. Restore panes, Escape, or a Classes/Schedule button returns to the earlier
-pane choices. Filtering course numbers/titles works only on loaded headings.
+them. Plan or Escape returns to the earlier plan pane choices. Filtering course
+numbers/titles works only on loaded headings.
 The preview repeats the selected course heading so its sections have context;
 Up/Down/Home/End move through visible choices. Filter text, disclosures, focus
 and list scroll survive section-row redraws while the same result set remains.
@@ -65,7 +66,7 @@ New result sets reset them. This state is in memory only.
 
 A single result opens directly with its heading and sections; repeating it in a
 course list and filter adds no useful choice. Multi-course results retain those
-controls. Expand Browse also closes any docked class inspector before hiding its
+controls. Find classes also closes the inline class details before hiding their
 original class row, so switching tasks cannot leave an empty inspector.
 
 Checked sections in other course previews receive a count and Show selections
@@ -74,10 +75,11 @@ clears the local filter without changing native selections. Both list and previe
 scroll survive row redraws. Unknown extra controls in a native course heading
 keep that result set in its original layout.
 
-The default three-pane layout remains useful for comparing a plan against the
-schedule, but it cannot make dense section results comfortable in a narrow
-sidebar. Expanded browsing deliberately trades simultaneous panes for readable
-results within the same page, with one action to return.
+One task has visual priority at a time. The schedule and class list support
+planning; a full-width course browser supports searching. A restrained segmented
+control, fewer enclosing borders and consistent spacing establish the hierarchy.
+Section rows respond to the preview's own width, with optional rooms and
+instructors revealed on demand.
 
 Unfamiliar or incomplete results keep MyUCLA's original presentation and loading
 controls. The extension cannot show information MyUCLA has not loaded. Subject
@@ -86,13 +88,13 @@ requests. No catalog prefetching or polling is added.
 
 ## Selected class details
 
-Details dock in the browser pane; the schedule and class list remain interactive.
-The native details row stays in its original course tbody and form. CSS positions
-it over the reserved content area without cloning a control. The visible close
-button or Escape returns to browsing and restores focus. There is no backdrop or
-outside-click interception. Narrow windows reveal the same details inline.
-The final-exam note expands separately. The heading and section content fit the
-available height, including below tall native headers.
+Details expand inside the selected class card at every width; the schedule stays
+available. The native details row stays in its original course tbody and form.
+The visible close button or Escape closes it and restores focus. No floating
+inspector, cloned controls or backdrop is needed. The final-exam note expands
+separately. Only one card's details is open at a time.
+Opening a card near the pane's lower edge reveals the Details header and close
+button with a small scroll inside that pane. The document does not jump.
 
 Native status wording and icons remain unchanged; there are no aggregate status
 badges. Section labels are appended as extension-owned read-only text and removed
@@ -100,6 +102,14 @@ on restoration. Hidden native action rows are not reformatted. Partial redraws
 discard disconnected presentation references and never resurrect old controls.
 
 ## Validation and remaining work
+
+Version 0.15.0 passed typecheck, 211 tests across 20 files and production build.
+The production fixture suite covers Plan/Find transitions, preserved native
+controls/selections, inline Details, local pane resizing, task persistence on
+redraw, all six modules, print, seven widths, compact-header lifecycle and future
+quarter transitions. Follow-up checks cover narrow control wrapping, Details
+at the bottom of a pane and Tools open/closed before printing. Live verification
+requires reloading the installed extension and refreshing Class Planner.
 
 Fictional production-browser checks cover resizing, focus, folding/reopening, all
 six modules, native navigation/control/status identity, result switching without

@@ -1,5 +1,28 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Plan and Find classes presentation (0.15.0)
+
+This supersedes the three-pane and floating Details presentation below. Owned
+Plan / Find classes buttons change local task classes on the existing workspace
+host/deck. Plan shows Classes and Schedule; Find shows the original search section.
+The existing native section nodes, fields, values and handlers stay in the form.
+Neither a task switch nor a remount submits or dispatches native search events.
+Task choice survives partial redraws in memory only. Original layout restores all
+six sections at their original anchors. Unknown structures remain native.
+
+Details stays inline inside the selected course's original third row at all
+widths. Only the owned heading/disclosures move; original controls never do.
+Find closes Details before hiding the Plan section. Close/Escape restores focus.
+Explicitly opening Details minimally scrolls the nearest actual Plan scroller
+to reveal its heading and close control; document scroll and later resize remain
+unchanged. Tools holds the two plan-pane reopen buttons, the three secondary modules and
+Original layout. The only splitter resizes Classes between 260 and 440px while
+reserving Schedule space. Print reveals all sections regardless of selected task.
+Before printing, open only the owned Tools disclosure, saving its previous choice
+once; after printing or disposal, restore that choice and remove listeners on
+disposal. This handles closed-details suppression on Chrome 120 without native actions.
+No changes to permissions, native statuses, stored data or network behavior.
+
 ## Class search presentation (2026-10-01, structural inspection only)
 
 - Section: `section.classPlanner_ClassSearchSection`, title `#classSearchTitle`.

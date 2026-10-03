@@ -6,9 +6,9 @@ import { PlannerIntroduction } from "./planner-introduction";
 const OWNED = "data-planner-lift-owned";
 const PANEL = "ctl00_MainContent_classPlanPanel";
 const PRIMARY = [
-  ["classPlanner_ClassesInPlanSection", "plannerSectionClip", "pl-workspace-plan", "Classes"],
+  ["classPlanner_ClassesInPlanSection", "plannerSectionClip", "pl-workspace-plan", "My classes"],
   ["classPlanner_CalendarSection", "plannerSectionCal", "pl-workspace-calendar", "Schedule"],
-  ["classPlanner_ClassSearchSection", "classSearchTitle", "pl-workspace-search", "Browse"]
+  ["classPlanner_ClassSearchSection", "classSearchTitle", "pl-workspace-search", "Find classes"]
 ] as const;
 const SECONDARY = [
   ["classPlanner_ClassOptimizerSection", "Plan Optimizer"],
@@ -26,10 +26,11 @@ interface Workspace {
   top: HTMLElement; extras: HTMLDetailsElement; placements: Placement[];
   preview: HTMLElement; head: HTMLElement; content: HTMLElement; close: HTMLButtonElement;
   more: HTMLButtonElement; panes: Pane[]; splitters: HTMLElement[]; empty: HTMLElement;
-  expandBrowse: HTMLButtonElement;
+  taskButtons: Record<"plan" | "find", HTMLButtonElement>;
   position: HTMLElement; scrollRoom: HTMLElement; hostHadStyle: boolean;
   resize: () => void; key: (event: KeyboardEvent) => void;
   move: (event: PointerEvent) => void; end: () => void;
+  beforePrint: () => void; afterPrint: () => void;
 }
 function officialText(node: Element): string {
   const copy = node.cloneNode(true) as Element;
@@ -55,9 +56,9 @@ export class PlannerWorkspace {
   private returnButton: HTMLButtonElement | null = null;
   private latestCourses: readonly CourseSnapshot[] = [];
   private paneChoices = new Map<string, boolean>();
-  private widths = [240, 460];
-  private expandedBrowse = false;
-  private drag: {index:number; start:number; width:number; pointerId:number} | null = null;
+  private classesWidth = 320;
+  private task: "plan" | "find" = "plan";
+  private drag: {start:number; width:number; pointerId:number} | null = null;
   private browser = new CourseBrowserPresentation();
   private introduction: PlannerIntroduction;
   private introductionOnly: {doc: Document; toolbar: HTMLElement; resize: () => void; key: (event: KeyboardEvent) => void} | null = null;
@@ -182,16 +183,6 @@ export class PlannerWorkspace {
       title.addEventListener("click",pane.click,true);panes.push(pane);return pane;
     };
     const primaryPanes=sections.map((matches,i)=>addPane(matches[0] as HTMLElement,PRIMARY[i][3])!);
-    const expandBrowse=owned(doc.createElement("button"),"pl-browse-expand");expandBrowse.type="button";
-    expandBrowse.addEventListener("click",()=>{
-      // Details belongs to its original class row. Hiding Classes would hide
-      // that row too, leaving an empty inspector. Expanded Browse shows results.
-      this.closePreview(false);
-      this.expandedBrowse=!this.expandedBrowse;
-      primaryPanes[2].collapsed=false;this.paneChoices.set(primaryPanes[2].title.id,false);
-      this.updatePanes();expandBrowse.focus({preventScroll:true});
-    });
-    primaryPanes[2].toggle.before(expandBrowse);
     const placements:Placement[]=[];
     const place=(node:HTMLElement,destination:HTMLElement)=>{
       const anchor=doc.createComment("planner-lift-workspace-position");node.before(anchor);
@@ -202,21 +193,21 @@ export class PlannerWorkspace {
     const splitters:HTMLElement[]=[];
     sections.forEach((matches,i)=>{
       const section=matches[0] as HTMLElement;section.classList.add(PRIMARY[i][2]);place(section,deck);
-      if (i===2) return;
+      if (i!==0) return;
       const splitter=owned(doc.createElement("div"),"pl-workspace-splitter");
       splitter.tabIndex=0;splitter.setAttribute("role","separator");splitter.setAttribute("aria-orientation","vertical");
-      splitter.setAttribute("aria-label",i===0 ? "Resize classes pane" : "Resize browser pane");
+      splitter.setAttribute("aria-label","Resize classes pane");
       splitter.title="Drag to resize. Arrow keys adjust; double-click resets.";
       splitter.addEventListener("pointerdown",event=>{
         if(event.button!==0)return;event.preventDefault();splitter.focus();
-        this.drag={index:i,start:event.clientX,width:this.widths[i],pointerId:event.pointerId};deck.classList.add("pl-workspace-resizing");
+        this.drag={start:event.clientX,width:this.classesWidth,pointerId:event.pointerId};deck.classList.add("pl-workspace-resizing");
       });
-      splitter.addEventListener("dblclick",()=>{this.widths[i]=i===0?240:460;this.updatePanes();});
+      splitter.addEventListener("dblclick",()=>{this.classesWidth=320;this.updatePanes();});
       splitter.addEventListener("keydown",event=>{
         if (!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return;
         event.preventDefault();
-        const change=(event.key==="ArrowRight"?1:-1)*(i===0?1:-1)*(event.shiftKey?40:16);
-        this.widths[i]=event.key==="Home" ? (i===0?200:340) : event.key==="End" ? (i===0?420:720) : this.widths[i]+change;
+        const change=(event.key==="ArrowRight"?1:-1)*(event.shiftKey?40:16);
+        this.classesWidth=event.key==="Home" ? 260 : event.key==="End" ? 440 : this.classesWidth+change;
         this.updatePanes();
       });
       deck.append(splitter);splitters.push(splitter);
@@ -226,15 +217,33 @@ export class PlannerWorkspace {
     // Reserve the planner's full height in document flow so the unchanged
     // masthead can scroll away without the page height changing underneath it.
     const scrollRoom=owned(doc.createElement("div"),"pl-workspace-scroll-room");host.after(scrollRoom);
-    const switches=owned(doc.createElement("nav"),"pl-workspace-pane-switches");switches.setAttribute("aria-label","Visible planner panes");top.append(switches);
-    primaryPanes.forEach(pane=>{
-      const button=doc.createElement("button");button.type="button";button.textContent=pane.label;
-      button.addEventListener("click",()=>this.setPaneCollapsed(pane,!pane.collapsed));switches.append(button);pane.reopen=button;
-    });
-    const empty=owned(doc.createElement("p"),"pl-workspace-empty");empty.textContent="Choose Classes, Schedule or Browse above to reopen a pane.";deck.append(empty);
+    const tasks=owned(doc.createElement("nav"),"pl-workspace-task-switches");tasks.setAttribute("aria-label","Planner view");top.append(tasks);
+    const taskButtons={} as Record<"plan" | "find",HTMLButtonElement>;
+    for(const [task,label] of [["plan","Plan"],["find","Find classes"]] as const){
+      const button=doc.createElement("button");button.type="button";button.textContent=label;button.dataset.plTaskView=task;
+      const controlled=task==="plan"?primaryPanes.slice(0,2):primaryPanes.slice(2);
+      button.setAttribute("aria-controls",controlled.map(pane=>pane.body.id).filter(Boolean).join(" "));
+      button.addEventListener("click",()=>this.selectTask(task,true));
+      button.addEventListener("keydown",event=>{
+        if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
+        event.preventDefault();this.selectTask(event.key==="ArrowLeft"||event.key==="Home"?"plan":"find",true);
+      });
+      tasks.append(button);taskButtons[task]=button;
+    }
+    // Find classes itself is the one route to reopen its native search section.
+    primaryPanes[2].reopen=taskButtons.find;
+    const empty=owned(doc.createElement("p"),"pl-workspace-empty");empty.textContent="Open Tools to show a hidden pane.";deck.append(empty);
     const extras=doc.createElement("details");extras.className="pl-workspace-extras";top.append(extras);
     const summary=owned(doc.createElement("summary"),"");summary.textContent="Tools";extras.append(summary);
     const tools=doc.createElement("div");tools.className="pl-workspace-extra-content";extras.append(tools);
+    const switches=owned(doc.createElement("nav"),"pl-workspace-pane-switches");switches.setAttribute("aria-label","Visible planner panes");tools.append(switches);
+    primaryPanes.slice(0,2).forEach(pane=>{
+      const button=doc.createElement("button");button.type="button";button.textContent=pane.label;
+      button.addEventListener("click",()=>{
+        if(this.task!=="plan"){this.selectTask("plan");this.setPaneCollapsed(pane,false);pane.toggle.focus({preventScroll:true});}
+        else this.setPaneCollapsed(pane,!pane.collapsed);
+      });switches.append(button);pane.reopen=button;
+    });
     const directory=owned(doc.createElement("nav"),"pl-workspace-section-links");directory.setAttribute("aria-label","Other planner sections");tools.append(directory);
     for(const [cls,label] of SECONDARY){
       const matches=[...panel.children].filter(node=>node.matches(`section.${cls}`));
@@ -249,7 +258,7 @@ export class PlannerWorkspace {
       }
     }
     summary.textContent=`Tools (${directory.children.length})`;
-    const original=owned(doc.createElement("button"),"pl-workspace-original");original.type="button";original.textContent="Original layout";top.append(original);
+    const original=owned(doc.createElement("button"),"pl-workspace-original");original.type="button";original.textContent="Original layout";tools.append(original);
     original.addEventListener("click",()=>{
       this.restore();this.useOriginal=true;
       this.ensureReturnButton(doc);
@@ -259,7 +268,7 @@ export class PlannerWorkspace {
     const head=doc.createElement("div");head.className="pl-workspace-preview-head";
     const content=doc.createElement("div");content.className="pl-workspace-preview-content";
     const close=doc.createElement("button");close.type="button";close.className="pl-workspace-preview-close";close.textContent="×";
-    close.setAttribute("aria-label","Close details");close.title="Back to browsing (Esc)";close.addEventListener("click",()=>this.closePreview());
+    close.setAttribute("aria-label","Close details");close.title="Close class details (Esc)";close.addEventListener("click",()=>this.closePreview());
     const more=doc.createElement("button");more.type="button";more.className="pl-workspace-preview-more";more.textContent="Rooms & instructors";
     more.setAttribute("aria-expanded","false");more.addEventListener("click",()=>{
       if(!this.selected)return;const expanded=this.selected.classList.toggle("pl-section-more");more.setAttribute("aria-expanded",String(expanded));
@@ -268,20 +277,32 @@ export class PlannerWorkspace {
     const resize=()=>{this.introduction.positionHeader();this.positionWorkspace();this.updatePanes();this.introduction.positionInfo();extras.style.setProperty("--pl-extras-top",`${Math.ceil(summary.getBoundingClientRect().bottom+8)}px`);};
     const key=(event:KeyboardEvent)=>{
       if(event.key!=="Escape"||event.defaultPrevented)return;
+      // A first Escape belongs to MyUCLA's active autocomplete. Its handler
+      // may run later on the same document; do not also change the task view.
+      const target=event.target;
+      if(target instanceof Element&&target.matches("input.ClassSearchBox")&&primaryPanes[2].body.contains(target)&&
+        [...doc.querySelectorAll<HTMLElement>(".ui-autocomplete")].some(menu=>
+          !menu.hidden&&menu.children.length>0&&doc.defaultView?.getComputedStyle(menu).display!=="none"&&doc.defaultView?.getComputedStyle(menu).visibility!=="hidden"))return;
       if(this.introduction.closeInfo()){event.preventDefault();}
       else if(this.selected){this.closePreview();event.preventDefault();}
       else if(extras.open){extras.open=false;summary.focus();event.preventDefault();}
-      else if(this.expandedBrowse){this.expandedBrowse=false;this.updatePanes();expandBrowse.focus({preventScroll:true});event.preventDefault();}
+      else if(this.task==="find"){this.selectTask("plan");taskButtons.find.focus({preventScroll:true});event.preventDefault();}
     };
     const move=(event:PointerEvent)=>{
       if(!this.drag||event.pointerId!==this.drag.pointerId)return;
-      this.widths[this.drag.index]=this.drag.width+(event.clientX-this.drag.start)*(this.drag.index===0?1:-1);this.updatePanes();
+      this.classesWidth=this.drag.width+event.clientX-this.drag.start;this.updatePanes();
     };
     const end=()=>{this.drag=null;deck.classList.remove("pl-workspace-resizing");};
-    this.state={doc,host,panel,deck,top,extras,placements,preview,head,content,close,more,panes,splitters,empty,expandBrowse,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end};
+    // Chrome suppresses a closed native details subtree even in print CSS.
+    // Temporarily disclose only our Tools wrapper; native modules stay intact.
+    let toolsBeforePrint:boolean|null=null;
+    const beforePrint=()=>{if(toolsBeforePrint===null)toolsBeforePrint=extras.open;extras.open=true;};
+    const afterPrint=()=>{if(toolsBeforePrint!==null){extras.open=toolsBeforePrint;toolsBeforePrint=null;}};
+    this.state={doc,host,panel,deck,top,extras,placements,preview,head,content,close,more,panes,splitters,empty,taskButtons,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end,beforePrint,afterPrint};
     doc.defaultView?.addEventListener("resize",resize);doc.defaultView?.addEventListener("scroll",resize,{passive:true});extras.addEventListener("toggle",resize);doc.addEventListener("keydown",key);
     doc.defaultView?.addEventListener("focus",resize);doc.defaultView?.addEventListener("pageshow",resize);doc.defaultView?.addEventListener("load",resize);doc.addEventListener("visibilitychange",resize);
     doc.addEventListener("pointermove",move);doc.addEventListener("pointerup",end);doc.addEventListener("pointercancel",end);doc.defaultView?.addEventListener("blur",end);
+    doc.defaultView?.addEventListener("beforeprint",beforePrint);doc.defaultView?.addEventListener("afterprint",afterPrint);
     host.classList.add("pl-workspace-host");doc.documentElement.classList.add("pl-workspace-page");resize();
   }
 
@@ -297,45 +318,54 @@ export class PlannerWorkspace {
     s.scrollRoom.style.height=`${Math.max(0,view.innerHeight-28)}px`;
   }
 
+  private selectTask(task:"plan"|"find",focus=false):void {
+    const s=this.state;if(!s)return;
+    if(task==="find")this.closePreview(false);
+    this.task=task;s.extras.open=false;
+    const reopen=task==="find"?s.panes[2]:s.panes.slice(0,2).every(pane=>pane.collapsed)?s.panes[0]:null;
+    if(reopen){reopen.collapsed=false;this.paneChoices.set(reopen.title.id,false);}
+    this.updatePanes();if(focus)s.taskButtons[task].focus({preventScroll:true});
+  }
+
   private setPaneCollapsed(pane:Pane,collapsed:boolean,focus=false): void {
     const s=this.state;if(!s)return;
-    if(this.expandedBrowse&&s.panes.slice(0,3).includes(pane)){
-      this.expandedBrowse=false;
-      if(pane!==s.panes[2])collapsed=false;
-    }
-    if(collapsed && [s.panes[0],s.panes[2]].includes(pane))this.closePreview(false);
+    if(collapsed&&pane===s.panes[0])this.closePreview(false);
     pane.collapsed=collapsed;this.paneChoices.set(pane.title.id,collapsed);this.updatePanes();
-    if(focus)(collapsed&&pane.reopen?pane.reopen:pane.toggle).focus({preventScroll:true});
+    if(focus){
+      if(collapsed&&pane.reopen){
+        if(pane!==s.panes[2])s.extras.open=true;
+        pane.reopen.focus({preventScroll:true});
+      }else pane.toggle.focus({preventScroll:true});
+    }
   }
 
   private updatePanes(): void {
     const s=this.state;if(!s)return;
     const primary=s.panes.slice(0,3),available=s.deck.clientWidth||1400;
-    s.deck.classList.toggle("pl-browse-expanded",this.expandedBrowse);
-    s.expandBrowse.textContent=this.expandedBrowse?"Restore panes":"Expand Browse";
-    s.expandBrowse.setAttribute("aria-pressed",String(this.expandedBrowse));
-    s.expandBrowse.title=this.expandedBrowse?"Return to your previous pane layout (Esc)":"Give course browsing the full workspace width";
-    this.widths[0]=Math.max(200,Math.min(420,this.widths[0],available-24-420-(primary[2].collapsed?0:340)));
-    this.widths[1]=Math.max(340,Math.min(720,this.widths[1],available-24-420-(primary[0].collapsed?0:this.widths[0])));
+    const maximum=Math.max(260,Math.min(440,available-12-420));
+    this.classesWidth=Math.max(260,Math.min(maximum,this.classesWidth));
+    for(const target of [s.host,s.deck]){
+      target.classList.toggle("pl-task-plan",this.task==="plan");target.classList.toggle("pl-task-find",this.task==="find");
+    }
+    for(const task of ["plan","find"] as const)s.taskButtons[task].setAttribute("aria-pressed",String(this.task===task));
     for(const pane of s.panes){
       pane.section.classList.toggle("pl-pane-collapsed",pane.collapsed);pane.section.classList.toggle("pl-pane-open",!pane.collapsed);
       pane.toggle.setAttribute("aria-expanded",String(!pane.collapsed));
       const action=`${pane.collapsed?"Expand":"Collapse"} ${pane.label}`;
       pane.toggle.setAttribute("aria-label",action);pane.toggle.title=action;pane.toggle.textContent=pane.collapsed?"›":"⌄";
-      const hidden=pane.collapsed||(this.expandedBrowse&&primary.includes(pane)&&pane!==primary[2]);
-      pane.reopen?.setAttribute("aria-pressed",String(!hidden));
-      if(pane.reopen)pane.reopen.title=`${hidden?"Show":"Hide"} ${pane.label}`;
+      if(pane.reopen&&pane!==primary[2]){
+        const hidden=pane.collapsed||this.task==="find";
+        pane.reopen.setAttribute("aria-pressed",String(!hidden));pane.reopen.title=`${hidden?"Show":"Hide"} ${pane.label}`;
+      }
     }
-    const tracks:string[]=[];
-    primary.forEach((pane,i)=>{
-      if(!pane.collapsed)tracks.push(i===1?"minmax(0,1fr)":primary.filter(p=>!p.collapsed).length===1?"minmax(0,1fr)":`${this.widths[i===0?0:1]}px`);
-      if(i<2){const visible=!this.expandedBrowse&&!pane.collapsed&&!primary[i+1].collapsed;s.splitters[i].hidden=!visible;if(visible)tracks.push("12px");}
-    });
-    s.deck.style.setProperty("--pl-workspace-columns",this.expandedBrowse?"minmax(0,1fr)":tracks.join(" ")||"minmax(0,1fr)");
-    s.splitters.forEach((splitter,i)=>{
-      splitter.setAttribute("aria-valuemin",String(i===0?200:340));splitter.setAttribute("aria-valuemax",String(i===0?420:720));splitter.setAttribute("aria-valuenow",String(Math.round(this.widths[i])));
-    });
-    s.empty.hidden=primary.some(pane=>!pane.collapsed);this.positionPreview();
+    const split=this.task==="plan"&&!primary[0].collapsed&&!primary[1].collapsed;
+    const splitter=s.splitters[0];splitter.hidden=!split;
+    splitter.setAttribute("aria-valuemin","260");splitter.setAttribute("aria-valuemax",String(maximum));splitter.setAttribute("aria-valuenow",String(Math.round(this.classesWidth)));
+    s.deck.style.setProperty("--pl-workspace-columns",split?`${this.classesWidth}px 12px minmax(0,1fr)`:"minmax(0,1fr)");
+    const shown=this.task==="find"?primary.slice(2):primary.slice(0,2);
+    s.empty.hidden=shown.some(pane=>!pane.collapsed);
+    s.empty.textContent=this.task==="find"?"Choose Find classes above to reopen search.":"Open Tools to show a hidden pane.";
+    this.positionPreview();
   }
 
   private openPreview(course:CourseSnapshot,trigger:HTMLElement|null):void{
@@ -343,8 +373,8 @@ export class PlannerWorkspace {
     if(this.selected===course.node){this.closePreview();return;}
     this.introduction.closeInfo(false);
     this.closePreview(false);s.extras.open=false;
-    this.expandedBrowse=false;
-    for(const pane of [s.panes[0],s.panes[2]]){pane.collapsed=false;this.paneChoices.set(pane.title.id,false);}this.updatePanes();
+    this.task="plan";
+    const pane=s.panes[0];pane.collapsed=false;this.paneChoices.set(pane.title.id,false);this.updatePanes();
     this.selected=course.node;this.selectedHadStyle=course.node.hasAttribute("style");this.returnFocus=trigger;
     this.selectedTable=course.node.querySelector<HTMLTableElement>("table.coursetable");
     this.detailCards=new SectionCards();if(this.selectedTable)this.detailCards.table(this.selectedTable);
@@ -356,20 +386,32 @@ export class PlannerWorkspace {
       disclosure.addEventListener("toggle",()=>this.positionPreview());
     }
     course.node.classList.add("pl-workspace-preview-card");s.preview.hidden=false;s.more.setAttribute("aria-expanded","false");
-    s.panes[2].body.classList.add("pl-inspector-open");this.positionPreview();s.close.focus({preventScroll:true});
+    this.positionPreview();s.close.focus({preventScroll:true});this.revealPreview();
+  }
+
+  /** An explicit Details action reveals its controls within the Plan pane only. */
+  private revealPreview():void {
+    const s=this.state,view=s?.doc.defaultView;if(!s||!view||!this.selected)return;
+    const plan=s.panes[0];
+    for(let container=s.preview.parentElement;container&&plan.section.contains(container);container=container.parentElement){
+      const overflow=view.getComputedStyle(container).overflowY;
+      if(!/^(auto|scroll)$/.test(overflow)||container.clientHeight<=0||container.scrollHeight<=container.clientHeight)continue;
+      const bounds=container.getBoundingClientRect(),close=s.close.getBoundingClientRect(),head=s.head.getBoundingClientRect();
+      const top=Math.max(bounds.top+container.clientTop,container===plan.section?plan.title.getBoundingClientRect().bottom:0)+8;
+      const bottom=Math.min(bounds.top+container.clientTop+container.clientHeight,view.innerHeight)-8;
+      if(bottom<=top)return;
+      const start=Math.min(head.top,close.top),end=Math.max(Math.min(head.bottom,head.top+48),close.bottom);
+      const delta=start<top?start-top:end>bottom?Math.min(end-bottom,start-top):0;
+      container.scrollTop=Math.max(0,Math.min(container.scrollHeight-container.clientHeight,container.scrollTop+delta));
+      return;
+    }
   }
 
   private positionPreview():void{
     const s=this.state,view=s?.doc.defaultView;if(!s||!view||!this.selected||s.preview.hidden)return;
-    const inline=view.innerWidth<=1240;
-    this.selected.classList.toggle("pl-preview-inline",inline);
-    const destination=inline?this.selected.children[2]?.firstElementChild:s.panes[2].body;
-    if(destination && s.preview.parentElement!==destination)destination.prepend(s.preview);
-    if(inline)return;
-    const box=s.content.getBoundingClientRect();
-    const height=Math.min(box.height,Math.max(0,s.panes[2].section.getBoundingClientRect().bottom-12-box.top),Math.max(0,view.innerHeight-16-box.top));
-    for(const [name,value] of [["left",box.left],["top",box.top],["width",box.width],["height",height]] as const)
-      this.selected.style.setProperty(`--pl-detail-${name}`,`${Math.max(0,value)}px`);
+    this.selected.classList.add("pl-preview-inline");
+    const destination=this.selected.children[2]?.firstElementChild;
+    if(destination&&s.preview.parentElement!==destination)destination.prepend(s.preview);
   }
 
   closePreview(focus=true):void{
@@ -380,7 +422,7 @@ export class PlannerWorkspace {
       if(!this.selectedHadStyle&&!this.selected.getAttribute("style"))this.selected.removeAttribute("style");
     }
     this.selected=null;this.selectedTable=null;
-    if(this.state){const s=this.state;s.preview.hidden=true;s.panes[2].body.classList.remove("pl-inspector-open");if(s.preview.parentElement!==s.panes[2].body)s.panes[2].body.append(s.preview);}
+    if(this.state){const s=this.state;s.preview.hidden=true;if(s.preview.parentElement!==s.panes[2].body)s.panes[2].body.append(s.preview);}
     if(focus&&this.returnFocus?.isConnected)this.returnFocus.focus({preventScroll:true});this.returnFocus=null;
   }
 
@@ -393,6 +435,7 @@ export class PlannerWorkspace {
       intro.toolbar.remove(); intro.doc.documentElement.classList.remove("pl-intro-page");
     }
     const s=this.state;if(!s)return;this.closePreview(false);this.state=null;this.drag=null;
+    s.doc.defaultView?.removeEventListener("beforeprint",s.beforePrint);s.doc.defaultView?.removeEventListener("afterprint",s.afterPrint);s.afterPrint();
     s.doc.defaultView?.removeEventListener("resize",s.resize);s.doc.defaultView?.removeEventListener("scroll",s.resize);s.extras.removeEventListener("toggle",s.resize);s.doc.removeEventListener("keydown",s.key);
     s.doc.defaultView?.removeEventListener("focus",s.resize);s.doc.defaultView?.removeEventListener("pageshow",s.resize);s.doc.defaultView?.removeEventListener("load",s.resize);s.doc.removeEventListener("visibilitychange",s.resize);
     s.doc.removeEventListener("pointermove",s.move);s.doc.removeEventListener("pointerup",s.end);s.doc.removeEventListener("pointercancel",s.end);s.doc.defaultView?.removeEventListener("blur",s.end);
@@ -403,7 +446,7 @@ export class PlannerWorkspace {
     for(const {node,anchor} of [...s.placements].reverse()){if(anchor.isConnected)anchor.replaceWith(node);else anchor.remove();}
     PRIMARY.forEach(([, ,cls])=>s.doc.querySelectorAll(`.${cls}`).forEach(n=>n.classList.remove(cls)));
     s.doc.querySelectorAll("[data-pl-workspace-details]").forEach(n=>n.remove());
-    s.expandBrowse.remove();s.preview.remove();s.deck.remove();s.top.remove();s.position.remove();s.scrollRoom.remove();["--pl-workspace-top","--pl-workspace-left","--pl-workspace-width"].forEach(p=>s.host.style.removeProperty(p));
-    if(!s.hostHadStyle&&!s.host.getAttribute("style"))s.host.removeAttribute("style");s.host.classList.remove("pl-workspace-host","pl-workspace-flow");s.doc.documentElement.classList.remove("pl-workspace-page");
+    s.preview.remove();s.deck.remove();s.top.remove();s.position.remove();s.scrollRoom.remove();["--pl-workspace-top","--pl-workspace-left","--pl-workspace-width"].forEach(p=>s.host.style.removeProperty(p));
+    if(!s.hostHadStyle&&!s.host.getAttribute("style"))s.host.removeAttribute("style");s.host.classList.remove("pl-workspace-host","pl-workspace-flow","pl-task-plan","pl-task-find");s.doc.documentElement.classList.remove("pl-workspace-page");
   }
 }

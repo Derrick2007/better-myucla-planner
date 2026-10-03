@@ -4,7 +4,9 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { workspaceFixtureHtml, introductionFixtureHtml, futureQuarterFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.14.7');
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.15.0');
+const workspaceWidths=process.env.BETTER_MYUCLA_QA_WIDTHS?.split(',').map(Number)||[1920,1440,1536,1280,1200,960,390];
+assert.ok(workspaceWidths.length&&workspaceWidths.every(width=>Number.isInteger(width)&&width>=320&&width<=3840),'QA widths must be bounded whole pixels');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
 const js=await readFile(resolve(root,'dist/content.js'),'utf8'),css=await readFile(resolve(root,'dist/injected.css'),'utf8');
 await mkdir(out,{recursive:true});
@@ -35,10 +37,19 @@ const setup=async(page,html,compactHeader=false,ready='.pl-workspace-deck')=>{
  return {errors,requests};
 };
 try {
- for(const width of [1920,1440,1536,1280,1200,960,390]){
+ for(const width of workspaceWidths){
   const height=width===1536?735:900,page=await browser.newPage({viewport:{width,height}});
   const {errors,requests}=await setup(page,fixture);
   assert.equal(await page.locator('.pl-workspace-deck > section').count(),3);
+  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),2,'Plan starts with classes and schedule');
+  const planTask=page.locator('.pl-workspace-task-switches [data-pl-task-view="plan"]');
+  const findTask=page.locator('.pl-workspace-task-switches [data-pl-task-view="find"]');
+  assert.equal(await planTask.innerText(),'Plan');assert.equal(await findTask.innerText(),'Find classes');
+  assert.equal(await planTask.getAttribute('aria-pressed'),'true');assert.equal(await findTask.getAttribute('aria-pressed'),'false');
+  assert.equal(await page.locator('.pl-browse-expand').count(),0,'task navigation replaces Browse expansion');
+  assert.equal(await page.locator('.pl-workspace-splitter').count(),1);
+  assert.ok(await page.locator('.pl-workspace-extras .pl-workspace-pane-switches').count());
+  assert.equal(await page.locator('.pl-workspace-pane-switches button').count(),2,'Tools reopens only the two Plan panes');
   assert.equal(await page.locator('form').count(),1);assert.equal(await page.locator('[data-pl-workspace-details]').count(),6);
   assert.equal(await page.locator('[data-pl-status-badge], [data-pl-section-status], [data-pl-status-original]').count(),0);
   const nativePreserved=()=>page.evaluate(()=>window.nativeFields.every(node=>node.isConnected&&node.form===document.getElementById('aspnetForm'))&&window.nativeCommands.every(({node,command})=>node.isConnected&&node.getAttribute('onclick')===command)&&window.nativeStatuses.every(({node,html})=>node.innerHTML===html)&&window.nativeNavigation.outerHTML===window.nativeNavigationHtml);
@@ -46,6 +57,25 @@ try {
   assert.ok(await page.locator('.pl-workspace-host > .plannerTopMenuLinks').isVisible());
   assert.ok(await page.locator('#ctl00_MainContent_termSessionChooser').isVisible());
   assert.ok(await page.evaluate(()=>document.body.scrollWidth<=innerWidth+1),`page overflow ${width}`);
+  const planBoxes=await page.locator('.pl-workspace-deck > section:visible').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
+  if(width>=900){
+   assert.ok(planBoxes[0].right<=planBoxes[1].left,'desktop Plan keeps its list beside the schedule');
+   assert.ok(planBoxes[1].width>=420,'schedule retains comparison space');
+  }else assert.ok(planBoxes[0].bottom<=planBoxes[1].top,'narrow Plan stacks readable panes');
+  if(width===1440||width===960||width===390)await page.screenshot({path:resolve(out,`plan-${width}.png`)});
+  if(width>=900){
+   const bottomDetails=page.locator('[data-pl-workspace-details]').last();await bottomDetails.scrollIntoViewIfNeeded();
+   const rootBeforeDetails=await page.evaluate(()=>scrollY);await bottomDetails.click();
+   const close=page.getByRole('button',{name:'Close details',exact:true}),closeBounds=await close.boundingBox(),paneBounds=await page.locator('.pl-workspace-plan').boundingBox();
+   assert.ok(closeBounds.y>=paneBounds.y&&closeBounds.y+closeBounds.height<=paneBounds.y+paneBounds.height,`opening the last visible class reveals its focused Close control: ${JSON.stringify({width,closeBounds,paneBounds})}`);
+   assert.equal(await page.evaluate(()=>scrollY),rootBeforeDetails,'inline Details reveals itself without scrolling the document');
+   await page.keyboard.press('Escape');assert.ok(await bottomDetails.evaluate(node=>node===document.activeElement));
+   await page.locator('[data-pl-workspace-details]').first().scrollIntoViewIfNeeded();
+  }
+  await findTask.click();
+  assert.equal(await findTask.getAttribute('aria-pressed'),'true');assert.equal(await planTask.getAttribute('aria-pressed'),'false');
+  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),1,'Find classes uses the available workspace');
+  assert.ok(await page.locator('.pl-workspace-search').isVisible());
   assert.equal(await page.locator('.pl-browser-index button').count(),3);
   assert.equal(await page.locator('.pl-browser-list > .pl-browser-body:visible').count(),1);
   await page.locator('.pl-browser-index button').nth(2).click();
@@ -63,11 +93,9 @@ try {
   assert.ok(await nativePreserved());
   assert.ok(await page.locator('.pl-browser-body-active .header-Status').isVisible(),'native header help remains accessible');
   assert.ok(await page.locator('#fixture-result-footer button').isVisible(),'global native result actions remain accessible');
-  const expandBrowse=page.locator('.pl-browse-expand');await expandBrowse.click();
-  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),1,'expanded Browse has the available workspace');
   if(width>=960){
    const indexBox=await page.locator('.pl-browser-index').boundingBox(),previewBox=await page.locator('.pl-browser-list').boundingBox();
-   assert.ok(indexBox.x+indexBox.width<=previewBox.x,'wide Browse presents the course list beside its preview');
+   assert.ok(indexBox.x+indexBox.width<=previewBox.x,'Find presents the course list beside its preview');
    assert.ok(previewBox.width>=360,'preview retains readable space');
   }
   assert.ok(await page.locator('.pl-browser-preview-title').isVisible());
@@ -78,9 +106,9 @@ try {
   assert.equal(await page.locator('#container_course_M1').isVisible(),true);
   await localFilter.fill('');await page.locator('.pl-browser-index button').first().press('End');
   assert.equal(await page.locator('.pl-browser-index button').last().getAttribute('aria-pressed'),'true');
-  assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'expanded previews do not overflow');
+  assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'Find previews do not overflow');
   assert.ok(await nativePreserved());
-  if(width===1440||width===960||width===390)await page.screenshot({path:resolve(out,`browse-expanded-${width}.png`)});
+  if(width===1440||width===960||width===390)await page.screenshot({path:resolve(out,`find-classes-${width}.png`)});
   const fictionalSelection=page.locator('#container_course_M2 .data_row input').first();
   await fictionalSelection.check();await page.locator('.pl-browser-index button').first().click();
   assert.ok(await page.locator('.pl-browser-selections').isVisible(),'hidden checked sections have a visible reminder');
@@ -92,101 +120,119 @@ try {
   assert.ok(await fictionalSelection.evaluate(n=>n===document.activeElement));
   await fictionalSelection.uncheck();assert.equal(await page.locator('.pl-browser-selections').isVisible(),false);
   if(width===1440){
+   for(const toolsOpen of [false,true]){
+   await page.locator('.pl-workspace-extras').evaluate((node,open)=>{node.open=open;},toolsOpen);
+   // Media emulation does not fire the native print lifecycle by itself.
+   await page.evaluate(()=>dispatchEvent(new Event('beforeprint')));
    await page.emulateMedia({media:'print'});
-   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3,'printing restores panes hidden by expanded Browse');
+   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3,'printing restores panes hidden by either task');
+   assert.equal(await page.locator('.pl-workspace-extra-content > section:visible').count(),3,`printing includes the three native sections when Tools is ${toolsOpen?'open':'closed'}`);
    assert.equal(await page.locator('.pl-browser-body:visible').count(),3,'printing includes every loaded course');
    assert.ok(await page.locator('.pl-browser-body .data_row > .span7').first().isVisible(),'print includes rooms without opening the extra-fields toggle');
    assert.ok(await page.locator('.pl-browser-body .data_row > .span9').first().isVisible(),'print includes instructors');
    assert.ok(await page.locator('.pl-browser-list').evaluate(node=>getComputedStyle(node).maxHeight==='none'&&getComputedStyle(node).overflow==='visible'),'print does not clip result rows');
-   assert.equal(await expandBrowse.isVisible(),false);
+   assert.equal(await page.locator('.pl-workspace-task-switches').isVisible(),false);
    await page.emulateMedia({media:'screen'});
+   await page.evaluate(()=>dispatchEvent(new Event('afterprint')));
+   assert.equal(await page.locator('.pl-workspace-extras').evaluate(node=>node.open),toolsOpen,'printing restores the prior Tools disclosure choice');
+   }
+   await page.locator('.pl-workspace-extras > summary').click();
   }
-  await expandBrowse.click();
-  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3);
-  if(width>1240){
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),2);
+  assert.equal(await planTask.getAttribute('aria-pressed'),'true');
+  assert.ok(await findTask.evaluate(node=>node===document.activeElement),'Escape returns to Plan with a route back to Find');
+  if(width>=900){
    const nav=await page.locator('#fixture-native-navigation').boundingBox(),host=await page.locator('.pl-workspace-host').boundingBox();
    assert.ok(host.y>=nav.y+nav.height,'UCLA navigation remains unobscured');
-   const boxes=await page.locator('.pl-workspace-deck > section').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
+   const boxes=await page.locator('.pl-workspace-deck > section:visible').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
    assert.ok(boxes.every(box=>box.bottom<=height&&box.width>=200),JSON.stringify(boxes));
-   assert.ok(boxes[0].right<=boxes[1].left&&boxes[1].right<=boxes[2].left);
-   assert.ok(boxes[1].width>=420,'schedule needs room');assert.ok(boxes[2].width>=340);
-   const sep=page.getByRole('separator',{name:'Resize browser pane'}),before=(await page.locator('.pl-workspace-search').boundingBox()).width;
-   await sep.press('ArrowLeft');assert.ok((await page.locator('.pl-workspace-search').boundingBox()).width>before);
-   const handle=await sep.boundingBox();await page.mouse.move(handle.x+handle.width/2,handle.y+100);await page.mouse.down();await page.mouse.move(handle.x-60,handle.y+100,{steps:8});await page.mouse.up();
-   assert.ok((await page.locator('.pl-workspace-search').boundingBox()).width>before+40,'pointer resizing');
+   assert.ok(boxes[0].right<=boxes[1].left);
+   assert.ok(boxes[1].width>=420,'schedule needs room');
+   const sep=page.getByRole('separator',{name:'Resize classes pane'}),before=(await page.locator('.pl-workspace-plan').boundingBox()).width;
+   await sep.press('ArrowRight');assert.ok((await page.locator('.pl-workspace-plan').boundingBox()).width>before);
+   const handle=await sep.boundingBox();await page.mouse.move(handle.x+handle.width/2,handle.y+100);await page.mouse.down();await page.mouse.move(handle.x+60,handle.y+100,{steps:8});await page.mouse.up();
+   assert.ok((await page.locator('.pl-workspace-plan').boundingBox()).width>before+40,'pointer resizing');
    await sep.dblclick();
    const switches=page.locator('.pl-workspace-pane-switches button'),scheduleBefore=(await page.locator('.pl-workspace-calendar').boundingBox()).width;
    await page.locator('#plannerSectionClip > button.planSectionToggle').click();
    assert.equal(await page.locator('.pl-workspace-plan').isVisible(),false);
    assert.ok((await page.locator('.pl-workspace-calendar').boundingBox()).width>scheduleBefore);
    assert.equal(await switches.nth(0).evaluate(node=>document.activeElement===node),true);await switches.nth(0).press('Enter');
-   for(let i=0;i<3;i++)await switches.nth(i).click();assert.ok(await page.locator('.pl-workspace-empty').isVisible());
-   for(let i=0;i<3;i++)await switches.nth(i).press('Space');
-   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),3);
+   for(let i=0;i<2;i++)await switches.nth(i).click();assert.ok(await page.locator('.pl-workspace-empty').isVisible());
+   for(let i=0;i<2;i++)await switches.nth(i).press('Space');
+   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),2);
+   await page.keyboard.press('Escape');
    await page.locator('tbody.courseItem').last().scrollIntoViewIfNeeded();
    assert.equal(await page.evaluate(()=>scrollY),0);await page.locator('tbody.courseItem').first().scrollIntoViewIfNeeded();
-   if(width===1440)await page.screenshot({path:resolve(out,'workspace-1440.png')});
   } else {
-   const boxes=await page.locator('.pl-workspace-deck > section').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
-   assert.ok(boxes[0].bottom<=boxes[1].top&&boxes[1].bottom<=boxes[2].top,'narrow layout stacks readable panes');
+   const boxes=await page.locator('.pl-workspace-deck > section:visible').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
+   assert.ok(boxes[0].bottom<=boxes[1].top,'narrow layout stacks readable panes');
   }
   const calendar=await page.locator('#gridDiv .planneritembox').evaluateAll(nodes=>nodes.map(node=>({overflow:node.getBoundingClientRect().right-node.parentElement.getBoundingClientRect().right,height:node.getBoundingClientRect().height,intended:parseFloat(node.style.height)+(node.style.border.includes('double')?6:2)})));
   assert.ok(calendar.every(box=>box.overflow<=1&&Math.abs(box.height-box.intended)<1),`native calendar sizing ${width}`);
   const details=page.locator('[data-pl-workspace-details]').first();await details.click();
   assert.ok(await page.locator('.pl-workspace-preview').isVisible());
+  assert.ok(await page.locator('.pl-workspace-preview-card.pl-preview-inline').count(),'Details remains inside its class at every width');
+  assert.ok(await page.locator('.pl-workspace-calendar').isVisible(),'Schedule stays visible while inspecting a class');
   assert.equal(await page.locator('.pl-workspace-detail-backdrop').count(),0);
   assert.ok(await page.evaluate(()=>window.nativeDetails.parentElement===window.nativeDetailsParent));
   assert.ok(await nativePreserved());
   const detailRow=page.locator('tbody.pl-workspace-preview-card > tr:nth-child(3)');
   assert.ok(await detailRow.isVisible());
   const rect=await detailRow.boundingBox();assert.ok(rect.width>200&&rect.x>=0&&rect.x+rect.width<=width+1,`details fit ${width}: ${JSON.stringify(rect)}`);
-  if(width>1240){
-   assert.ok(rect.y+rect.height<=height,'docked details remain in viewport');
-   const right=await page.locator('.pl-workspace-search').boundingBox();assert.ok(rect.x>=right.x&&rect.x+rect.width<=right.x+right.width);
-   await page.locator('.pl-workspace-pane-switches button').nth(1).click();
+  const classPane=await page.locator('.pl-workspace-plan').boundingBox();
+  assert.ok(rect.x>=classPane.x&&rect.x+rect.width<=classPane.x+classPane.width,'Details fits inside My classes');
+  if(width>=900){
+   await page.locator('.pl-workspace-extras > summary').click();await page.locator('.pl-workspace-pane-switches button').nth(1).click();
    assert.ok(await page.locator('.pl-workspace-preview').isVisible(),'schedule controls remain usable while inspecting');
    await page.locator('.pl-workspace-pane-switches button').nth(1).click();
+   await page.locator('.pl-workspace-extras > summary').click();
    if(width===1440)await page.screenshot({path:resolve(out,'class-details.png')});
   }
   await page.keyboard.press('Escape');assert.equal(await page.locator('.pl-workspace-preview').isVisible(),false);
   assert.equal(await details.evaluate(node=>document.activeElement===node),true);
   await details.click();const close=page.getByRole('button',{name:'Close details',exact:true}),closeBox=await close.boundingBox();
   assert.ok(closeBox.width>=44&&closeBox.height>=44);await close.click();assert.equal(await details.evaluate(node=>document.activeElement===node),true);
-  await details.click();await expandBrowse.click();
-  assert.equal(await page.locator('.pl-workspace-preview').isVisible(),false,'expanding Browse must close the inspector before hiding its native class row');
+  await details.click();await findTask.click();
+  assert.equal(await page.locator('.pl-workspace-preview').isVisible(),false,'Find must close Details before hiding its native class row');
   assert.ok(await page.locator('.pl-browser-list').isVisible(),'results remain available after switching from Details');
-  assert.ok(await nativePreserved());await expandBrowse.click();
+  assert.ok(await nativePreserved());await planTask.click();
   await page.locator('.pl-workspace-extras > summary').click();assert.equal(await page.locator('.pl-workspace-section-links button').count(),3);
   await page.locator('.pl-workspace-section-links button').getByText('Personal Entries',{exact:true}).click();
   const fold=page.locator('#plannerSectionPer > .pl-pane-toggle');await fold.click();assert.equal(await page.locator('input[name="examplePersonalEntry"]').isVisible(),false);
   await page.locator('.pl-workspace-section-links button').getByText('Personal Entries',{exact:true}).click();assert.equal(await page.locator('input[name="examplePersonalEntry"]').isVisible(),true);
-  await page.keyboard.press('Escape');await page.locator('.pl-workspace-original').click();
+  await page.keyboard.press('Escape');await page.locator('.pl-workspace-extras > summary').click();await page.locator('.pl-workspace-original').click();
   assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(),6);
   assert.equal(await page.locator('.pl-browser-index').count(),0);assert.ok(await nativePreserved());
   await page.locator('.pl-workspace-return').click();await page.waitForSelector('.pl-workspace-deck');
+  await page.locator('.pl-workspace-task-switches [data-pl-task-view="find"]').click();
   await page.evaluate(html=>{
    const next=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('ctl00_MainContent_classPlanPanel'),true);
    window.redrawFields=[...next.querySelectorAll('input,select')];document.getElementById('ctl00_MainContent_classPlanPanel').replaceWith(next);
   },fixture);
-  await page.waitForSelector('.pl-workspace-deck .pl-browser-index');
+  await page.waitForSelector('.pl-workspace-deck .pl-browser-index',{state:'attached'});
+  assert.equal(await page.locator('.pl-workspace-task-switches [data-pl-task-view="find"]').getAttribute('aria-pressed'),'true','native redraw preserves the active task');
+  assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),1);
+  assert.ok(await page.locator('.pl-browser-list').isVisible());
   assert.equal(await page.locator('.pl-workspace-deck').count(),1);assert.equal(await page.locator('#panelPlan').count(),1);assert.equal(await page.locator('input[name="examplePersonalEntry"]').count(),1);
   await page.evaluate(()=>window.toggleTidy(false));await page.waitForSelector('.pl-workspace-deck',{state:'detached'});
   assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(),6);assert.equal(await page.locator('[data-pl-workspace-details],.pl-section-label,.pl-browser-index').count(),0);
   assert.ok(await page.evaluate(()=>window.redrawFields.every(node=>node.isConnected&&node.form===document.getElementById('aspnetForm'))));
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log(`Workspace verified: ${width}px`);
  }
+ if(process.env.BETTER_MYUCLA_QA_FOCUS!=='workspace'){
  for(const width of [1440,960,390]){
   const single=await browser.newPage({viewport:{width,height:900}});
   const singleChecks=await setup(single,fixture);
+  await single.locator('.pl-workspace-task-switches [data-pl-task-view="find"]').click();
   await single.evaluate(()=>{for(const index of [1,2]){document.getElementById(`CourseListEntry_M${index}`).remove();document.getElementById(`container_course_M${index}`).remove();}});
   await single.waitForFunction(()=>document.querySelectorAll('.pl-browser-index button').length===1);
   assert.equal(await single.locator('.pl-browser-index').isVisible(),false,'a single course does not need an index or filter');
   assert.ok(await single.locator('.pl-browser-preview-title').isVisible());
-  const list=single.locator('.pl-browser-list'),narrowHeight=(await list.boundingBox()).height;
-  assert.ok(narrowHeight>100);
-  await single.locator('.pl-browse-expand').click();
+  const list=single.locator('.pl-browser-list');assert.ok((await list.boundingBox()).height>100);
   assert.ok(await list.evaluate(n=>n.scrollWidth<=n.clientWidth+1));
-  assert.ok(await list.evaluate(n=>n.getBoundingClientRect().width>=n.parentElement.getBoundingClientRect().width-30),'single preview uses available width');
+  assert.ok(await list.evaluate(n=>{const parent=n.parentElement,style=getComputedStyle(parent);return n.getBoundingClientRect().width>=parent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-1;}),'single preview fills the parent content width');
   if(width===1440)await single.screenshot({path:resolve(out,'single-course-browse.png')});
   assert.deepEqual(singleChecks.errors,[]);assert.deepEqual(singleChecks.requests,[]);
   await single.close();console.log(`Single-course presentation verified: ${width}px`);
@@ -212,8 +258,10 @@ try {
  await tall.locator('[data-pl-workspace-details]').first().click();
  const assertTallDetails=async()=>{
   const row=await tall.locator('tbody.pl-workspace-preview-card > tr:nth-child(3)').boundingBox();
-  const pane=await tall.locator('.pl-workspace-search').boundingBox();
-  assert.ok(row.height>=60&&row.y+row.height<=Math.min(927,pane.y+pane.height),`short pane inspector fits: ${JSON.stringify(row)}`);
+  const pane=await tall.locator('.pl-workspace-plan').boundingBox();
+  assert.ok(row.height>=60&&row.x>=pane.x&&row.x+row.width<=pane.x+pane.width,`inline inspector fits narrow class pane: ${JSON.stringify(row)}`);
+  assert.ok(await tall.locator('.pl-workspace-calendar').isVisible());
+  assert.ok(await tall.locator('tbody.pl-workspace-preview-card.pl-preview-inline').count());
  };
  await assertTallDetails();await tall.locator('.pl-workspace-preview-head summary').click();await assertTallDetails();
  const afterMenu=await tall.locator('.plannerTopMenuLinks').boundingBox();assert.deepEqual(afterMenu,nativeMenu,'native plan menus stay put');
@@ -227,7 +275,7 @@ try {
   assert.ok(await page.evaluate(()=>window.nativeTerm.parentElement===window.nativeTermParent&&window.nativeSidebar.parentElement===window.nativeSidebarParent));
   assert.ok(await page.evaluate(()=>window.nativeNavigation.outerHTML===window.nativeNavigationHtml&&window.nativeIntroduction.innerHTML===window.nativeIntroductionHtml));
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),`introduction overflow ${width}`);
-  if (width>1240) {
+  if (width>=900) {
    const before=await page.locator('.pl-workspace-host').boundingBox();
    assert.ok(await page.evaluate(y=>y<window.nativeWorkspaceTop-60,before.y),'introduction gives the planner more room');
    await page.screenshot({path:resolve(out,`compact-introduction-${width}.png`)});
@@ -257,12 +305,12 @@ try {
    assert.ok(after.y>=11&&after.y<before.y&&after.height>before.height,'planner expands as the header scrolls away');
    assert.equal(await page.evaluate(()=>document.body.scrollTop),0);
    await page.locator('[data-pl-workspace-details]').first().click();
-   const row=await page.locator('tbody.pl-workspace-preview-card > tr:nth-child(3)').boundingBox(),pane=await page.locator('.pl-workspace-search').boundingBox();
-   assert.ok(row.y>=pane.y&&row.y+row.height<=Math.min(height,pane.y+pane.height),'Details tracks page scrolling');
+   const row=await page.locator('tbody.pl-workspace-preview-card > tr:nth-child(3)').boundingBox(),pane=await page.locator('.pl-workspace-plan').boundingBox();
+   assert.ok(row.x>=pane.x&&row.x+row.width<=pane.x+pane.width,'inline Details remains within Classes after page scrolling');
    await page.keyboard.press('Escape');
    const scrollBefore=await page.evaluate(()=>scrollY);
    await page.evaluate(html=>{const next=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('ctl00_MainContent_classPlanPanel'),true);document.getElementById('ctl00_MainContent_classPlanPanel').replaceWith(next);},introductionFixtureHtml());
-   await page.waitForSelector('.pl-workspace-deck .pl-browser-index');
+   await page.waitForSelector('.pl-workspace-deck .pl-browser-index',{state:'attached'});
    assert.ok(Math.abs(await page.evaluate(()=>scrollY)-scrollBefore)<=1,'native redraw preserves intentional document scrolling');
    assert.ok(Math.abs((await page.locator('.pl-workspace-host').boundingBox()).y-12)<=1);
    await page.screenshot({path:resolve(out,`scrolled-workspace-${width}.png`)});
@@ -375,4 +423,5 @@ try {
  await page.waitForFunction(()=>document.querySelector('.pl-workspace-plan').scrollTop>80);await page.mouse.up();
  assert.equal(await page.evaluate(()=>window.nativeActionCount),0);assert.equal(await page.evaluate(()=>scrollY),0);assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
  await page.close();console.log('Local panel dragging verified');
+ }
 } finally { await browser.close(); }
