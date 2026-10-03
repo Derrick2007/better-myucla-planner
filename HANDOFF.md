@@ -37,11 +37,20 @@ https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37108200960
 https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37108220893
 https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.15.0
 
-Live verification remains pending: the authorized planner tab had timed out to
-Logged Out. The user has been asked to Reload the extension, sign in again and
-reopen Class Planner; do not inspect credentials or other MyUCLA pages. Never
-automate live enrollment/plan changes; only structural browser facts may be
-retained. Screenshots/fixtures must use invented course/account content.
+After reload/sign-in, authorized live verification passed on October 3 at
+2048x983. Plan shows Classes and Schedule; Find classes uses the full width.
+Opening the last class's Details keeps its close control visible/focused and
+the schedule visible; Escape closes it and returns focus. Find survives native
+subject/course/search redraws, showing a single loaded preview without the
+duplicate index; native inputs retain their original form association. Loaded
+results survive Plan/Find switching. Tools exposes both pane controls, all three
+secondary modules and Original layout; Escape closes Tools before returning
+Find to Plan. Compact choice remains active; Show header restores root scroll
+zero and Compact header returns the title to 12px with the term visible.
+Final view is Plan, compact; BODY scroll is zero and no horizontal overflow.
+All 17 installed files still match dist SHA-256. No live plan/enrollment action
+was taken. Only structural facts were retained. Do not inspect credentials or
+other MyUCLA pages; screenshots/fixtures must use invented course/account content.
 
 ## v0.14.7 verification record
 

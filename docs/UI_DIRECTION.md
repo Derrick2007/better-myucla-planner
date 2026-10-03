@@ -108,8 +108,11 @@ The production fixture suite covers Plan/Find transitions, preserved native
 controls/selections, inline Details, local pane resizing, task persistence on
 redraw, all six modules, print, seven widths, compact-header lifecycle and future
 quarter transitions. Follow-up checks cover narrow control wrapping, Details
-at the bottom of a pane and Tools open/closed before printing. Live verification
-requires reloading the installed extension and refreshing Class Planner.
+at the bottom of a pane and Tools open/closed before printing. After reload,
+live verification passed Plan/Find switching, bottom-of-list Details visibility
+and Escape/focus, native search redraws and retained loaded preview, access to
+all secondary modules, and compact title/term placement without horizontal
+overflow. No live plan/enrollment action was taken.
 
 Fictional production-browser checks cover resizing, focus, folding/reopening, all
 six modules, native navigation/control/status identity, result switching without
