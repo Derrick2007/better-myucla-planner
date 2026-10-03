@@ -117,7 +117,11 @@ Version 0.15.1 passed typecheck, 213 tests and production build. The full fictio
 Chrome suite passed at seven widths, including shared-header alignment/stickiness,
 narrow labels, native header help/identity, Details keyboard order and target size,
 printing and native redraws. Desktop and narrow screenshots were visually reviewed.
-The installed build is updated; live verification awaits the user's reload.
+After reload, live verification passed Details placement/size, inline opening,
+Close/Escape focus return, native search redraws, shared-header alignment and
+accessible native help, optional labels, retained previews and module access.
+The page remains compact without horizontal overflow or BODY scrolling. No live
+plan/enrollment action was taken; the final view is Plan.
 
 Version 0.15.0 passed typecheck, 211 tests across 20 files and production build.
 The production fixture suite covers Plan/Find transitions, preserved native

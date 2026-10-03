@@ -34,8 +34,19 @@ https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37143916639
 https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37143938987
 https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.15.1
 The published ZIP is 349909 bytes; release is non-draft and prerelease=true.
-User has been asked to reload the extension and refresh Class Planner; live
-verification of this new version is pending. Do not claim it has passed yet.
+Authorized live verification passed on October 3 at 2048x983 after reload.
+All six Details buttons show the new first-action placement, expanded state and
+minimum size. First and last class Details keep the native row inline, schedule
+visible and close control in bounds. Escape and Close return focus correctly.
+A native subject/course/search sequence retains Find through redraws; the loaded
+1911px preview has aligned shared headings, sticky positioning, clipped accessible
+captions and visible native help. All inspected result controls retain their
+original form. Rooms/instructors reveal with labels and no overflow; the result
+survives Plan/Find switching. Tools exposes both pane controls, all three extra
+module controls and Original layout. Compact mode remains active, BODY scroll
+is zero and there is no horizontal overflow. Final view is Plan, compact.
+No live plan or enrollment action was taken, and no private page contents were
+retained. Installed files still match all 17 dist hashes. No new defect found.
 
 ## v0.15.0 verification record
 
