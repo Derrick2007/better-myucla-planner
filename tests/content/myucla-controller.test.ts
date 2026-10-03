@@ -126,9 +126,12 @@ describe("MyUclaPlannerController UI", () => {
   };
   const enableTidy = () => chrome.storage.local.set({'plannerLift.layout.v1':{tidy:true}});
 
-  it("starts a recognized empty New plan as presentation only, preserving native search and controls", async () => {
-    renderWorkspace(emptyPlanFixtureHtml());await enableTidy();
+  it.each([false,true])("starts an empty New plan with populated Study list=%s as presentation only", async populatedStudy => {
+    renderWorkspace(emptyPlanFixtureHtml(false,populatedStudy));await enableTidy();
     const adapter=new MyUclaPlannerAdapter(),body=document.getElementById('panelPlan')!,native=body.innerHTML;
+    const study=document.getElementById('panelNotplan')!,studyNodes=[...study.querySelectorAll('tbody.courseItem')],studyParents=studyNodes.map(node=>node.parentElement);
+    expect(studyNodes).toHaveLength(populatedStudy?2:0);const context=vi.spyOn(adapter,'getContextKey'),inspect=vi.spyOn(adapter,'inspectContract');
+    studyNodes.forEach(node=>(node as HTMLElement).style.cssText='transform:translateY(2px);transition:opacity 0.2s');const studyStyles=studyNodes.map(node=>node.getAttribute('style'));
     const controls=[...document.querySelectorAll('input,select')],parents=controls.map(node=>node.parentElement),submit=vi.fn();document.querySelector('form')!.addEventListener('submit',submit);
     expect(adapter.inspectContract().ok).toBe(false);expect(isKnownEmptyPlanner(document)).toBe(true);
     vi.mocked(chrome.storage.local.get).mockClear();controller=new MyUclaPlannerController(adapter);await controller.start();await settle();
@@ -139,18 +142,27 @@ describe("MyUclaPlannerController UI", () => {
     expect(controls.filter(node=>node.id!=='ctl00_MainContent_cs_goButton').every((node)=>node.parentElement===parents[controls.indexOf(node)])).toBe(true);
     document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!.click();expect(document.querySelector('.pl-workspace-search.pl-module-active')).not.toBeNull();
     expect(isKnownEmptyPlanner(document)).toBe(true);expect(adapter.inspectContract().ok).toBe(false);expect(submit).not.toHaveBeenCalled();
+    expect(adapter.getRoot()).toBeNull();expect(context).not.toHaveBeenCalled();
+    expect(studyNodes.every((node,index)=>node.parentElement===studyParents[index]&&node.closest('form')===document.getElementById('aspnetForm'))).toBe(true);
+    document.querySelector<HTMLButtonElement>('button[data-pl-module=study]')!.click();expect(study.closest('section')!.classList.contains('pl-module-active')).toBe(true);
+    await settle();const stableChecks=inspect.mock.calls.length;await settle();await settle();expect(inspect).toHaveBeenCalledTimes(stableChecks);
     const keys=vi.mocked(chrome.storage.local.get).mock.calls.map(call=>call[0]);expect(keys).not.toContain('plannerLift.annotations.v1');expect(keys).not.toContain('plannerLift.draft.v1');
     controller.dispose();expect(document.querySelector('.pl-workspace-host')).toBeNull();expect(body.innerHTML).toBe(native);
+    expect(studyNodes.map(node=>node.getAttribute('style'))).toEqual(studyStyles);
   });
 
   it("returns from full to empty to full without stale save tools and detects in-place empty invalidation", async () => {
     renderWorkspace(introductionFixtureHtml());await enableTidy();controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();await settle();
     expect(document.querySelector('[data-pl-real-tools]')).not.toBeNull();
-    replaceWorkspace(emptyPlanFixtureHtml());await settle();await settle();
+    replaceWorkspace(emptyPlanFixtureHtml(false,true));await settle();await settle();
     expect(document.querySelector('.pl-workspace-empty-plan')).not.toBeNull();expect(document.querySelector('[data-pl-real-tools]')).toBeNull();expect(document.querySelector('#planner-lift-actionbar')).toBeNull();
+    expect(document.querySelectorAll('#panelNotplan tbody.courseItem')).toHaveLength(2);expect(new MyUclaPlannerAdapter().getRoot()).toBeNull();
+    vi.mocked(chrome.storage.local.get).mockClear();
     const marker=document.querySelector<HTMLElement>('#panelPlan .no_data_text')!,placeholder=document.createElement('div');marker.replaceWith(placeholder);await settle();await settle();
     expect(document.querySelector('.pl-workspace-host')).toBeNull();expect(document.querySelector('.pl-search-widget')).toBeNull();expect(document.documentElement.classList.contains('pl-calm-page')).toBe(false);
     placeholder.replaceWith(marker);await settle();await settle();expect(document.querySelector('.pl-workspace-empty-plan')).not.toBeNull();
+    expect(document.querySelectorAll('#panelNotplan tbody.courseItem')).toHaveLength(2);expect(document.querySelector('[data-pl-real-tools]')).toBeNull();
+    const emptyReads=vi.mocked(chrome.storage.local.get).mock.calls.map(call=>call[0]);expect(emptyReads).not.toContain('plannerLift.annotations.v1');expect(emptyReads).not.toContain('plannerLift.draft.v1');
     replaceWorkspace(introductionFixtureHtml());await settle();await settle();
     expect(document.querySelector('.pl-workspace-host')).not.toBeNull();expect(document.querySelector('.pl-workspace-empty-plan')).toBeNull();
     expect(document.querySelectorAll('[data-pl-real-tools]')).toHaveLength(6);expect(document.querySelector('#planner-lift-actionbar')).not.toBeNull();

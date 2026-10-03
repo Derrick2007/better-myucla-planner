@@ -141,9 +141,17 @@ export function introductionFixtureHtml(count = 6, includeResults = true, result
 }
 
 /** Native New Plan empty working view, distinct from a future-quarter page. */
-export function emptyPlanFixtureHtml(includeResults = false) {
+export function emptyPlanFixtureHtml(includeResults = false, populatedStudyList = false) {
   const dom = new JSDOM(introductionFixtureHtml(6, includeResults)), doc = dom.window.document;
   const panel = doc.getElementById('panelPlan');
+  if (populatedStudyList) {
+    // Native Study list can own this same legacy landing/table structure even
+    // when My classes is empty. Keep its controls intact and entirely fictional.
+    const landing = panel.querySelector('#div_landing');
+    [...landing.querySelectorAll('tbody.courseItem')].slice(2).forEach(row => row.remove());
+    landing.querySelector('tbody.courseItem').style.cssText = 'transform:translateX(0px);transition:opacity .2s;';
+    doc.getElementById('panelNotplan').append(landing);
+  }
   panel.innerHTML = '<div class="classPlanner_SectionData"><div class="no_data_text">No classes in this fictional new plan. Find classes to begin planning.</div><input type="hidden" id="ctl00_MainContent_planClassListView_clCommandField" value=""><input type="hidden" id="ctl00_MainContent_planClassListView_clCommandFieldTracker" value=""></div><table></table>';
   doc.getElementById('ctl00_MainContent_planIDField').value = '0';
   doc.querySelector('.classPlanner_PlanNameContent').textContent = 'Example new plan';

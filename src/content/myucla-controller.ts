@@ -317,8 +317,11 @@ export class MyUclaPlannerController {
     document
       .querySelectorAll<HTMLElement>(".pl-host-bar")
       .forEach((node) => node.classList.remove("pl-host-bar"));
-    this.adapter.getRoot()?.classList.remove("pl-plan-root", "pl-dragging", "pl-syncing");
-    document.querySelectorAll<HTMLElement>("tbody.courseItem").forEach((node) => {
+    const planRoot=this.adapter.getRoot();
+    planRoot?.classList.remove("pl-plan-root", "pl-dragging", "pl-syncing");
+    // Other native modules may also use courseItem rows. Only the editable
+    // plan's rows can carry our drag presentation; Study list stays opaque.
+    planRoot?.querySelectorAll<HTMLElement>(":scope > tbody.courseItem").forEach((node) => {
       node.classList.remove(
         "pl-drag-active",
         "pl-drag-shifted",

@@ -1,5 +1,15 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Empty plan with populated Study list (0.17.4)
+
+Live verification after sign-in showed the same empty `#panelPlan` alongside
+`#panelNotplan #div_landing > table` containing Study list course rows.
+The root ID and course-row class are reused outside the editable plan. Empty-plan
+recognition must scope its absence checks to `#panelPlan`; it must not reject or
+read course contents from another native module. The existing editable adapter
+already scopes its root to `#panelPlan` and remains unchanged. Study list stays
+an intact native module with no extension course tools or storage activation.
+
 ## Native New Plan empty state (0.17.3)
 
 An explicitly requested live click on `#newPlanMenuEntry` caused a native redraw

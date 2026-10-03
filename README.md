@@ -9,12 +9,12 @@
 An unofficial Chrome extension for the MyUCLA Class Planner.
 
 [Install guide](site/index.html) ·
-[v0.17.3 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.3) ·
+[v0.17.4 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.4) ·
 [Contributing](CONTRIBUTING.md)
 
 </div>
 
-<img src="site/workspace-preview.png" width="100%" alt="v0.17.3 workspace with fictional course browsing beside a weekly schedule.">
+<img src="site/workspace-preview.png" width="100%" alt="v0.17.4 workspace with fictional course browsing beside a weekly schedule.">
 
 The optional workspace provides named destinations for My classes, Find classes,
 Optimizer, Study list, Personal entries and Information & help. The original
@@ -202,7 +202,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.17.3` workspace redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.17.4` workspace redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. Named navigation
 opens My classes, Find classes, Optimizer, Study list and Personal entries inside

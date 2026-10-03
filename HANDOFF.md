@@ -2,7 +2,39 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.3` (New Plan workspace lifecycle fix).
+Current version: `0.17.4` (empty plan with populated Study list).
+
+Live recheck of v0.17.3 after the user signed in found the workspace still absent.
+The exact recorded empty `#panelPlan` was present, but Study list `#panelNotplan`
+also contained `#div_landing > table` with native course rows. The empty validator
+incorrectly rejected those unrelated rows. All other native shape checks passed.
+Only structural booleans, element types/classes/IDs and geometry were read; no
+course names, values, account text or real-page screenshots were captured.
+
+The absence check now scopes to `#panelPlan`. The editable adapter was already
+scoped correctly and stays unchanged. Native Study content remains opaque, with
+no course-context activation or extension course tools. Disposal now clears
+drag styles only from the current plan rows, preserving Study row inline styles.
+
+Typecheck, 239 unit tests and production build pass. The shared empty fixture
+now includes a populated fictional Study list; tests cover native identity/form,
+style preservation, no editable context/storage reads, stable reconciliation,
+full/empty transitions and malformed-marker fallback/recovery.
+Populated-Study browser checks pass at 2048/1440/1280/390, including initial empty
+and native New Plan transitions, all modules/search/calendar, no remount loop,
+native control/markup/styles preservation, Original/Tidy/dispose restoration,
+no extra requests or course-context activation. Desktop/phone fictional views
+reviewed; native Study tables retain local scrolling. The matching website
+visualization also passes at 1440/1280/960/390.
+
+Installed in Downloads/better-myucla-v0.10.3/dist; all 17 files SHA-256 match the
+tested production build. Backup: outputs/installed-backup-v0.17.3. Earlier
+rollback backups remain intact. The v0.17.4 reload question was sent; actual-page
+verification is pending. Check only the existing Class Planner tab after reload,
+using bounded DOM/geometry and local module switches. Do not trigger another
+New Plan or any plan/course mutation.
+
+## v0.17.3 historical record
 
 The user explicitly requested trying Plan actions > New Plan. One live native
 click on the exact Class Planner page rendered an empty working plan without a

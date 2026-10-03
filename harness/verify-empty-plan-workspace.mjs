@@ -12,7 +12,10 @@ const baseline = process.argv.includes('--expect-baseline-failure');
 const widths = process.env.BETTER_MYUCLA_EMPTY_WIDTHS?.split(',').map(Number) || [2048, 1440, 1280, 390];
 assert.ok(widths.length && widths.every(width => Number.isInteger(width) && width >= 320 && width <= 3840));
 const url = 'https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx';
-const fullHtml = introductionFixtureHtml(), emptyHtml = emptyPlanFixtureHtml();
+const fullHtml = introductionFixtureHtml();
+const studyMode = process.env.BETTER_MYUCLA_EMPTY_STUDY || 'both';
+assert.ok(['both', 'empty', 'populated'].includes(studyMode));
+const studyVariants = studyMode === 'both' ? [false, true] : [studyMode === 'populated'];
 const report = [];
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.BETTER_MYUCLA_CHROMIUM || undefined });
@@ -21,7 +24,7 @@ async function settle(page) {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
 
-async function setup(page, initialHtml) {
+async function setup(page, initialHtml, emptyHtml) {
   const errors = [], requests = [];
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => errors.push(error.message));
@@ -65,6 +68,7 @@ async function setup(page, initialHtml) {
         search: [...document.querySelectorAll('.ClassSearchControls input,.ClassSearchControls select')].map(node => ({ node, parent: node.parentElement })),
         menu: [...menu.querySelectorAll('button')].map(node => ({ node, parent: node.parentElement, hiddenStyle: node.style.display })),
         sections: [...panel.querySelectorAll(':scope > section')],
+        study: [...document.querySelectorAll('#panelNotplan table,#panelNotplan input,#panelNotplan select,#panelNotplan button,#panelNotplan tbody.courseItem')].map(node => ({ node, parent: node.parentElement, style: node.style.cssText, html: node.tagName === 'TABLE' ? node.innerHTML.replace(/ style=""/g, '') : null })),
       };
     };
     window.renderFixturePlan = html => {
@@ -85,18 +89,22 @@ async function setup(page, initialHtml) {
 async function nativePreserved(page) {
   const result = await page.evaluate(() => {
     const native = window.fixtureNative, form = document.getElementById('aspnetForm');
+    const studyPreserved = ({ node, parent, style, html }) => node.isConnected && node.parentElement === parent && node.closest('form') === form && node.style.cssText === style && (html === null || node.innerHTML.replace(/ style=""/g, '') === html);
+    const studyFailures = native.study.filter(item => !studyPreserved(item)).map(({ node, parent, style, html }) => ({ tag: node.tagName, id: node.id, connected: node.isConnected, parent: node.parentElement === parent, oldStyle: style, newStyle: node.style.cssText, htmlChanged: html !== null && html !== node.innerHTML.replace(/ style=""/g, '') }));
     return {
       search: native.search.every(({ node, parent }) => node.isConnected && node.form === form && (node.parentElement === parent || node.id === 'ctl00_MainContent_cs_goButton' && node.parentElement.matches('.pl-search-submit') && node.parentElement.parentElement === parent)),
       menu: native.menu.every(({ node, parent, hiddenStyle }) => node.isConnected && node.parentElement === parent && node.style.display === hiddenStyle),
       sections: native.sections.length === 6 && native.sections.every(node => node.isConnected && node.closest('form') === form),
       masthead: window.fixtureMasthead.isConnected && window.fixtureMasthead.outerHTML === window.fixtureMastheadHtml,
+      study: native.study.every(studyPreserved),
+      studyFailureDescription: studyFailures.length ? JSON.stringify(studyFailures) : true,
     };
   });
   assert.ok(Object.values(result).every(Boolean), `native identity/form/hidden choices/masthead preserved: ${JSON.stringify(result)}`);
 }
 
 async function assertEmptySafety(page, storageStart) {
-  assert.equal(await page.locator('#div_landing,tbody.courseItem').count(), 0);
+  assert.equal(await page.locator('#panelPlan #div_landing,#panelPlan tbody.courseItem').count(), 0);
   assert.equal(await page.locator('#planner-lift-toolbar,#planner-lift-actionbar,[data-pl-real-tools],[data-pl-workspace-details]').count(), 0, 'an empty presentation cannot expose reorder/course-action tools');
   const state = await page.evaluate(start => {
     const controller = window.__plannerLiftController;
@@ -111,6 +119,27 @@ async function assertEmptySafety(page, storageStart) {
   assert.equal(await page.locator('.pl-workspace-details-slot').isVisible(), false, 'empty plans do not show a duplicate master/detail placeholder');
   const panel = await page.locator('#panelPlan').boundingBox(), section = await page.locator('.pl-workspace-plan').boundingBox();
   assert.ok(Math.abs(panel.width - section.width) <= 2, 'the native empty message uses the full Classes workspace width');
+}
+
+async function assertStableEmpty(page, populatedStudyList) {
+  assert.equal(await page.locator('#panelNotplan #div_landing tbody.courseItem').count(), populatedStudyList ? 2 : 0);
+  const state = await page.evaluate(async () => {
+    const frames = count => new Promise(resolve => {
+      const tick = () => --count > 0 ? requestAnimationFrame(tick) : resolve();
+      requestAnimationFrame(tick);
+    });
+    await frames(20);
+    const deck = document.querySelector('.pl-workspace-deck');
+    const table = document.querySelector('#panelNotplan #div_landing > table');
+    let childMutations = 0;
+    const observer = new MutationObserver(records => { childMutations += records.length; });
+    observer.observe(document.body, { childList: true, subtree: true });
+    await frames(24);
+    observer.disconnect();
+    return { childMutations, sameDeck: deck === document.querySelector('.pl-workspace-deck'), sameStudyTable: table === document.querySelector('#panelNotplan #div_landing > table') };
+  });
+  assert.deepEqual(state, { childMutations: 0, sameDeck: true, sameStudyTable: true }, 'empty workspace settles without a redraw/remount loop');
+  await nativePreserved(page);
 }
 
 async function assertWorkspace(page, width) {
@@ -147,9 +176,12 @@ async function returnToWorkspace(page) {
 }
 
 try {
+  for (const populatedStudyList of studyVariants) {
+  const emptyHtml = emptyPlanFixtureHtml(false, populatedStudyList);
+  const suffix = populatedStudyList ? '-populated-study' : '';
   for (const width of widths) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
-    const checks = await setup(page, fullHtml);
+    const checks = await setup(page, fullHtml, emptyHtml);
     await page.waitForSelector('.pl-workspace-deck');
     await page.locator('[data-pl-workspace-details]').first().click();
     assert.ok(await page.locator('.pl-workspace-preview').isVisible());
@@ -161,21 +193,28 @@ try {
     assert.equal(await page.evaluate(() => window.fixtureNewPlanClicks), 1, 'the original New Plan handler runs exactly once');
     if (baseline) {
       assert.equal(await page.locator('.pl-workspace-deck').count(), 0, 'old build drops the workspace after native New Plan creates an empty view');
-      await page.screenshot({ path: resolve(output, `baseline-new-plan-${width}.png`) });
-      report.push({ width, baselineRegressionReproduced: true });
+      await page.screenshot({ path: resolve(output, `baseline-new-plan${suffix}-${width}.png`) });
+      report.push({ width, populatedStudyList, baselineRegressionReproduced: true });
       await page.close();
       continue;
     }
     await assertWorkspace(page, width);
     await page.locator('.pl-workspace-nav [data-pl-module="classes"]').click();
     await assertEmptySafety(page, storageStart);
-    await page.screenshot({ path: resolve(output, `empty-classes-${width}.png`) });
+    await assertStableEmpty(page, populatedStudyList);
+    await page.screenshot({ path: resolve(output, `empty-classes${suffix}-${width}.png`) });
     await page.locator('.pl-workspace-plan-actions > summary').click();
     assert.equal(await page.locator('.plannerTopMenuLinks button:visible').count(), 2, 'only native Load and About remain visible for an unsaved empty plan');
     assert.ok(await page.locator('#loadMenuEntry').isVisible() && await page.locator('#aboutMenuEntry').isVisible());
     await page.keyboard.press('Escape');
     await page.locator('.pl-workspace-nav [data-pl-module="find"]').click();
-    await page.screenshot({ path: resolve(output, `empty-find-${width}.png`) });
+    await page.screenshot({ path: resolve(output, `empty-find${suffix}-${width}.png`) });
+    if (populatedStudyList) {
+      await page.locator('.pl-workspace-nav [data-pl-module="study"]').click();
+      assert.ok(await page.locator('#panelNotplan #div_landing > table').isVisible(), 'native populated Study list remains reachable');
+      await page.screenshot({ path: resolve(output, `empty-study-${width}.png`) });
+      await page.locator('.pl-workspace-nav [data-pl-module="find"]').click();
+    }
 
     await page.locator('.pl-workspace-original').click();
     assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(), 6);
@@ -232,10 +271,11 @@ try {
     await page.close();
 
     const initial = await browser.newPage({ viewport: { width, height: 900 } });
-    const initialChecks = await setup(initial, emptyHtml);
+    const initialChecks = await setup(initial, emptyHtml, emptyHtml);
     await assertWorkspace(initial, width);
     await initial.locator('.pl-workspace-nav [data-pl-module="classes"]').click();
     await assertEmptySafety(initial, 0);
+    await assertStableEmpty(initial, populatedStudyList);
     assert.equal(await initial.evaluate(() => window.fixtureNewPlanClicks), 0, 'initial empty mount does not invoke native New Plan');
     await initial.evaluate(html => window.renderFixturePlan(html), fullHtml);
     await initial.waitForSelector('#planner-lift-toolbar');
@@ -263,8 +303,9 @@ try {
     assert.equal(await initial.evaluate(() => window.fixtureUnexpectedNativeActions), 0);
     assert.deepEqual(initialChecks.errors, []); assert.deepEqual(initialChecks.requests, []);
     await initial.close();
-    report.push({ width, newPlan: true, initialEmpty: true, restored: true, malformedFailClosed: true, noEmptyContext: true });
-    console.log(`Empty plan ${width}px: native New Plan, all modules/search/calendar, start-empty/redraws, fail-closed restoration and no action/storage activation passed`);
+    report.push({ width, populatedStudyList, newPlan: true, initialEmpty: true, restored: true, malformedFailClosed: true, noEmptyContext: true, stableMount: true, nativeStudyPreserved: true });
+    console.log(`Empty plan ${width}px (${populatedStudyList ? 'populated' : 'empty'} Study): native New Plan, all modules/search/calendar, stable start-empty/redraws, fail-closed restoration, native Study identity/styles and no action/storage activation passed`);
+  }
   }
 } finally {
   await browser.close();

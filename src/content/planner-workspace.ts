@@ -29,7 +29,9 @@ export function isKnownEmptyPlanner(doc:Document):boolean {
   if(!(form instanceof HTMLFormElement)||form.method.toLowerCase()!=="post"||!panel||!body||panel.closest("form")!==form)return false;
   try {const action=new URL(form.action,location.href);if(action.origin!==location.origin||action.pathname!==location.pathname)return false;}catch{return false;}
   const parent=panel.parentElement,host=parent?.matches(".pl-workspace-shell")?parent.parentElement:parent;
-  if(!host?.classList.contains("classPlannerWrapper")||hasUnknownSection(panel)||doc.getElementById("div_landing")||panel.querySelector("tbody.courseItem"))return false;
+  // Study list may contain its own landing table and course rows. Only the
+  // current plan's body must be empty; other modules remain opaque/native.
+  if(!host?.classList.contains("classPlannerWrapper")||hasUnknownSection(panel)||body.querySelector("#div_landing, tbody.courseItem"))return false;
   const sections=[...panel.querySelectorAll<HTMLElement>(":scope > section, :scope > .pl-workspace-deck > section, :scope > .pl-workspace-deck > .pl-workspace-main > section")];
   const shapes=[
     [PRIMARY[0][0],PRIMARY[0][1],"panelPlan"],
