@@ -35,6 +35,12 @@ build by SHA-256. The previous installed v0.17.4 is backed up under
 the user has been asked to reload the extension and sign back into Class Planner.
 Do not claim the new build passed live verification until that is completed.
 
+Code commit `489e548` is pushed to fork branch `planner-redesign`; CI
+`37162949600` and Release `37162951331` passed. The v0.17.5 prerelease is published.
+After the release workflow completed, its asset was replaced with the tested
+installed build. GitHub reports ZIP SHA-256
+`32437122adb3ac6f87017829a9cc80f8e7c313fe32dd416da295bc0799c65e7c`, matching local.
+
 ## v0.17.4 historical record
 
 Live recheck of v0.17.3 after the user signed in found the workspace still absent.
