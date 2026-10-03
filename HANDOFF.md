@@ -37,6 +37,16 @@ Installed v0.16.0 in the existing Downloads/better-myucla-v0.10.3/dist folder;
 all 17 files SHA-256 match dist. The prior v0.15.1 build is backed up outside Git.
 ZIP and fictional screenshots are under outputs outside Git. User reload and
 live verification of v0.16.0 are pending; v0.15.1's live record below is historical.
+The connected browser tab was no longer on ClassPlan.aspx at the final check;
+do not inspect the other page. Reopen only the authorized Class Planner page.
+
+Source and ZIP are published to the user's fork as the v0.16.0 prerelease:
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.16.0
+Exact source 5ad38b3d05a70b8b012cdf0561ed8ce1dcdc7ee5 passed both workflows:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37146547615
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37146569348
+Published ZIP: 355993 bytes, draft=false, prerelease=true, SHA-256
+80b727faa42fcf70f5f987065b41449026e389f12eec5fa946833be443193bef.
 
 ## v0.15.1 verification record
 
