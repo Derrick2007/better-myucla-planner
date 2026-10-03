@@ -2,7 +2,40 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.4` (empty plan with populated Study list).
+Current version: `0.17.5` (Optimizer access and compact section details).
+
+Live inspection reproduced the blank Optimizer pane: navigation selected the
+module while UCLA's `#panelOptimizer.hidden` remained collapsed. One explicit
+click on the original heading loaded its controls through a native partial
+postback. No optimizer calculation or plan/course mutation was invoked.
+
+Explicit workspace navigation now forwards that verified native expansion once;
+mount, redraw and implicit module restoration do not. Pending feedback keeps
+the original heading available for retry. Validation, loading deduplication and
+restoration retain native control/form/handler identity. The original disclosure
+icon is visible again, and the opened native panel has consistent outer padding.
+
+Live Details geometry measured a 919px-wide section row at 161px tall, with
+gray native cell backgrounds, centered days and a three-line floated status icon.
+Plan Details now reuse the original table headings for compact aligned columns
+in wide panes and two labeled bands in narrower panes. Native background/icon
+resets apply only to validated marked plan/result cells, keeping Study list
+opaque. Optional fields, statuses, native hidden choices and controls stay intact.
+
+Dedicated Details browser checks pass at 2048/1440/1366/1280/960/390; the fictional
+wide one-line row shrinks from 161px to 55px. All twelve search-result cases pass
+with the stronger native-style fixture. Typecheck, 255 unit tests, production
+build, the four-width Optimizer suite, broad workspace suite and preview checks
+pass. The Original-layout return at 390px is keyboard-tested because the fictional
+native fixture restores a fixed-width sidebar; desktop returns are pointer-tested.
+
+The installed unpacked extension is v0.17.5; all 17 files match the production
+build by SHA-256. The previous installed v0.17.4 is backed up under
+`outputs/installed-backup-v0.17.4`. The live tab timed out before reload verification;
+the user has been asked to reload the extension and sign back into Class Planner.
+Do not claim the new build passed live verification until that is completed.
+
+## v0.17.4 historical record
 
 Live recheck of v0.17.3 after the user signed in found the workspace still absent.
 The exact recorded empty `#panelPlan` was present, but Study list `#panelNotplan`

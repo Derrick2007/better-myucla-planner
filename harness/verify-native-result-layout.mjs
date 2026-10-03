@@ -41,7 +41,7 @@ async function inspect(page) {
     const rows = [...body.querySelectorAll('.pl-section-card')];
     const visible = node => !!node && node.getClientRects().length > 0 && getComputedStyle(node).display !== 'none';
     const rect = node => node.getBoundingClientRect().toJSON();
-    const fields = row => [...row.children].map(cell => ({ field: Number(cell.dataset.plField), visible: visible(cell), rect: rect(cell), minHeight: getComputedStyle(cell).minHeight, align: getComputedStyle(cell).textAlign }));
+    const fields = row => [...row.children].map(cell => ({ field: Number(cell.dataset.plField), visible: visible(cell), rect: rect(cell), minHeight: getComputedStyle(cell).minHeight, align: getComputedStyle(cell).textAlign, background: getComputedStyle(cell).backgroundColor }));
     return {
       width: list.clientWidth, more: list.classList.contains('pl-section-more'), list: rect(list), heading: fields(heading),
       rows: rows.map(row => ({ rect: rect(row), fields: fields(row), before: getComputedStyle(row, '::before').display, after: getComputedStyle(row, '::after').display })),
@@ -107,6 +107,7 @@ try {
       check(view.documentWidth <= view.viewport + 1 && view.rows.every(row => row.rect.left >= view.list.left - 1 && row.rect.right <= view.list.right + 1), named(`${state} rows stay within the preview without horizontal page overflow`));
       check(view.rows.every(row => row.fields.filter(field => field.visible).every(field => field.rect.left >= row.rect.left - 1 && field.rect.right <= row.rect.right + 1)), named(`${state} every visible cell stays within its section row`));
       check(view.rows.every(row => row.fields.filter(field => field.visible).every(field => field.minHeight === '0px' && ['left', 'start'].includes(field.align))), named(`${state} native minimum height and centered cell text do not disturb the layout`));
+      check(view.rows.every(row => row.fields.filter(field => field.visible).every(field => field.background === 'rgba(0, 0, 0, 0)')), named(`${state} native gray/blue cell backgrounds do not fragment the section rows`));
       if (view.width >= 640) {
         const aligned = [0, 1, 2, 3, 4, 5, 7, ...(open ? [6, 8] : [])].every(field => {
           const head = view.heading.find(cell => cell.field === field), cell = view.rows[0].fields.find(cell => cell.field === field);

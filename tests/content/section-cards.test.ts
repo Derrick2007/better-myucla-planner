@@ -10,7 +10,11 @@ describe('native section-card presentation',()=>{
   const statuses=[...table.querySelectorAll('td:nth-child(3)')].map(node=>({node,html:node.innerHTML}));
   const hidden=[...table.querySelectorAll<HTMLTableRowElement>('tr')].filter(row=>row.style.display==='none');
   const hiddenHtml=hidden.map(row=>row.outerHTML),cards=new SectionCards();
+  const headings=[...table.querySelectorAll('th')],headingHtml=headings.map(node=>node.innerHTML);
   expect(cards.table(table)).toBe(true);
+  expect([...table.querySelectorAll('.pl-section-heading > .pl-section-help-field')]).toEqual(headings);
+  expect(headings.map(node=>node.getAttribute('data-pl-field'))).toEqual([...Array(9).keys()].map(String));
+  expect(headings.map(node=>node.innerHTML)).toEqual(headingHtml);
   expect([...table.querySelectorAll('a')]).toEqual(controls);
   expect(table.querySelector('td:nth-child(2)')!.firstElementChild).toBe(controls[1]);
   expect(statuses.every(({node,html})=>node.innerHTML===html)).toBe(true);

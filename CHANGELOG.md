@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.17.5 — 2026-10-03 (workspace compatibility fixes)
+
+- Open the original Plan Optimizer disclosure when its navigation is selected.
+  Validate the native button and forward one explicit click, with loading feedback
+  and duplicate protection. Mounting and redraws never run it automatically.
+- Align native class details into compact columns in wide panes and two labeled
+  bands in narrow panes. Remove inherited gray cell blocks, centered days and
+  oversized status-icon boxes from validated Details and search result rows.
+- Preserve native status content, section choices, room/instructor disclosures,
+  form associations, keyboard access, printing and Original layout restoration.
+- Add native-style Details fixtures and Optimizer loading regressions alongside
+  the existing workspace and result checks.
+
 ## 0.17.0 — 2026-10-03 (workspace redesign beta)
 
 - Keep the weekly schedule beside the selected workspace and expose My classes,

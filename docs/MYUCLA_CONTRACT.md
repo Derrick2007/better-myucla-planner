@@ -1,5 +1,29 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Optimizer disclosure and section details (0.17.5)
+
+Live inspection confirmed Optimizer is initially collapsed: `#panelOptimizer.hidden`
+contains native controls, and `#classOptimizerTitle` contains the original
+`button#ctl00_MainContent_toggleOptimizer.planSectionToggle.link`, an
+`i.icon-plus-sign` and a label. Its exact handler is
+`shrink('panelOptimizer'); __doPostBack('ctl00$MainContent$toggleOptimizer','')`.
+An explicit native click opens the panel after UCLA's partial postback, removing
+`hidden` and changing the icon to `icon-minus-sign`. No optimizer calculation or
+plan-edit action was invoked during inspection.
+
+An explicit choice of Optimizer in workspace navigation may invoke that exact
+validated original expansion control once. Do not load it on mount, redraw,
+implicit module restoration or polling. Keep the native heading available and
+explain pending loading; never force a conditional panel visible or substitute
+native controls. Unknown control structures retain native behavior.
+
+Plan Details previously retained native gray cell backgrounds, centered day
+cells and a three-line floated status icon while its grid used three tall rows.
+Mark original plan TH cells for alignment and use compact columns at wide pane
+widths, labeled rows below that. Scope native-style resets to validated marked
+cells; preserve status HTML, icons, controls, hidden states, ancestry, disclosure,
+printing and restoration. Do not apply them to opaque Study list rows.
+
 ## Empty plan with populated Study list (0.17.4)
 
 Live verification after sign-in showed the same empty `#panelPlan` alongside

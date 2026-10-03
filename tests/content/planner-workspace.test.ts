@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // @vitest-environment-options {"url":"https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx"}
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PlannerWorkspace } from "../../src/content/planner-workspace";
+import { isKnownEmptyPlanner, PlannerWorkspace } from "../../src/content/planner-workspace";
 import { MyUclaPlannerAdapter } from "../../src/adapters/myucla-adapter";
 // @ts-expect-error Shared browser fixture is plain JavaScript.
 import { workspaceFixtureHtml, introductionFixtureHtml, emptyPlanFixtureHtml } from "../../harness/workspace-fixture.mjs";
@@ -9,12 +9,29 @@ import { workspaceFixtureHtml, introductionFixtureHtml, emptyPlanFixtureHtml } f
 describe("one-page native planner workspace", () => {
   let workspace: PlannerWorkspace;
   let adapter: MyUclaPlannerAdapter;
+  let optimizerPostback: ReturnType<typeof vi.fn>;
+  let optimizerShrink: ReturnType<typeof vi.fn>;
   const mount = () => workspace.reconcile(document, adapter.inspectContract().courses);
+  const nativeOptimizerHandler = (button:HTMLButtonElement) => {
+    button.onclick=()=>{optimizerShrink('panelOptimizer');optimizerPostback('ctl00$MainContent$toggleOptimizer','');return false;};
+  };
+  const optimizerToggle = () => {
+    const title=document.getElementById('classOptimizerTitle')!;
+    title.innerHTML='<button type="button" id="ctl00_MainContent_planSectionHelpTipOpPop" class="planSectionHelpTip link">Help</button><button id="ctl00_MainContent_toggleOptimizer" class="planSectionToggle link" onclick="shrink(\'panelOptimizer\'); __doPostBack(\'ctl00$MainContent$toggleOptimizer\',\'\')"><i class="icon-plus-sign"></i><label>Plan Optimizer</label></button>';
+    const button=title.querySelector<HTMLButtonElement>('#ctl00_MainContent_toggleOptimizer')!;nativeOptimizerHandler(button);return button;
+  };
   beforeEach(() => {
     const fixture = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
     document.body.innerHTML = fixture.body.innerHTML;
     workspace = new PlannerWorkspace(); adapter = new MyUclaPlannerAdapter(document);
     expect(adapter.inspectContract().ok).toBe(true);
+    optimizerPostback=vi.fn();optimizerShrink=vi.fn((id:string)=>{
+      const panel=document.getElementById(id)!;panel.classList.toggle('hidden');
+      const icon=document.querySelector('#ctl00_MainContent_toggleOptimizer > i');
+      if(icon)icon.className=panel.classList.contains('hidden')?'icon-plus-sign':'icon-minus-sign';
+    });
+    const native=document.getElementById('ctl00_MainContent_toggleOptimizer');if(native)nativeOptimizerHandler(native as HTMLButtonElement);
+    document.querySelector('form')!.addEventListener('submit',event=>event.preventDefault());
   });
   afterEach(() => workspace.restore());
 
@@ -387,11 +404,79 @@ describe("one-page native planner workspace", () => {
     const section=document.querySelector<HTMLElement>('.classPlanner_ClassOptimizerSection')!,panel=document.getElementById('panelOptimizer')!,help=document.getElementById('HelpOptimizerDiv')!;
     const fields=[...section.querySelectorAll('input,select,button')],parents=fields.map(node=>node.parentElement),html=panel.innerHTML;
     const button=help.querySelector('button')!,handler=vi.fn();button.addEventListener('click',handler);
+    section.querySelector('#ctl00_MainContent_toggleOptimizer')?.setAttribute('onclick','unknownOptimizerAction()');
     mount();document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();
     expect(section.classList.contains('pl-module-active')).toBe(true);expect(section.querySelector('.pl-pane-toggle')).toBeNull();expect(panel.classList.contains('hidden')).toBe(true);
     expect(panel.innerHTML).toBe(html);expect(help.parentElement).toBe(section);expect(fields.every((field,i)=>field.parentElement===parents[i]&&field.closest('form')===document.getElementById('aspnetForm'))).toBe(true);
     button.click();expect(handler).toHaveBeenCalledOnce();expect(panel.classList.contains('hidden')).toBe(false);
     document.querySelector<HTMLButtonElement>('button[data-pl-module=personal]')!.click();document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();expect(panel.classList.contains('hidden')).toBe(false);
+  });
+  it("opens Optimizer only on explicit navigation and preserves the native toggle and handler", () => {
+    const native=optimizerToggle(),parent=native.parentElement!,html=native.outerHTML,panel=document.getElementById('panelOptimizer')!,handler=native.onclick;
+    mount();mount();expect(optimizerPostback).not.toHaveBeenCalled();
+    const nav=document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!;nav.click();
+    expect(optimizerPostback).toHaveBeenCalledExactlyOnceWith('ctl00$MainContent$toggleOptimizer','');expect(panel.classList.contains('hidden')).toBe(false);
+    expect(native.parentElement).toBe(parent);expect(native.getAttribute('onclick')).toBe("shrink('panelOptimizer'); __doPostBack('ctl00$MainContent$toggleOptimizer','')");
+    expect(native.onclick).toBe(handler);
+    nav.click();mount();expect(optimizerPostback).toHaveBeenCalledTimes(1);expect(document.querySelector('.pl-optimizer-state')).toBeNull();
+    native.click();expect(panel.classList.contains('hidden')).toBe(true);expect(optimizerPostback).toHaveBeenCalledTimes(2);
+    nav.click();expect(panel.classList.contains('hidden')).toBe(false);expect(optimizerPostback).toHaveBeenCalledTimes(3);
+    native.click();expect(native.outerHTML).toBe(html);workspace.restore();mount();
+    expect(document.querySelector('button[data-pl-module=optimizer]')!.getAttribute('aria-pressed')).toBe('true');
+    expect(optimizerPostback).toHaveBeenCalledTimes(4);expect(panel.classList.contains('hidden')).toBe(true);
+  });
+  it("forwards keyboard navigation once and prevents a second click while native opening is pending", async () => {
+    optimizerToggle();optimizerShrink.mockImplementation(()=>{});mount();
+    const find=document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!,nav=document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!;
+    find.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
+    expect(optimizerPostback).toHaveBeenCalledTimes(1);expect(document.activeElement).toBe(nav);expect(nav.getAttribute('aria-busy')).toBe('true');
+    expect(document.querySelector('.pl-optimizer-state')!.textContent).toContain('Opening Plan Optimizer');
+    nav.click();nav.click();mount();expect(optimizerPostback).toHaveBeenCalledTimes(1);
+    document.getElementById('panelOptimizer')!.classList.remove('hidden');await Promise.resolve();
+    expect(document.querySelector('.pl-optimizer-state')).toBeNull();expect(nav.hasAttribute('aria-busy')).toBe(false);
+    nav.click();expect(optimizerPostback).toHaveBeenCalledTimes(1);
+  });
+  it("clears stale native optimizer loading on redraw without reopening automatically", async () => {
+    const native=optimizerToggle();optimizerShrink.mockImplementation(()=>{});mount();
+    document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();expect(optimizerPostback).toHaveBeenCalledTimes(1);
+    const replacement=native.cloneNode(true) as HTMLButtonElement;nativeOptimizerHandler(replacement);native.replaceWith(replacement);await Promise.resolve();
+    expect(document.querySelector('.pl-optimizer-state')).toBeNull();mount();expect(optimizerPostback).toHaveBeenCalledTimes(1);
+    document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();expect(optimizerPostback).toHaveBeenCalledTimes(2);
+    workspace.restore();expect(document.querySelector('.pl-optimizer-state')).toBeNull();expect(document.querySelector('[aria-busy]')).toBeNull();
+    expect(replacement.isConnected).toBe(true);mount();expect(optimizerPostback).toHaveBeenCalledTimes(2);
+  });
+  it("does not reopen Optimizer when Information Close or Escape restores the selected module", () => {
+    document.body.innerHTML=new DOMParser().parseFromString(introductionFixtureHtml(),'text/html').body.innerHTML;
+    const native=optimizerToggle();mount();document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();native.click();
+    expect(document.getElementById('panelOptimizer')!.classList.contains('hidden')).toBe(true);expect(optimizerPostback).toHaveBeenCalledTimes(2);
+    document.querySelector<HTMLButtonElement>('.pl-intro-info')!.click();document.querySelector<HTMLButtonElement>('.pl-intro-info-close')!.click();
+    document.querySelector<HTMLButtonElement>('.pl-intro-info')!.click();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    expect(optimizerPostback).toHaveBeenCalledTimes(2);expect(document.querySelector('button[data-pl-module=optimizer]')!.getAttribute('aria-pressed')).toBe('true');
+  });
+  it("keeps empty-plan recognition valid while only owned optimizer loading is pending", () => {
+    document.body.innerHTML=new DOMParser().parseFromString(emptyPlanFixtureHtml(),'text/html').body.innerHTML;
+    optimizerToggle();optimizerShrink.mockImplementation(()=>{});mount();
+    document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();
+    expect(optimizerPostback).toHaveBeenCalledTimes(1);expect(document.querySelector('.pl-optimizer-state')).not.toBeNull();
+    expect(isKnownEmptyPlanner(document)).toBe(true);expect(workspace.needsReconcile(document)).toBe(false);
+  });
+  it.each(['handler','disabled','icon','type','foreign-form','foreign-button','extra-child','hidden','aria-hidden','display','visibility'])("keeps the native Optimizer fallback when its %s contract differs", kind => {
+    const native=optimizerToggle();mount();
+    if(kind==='handler')native.setAttribute('onclick','unknownOptimizerAction()');
+    if(kind==='disabled')native.disabled=true;
+    if(kind==='icon')native.children[0].className='icon-minus-sign';
+    if(kind==='type')native.type='button';
+    if(kind==='foreign-form')document.querySelector('form')!.action='https://example.invalid/ClassPlanner/ClassPlan.aspx';
+    if(kind==='foreign-button')native.setAttribute('form','foreignForm');
+    if(kind==='extra-child')native.append(document.createElement('span'));
+    if(kind==='hidden')native.hidden=true;
+    if(kind==='aria-hidden')native.setAttribute('aria-hidden','true');
+    if(kind==='display')native.style.display='none';
+    if(kind==='visibility')native.style.visibility='hidden';
+    document.querySelector<HTMLButtonElement>('button[data-pl-module=optimizer]')!.click();
+    expect(optimizerPostback).not.toHaveBeenCalled();expect(document.querySelector('.pl-optimizer-state')).toBeNull();
+    expect(document.getElementById('panelOptimizer')!.classList.contains('hidden')).toBe(true);
+    expect(native.isConnected).toBe(true);expect(native.parentElement!.id).toBe('classOptimizerTitle');
   });
   it("retains the selected module after a native redraw and rejects unknown primary bodies", () => {
     mount();document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!.click();

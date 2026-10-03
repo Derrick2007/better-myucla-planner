@@ -62,9 +62,12 @@ Unknown section structures keep the native layout.
 
 Pane folding changes only local presentation. Named pane choices are kept in
 memory for this page session, using public section identifiers; pane widths are also in memory only. They are not
-stored or sent. Native section-toggle clicks are handled locally only inside
+stored or sent. Primary section-toggle clicks are handled locally only inside
 the validated workspace, and their original handlers return with Original
-layout. Header spacing reads element bounds only. UCLA navigation and the term
+layout. Selecting Optimizer explicitly opens its original native disclosure,
+using UCLA's existing button and postback. It is never loaded automatically on
+mount, redraw or module restoration; no optimizer calculation or plan-edit
+control is invoked. Header spacing reads element bounds only. UCLA navigation and the term
 chooser keep their original placement. The complete plan action menu is placed
 inside a disclosure; its controls keep their original parent and form, and are
 never copied.

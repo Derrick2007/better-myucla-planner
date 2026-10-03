@@ -63,6 +63,12 @@ interface ClassActions {
   button: HTMLButtonElement; nativeTools: Element | null; ownedTools: Element | null;
   key: (event: KeyboardEvent) => void;
 }
+interface PendingOptimizer {
+  pane: Pane; button: HTMLButtonElement; status: HTMLElement;
+  navigation: HTMLButtonElement; observer: MutationObserver;
+}
+const OPTIMIZER_TOGGLE = "ctl00_MainContent_toggleOptimizer";
+const OPTIMIZER_OPEN = "shrink('panelOptimizer'); __doPostBack('ctl00$MainContent$toggleOptimizer','')";
 interface Pane {
   section: HTMLElement; title: HTMLElement; body: HTMLElement; label: string;
   toggle: HTMLButtonElement | null; reopen: HTMLButtonElement | null; collapsed: boolean; module: Module | null; opaque: boolean;
@@ -106,6 +112,7 @@ export class PlannerWorkspace {
   private returnFocus: HTMLElement | null = null;
   private actionControls = new Map<HTMLElement, ClassActions>();
   private actionsHost: HTMLElement | null = null;
+  private pendingOptimizer: PendingOptimizer | null = null;
   private useOriginal = false;
   private returnButton: HTMLButtonElement | null = null;
   private latestCourses: readonly CourseSnapshot[] = [];
@@ -325,12 +332,12 @@ export class PlannerWorkspace {
     for(const module of ["classes","find","optimizer","study","personal"] as Module[]){
       const button=doc.createElement("button");button.type="button";button.dataset.plModule=module;button.textContent=MODULE_LABELS[module];
       const pane=panes.find(p=>p.module===module);button.disabled=!pane;if(pane){pane.reopen=button;if(pane.body.id)button.setAttribute("aria-controls",pane.body.id);}
-      button.addEventListener("click",()=>this.selectModule(module,true));
+      button.addEventListener("click",()=>this.selectModule(module,true,true));
       button.addEventListener("keydown",event=>{
         if(!["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
         const choices=[...moduleButtons.entries()].filter(([,entry])=>!entry.disabled),index=choices.findIndex(([key])=>key===module);
         const next=event.key==="Home"?0:event.key==="End"?choices.length-1:(index+(["ArrowUp","ArrowLeft"].includes(event.key)?-1:1)+choices.length)%choices.length;
-        event.preventDefault();this.selectModule(choices[next][0],true);
+        event.preventDefault();this.selectModule(choices[next][0],true,true);
       });navMain.append(button);moduleButtons.set(module,button);
     }
     const original=owned(doc.createElement("button"),"pl-workspace-original");original.type="button";original.textContent="Original layout";navFooter.append(original);
@@ -398,13 +405,69 @@ export class PlannerWorkspace {
     return Math.max(420,Math.min(640,Math.max(420,available-632),this.scheduleWidth??available*.38));
   }
 
-  private selectModule(module:Module,focus=false):void {
+  private selectModule(module:Module,focus=false,explicitNavigation=false):void {
     const s=this.state;if(!s)return;
     if(module!=="information"&&!s.panes.some(p=>p.module===module))return;
     if(module==="information"&&this.module!=="information")this.previousModule=this.module;
     this.closeActions(false);this.module=module;this.showSchedule=false;s.extras.open=false;
     const pane=s.panes.find(p=>p.module===module);if(pane&&!pane.opaque){pane.collapsed=false;this.paneChoices.set(pane.title.id,false);}
     this.updatePanes();if(focus)(module==="information"?s.doc.querySelector<HTMLButtonElement>(".pl-intro-info"):s.moduleButtons.get(module))?.focus({preventScroll:true});
+    if(module==="optimizer"&&explicitNavigation)this.openNativeOptimizer();
+  }
+
+  /** The navigation may forward only a user's explicit request to the exact
+   * native expand control. Restoring a selected module never opens it. */
+  private optimizerExpandButton(pane:Pane):HTMLButtonElement|null {
+    const s=this.state,doc=s?.doc,location=doc?.defaultView?.location;
+    if(!s||!doc||!location||location.origin!=="https://be.my.ucla.edu"||location.pathname!=="/ClassPlanner/ClassPlan.aspx"||
+      pane.module!=="optimizer"||!pane.section.isConnected||pane.section.parentElement!==s.main)return null;
+    const children=[...pane.section.children].filter(node=>!node.hasAttribute(OWNED));
+    if(children.length!==3||children[0]!==pane.title||children[2]!==pane.body||pane.title.id!=="classOptimizerTitle"||
+      !children[1].matches("#HelpOptimizerDiv.message.info")||pane.body.id!=="panelOptimizer"||!pane.body.classList.contains("hidden"))return null;
+    const form=doc.getElementById("aspnetForm"),button=doc.getElementById(OPTIMIZER_TOGGLE);
+    if(!(form instanceof HTMLFormElement)||form.method.toLowerCase()!=="post"||!(button instanceof HTMLButtonElement)||
+      button.parentElement!==pane.title||button.form!==form||pane.section.closest("form")!==form||
+      doc.querySelectorAll(`#${OPTIMIZER_TOGGLE}`).length!==1||doc.getElementById("panelOptimizer")!==pane.body||
+      !button.matches("button.planSectionToggle.link")||button.disabled||button.matches(":disabled")||button.getAttribute("aria-disabled")==="true"||
+      button.getAttribute("onclick")!==OPTIMIZER_OPEN||["type","formaction","formmethod","formenctype","formtarget"].some(name=>button.hasAttribute(name)))return null;
+    try {const action=new URL(form.action,location.href);if(action.origin!==location.origin||action.pathname!==location.pathname)return null;}catch{return null;}
+    for(let node:HTMLElement|null=button;node&&pane.section.contains(node);node=node.parentElement){
+      const style=doc.defaultView!.getComputedStyle(node);
+      if(node.hidden||node.getAttribute("aria-hidden")==="true"||style.display==="none"||style.visibility==="hidden"||style.visibility==="collapse")return null;
+    }
+    if(pane.title.children.length!==2||!pane.title.children[0].matches("button#ctl00_MainContent_planSectionHelpTipOpPop.planSectionHelpTip.link")||
+      pane.title.children[1]!==button||button.children.length!==2||!button.children[0].matches("i.icon-plus-sign:not(.icon-minus-sign)")||
+      button.children[1].tagName!=="LABEL"||button.children[1].textContent?.trim()!=="Plan Optimizer")return null;
+    return button;
+  }
+
+  private openNativeOptimizer():void {
+    this.refreshOptimizerPending();
+    const s=this.state,pane=s?.panes.find(candidate=>candidate.module==="optimizer");
+    if(!s||!pane||this.pendingOptimizer)return;
+    const button=this.optimizerExpandButton(pane),navigation=s.moduleButtons.get("optimizer");
+    if(!button||!navigation)return;
+    const status=s.doc.createElement("p");status.className="pl-optimizer-state";status.setAttribute(OWNED,"true");
+    status.setAttribute("role","status");status.textContent="Opening Plan Optimizer… If it stays closed, click the Plan Optimizer heading.";
+    pane.body.before(status);navigation.setAttribute("aria-busy","true");
+    const observer=new MutationObserver(()=>this.refreshOptimizerPending());
+    this.pendingOptimizer={pane,button,status,navigation,observer};
+    observer.observe(pane.section,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","style","disabled","onclick","form"]});
+    // Mark pending before the native click so reentrant or rapid navigation
+    // cannot issue a second postback while MyUCLA has not opened the panel.
+    button.click();this.refreshOptimizerPending();
+  }
+
+  private refreshOptimizerPending():void {
+    const pending=this.pendingOptimizer;if(!pending)return;
+    if(!this.state||!pending.pane.section.isConnected||!pending.pane.body.isConnected||!pending.button.isConnected||
+      pending.pane.body.parentElement!==pending.pane.section||this.state.doc.getElementById(OPTIMIZER_TOGGLE)!==pending.button||
+      this.state.doc.getElementById("panelOptimizer")!==pending.pane.body||!pending.pane.body.classList.contains("hidden"))this.clearOptimizerPending();
+  }
+
+  private clearOptimizerPending():void {
+    const pending=this.pendingOptimizer;if(!pending)return;this.pendingOptimizer=null;
+    pending.observer.disconnect();pending.status.remove();pending.navigation.removeAttribute("aria-busy");
   }
 
   private setPaneCollapsed(pane:Pane,collapsed:boolean,focus=false):void {
@@ -416,6 +479,7 @@ export class PlannerWorkspace {
 
   private updatePanes():void {
     const s=this.state;if(!s)return;
+    this.refreshOptimizerPending();
     if(this.module!=="information"&&!s.panes.some(pane=>pane.module===this.module))this.module="classes";
     s.host.dataset.plModule=this.module;s.host.classList.toggle("pl-show-schedule",this.showSchedule);
     for(const [module,button] of s.moduleButtons)button.setAttribute("aria-pressed",String(this.module===module));
@@ -511,6 +575,7 @@ export class PlannerWorkspace {
   }
 
   restore():void{
+    this.clearOptimizerPending();
     for(const host of this.actionControls.keys())this.removeActions(host);
     for(const summary of this.summaries.values())summary.node.remove();this.summaries.clear();
     this.useOriginal=false;this.returnButton?.remove();this.returnButton=null;this.browser.restore();this.introduction.restore();

@@ -16,9 +16,31 @@ export const nativeResultLayoutCss = `
   .ClassSearchList .row-fluid.class-info > :is(.span1,.span4,.span5,.span7,.span8) { text-align:center; }
   .ClassSearchList .data_row:nth-child(even) { background:#eee; }
   .ClassSearchList .data_row > .span1 { background:#e6f1f7; }
+  #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
 `;
+
+export const nativePlanDetailLayoutCss = `
+  #panelPlan table.coursetable > tbody > tr > td { background:#eaeaea; min-height:30px; }
+  #panelPlan table.coursetable > tbody > tr > td.changecol { background:#d7e9f3; }
+  #panelPlan table.coursetable > tbody > tr > td:nth-child(5) { text-align:center; }
+  #panelPlan table.coursetable .icon-unlock::before { content:"◇"; }
+  #panelPlan table.coursetable .icon-lock::before { content:"◆"; }
+`;
+
+/** Native plan section presentation constraints with entirely invented data. */
+export function nativeDetailFixtureHtml() {
+  const dom = new JSDOM(introductionFixtureHtml(6, true)), doc = dom.window.document;
+  for (const table of doc.querySelectorAll('table.coursetable')) {
+    const rows = [...table.rows].filter(row => row.cells.length === 9 && row.cells[0].tagName === 'TD');
+    rows[0].cells[2].innerHTML = '<i class="icon-unlock" style="color:green;display:block;float:left;height:3em"></i>Open: 10 of 30 Left';
+    rows[1].cells[2].innerHTML = '<i class="icon-lock" style="color:orange;display:block;float:left;height:3em"></i>Waitlist<br>3 of 10 Taken';
+    rows[0].cells[8].innerHTML = 'Example instructor <span data-fixture-detail-rating style="display:inline-block;background:#dcecff"><a href="#">4.2</a></span>';
+  }
+  const style = doc.createElement('style'); style.textContent = nativePlanDetailLayoutCss; doc.head.append(style);
+  return dom.serialize();
+}
 
 export function workspaceFixtureHtml(count = 5, includeResults = false, tallHeader = false, resultSectionCount = 5) {
   const dom = new JSDOM(calendarFixtureHtml(count));

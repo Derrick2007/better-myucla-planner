@@ -28,6 +28,7 @@ export class SectionCards {
     const data = rows.filter(row=>row.cells.length === 9 && [...row.cells].every(cell=>cell.tagName === "TD" && cell.colSpan === 1 && cell.rowSpan === 1) && row.style.display !== "none");
     if (!data.length) return false;
     this.mark(table,"pl-section-table"); this.mark(header,"pl-section-heading");
+    [...header.cells].forEach((cell,i)=>this.mark(cell,"pl-section-help-field",i,false));
     for (const row of data) { this.mark(row,"pl-section-card"); [...row.cells].forEach((cell,i)=>this.mark(cell,"pl-section-field",i)); }
     return true;
   }
