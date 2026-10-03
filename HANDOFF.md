@@ -28,11 +28,20 @@ The broader workspace suite and exact-build website preview checks also pass.
 Installed at Downloads/better-myucla-v0.10.3/dist; all 17 files SHA-256 match the
 tested production build. v0.17.2 is backed up at outputs/installed-backup-v0.17.2;
 the v0.16.0 rollback remains intact. The reload question has been sent; final
-live v0.17.3 verification is pending. The actual tab remains on ClassPlan.aspx
-in the empty plan produced by the single authorized New Plan click. Do not
-create another plan or select/save/enroll courses for verification. After reload,
+live v0.17.3 verification is pending. The tab subsequently reached UCLA's timeout
+sign-out URL; the user must sign in again. No sign-out page text or field values
+were read. The last planner state was the empty plan produced by the single
+authorized New Plan click. Do not create another plan or select/save/enroll
+courses for verification. After sign-in and reload,
 check only bounded structure/geometry and local module navigation; do not read
 field values or capture real account/course content.
+
+Published source: 0888fae on the user's planner-redesign branch.
+Release: https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.3
+CI passed: https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37158574178
+Release passed: https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37158590195
+The final published ZIP matches the installed build after the automated job:
+SHA-256 a5400a3b05293c43030973a8793b56584f327cda17be88ae06660dfa23b15d90.
 
 ## v0.17.2 historical record
 
