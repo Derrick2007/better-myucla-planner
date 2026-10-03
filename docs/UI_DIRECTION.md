@@ -1,13 +1,13 @@
 # Planner UI direction
 
-Implemented in the 0.15.1 redesign beta, inside the existing Chrome extension
+Implemented in the 0.16.0 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
 ## Working layout
 
 - Plan and Find classes are the two main toolbar choices, inside the same page.
-  Plan shows a 320px class list beside a larger schedule; Find classes dedicates
+  Plan shows a 360px class list beside a larger schedule; Find classes dedicates
   the workspace to native search and course previews. Switching preserves the
   original fields and local selections without remounting them.
 - Drag the Plan divider or use Left/Right arrows to resize. Shift adjusts in
@@ -102,9 +102,27 @@ separately. Only one card's details is open at a time.
 Opening a card near the pane's lower edge reveals the Details header and close
 button with a small scroll inside that pane. The document does not jump.
 
-Details is the first class action in both visual and keyboard order, with a
-34px minimum target and a visible open state. Ordering tools remain beside it
-with quieter borders and colors; every original action remains available.
+Details is the first class action in both visual and keyboard order. Class
+actions is the second: it reveals original order/color controls and note tools
+in place. The default card focuses on the course rather than a row of icons.
+Every original action remains available; opening the disclosure changes only
+presentation. Escape closes it with focus return. Find classes closes it before
+hiding the Plan pane.
+
+## Visual system (0.16.0)
+
+Use a readable 14px body scale, stronger section headings, consistent control
+sizes and a single quiet workspace surface. Constrain course browsing to a
+readable width, including a narrower single-result preview; related section
+values should stay together rather than spread across a large monitor. The
+course index has a predictable width. Schedule controls are styled in place;
+native meeting colors, borders and geometry remain authoritative.
+
+The user's UI-design topic link led to [Oat](https://oat.ink/) for restrained
+native-element styling and [daisyUI lists](https://daisyui.com/components/list/)
+for clear list hierarchy. These are design references, not bundled dependencies.
+Global framework styles would affect UCLA's navigation, so all implementation
+styles remain scoped to the validated planner presentation.
 
 Native status wording and icons remain unchanged; there are no aggregate status
 badges. Section labels are appended as extension-owned read-only text and removed
@@ -112,6 +130,14 @@ on restoration. Hidden native action rows are not reformatted. Partial redraws
 discard disconnected presentation references and never resurrect old controls.
 
 ## Validation and remaining work
+
+Version 0.16.0 passed typecheck, 220 tests and production build. The full
+fictional Chrome suite passed at seven workspace widths, with three single-course
+and five introduction widths, including keyboard/touch/mouse actions, note
+editing, foreground Tools dismissal, printing, calendar text/geometry and
+quarter lifecycle checks. Desktop and narrow screenshots were visually reviewed.
+The installed build matches all 17 dist hashes. Live verification awaits the
+user's extension reload and Class Planner refresh.
 
 Version 0.15.1 passed typecheck, 213 tests and production build. The full fictional
 Chrome suite passed at seven widths, including shared-header alignment/stickiness,

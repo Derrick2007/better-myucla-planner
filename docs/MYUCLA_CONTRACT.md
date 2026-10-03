@@ -1,5 +1,23 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Class actions and workspace scale (0.16.0)
+
+An owned Class actions button follows Details inside the original linkPanelRight
+cell. Its disclosure changes a local class on that cell; OrderingButtons and
+the owned real-tools group stay under their original parent. No native control
+or handler is moved, copied or invoked. Closing returns focus, Find closes the
+disclosure before hiding Plan, and restoration removes its buttons/classes.
+Class-list sizing is now 360px by default with 300–480px bounds, retaining the
+420px schedule reserve when space permits. Changes remain in memory only.
+
+Theme only the validated workspace/introduction and known planner controls.
+Never apply global framework/reset styles to UCLA navigation. Course browsing
+is constrained to a readable maximum width; calendar boxes keep their geometry,
+native colors and state borders. Read-only structural inspection confirmed the
+weekday row as #gridDiv tr.primary.light.headerBar.classPlanner, with six TDs;
+the toolbar remains .classPlanner_SectionMenu.plannerMenuLinks with native SPAN
+children. This structural record contains no course/account contents.
+
 ## Visual hierarchy refinement (0.15.1)
 
 Prepend only the owned Details button inside the existing linkPanelRight cell.

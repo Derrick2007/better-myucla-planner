@@ -132,6 +132,11 @@ storage or requests. Switching preserves the original query fields without
 reading their values. Class Details opens inside its original card; status
 contents, form controls and native actions are not copied or rewritten.
 
+In 0.16.0, Class actions locally reveals the existing order/color controls and
+extension tools inside their original class cell. Opening or closing it changes
+presentation and focus only. No new page data is read or stored, and no native
+action or request is triggered. Original layout restores all controls.
+
 ## Compact introduction (0.14.3)
 
 The extension checks the known planner introduction's public heading and DOM

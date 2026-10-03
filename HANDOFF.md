@@ -2,7 +2,43 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.15.1` (redesign beta)
+Current version: `0.16.0` (redesign beta)
+
+The user rejected the visual design of v0.15.1 and pointed to GitHub's UI-design
+topic. The new presentation uses a consistent light visual system, readable
+14px body text, a flat workspace, restrained blue accents and larger controls.
+The Find content is bounded at 1280px (1080px for a single course), with a 260px
+course index. Classes defaults to 360px and can resize from 300 to 480px.
+
+Each class initially presents its code/title, Details and Class actions. Class
+actions reveals native ordering/color controls and owned order/note tools in
+their original parent. Only one disclosure opens at once. Escape dismisses an
+inner More menu before Class actions, and closing restores focus. Details,
+Find, pane folding and restoration close actions. Explicit opening near the
+bottom reveals the controls within the Plan pane only.
+
+UCLA masthead/navigation, native status content, form controls/handlers and
+calendar geometry/state borders remain unchanged. No framework, remote font,
+network request, permission or storage feature was added. Public inspiration:
+https://oat.ink/ and https://daisyui.com/components/list/ (principles only).
+
+Typecheck, production build and all 220 tests across 20 files passed. The full
+production fixture suite passed at seven workspace widths, three single-course
+widths and five compact-introduction widths, including print, calendar geometry,
+note editing, mouse/keyboard/touch actions, foreground Tools Escape priority,
+native control/status identity, quarter transitions and local dragging. Desktop
+and narrow screenshots were visually reviewed with fictional data only.
+
+Browser testing caught note blur moving Class actions between mouse down/up.
+Primary mouse-down now defers focus until click dispatch; the original blur/save
+still runs normally. Foreground Tools dismisses before background class controls.
+
+Installed v0.16.0 in the existing Downloads/better-myucla-v0.10.3/dist folder;
+all 17 files SHA-256 match dist. The prior v0.15.1 build is backed up outside Git.
+ZIP and fictional screenshots are under outputs outside Git. User reload and
+live verification of v0.16.0 are pending; v0.15.1's live record below is historical.
+
+## v0.15.1 verification record
 
 This is a visual refinement of the Plan / Find classes design. Details is first
 in each class's control host and keyboard order, with a 34px minimum target and

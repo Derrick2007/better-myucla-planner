@@ -1339,7 +1339,7 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
   .pl-search-widget input.ClassSearchBox { font-size: 16px; }
 }
 
-/* Workspace v2: classes, schedule and local course browser inside the native form. */
+/* Workspace: one native planner, a consistent reading scale, and task-focused views. */
 /* Use the document's scrollbar so the unchanged UCLA header can scroll away.
    BODY is not a scroll container: native focus cannot scroll it independently. */
 html.pl-workspace-page, html.pl-intro-page { height: auto; min-height: 100%; overflow: auto; }
@@ -1351,9 +1351,9 @@ html.pl-intro-page section#layoutContentArea.pl-planner-introduction { min-heigh
   height: calc(100dvh - var(--pl-workspace-top,12px) - var(--pl-workspace-bottom,16px));
   display: flex; flex-direction: column; min-width: 0; width: var(--pl-workspace-width,calc(100vw - 32px)) !important;
   margin: 0 !important;
-  padding: 16px; box-sizing: border-box; border: 1px solid #e5e7eb;
-  border-radius: 14px; background: #f7f8fa; overflow: hidden;
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding: 14px 24px 0; box-sizing: border-box; border: 1px solid #e2e7ed;
+  border-radius: 10px; background: #fff; overflow: hidden;
+  color: #263344; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { --pl-workspace-bottom: 68px; }
 .classPlannerWrapper.pl-workspace-host.pl-workspace-flow { position: relative; top: auto; left: auto; height: 640px; margin-left: calc(16px - var(--pl-workspace-left,16px)) !important; }
@@ -1364,14 +1364,14 @@ html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { --pl-workspace-bott
 section#layoutContentArea.pl-planner-introduction {
   position: relative; width: calc(100% - 32px); max-width: none;
   margin: 0 16px 16px; padding: 12px 16px; box-sizing: border-box;
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color: #263344; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 .pl-planner-introduction > h2#titleText {
-  margin: 0 270px 4px 0; padding: 0; border: 0; color: #29435f;
-  font-size: 22px; font-weight: 600; line-height: 36px;
+  margin: 0 270px 4px 0; padding: 0; border: 0; color: #1d2a3b;
+  font-size: 26px; font-weight: 600; line-height: 40px;
 }
 .pl-planner-introduction > #div_page_title_section2 { margin: 0 270px 8px 0; }
-.pl-intro-about > summary { display: list-item; width: fit-content; color: #62738a; font-size: 12px; line-height: 22px; cursor: pointer; }
+.pl-intro-about > summary { display: list-item; width: fit-content; color: #59687a; font-size: 13px; line-height: 24px; cursor: pointer; }
 .pl-intro-about > summary:focus-visible { outline: 2px solid #4184c2; outline-offset: 3px; }
 .pl-intro-about > #page_title_text { margin: 6px 0 8px; padding: 0; font-size: 13px; line-height: 1.5; color: #62738a; }
 .pl-planner-introduction > layout-columnwrapper.col-2MR { display: block; width: 100%; }
@@ -1379,8 +1379,8 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-planner-introduction .enroll_term.pl-intro-term { position: absolute; top: 12px; right: 16px; width: auto; margin: 0; padding: 0; border: 0; background: transparent; }
 .pl-intro-term > .term_display { display: none; }
 .pl-intro-term > div.term { display: flex; align-items: center; gap: 8px; width: auto; margin: 0; padding: 0; }
-.pl-intro-term label.pl-intro-term-label { margin: 0; color: #62738a; font: 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-intro-term select { box-sizing: border-box; width: 220px; min-height: 36px; height: auto; margin: 0; padding: 6px 10px; border: 1px solid #d9e0e8; border-radius: 7px; background: #fff; }
+.pl-intro-term label.pl-intro-term-label { margin: 0; color: #59687a; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-intro-term select { box-sizing: border-box; width: 220px; min-height: 40px; height: auto; margin: 0; padding: 8px 12px; border: 1px solid #cfd7e1; border-radius: 6px; background: #fff; color: #263344; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-planner-introduction .pl-intro-notice { margin: 4px 0 !important; font-size: 12px; line-height: 18px; }
 .pl-planner-introduction right-sidebar.pl-intro-sidebar { display: none; }
 .pl-planner-introduction right-sidebar.pl-intro-sidebar-open {
@@ -1391,92 +1391,124 @@ section#layoutContentArea.pl-planner-introduction {
 }
 .pl-intro-sidebar button.pl-intro-info-close { position: absolute; top: 0; right: 0; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; border-radius: 7px; background: transparent; color: #345577; font: 26px/1 sans-serif; cursor: pointer; }
 .pl-intro-info-close:focus-visible { outline: 2px solid #4184c2; outline-offset: -3px; }
-.pl-workspace-host #classPlanHeader { flex: none; margin: 0 0 4px; }
-.pl-workspace-host > .classPlanner_Messages { flex: none; margin: 2px 0; font-size: 12px; }
+.pl-workspace-host #classPlanHeader { flex: none; margin: 0 0 4px; padding: 0; color: #1d2a3b; font: 600 18px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-host #classPlanHeader h3, .pl-workspace-host #classPlanHeader h4 { margin: 0; color: inherit; font: inherit; }
+.pl-workspace-host > .plannerTopMenuLinks { margin: 4px 0; color: #59687a; font: 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-host > .plannerTopMenuLinks a, .pl-workspace-host > .plannerTopMenuLinks button.link { color: #46617d; font: inherit; }
+.pl-workspace-host > .classPlanner_Messages { flex: none; margin: 2px 0; font-size: 13px; }
 .pl-workspace-host > .classPlanner_Messages > .classPlanner_Labels,
 .pl-workspace-host > .classPlanner_Messages > .classPlanner_Notes,
 .pl-workspace-host > .classPlanner_Messages > .classPlanner_TermReq { margin-bottom: 2px; }
 .pl-workspace-host > #ctl00_MainContent_classPlanPanel { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; }
-.pl-workspace-host #ctl00_MainContent_classPlanPanel > div:not(.pl-workspace-deck) { flex: none; margin: 3px 0 !important; font-size: 12px; }
-.pl-workspace-top { display: flex; align-items: center; flex: none; gap: 8px; margin: 10px 0 16px; }
-.pl-workspace-task-switches { display: inline-flex; gap: 3px; padding: 3px; margin-right: auto; background: #e9edf1; border-radius: 10px; }
+.pl-workspace-host #ctl00_MainContent_classPlanPanel > div:not(.pl-workspace-deck) { flex: none; margin: 3px 0 !important; font-size: 13px; }
+.pl-workspace-top { display: flex; align-items: center; flex: none; gap: 8px; margin: 8px 0 0; padding: 0 0 10px; border-bottom: 1px solid #e2e7ed; }
+.pl-workspace-task-switches { display: inline-flex; gap: 4px; padding: 3px; margin-right: auto; background: #f0f3f6; border: 1px solid #e2e7ed; border-radius: 8px; }
 .pl-workspace-pane-switches { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 16px; }
 .pl-workspace-top button, .pl-workspace-top summary, button.pl-workspace-return {
-  box-sizing: border-box; min-height: 34px; padding: 6px 11px; border: 1px solid transparent; border-radius: 7px;
-  background: #e9edf2; color: #4b5b6f; font: 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
+  box-sizing: border-box; min-height: 40px; padding: 8px 12px; border: 1px solid transparent; border-radius: 6px;
+  background: #f0f3f6; color: #4b5b6f; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
 }
 .pl-workspace-top .pl-workspace-pane-switches button[aria-pressed="true"] { background: #fff; border-color: #d9e0e8; color: #245b90; box-shadow: 0 1px 3px #2030400d; }
-.pl-workspace-top button:hover, .pl-workspace-top summary:hover { background: #fff; }
-.pl-workspace-top .pl-workspace-task-switches button { min-height: 36px; padding: 7px 22px; border-radius: 7px; background: transparent; font-size: 13px; font-weight: 600; }
-.pl-workspace-top .pl-workspace-task-switches button[aria-pressed="true"] { background: #fff; color: #1e4f7d; box-shadow: 0 1px 4px #263b501a; }
+.pl-workspace-top button:hover, .pl-workspace-top summary:hover { background: #eaf0f6; }
+.pl-workspace-top .pl-workspace-task-switches button { min-height: 40px; padding: 8px 24px; border-radius: 5px; background: transparent; font-size: 14px; font-weight: 600; }
+.pl-workspace-top .pl-workspace-task-switches button[aria-pressed="true"] { background: #fff; color: #174e82; border-color: #d8e1ea; box-shadow: 0 1px 2px #263b500b; }
 .pl-workspace-top > button, .pl-workspace-top > details > summary { background: transparent; color: #596678; }
 .pl-workspace-extra-content .pl-workspace-original { display: block; margin-top: 16px; }
 .pl-workspace-top button:focus-visible, .pl-pane-toggle:focus-visible, .pl-browser-toolbar button:focus-visible, .pl-browser-index button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
-.pl-workspace-deck { display: grid; grid-template-columns: var(--pl-workspace-columns); flex: 1; min-height: 0; }
+.pl-workspace-deck { display: grid; grid-template-columns: var(--pl-workspace-columns); flex: 1; min-height: 0; padding-top: 4px; }
 .pl-task-plan > .pl-workspace-search,
 .pl-task-find > .pl-workspace-plan, .pl-task-find > .pl-workspace-calendar { display: none !important; }
 .pl-workspace-search { container-type: inline-size; }
 .pl-workspace-search .pl-pane-toggle { margin-left: 0 !important; }
-.pl-workspace-deck > section { min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; margin: 0 !important; padding: 0 0 10px; background: #fff; border: 1px solid #e6e9ee; border-radius: 10px; }
+.pl-workspace-deck > section { min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; margin: 0 !important; padding: 0 0 16px; background: #fff; border: 0; border-radius: 0; }
 .pl-workspace-deck > section > .classPlanner_SectionTitle, .pl-workspace-extra-content .classPlanner_SectionTitle {
-  position: sticky; top: 0; z-index: 4; margin: 0 0 8px; padding: 10px 14px !important;
-  background: #fff !important; border: 0 !important; border-bottom: 1px solid #e8ecf1 !important; border-radius: 0 !important; font-size: 13px !important;
+  position: sticky; top: 0; z-index: 4; margin: 0 0 8px; padding: 6px 12px !important;
+  background: #fff !important; color: #263344 !important; border: 0 !important; border-bottom: 1px solid #e7ebf0 !important; border-radius: 0 !important; font: 600 17px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
 }
 .pl-pane-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; text-align: left; }
+.pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; min-height: 38px; padding: 0; text-align: left; color: inherit; background: transparent; border: 0; font: inherit; }
 .pl-pane-title > button.planSectionToggle > .icon-minus-sign, .pl-pane-title > button.planSectionToggle > .icon-plus-sign { display: none; }
-.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; margin-left: auto; border: 0; border-radius: 5px; background: transparent; color: #52677e; font: 22px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; margin-left: auto; border: 0; border-radius: 6px; background: transparent; color: #59687a; font: 22px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-pane-title > button.pl-pane-toggle:hover { background: #edf2f7; }
 .pl-pane-collapsed > .pl-pane-body, .pl-workspace-deck > section.pl-pane-collapsed { display: none !important; }
 .pl-pane-open > .pl-pane-body { display: block !important; }
-.pl-workspace-splitter { align-self: stretch; cursor: col-resize; touch-action: none; display: flex; justify-content: center; align-items: center; }
-.pl-workspace-splitter::after { content: ""; width: 3px; height: 32px; background: #c6cfda; border-radius: 3px; }
+.pl-workspace-splitter { align-self: stretch; cursor: col-resize; touch-action: none; display: flex; justify-content: center; align-items: center; border-left: 1px solid #e7ebf0; margin-left: 5px; }
+.pl-workspace-splitter::after { content: ""; width: 3px; height: 32px; margin-left: -7px; background: #c6cfda; border-radius: 3px; }
 .pl-workspace-splitter:hover::after, .pl-workspace-splitter:focus-visible::after { background: #4184c2; }
 .pl-workspace-splitter:focus-visible { outline: 2px solid #4184c2; outline-offset: -3px; border-radius: 5px; }
 .pl-workspace-splitter[hidden] { display: none; }
 .pl-workspace-resizing { user-select: none; cursor: col-resize; }
 .pl-workspace-empty { margin: 32px; color: #647080; }
 .pl-workspace-empty[hidden] { display: none; }
-.pl-workspace-calendar #gridDiv { margin-top: 12px; }
-.pl-workspace-calendar .plannerMenuLinks { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11px; justify-content: flex-start; padding: 0 8px; }
+.pl-workspace-calendar #gridDiv { margin-top: 16px; }
+.pl-workspace-calendar .plannerMenuLinks { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; justify-content: flex-start; padding: 0 12px; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-calendar .plannerMenuLinks button { min-height: 34px; padding: 5px 7px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: #526174; font: inherit; }
+.pl-workspace-calendar .plannerMenuLinks button:hover { background: #f0f3f6; }
+.pl-workspace-calendar .plannerMenuLinks button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
+.pl-workspace-calendar .plannerMenuLinks input[type="checkbox"] { width: 16px; height: 16px; vertical-align: middle; accent-color: #246297; }
+.pl-workspace-calendar .plannerMenuLinks .pl-native-label { color: #46617d !important; font-weight: 500; }
+.pl-workspace-calendar #gridDiv tr.primary.light.headerBar.classPlanner > td { background: #eef3f7; color: #465b70; font-weight: 600; }
+@media (min-width: 781px) {
+  .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] { font-size: 12px; }
+  .pl-workspace-calendar #gridDiv .planneritembox.smallitem[data-pl-grid="tidy"] { font-size: 11px; line-height: 1.05; }
+}
 .pl-workspace-plan #div_landing, .pl-workspace-plan #panelPlan > div:first-child:not(#div_landing) { margin: 0 !important; }
 .pl-workspace-plan #div_landing > table { display: block; width: 100%; }
-.pl-workspace-plan tbody.courseItem { display: block; box-sizing: border-box; width: 100%; padding: 14px; border: 0; border-bottom: 1px solid #edf0f3; border-radius: 0; margin: 0; background: #fff; }
+.pl-workspace-plan tbody.courseItem { display: block; box-sizing: border-box; width: 100%; padding: 14px 12px; border: 0; border-bottom: 1px solid #e7ebf0; border-radius: 0; margin: 0; background: #fff; }
 .pl-workspace-plan tbody.courseItem.pl-filtered-out { display: none; }
 .pl-workspace-plan tbody.course_divider { display: none; }
 .pl-workspace-plan tbody.courseItem > tr:first-child { display: flex; flex-direction: column; }
-.pl-workspace-plan tbody.courseItem > tr:first-child > td { display: block; width: 100%; border: 0 !important; padding: 0 !important; box-sizing: border-box; }
-.classPlannerWrapper.pl-workspace-host .pl-workspace-plan tbody.courseItem > tr:first-child > td.SubjectAreaName_ClassName { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 6px; margin: 0 !important; font-size: 13px; line-height: 1.4; }
-.pl-workspace-plan p.pl-headline { font-size: 13px !important; margin: 0 !important; width: 100%; }
-.pl-workspace-plan .pl-headline { display: flex; flex-direction: column; align-items: start; gap: 3px; }
-.pl-workspace-plan .pl-headline .pl-code { font-size: 14px; white-space: normal; overflow-wrap: anywhere; }
-.pl-workspace-plan .pl-headline .pl-course-title { display: block; margin-left: 0; color: #697586; font-size: 12px; line-height: 1.5; }
-.pl-workspace-plan td.linkPanelRight { margin-top: 10px; text-align: left; white-space: normal; }
-.pl-workspace-plan tbody.courseItem > tr:first-child > td.linkPanelRight { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.pl-workspace-plan .OrderingButtons { flex: none; margin: 0; }
-.pl-workspace-plan .pl-card-tools.pl-real-tools { display: inline-flex; align-items: center; margin: 0; }
-.pl-workspace-plan .pl-rail { justify-content: flex-start; height: 34px; gap: 2px; }
+.pl-workspace-plan tbody.courseItem > tr:first-child > td { display: block; width: 100%; border: 0 !important; padding: 0 !important; box-sizing: border-box; background: transparent !important; }
+.classPlannerWrapper.pl-workspace-host .pl-workspace-plan tbody.courseItem > tr:first-child > td.SubjectAreaName_ClassName { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 6px; margin: 0 !important; font-size: 14px; line-height: 1.5; }
+.pl-workspace-plan p.pl-headline { font-size: 14px !important; margin: 0 !important; width: 100%; }
+.pl-workspace-plan .pl-headline { display: flex; flex-direction: column; align-items: start; gap: 5px; }
+.pl-workspace-plan .pl-headline .pl-code { color: #263344; font: 600 16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; white-space: normal; overflow-wrap: anywhere; }
+.pl-workspace-plan .pl-headline .pl-course-title { display: block; margin-left: 0; color: #59687a; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-plan td.linkPanelRight { margin-top: 12px; text-align: left; white-space: normal; }
+.pl-workspace-plan tbody.courseItem > tr:first-child > td.linkPanelRight { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+/* The native ordering group stays in its original cell; a local disclosure
+   changes only its visibility, together with the extension's secondary tools. */
+.pl-workspace-plan td.linkPanelRight:not(.pl-course-actions-open) > .OrderingButtons,
+.pl-workspace-plan td.linkPanelRight:not(.pl-course-actions-open) > .pl-real-tools { display: none !important; }
+.pl-workspace-plan td.linkPanelRight.pl-course-actions-open > .OrderingButtons { display: block; flex: 1 0 100%; margin: 4px 0 0; padding: 12px 0 0; border-top: 1px solid #e7ebf0; }
+.pl-workspace-plan td.linkPanelRight.pl-course-actions-open > .pl-real-tools { display: flex; flex: 1 0 100%; flex-direction: column; align-items: stretch; min-width: 0; margin: 0; }
+.pl-workspace-plan .pl-card-tools { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-plan .pl-rail { flex-wrap: wrap; justify-content: flex-start; height: auto; min-height: 38px; gap: 4px; }
 .pl-workspace-plan .pl-rail::before { display: none; }
-.pl-workspace-plan .pl-grip, .pl-workspace-plan .pl-course-more { width: 28px; height: 34px; color: #62738a; border-radius: 6px; }
-.pl-workspace-plan .pl-card-tools select.pl-pos { min-width: 48px; width: 48px; height: 34px; margin: 0; border-color: transparent; background-color: transparent; background-position: calc(100% - 10px) 15px, calc(100% - 6px) 15px; color: #62738a; font-weight: 400; }
-.pl-workspace-plan .pl-card-tools select.pl-pos:hover { border-color: #cbd7e4; background-color: #f3f6fa; }
-.pl-workspace-plan .pl-card-tools { margin-left: 0; }
+.pl-workspace-plan .pl-grip, .pl-workspace-plan .pl-course-more { width: 38px; height: 38px; color: #59687a; border-radius: 6px; }
+.pl-workspace-plan .pl-card-tools select.pl-pos { min-width: 64px; width: 64px; height: 38px; margin: 0; padding-left: 10px; border-color: #d5dde6; background-color: #fff; background-position: calc(100% - 12px) 17px, calc(100% - 8px) 17px; color: #465b70; font-size: 14px; font-weight: 400; }
+.pl-workspace-plan .pl-card-tools select.pl-pos:hover { border-color: #a5b8ca; background-color: #f6f8fa; }
+.pl-workspace-plan .pl-course-menu[open] { flex: 1 0 100%; }
+.pl-workspace-plan .pl-course-menu-items { position: static; box-sizing: border-box; width: 100%; max-width: none; margin: 4px 0 0; padding: 4px; border-color: #e2e7ed; border-radius: 6px; box-shadow: none; }
+.pl-workspace-plan .pl-course-menu-items button { min-height: 38px; padding: 8px 10px; font-size: 14px; }
+.pl-workspace-plan .pl-tag-editor { width: 100%; min-width: 0; margin: 8px 0 0; }
+.pl-workspace-plan .pl-tag-editor[hidden] { display: none; }
+.pl-workspace-plan .pl-tag-editor input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border-color: #cfd7e1; border-radius: 6px; font-size: 14px; }
 .pl-workspace-plan .pl-chevron { display: none; }
-.pl-workspace-plan .pl-course-menu-items { left: 0; right: auto; max-width: 200px; }
 .pl-workspace-plan tbody.courseItem > tr:nth-child(2), .pl-workspace-plan tbody.courseItem > tr:nth-child(3) { display: none; }
-.pl-workspace-plan button.pl-workspace-detail-button { box-sizing: border-box; min-height: 34px; padding: 6px 11px; margin: 0 4px 0 0; border: 1px solid #cbd9e7; border-radius: 7px; color: #245886; background: #f3f7fb; font: 500 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
-.pl-workspace-plan button.pl-workspace-detail-button:hover, .pl-workspace-plan button.pl-workspace-detail-button[aria-expanded="true"] { background: #e5eef8; border-color: #aac3dc; }
-.pl-workspace-plan button.pl-workspace-detail-button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
-.pl-workspace-plan .pl-conflict-badge { white-space: normal; max-width: 100%; }
+.pl-workspace-plan button.pl-workspace-detail-button, .pl-workspace-plan button.pl-workspace-actions-button { box-sizing: border-box; min-height: 40px; padding: 8px 14px; margin: 0; border: 1px solid #cbd8e5; border-radius: 6px; font: 500 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.pl-workspace-plan button.pl-workspace-detail-button { color: #1c5688; background: #eef4fa; }
+.pl-workspace-plan button.pl-workspace-actions-button { margin-left: auto; color: #59687a; border-color: transparent; background: transparent; }
+.pl-workspace-plan button.pl-workspace-detail-button:hover, .pl-workspace-plan button.pl-workspace-detail-button[aria-expanded="true"] { background: #dfebf6; border-color: #adc5da; }
+.pl-workspace-plan button.pl-workspace-actions-button:hover, .pl-workspace-plan button.pl-workspace-actions-button[aria-expanded="true"] { background: #f0f3f6; color: #263344; }
+.pl-workspace-plan button.pl-workspace-detail-button:focus-visible, .pl-workspace-plan button.pl-workspace-actions-button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
+.pl-workspace-plan .pl-conflict-badge, .pl-workspace-plan .pl-tag-badge { white-space: normal; max-width: 100%; margin-left: 0; font: 12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan #plannerSectionClip { gap: 4px; }
 .pl-workspace-plan #plannerSectionClip > button.planSectionToggle { flex: 1; }
 .pl-workspace-plan .pl-bar { display: block; width: 100%; order: 3; }
 .pl-workspace-plan .pl-bar-main { flex-wrap: nowrap; }
-.pl-workspace-plan .pl-bar input[type="search"] { flex: 1; width: 100%; min-width: 0; }
+.pl-workspace-plan .pl-bar input[type="search"] { flex: 1; width: 100%; min-width: 0; height: 40px; padding: 8px 12px; border: 1px solid #cfd7e1; border-radius: 6px; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-plan .pl-bar [data-pl-action="menu"] { width: 38px; height: 40px; border-color: #cfd7e1; border-radius: 6px; }
 .pl-workspace-plan .pl-bar [data-pl-action="toggle-all"] { display: none; }
-.pl-workspace-search .ClassSearchWidget.pl-search-widget { padding: 16px 20px; margin: 0; border: 0; }
-.pl-workspace-search .pl-search-nav { gap: 4px; }
-.pl-workspace-search .pl-search-nav > button, .pl-workspace-search .pl-search-more > summary { padding: 7px 10px; min-height: 34px; font-size: 12px; }
+.pl-workspace-search .ClassSearchWidget.pl-search-widget { box-sizing: border-box; width: 100%; max-width: 1280px; padding: 8px 24px 24px; margin: 0 auto; border: 0; border-radius: 0; font-size: 14px; }
+.pl-workspace-search .ClassSearchWidget.pl-search-widget:has(.pl-browser-choices > button:only-child) { max-width: 1080px; }
+.pl-workspace-search .pl-search-nav { gap: 6px; }
+.pl-workspace-search .pl-search-nav > button, .pl-workspace-search .pl-search-more > summary { padding: 8px 14px; min-height: 40px; font-size: 14px; }
+.pl-workspace-search .pl-search-hint, .pl-workspace-search .pl-search-groups h3, .pl-workspace-search label.pl-search-field-label { font-size: 13px; }
+.pl-workspace-search .pl-search-groups button { min-height: 38px; font-size: 14px; }
+.pl-workspace-search .pl-search-submit-label { font-size: 14px; }
+.pl-workspace-search .ClassSearchWidget #resultHeaderDiv, .pl-workspace-search .ClassSearchWidget #searchLabel { color: #59687a; font: 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-search .classSearchTableSubSectionHeader.info-bar { margin: 8px 0 12px; padding: 0; background: transparent; color: #59687a; font: 500 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-search .searchFieldPanel { flex-direction: column; align-items: stretch; gap: 10px; }
 .pl-workspace-search .searchFields { display: flex !important; flex-direction: column; gap: 6px; }
 .pl-workspace-search .goPanel { align-self: flex-end; }
@@ -1487,34 +1519,34 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-search .ClassSearchList:not(.pl-browser-list) .row-fluid.class-info.table-width2 { min-width: 940px; }
 .pl-browser-results:not(.pl-browser-editing) > .ClassSearchControls, .pl-browser-results:not(.pl-browser-editing) > .pl-search-nav, .pl-browser-results:not(.pl-browser-editing) > .pl-search-hint { display: none !important; }
 .pl-browser-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; }
-.pl-browser-toolbar strong { flex: 1; color: #596678; font-size: 13px; font-weight: 500; }
-.pl-browser-toolbar button, .pl-workspace-preview-more { min-height: 34px; border: 1px solid #dce3eb; border-radius: 6px; padding: 6px 10px; color: #42617f; background: #fff; font-size: 12px; cursor: pointer; }
+.pl-browser-toolbar strong { flex: 1; color: #59687a; font-size: 14px; font-weight: 500; }
+.pl-browser-toolbar button, .pl-workspace-preview-more { min-height: 40px; border: 1px solid #cfd7e1; border-radius: 6px; padding: 8px 12px; color: #465b70; background: #fff; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-browser-toolbar button[aria-expanded="true"], .pl-workspace-preview-more[aria-expanded="true"] { background: #edf3f9; border-color: #b9cde1; }
-.pl-browser-selections { margin: 0 0 12px; padding: 8px 10px; border: 1px solid #cbdbea; border-radius: 6px; background: #f2f7fc; color: #365773; font-size: 12px; line-height: 1.5; }
+.pl-browser-selections { margin: 0 0 12px; padding: 10px 12px; border: 1px solid #cbdbea; border-radius: 6px; background: #f2f7fc; color: #365773; font-size: 14px; line-height: 1.5; }
 .pl-browser-selections[hidden] { display: none !important; }
 .pl-browser-selections > summary { cursor: pointer; }
 .pl-browser-selection-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.pl-browser-selection-actions button { min-height: 34px; padding: 6px 9px; border: 1px solid #d3dfea; border-radius: 5px; background: #fff; color: #365773; font: inherit; cursor: pointer; text-align: left; }
+.pl-browser-selection-actions button { min-height: 40px; padding: 8px 12px; border: 1px solid #d3dfea; border-radius: 5px; background: #fff; color: #365773; font: inherit; cursor: pointer; text-align: left; }
 .pl-browser-selection-actions button:focus-visible, .pl-browser-selections > summary:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
-.pl-browser-index { display: flex; flex-direction: column; flex-shrink: 0; max-height: 220px; overflow: auto; margin-bottom: 16px; padding: 4px; border: 0; border-radius: 9px; background: #f6f8fa; }
-.pl-browser-index button { text-align: left; min-height: 46px; padding: 11px 12px; border: 0; border-radius: 7px; background: transparent; color: #4b596b; font: 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; white-space: normal; cursor: pointer; }
-.pl-browser-index button[aria-pressed="true"] { background: #e5eef8; color: #234f7a; font-weight: 600; box-shadow: inset 3px 0 #4280bb; }
+.pl-browser-index { display: flex; flex-direction: column; flex-shrink: 0; max-height: 220px; overflow: auto; margin-bottom: 16px; padding: 4px; border: 0; border-radius: 6px; background: #f6f8fa; }
+.pl-browser-index button { text-align: left; min-height: 48px; padding: 12px; border: 0; border-radius: 5px; background: transparent; color: #46566a; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; white-space: normal; cursor: pointer; }
+.pl-browser-index button[aria-pressed="true"] { background: #e7eff8; color: #174e82; font-weight: 600; box-shadow: inset 3px 0 #387aaf; }
 .pl-browser-index button:hover { background: #edf2f8; }
 .pl-browser-choices { display: flex; flex-direction: column; gap: 3px; }
 .pl-browser-index .pl-browser-filter { display: block; position: sticky; top: -4px; z-index: 1; margin: 0 0 8px; padding: 8px; background: #f6f8fa; }
-.pl-browser-filter > span { display: block; margin-bottom: 4px; color: #697586; font-size: 11px; }
-.pl-browser-index input[type="search"] { box-sizing: border-box; width: 100%; min-height: 36px; height: auto; margin: 0; padding: 7px 9px; border: 1px solid #dce3eb; border-radius: 6px; background: #fff; color: #29435f; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-browser-filter > span { display: block; margin-bottom: 6px; color: #59687a; font-size: 12px; }
+.pl-browser-index input[type="search"] { box-sizing: border-box; width: 100%; min-height: 40px; height: auto; margin: 0; padding: 8px 10px; border: 1px solid #cfd7e1; border-radius: 6px; background: #fff; color: #263344; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-browser-index input[type="search"]:focus-visible { outline: 2px solid #4184c2; outline-offset: 1px; }
-.pl-browser-filter-status { margin: 4px 8px 8px; color: #697586; font-size: 12px; line-height: 1.5; }
+.pl-browser-filter-status { margin: 4px 8px 8px; color: #59687a; font-size: 13px; line-height: 1.5; }
 .pl-browser-filter-status:empty { display: none; }
-.ClassSearchList h3.pl-browser-preview-title { margin: 0 0 12px; padding: 0; border: 0; color: #26394e; font: 600 20px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
+.ClassSearchList h3.pl-browser-preview-title { margin: 0 0 10px; padding: 0; border: 0; color: #1d2a3b; font: 600 22px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
 .pl-browser-index button[hidden] { display: none !important; }
 /* A single loaded course needs only its preview, not a second copy in a list. */
 .pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-index,
 .pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-toolbar > strong { display: none; }
 .pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-toolbar { justify-content: flex-end; }
 @container (min-width: 700px) {
-  .ClassSearchWidget.pl-browser-results { display: grid; grid-template-columns: minmax(220px, 25%) minmax(0, 1fr); column-gap: 28px; align-content: start; }
+  .ClassSearchWidget.pl-browser-results { display: grid; grid-template-columns: 260px minmax(0, 1fr); column-gap: 28px; align-content: start; }
   .pl-browser-results > * { grid-column: 1 / -1; min-width: 0; }
   .pl-browser-results > .pl-browser-index { grid-column: 1; align-self: start; max-height: max(260px,calc(100dvh - var(--pl-workspace-top,12px) - 240px)); margin: 0; padding: 4px; }
   .pl-browser-results > .pl-browser-list { grid-column: 2; max-height: max(260px,calc(100dvh - var(--pl-workspace-top,12px) - 240px)); padding-left: 0; border: 0; box-sizing: border-box; }
@@ -1522,12 +1554,22 @@ section#layoutContentArea.pl-planner-introduction {
   .ClassSearchList.pl-browser-list .pl-section-card { border-width: 0 0 1px; border-radius: 0; margin-bottom: 0; }
 }
 /* Fit rows to the preview itself, not the wider pane containing its course list. */
-.pl-browser-list { container: pl-preview / inline-size; }
+.pl-browser-list { container: pl-preview / inline-size; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+@container pl-preview (min-width: 420px) and (max-width: 639px) {
+  .ClassSearchList.pl-browser-list .pl-section-card { grid-template-columns: 30px minmax(100px,1fr) minmax(135px,1.4fr) 40px; gap: 10px 12px; padding: 14px 4px; }
+  .pl-browser-list .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
+  .pl-browser-list .pl-section-field[data-pl-field="2"] { grid-column: 3 / 5; grid-row: 1; padding-top: 0 !important; align-self: center; }
+  .pl-browser-list .pl-section-field[data-pl-field="3"] { grid-column: 1; grid-row: 2; }
+  .pl-browser-list .pl-section-field[data-pl-field="4"] { grid-column: 2; grid-row: 2; }
+  .pl-browser-list .pl-section-field[data-pl-field="5"] { grid-column: 3; grid-row: 2; }
+  .pl-browser-list .pl-section-field[data-pl-field="7"] { grid-column: 4; grid-row: 2; }
+  .pl-browser-list .pl-section-field[data-pl-field="6"], .pl-browser-list .pl-section-field[data-pl-field="8"] { grid-column: 2 / 5; grid-row: auto; }
+}
 @container pl-preview (min-width: 640px) {
   .ClassSearchList.pl-browser-list .pl-section-card,
-  .ClassSearchList.pl-browser-list .pl-section-result-heading { display: grid !important; grid-template-columns: 36px minmax(65px,.8fr) minmax(130px,1.5fr) 48px minmax(100px,1fr) 36px 30px; gap: 8px 12px; padding: 12px 4px; border-width: 0 0 1px; border-radius: 0; }
-  .ClassSearchList.pl-browser-list .pl-section-result-heading { position: sticky; top: 0; z-index: 2; margin: 4px 0 0; box-sizing: border-box; border-bottom: 1px solid #dce3eb; background: #fff; }
-  .pl-section-result-heading > .pl-section-help-field[data-pl-field] { display: block; min-width: 0; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; align-self: center; color: #62738a; font: 500 11px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
+  .ClassSearchList.pl-browser-list .pl-section-result-heading { display: grid !important; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px; gap: 8px 10px; padding: 12px 8px; border-width: 0 0 1px; border-radius: 0; }
+  .ClassSearchList.pl-browser-list .pl-section-result-heading { position: sticky; top: 0; z-index: 2; margin: 4px 0 0; padding: 8px; row-gap: 4px; box-sizing: border-box; border-bottom: 1px solid #dce3eb; background: #f6f8fa; }
+  .pl-section-result-heading > .pl-section-help-field[data-pl-field] { display: block; min-width: 0; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; align-self: center; color: #526174; font: 500 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="0"] { grid-column: 1; grid-row: 1; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="2"] { grid-column: 3; grid-row: 1; }
@@ -1566,15 +1608,15 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-section-help-row > .pl-section-help-field { display: none; }
 .pl-section-help-row > .pl-section-help-field:has(button,a,input,select) { display: block; float: none !important; width: auto !important; padding: 0 !important; }
 .pl-browser-list .pl-section-help-row { background: transparent; }
-.pl-section-help-field > button, .pl-section-help-field > a { border: 0; border-radius: 4px; padding: 4px 6px; background: #f3f5f8; color: #52677e; font: 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-section-help-field > button, .pl-section-help-field > a { border: 0; border-radius: 4px; padding: 4px 6px; background: #f3f5f8; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan .pl-plan-root tbody.courseItem .pl-section-heading { display: none !important; }
 .pl-section-table .pl-section-card, .pl-browser-list .pl-section-card {
   display: grid !important; grid-template-columns: 30px minmax(0,1fr) minmax(0,1fr) 34px; gap: 8px 10px;
   width: 100% !important; min-width: 0 !important; box-sizing: border-box; margin: 0 0 8px; padding: 12px 10px;
-  border: 1px solid #e0e6ed; border-radius: 8px; background: #fff;
+  border: 1px solid #e2e7ed; border-radius: 6px; background: #fff;
 }
-.pl-section-card > .pl-section-field { display: block; float: none !important; width: auto !important; min-width: 0; margin: 0 !important; position: relative; box-sizing: border-box; padding: 14px 0 0 !important; overflow-wrap: anywhere; border: 0 !important; background: transparent; font-size: 12px; line-height: 1.45; }
-.pl-browser-list .pl-section-card > .pl-section-field { font-size: 13px; }
+.pl-section-card > .pl-section-field { display: block; float: none !important; width: auto !important; min-width: 0; margin: 0 !important; position: relative; box-sizing: border-box; padding: 18px 0 0 !important; overflow-wrap: anywhere; border: 0 !important; background: transparent; font-size: 14px; line-height: 1.5; }
+.pl-browser-list .pl-section-card > .pl-section-field { font-size: 14px; }
 .pl-section-field[data-pl-field="0"] { grid-column: 1; grid-row: 1; padding: 0 !important; }
 .pl-section-field[data-pl-field="1"] { grid-column: 2 / 4; grid-row: 1; }
 .pl-section-field[data-pl-field="7"] { grid-column: 4; grid-row: 1; }
@@ -1584,7 +1626,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-section-field[data-pl-field="5"] { grid-column: 3 / 5; grid-row: 3; }
 .pl-section-field[data-pl-field="6"], .pl-section-field[data-pl-field="8"] { display: none; grid-column: 2 / 5; }
 .pl-section-more .pl-section-field[data-pl-field="6"], .pl-section-more .pl-section-field[data-pl-field="8"] { display: block; }
-.pl-section-label { position: absolute; top: 0; left: 0; color: #697586; font-size: 10px; font-weight: 500; line-height: 12px; text-transform: none; letter-spacing: 0; }
+.pl-section-label { position: absolute; top: 0; left: 0; color: #59687a; font-size: 12px; font-weight: 500; line-height: 16px; text-transform: none; letter-spacing: 0; }
 .pl-section-field input[type="checkbox"], .pl-section-field input[type="radio"] { width: auto !important; height: auto; margin: 0; }
 .pl-workspace-extras > .pl-workspace-extra-content { display: none; }
 .pl-workspace-extras[open] > .pl-workspace-extra-content {
@@ -1600,14 +1642,14 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-preview[hidden] { display: none; }
 .pl-workspace-preview-head { padding-right: 38px; flex: none; max-height: 40%; overflow: auto; }
 .pl-workspace-preview-head h2 { margin: 0 0 6px; font-size: 15px; font-weight: 600; line-height: 1.4; }
-.pl-workspace-preview-head summary { cursor: pointer; color: #42617f; font-size: 12px; }
-.pl-workspace-preview-head p { margin: 0; font-size: 12px; line-height: 1.5; color: #677486; }
+.pl-workspace-preview-head summary { cursor: pointer; color: #42617f; font-size: 14px; }
+.pl-workspace-preview-head p { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: #59687a; }
 .pl-workspace-preview-more { margin: 4px 0; align-self: start; flex: none; }
 .pl-workspace-preview-content { flex: 1; min-height: 0; }
 .pl-workspace-preview button.pl-workspace-preview-close { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; border-radius: 7px; color: #345577; background: transparent; font: 26px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-workspace-preview button.pl-workspace-preview-close:hover { background: #edf2f7; }
 .pl-workspace-preview button.pl-workspace-preview-close:focus-visible { outline: 2px solid #4184c2; outline-offset: -3px; }
-.pl-workspace-plan tbody.pl-workspace-preview-card { transform: none !important; background: #f0f5fb; box-shadow: inset 3px 0 #4184c2; }
+.pl-workspace-plan tbody.pl-workspace-preview-card { transform: none !important; background: #f5f8fc; box-shadow: inset 3px 0 #4184c2; }
 .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-workspace-preview-card > tr:nth-child(3) {
   display: block !important; position: static; width: 100%; max-height: none;
   margin-top: 8px; overflow: visible; background: #fff;
@@ -1617,7 +1659,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-preview-inline .pl-workspace-preview-content { display: none; }
 .pl-preview-inline .pl-workspace-preview-head { max-height: none; min-height: 36px; }
 .pl-preview-inline .pl-workspace-preview-head h2 { display: none; }
-.pl-preview-inline .pl-workspace-preview-more { font-size: 11px; }
+.pl-preview-inline .pl-workspace-preview-more { font-size: 13px; }
 .pl-preview-inline .pl-section-card { border: 0; border-top: 1px solid #e8ecf1; border-radius: 0; padding: 10px 0; gap: 6px 8px; }
 @container (min-width: 700px) {
   .pl-workspace-search .searchFieldPanel { flex-direction: row; align-items: end; max-width: 1100px; }
@@ -1628,16 +1670,16 @@ section#layoutContentArea.pl-planner-introduction {
 }
 @media(max-width:899px) {
   .pl-workspace-scroll-room { display: none; }
-  .classPlannerWrapper.pl-workspace-host { position: relative; top: auto; left: auto; margin: 10px 0 10px calc(16px - var(--pl-workspace-left,16px)) !important; overflow: visible; height: auto !important; }
+  .classPlannerWrapper.pl-workspace-host { position: relative; top: auto; left: auto; margin: 10px 0 10px calc(16px - var(--pl-workspace-left,16px)) !important; padding: 16px 12px 0; overflow: visible; height: auto !important; }
   .pl-workspace-deck { grid-template-columns: minmax(0,1fr) !important; gap: 16px; }
   .pl-workspace-splitter { display: none; }
   .pl-workspace-deck > section { overflow: visible; }
-  .pl-workspace-top { flex-wrap: wrap; }
+  .pl-workspace-top { flex-wrap: wrap; padding-bottom: 12px; }
   .pl-workspace-plan #panelPlan { max-height: 420px; overflow: auto; }
   .pl-workspace-search > .pl-pane-body.pl-inspector-open { height: auto; }
   .pl-inspector-open > .ClassSearchWidget { display: block; }
   .pl-browser-list { max-height: 500px; }
-  .pl-workspace-search .ClassSearchWidget.pl-search-widget { padding: 12px; }
+  .pl-workspace-search .ClassSearchWidget.pl-search-widget { padding: 12px 4px; }
   .pl-workspace-top .pl-workspace-task-switches { flex-basis: 100%; margin-right: 0; }
   .pl-workspace-task-switches button { flex: 1; }
 }
@@ -1656,7 +1698,9 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-intro-about > #page_title_text, .pl-planner-introduction right-sidebar.pl-intro-sidebar { display: block !important; position: static; max-height: none; width: auto; }
   .pl-workspace-deck { display: block; }
   .pl-workspace-deck > section { overflow: visible; }
-  .pl-workspace-preview, .pl-workspace-detail-button, .pl-workspace-splitter, .pl-pane-toggle, .pl-browser-toolbar, .pl-browser-index { display: none !important; }
+  .pl-workspace-preview, .pl-workspace-detail-button, .pl-workspace-actions-button, .pl-workspace-splitter, .pl-pane-toggle, .pl-browser-toolbar, .pl-browser-index { display: none !important; }
+  .pl-workspace-plan td.linkPanelRight:not(.pl-course-actions-open) > .OrderingButtons,
+  .pl-workspace-plan td.linkPanelRight.pl-course-actions-open > .OrderingButtons { display: block !important; }
   .pl-workspace-top, .pl-workspace-extras { display: block !important; }
   .pl-workspace-top > :not(.pl-workspace-extras), .pl-workspace-extras > summary,
   .pl-workspace-section-links, .pl-workspace-pane-switches, .pl-workspace-original { display: none !important; }

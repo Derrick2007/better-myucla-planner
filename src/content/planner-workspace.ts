@@ -16,6 +16,10 @@ const SECONDARY = [
   ["classPlanner_PersonalTimeBlocksSection", "Personal Entries"]
 ] as const;
 interface Placement { node: HTMLElement; anchor: Comment; }
+interface ClassActions {
+  button: HTMLButtonElement; nativeTools: Element | null; ownedTools: Element | null;
+  key: (event: KeyboardEvent) => void;
+}
 interface Pane {
   section: HTMLElement; title: HTMLElement; body: HTMLElement; label: string;
   toggle: HTMLButtonElement; reopen: HTMLButtonElement | null; collapsed: boolean;
@@ -52,11 +56,13 @@ export class PlannerWorkspace {
   private selectedHadStyle = false;
   private detailCards: SectionCards | null = null;
   private returnFocus: HTMLElement | null = null;
+  private actionControls = new Map<HTMLElement, ClassActions>();
+  private actionsHost: HTMLElement | null = null;
   private useOriginal = false;
   private returnButton: HTMLButtonElement | null = null;
   private latestCourses: readonly CourseSnapshot[] = [];
   private paneChoices = new Map<string, boolean>();
-  private classesWidth = 320;
+  private classesWidth = 360;
   private task: "plan" | "find" = "plan";
   private drag: {start:number; width:number; pointerId:number} | null = null;
   private browser = new CourseBrowserPresentation();
@@ -78,7 +84,11 @@ export class PlannerWorkspace {
     return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected ||
       s.panes.some(p => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) ||
       (!!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) ||
-      this.latestCourses.some(c => !hasKnownDetails(c.node)) || this.browser.needsReconcile(doc) || this.introduction.needsRefresh(doc));
+      this.latestCourses.some(c => {
+        const host=c.node.querySelector<HTMLElement>(":scope > tr:first-child > td.linkPanelRight"),actions=host&&this.actionControls.get(host);
+        return !hasKnownDetails(c.node)||!host||!actions||actions.button.parentElement!==host||
+          actions.nativeTools!==host.querySelector(".OrderingButtons")||actions.ownedTools!==host.querySelector(":scope > [data-pl-real-tools]");
+      }) || this.browser.needsReconcile(doc) || this.introduction.needsRefresh(doc));
   }
 
   reconcile(doc: Document, courses: readonly CourseSnapshot[]): void {
@@ -101,17 +111,20 @@ export class PlannerWorkspace {
     if (this.introduction.needsRefresh(doc)) this.introduction.restore();
     this.introduction.mount(doc, this.state.top, this.state.resize);
     this.browser.reconcile(doc);
+    for(const host of this.actionControls.keys())if(!courses.some(course=>course.node.contains(host)))this.removeActions(host);
     for (const course of courses) {
       const host = course.node.querySelector<HTMLElement>(":scope > tr:first-child > td.linkPanelRight");
-      if (!host || host.querySelector("[data-pl-workspace-details]")) continue;
-      const button = doc.createElement("button");
-      button.type = "button"; button.className = "pl-workspace-detail-button";
-      button.setAttribute(OWNED, "true"); button.dataset.plWorkspaceDetails = "true";
-      button.textContent = "Details"; button.setAttribute("aria-label", `Details for ${course.label}`);
-      button.setAttribute("aria-expanded", "false");
-      // Put the primary reading action first for both sighted and keyboard use.
-      // Native color/order controls retain their original parent and handlers.
-      button.addEventListener("click", () => this.openPreview(course, button)); host.prepend(button);
+      if (!host) continue;
+      let button=host.querySelector<HTMLButtonElement>("[data-pl-workspace-details]");
+      if(!button){
+        button=doc.createElement("button");
+        button.type="button";button.className="pl-workspace-detail-button";
+        button.setAttribute(OWNED,"true");button.dataset.plWorkspaceDetails="true";
+        button.textContent="Details";button.setAttribute("aria-label",`Details for ${course.label}`);button.setAttribute("aria-expanded","false");
+        const details=button;button.addEventListener("click",()=>this.openPreview(course,details));host.prepend(button);
+      }
+      // Both owned entry points precede the unchanged native control groups.
+      this.ensureActions(course,host,button);
     }
     this.state.resize();
     if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
@@ -119,6 +132,52 @@ export class PlannerWorkspace {
       // Height is restored now; saved compaction still supplies its minimum.
       this.state.resize();
     }
+  }
+
+  private ensureActions(course:CourseSnapshot,host:HTMLElement,details:HTMLButtonElement):void {
+    const previous=this.actionControls.get(host),nativeTools=host.querySelector(".OrderingButtons"),ownedTools=host.querySelector(":scope > [data-pl-real-tools]");
+    const restoreFocus=this.actionsHost===host&&host.contains(host.ownerDocument.activeElement);
+    if(previous&&(previous.button.parentElement!==host||previous.nativeTools!==nativeTools||previous.ownedTools!==ownedTools))this.removeActions(host);
+    if(this.actionControls.has(host))return;
+    const button=host.ownerDocument.createElement("button");button.type="button";button.className="pl-workspace-actions-button";
+    button.setAttribute(OWNED,"true");button.dataset.plWorkspaceActions="true";button.textContent="Class actions";
+    button.setAttribute("aria-label",`Class actions for ${course.label}`);button.setAttribute("aria-expanded","false");
+    // Blurring a note can insert its saved badge above this button. Keep that
+    // layout change after click dispatch, rather than between mouse down/up.
+    button.addEventListener("mousedown",event=>{if(event.button===0)event.preventDefault();});
+    button.addEventListener("click",()=>{
+      if(this.actionsHost===host){this.closeActions();return;}
+      this.introduction.closeInfo(false);this.closePreview(false);this.closeActions(false);
+      if(this.state)this.state.extras.open=false;
+      this.actionsHost=host;host.classList.add("pl-course-actions-open");button.setAttribute("aria-expanded","true");button.focus({preventScroll:true});
+      this.revealInPlan(host,button.getBoundingClientRect().top,host.getBoundingClientRect().bottom);
+    });
+    const key=(event:KeyboardEvent)=>{
+      if(event.key!=="Escape"||event.defaultPrevented||this.actionsHost!==host)return;
+      const target=event.target instanceof Element?event.target:null;
+      const menu=target?.closest<HTMLDetailsElement>("details[data-pl-course-menu][open]");
+      if(menu&&ownedTools?.contains(menu)){
+        // Close the inner owned More disclosure before hiding its outer actions.
+        menu.open=false;menu.querySelector<HTMLElement>("summary")?.focus({preventScroll:true});event.preventDefault();
+      }
+    };
+    host.addEventListener("keydown",key,true);details.after(button);
+    this.actionControls.set(host,{button,nativeTools,ownedTools,key});
+    if(restoreFocus)button.focus({preventScroll:true});
+  }
+
+  private closeActions(focus=true):void {
+    const host=this.actionsHost;if(!host)return;this.actionsHost=null;
+    const actions=this.actionControls.get(host);
+    host.querySelectorAll<HTMLDetailsElement>("[data-pl-real-tools] details[data-pl-course-menu][open]").forEach(menu=>{menu.open=false;});
+    host.classList.remove("pl-course-actions-open");actions?.button.setAttribute("aria-expanded","false");
+    if(focus&&actions?.button.isConnected)actions.button.focus({preventScroll:true});
+  }
+
+  private removeActions(host:HTMLElement):void {
+    if(this.actionsHost===host)this.closeActions(false);
+    const actions=this.actionControls.get(host);if(!actions)return;
+    host.removeEventListener("keydown",actions.key,true);actions.button.remove();host.classList.remove("pl-course-actions-open");this.actionControls.delete(host);
   }
 
   /** Presentation can survive an empty/future quarter without enabling reorder. */
@@ -205,12 +264,12 @@ export class PlannerWorkspace {
         if(event.button!==0)return;event.preventDefault();splitter.focus();
         this.drag={start:event.clientX,width:this.classesWidth,pointerId:event.pointerId};deck.classList.add("pl-workspace-resizing");
       });
-      splitter.addEventListener("dblclick",()=>{this.classesWidth=320;this.updatePanes();});
+      splitter.addEventListener("dblclick",()=>{this.classesWidth=360;this.updatePanes();});
       splitter.addEventListener("keydown",event=>{
         if (!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return;
         event.preventDefault();
         const change=(event.key==="ArrowRight"?1:-1)*(event.shiftKey?40:16);
-        this.classesWidth=event.key==="Home" ? 260 : event.key==="End" ? 440 : this.classesWidth+change;
+        this.classesWidth=event.key==="Home" ? 300 : event.key==="End" ? 480 : this.classesWidth+change;
         this.updatePanes();
       });
       deck.append(splitter);splitters.push(splitter);
@@ -287,8 +346,9 @@ export class PlannerWorkspace {
         [...doc.querySelectorAll<HTMLElement>(".ui-autocomplete")].some(menu=>
           !menu.hidden&&menu.children.length>0&&doc.defaultView?.getComputedStyle(menu).display!=="none"&&doc.defaultView?.getComputedStyle(menu).visibility!=="hidden"))return;
       if(this.introduction.closeInfo()){event.preventDefault();}
-      else if(this.selected){this.closePreview();event.preventDefault();}
       else if(extras.open){extras.open=false;summary.focus();event.preventDefault();}
+      else if(this.actionsHost){this.closeActions();event.preventDefault();}
+      else if(this.selected){this.closePreview();event.preventDefault();}
       else if(this.task==="find"){this.selectTask("plan");taskButtons.find.focus({preventScroll:true});event.preventDefault();}
     };
     const move=(event:PointerEvent)=>{
@@ -323,7 +383,7 @@ export class PlannerWorkspace {
 
   private selectTask(task:"plan"|"find",focus=false):void {
     const s=this.state;if(!s)return;
-    if(task==="find")this.closePreview(false);
+    if(task==="find"){this.closeActions(false);this.closePreview(false);}
     this.task=task;s.extras.open=false;
     const reopen=task==="find"?s.panes[2]:s.panes.slice(0,2).every(pane=>pane.collapsed)?s.panes[0]:null;
     if(reopen){reopen.collapsed=false;this.paneChoices.set(reopen.title.id,false);}
@@ -332,7 +392,7 @@ export class PlannerWorkspace {
 
   private setPaneCollapsed(pane:Pane,collapsed:boolean,focus=false): void {
     const s=this.state;if(!s)return;
-    if(collapsed&&pane===s.panes[0])this.closePreview(false);
+    if(collapsed&&pane===s.panes[0]){this.closeActions(false);this.closePreview(false);}
     pane.collapsed=collapsed;this.paneChoices.set(pane.title.id,collapsed);this.updatePanes();
     if(focus){
       if(collapsed&&pane.reopen){
@@ -345,8 +405,8 @@ export class PlannerWorkspace {
   private updatePanes(): void {
     const s=this.state;if(!s)return;
     const primary=s.panes.slice(0,3),available=s.deck.clientWidth||1400;
-    const maximum=Math.max(260,Math.min(440,available-12-420));
-    this.classesWidth=Math.max(260,Math.min(maximum,this.classesWidth));
+    const maximum=Math.max(300,Math.min(480,available-12-420));
+    this.classesWidth=Math.max(300,Math.min(maximum,this.classesWidth));
     for(const target of [s.host,s.deck]){
       target.classList.toggle("pl-task-plan",this.task==="plan");target.classList.toggle("pl-task-find",this.task==="find");
     }
@@ -363,7 +423,7 @@ export class PlannerWorkspace {
     }
     const split=this.task==="plan"&&!primary[0].collapsed&&!primary[1].collapsed;
     const splitter=s.splitters[0];splitter.hidden=!split;
-    splitter.setAttribute("aria-valuemin","260");splitter.setAttribute("aria-valuemax",String(maximum));splitter.setAttribute("aria-valuenow",String(Math.round(this.classesWidth)));
+    splitter.setAttribute("aria-valuemin","300");splitter.setAttribute("aria-valuemax",String(maximum));splitter.setAttribute("aria-valuenow",String(Math.round(this.classesWidth)));
     s.deck.style.setProperty("--pl-workspace-columns",split?`${this.classesWidth}px 12px minmax(0,1fr)`:"minmax(0,1fr)");
     const shown=this.task==="find"?primary.slice(2):primary.slice(0,2);
     s.empty.hidden=shown.some(pane=>!pane.collapsed);
@@ -374,7 +434,7 @@ export class PlannerWorkspace {
   private openPreview(course:CourseSnapshot,trigger:HTMLElement|null):void{
     const s=this.state;if(!s||!s.deck.contains(course.node))return;
     if(this.selected===course.node){this.closePreview();return;}
-    this.introduction.closeInfo(false);
+    this.introduction.closeInfo(false);this.closeActions(false);
     this.closePreview(false);s.extras.open=false;
     this.task="plan";
     const pane=s.panes[0];pane.collapsed=false;this.paneChoices.set(pane.title.id,false);this.updatePanes();
@@ -395,16 +455,21 @@ export class PlannerWorkspace {
 
   /** An explicit Details action reveals its controls within the Plan pane only. */
   private revealPreview():void {
-    const s=this.state,view=s?.doc.defaultView;if(!s||!view||!this.selected)return;
+    const s=this.state;if(!s||!this.selected)return;
+    const close=s.close.getBoundingClientRect(),head=s.head.getBoundingClientRect();
+    this.revealInPlan(s.preview,Math.min(head.top,close.top),Math.max(Math.min(head.bottom,head.top+48),close.bottom));
+  }
+
+  private revealInPlan(target:HTMLElement,start:number,end:number):void {
+    const s=this.state,view=s?.doc.defaultView;if(!s||!view)return;
     const plan=s.panes[0];
-    for(let container=s.preview.parentElement;container&&plan.section.contains(container);container=container.parentElement){
+    for(let container=target.parentElement;container&&plan.section.contains(container);container=container.parentElement){
       const overflow=view.getComputedStyle(container).overflowY;
       if(!/^(auto|scroll)$/.test(overflow)||container.clientHeight<=0||container.scrollHeight<=container.clientHeight)continue;
-      const bounds=container.getBoundingClientRect(),close=s.close.getBoundingClientRect(),head=s.head.getBoundingClientRect();
+      const bounds=container.getBoundingClientRect();
       const top=Math.max(bounds.top+container.clientTop,container===plan.section?plan.title.getBoundingClientRect().bottom:0)+8;
       const bottom=Math.min(bounds.top+container.clientTop+container.clientHeight,view.innerHeight)-8;
       if(bottom<=top)return;
-      const start=Math.min(head.top,close.top),end=Math.max(Math.min(head.bottom,head.top+48),close.bottom);
       const delta=start<top?start-top:end>bottom?Math.min(end-bottom,start-top):0;
       container.scrollTop=Math.max(0,Math.min(container.scrollHeight-container.clientHeight,container.scrollTop+delta));
       return;
@@ -432,6 +497,7 @@ export class PlannerWorkspace {
   }
 
   restore():void{
+    for(const host of this.actionControls.keys())this.removeActions(host);
     this.useOriginal=false;this.returnButton?.remove();this.returnButton=null;this.browser.restore();this.introduction.restore();
     const intro = this.introductionOnly; this.introductionOnly = null;
     if (intro) {

@@ -4,7 +4,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { workspaceFixtureHtml, introductionFixtureHtml, futureQuarterFixtureHtml } from './workspace-fixture.mjs';
-const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.15.1');
+const root=resolve(import.meta.dirname,'..'),out=resolve(root,'../../outputs/planner-workspace-v0.16.0');
 const workspaceWidths=process.env.BETTER_MYUCLA_QA_WIDTHS?.split(',').map(Number)||[1920,1440,1536,1280,1200,960,390];
 assert.ok(workspaceWidths.length&&workspaceWidths.every(width=>Number.isInteger(width)&&width>=320&&width<=3840),'QA widths must be bounded whole pixels');
 const url='https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx',fixture=workspaceFixtureHtml(6,true);
@@ -24,6 +24,7 @@ const setup=async(page,html,compactHeader=false,ready='.pl-workspace-deck')=>{
   window.toggleTidy=tidy=>listeners.forEach(fn=>fn({'plannerLift.layout.v1':{newValue:{tidy}}},'local'));
   window.nativeFields=[...document.querySelectorAll('input,select')];
   window.nativeCommands=[...document.querySelectorAll('.OrderingButtons button')].map(node=>({node,parent:node.parentElement,command:node.getAttribute('onclick'),visible:!!node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden'}));
+  window.nativeCommandClicks=0;document.addEventListener('click',event=>{if(event.target.closest?.('.OrderingButtons button'))window.nativeCommandClicks++;},true);
   window.nativeResultControls=[...document.querySelectorAll('.ClassSearchList button,.ClassSearchList input,.ClassSearchList select,.ClassSearchList a')].map(node=>({node,parent:node.parentElement}));
   window.nativeResultHeadings=[...document.querySelectorAll('.ClassSearchList .header-row > div')].map(node=>({node,html:node.innerHTML}));
   window.nativeDetails=document.querySelector('tbody.courseItem > tr:nth-child(3)');window.nativeDetailsParent=window.nativeDetails?.parentElement;
@@ -72,8 +73,16 @@ const verifyResultHeadings=async(page)=>{
  }
 };
 try {
+ for(const width of [1440,960]){
+  const preview=await browser.newPage({viewport:{width,height:900}}),checks=await setup(preview,introductionFixtureHtml(),true);
+  await preview.waitForFunction(()=>document.getElementById('titleText').getBoundingClientRect().top<=13);
+  await preview.screenshot({path:resolve(out,`compact-plan-${width}.png`)});
+  await preview.locator('.pl-workspace-task-switches [data-pl-task-view="find"]').click();
+  await preview.screenshot({path:resolve(out,`compact-find-${width}.png`)});
+  assert.deepEqual(checks.errors,[]);assert.deepEqual(checks.requests,[]);await preview.close();
+ }
  for(const width of workspaceWidths){
-  const height=width===1536?735:900,page=await browser.newPage({viewport:{width,height}});
+  const height=width===1536?735:900,page=await browser.newPage({viewport:{width,height},hasTouch:width===390});
   const {errors,requests}=await setup(page,fixture);
   assert.equal(await page.locator('.pl-workspace-deck > section').count(),3);
   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),2,'Plan starts with classes and schedule');
@@ -93,11 +102,35 @@ try {
    const host=button.parentElement,controls=[...host.querySelectorAll('button,a[href],input,select,[tabindex]')].filter(node=>node.tabIndex>=0&&!node.disabled&&node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden'&&getComputedStyle(node).display!=='none');
    return {nativeHost:host.matches('td.linkPanelRight'),firstChild:host.firstElementChild===button,firstFocusable:controls[0]===button,height:button.getBoundingClientRect().height};
   }));
-  assert.ok(detailsOrder.every(result=>result.nativeHost&&result.firstChild&&result.firstFocusable&&result.height>=34),`Details is the first reachable, comfortably sized action in each native control host: ${JSON.stringify(detailsOrder)}`);
-  assert.ok(await page.evaluate(()=>window.nativeCommands.filter(command=>command.visible).every(({node})=>node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden'&&getComputedStyle(node).display!=='none'&&Number(getComputedStyle(node).opacity)>0)),'native ordering controls remain visible without hover');
+  assert.ok(detailsOrder.every(result=>result.nativeHost&&result.firstChild&&result.firstFocusable&&result.height>=38),`Details is the first reachable, comfortably sized action in each native control host: ${JSON.stringify(detailsOrder)}`);
+  const firstActions=page.locator('.pl-workspace-actions-button').first(),firstCard=page.locator('tbody.courseItem').first();
+  assert.equal(await page.locator('.pl-workspace-actions-button').count(),6);
+  assert.equal(await firstActions.getAttribute('aria-expanded'),'false');
+  assert.equal(await page.locator('td.linkPanelRight .OrderingButtons:visible,td.linkPanelRight .pl-real-tools:visible').count(),0,'secondary class controls start behind the named disclosure');
   const firstDetails=page.locator('[data-pl-workspace-details]').first();await firstDetails.focus();await firstDetails.press('Tab');
-  assert.ok(await firstDetails.evaluate(node=>node.parentElement.contains(document.activeElement)&&document.activeElement!==node),'Tab proceeds from Details to its adjacent controls');
+  assert.ok(await firstActions.evaluate(node=>node===document.activeElement),'Tab proceeds from Details to Class actions');
   await page.keyboard.press('Shift+Tab');assert.ok(await firstDetails.evaluate(node=>node===document.activeElement),'keyboard order matches the visible Details-first layout');
+  if(width===390)await firstActions.tap();else await firstActions.press('Enter');
+  assert.equal(await firstActions.getAttribute('aria-expanded'),'true');
+  assert.ok((await firstActions.boundingBox()).height>=38,'Class actions is a comfortable touch target');
+  assert.ok(await firstCard.locator('.OrderingButtons').isVisible());assert.ok(await firstCard.locator('.pl-real-tools').isVisible());
+  assert.ok(await firstCard.locator('[data-pl-position]').isVisible());assert.ok(await firstCard.locator('[data-pl-action="drag"]').isVisible());
+  assert.ok(await page.evaluate(()=>window.nativeCommands.filter(command=>command.visible&&command.node.closest('tbody.courseItem')===document.querySelector('tbody.courseItem')).every(({node})=>node.getClientRects().length&&getComputedStyle(node).visibility!=='hidden'&&getComputedStyle(node).display!=='none')),'the disclosure restores the unchanged native ordering buttons');
+  const more=firstCard.locator('.pl-course-more');await more.click();
+  assert.ok(await firstCard.locator('[data-pl-action="tag"]').isVisible());assert.ok(await firstCard.locator('[data-pl-action="top"]').isVisible());
+  await page.keyboard.press('Escape');assert.equal(await firstActions.getAttribute('aria-expanded'),'true','first Escape closes the nested More menu only');
+  assert.ok(await more.evaluate(node=>node===document.activeElement));
+  await page.keyboard.press('Escape');assert.equal(await firstActions.getAttribute('aria-expanded'),'false');assert.ok(await firstActions.evaluate(node=>node===document.activeElement));
+  await firstActions.click();await more.click();await firstCard.locator('[data-pl-action="tag"]').click();
+  const note=firstCard.locator('[data-pl-tag]');await note.fill('Fictional note');await firstActions.click();
+  assert.equal(await firstActions.getAttribute('aria-expanded'),'false','saving a note on blur does not swallow the close action');await firstActions.click();
+  assert.ok(await note.isVisible());assert.equal(await note.inputValue(),'Fictional note','closing Class actions preserves the note editor and text');
+  await note.fill('');await firstActions.click();assert.equal(await firstActions.getAttribute('aria-expanded'),'false','clearing a note does not swallow the close action');
+  await firstActions.click();const toolsSummary=page.locator('.pl-workspace-extras > summary');await toolsSummary.click();
+  await page.keyboard.press('Escape');assert.equal(await page.locator('.pl-workspace-extras').evaluate(node=>node.open),false,'Escape dismisses the foreground Tools menu first');
+  assert.equal(await firstActions.getAttribute('aria-expanded'),'true','dismissing Tools preserves background class actions');assert.ok(await toolsSummary.evaluate(node=>node===document.activeElement));
+  await page.keyboard.press('Escape');assert.equal(await firstActions.getAttribute('aria-expanded'),'false');assert.ok(await firstActions.evaluate(node=>node===document.activeElement));
+  assert.ok(await nativePreserved());assert.equal(await page.evaluate(()=>window.nativeCommandClicks),0);
   assert.ok(await page.locator('.pl-workspace-host > .plannerTopMenuLinks').isVisible());
   assert.ok(await page.locator('#ctl00_MainContent_termSessionChooser').isVisible());
   assert.ok(await page.evaluate(()=>document.body.scrollWidth<=innerWidth+1),`page overflow ${width}`);
@@ -107,6 +140,18 @@ try {
    assert.ok(planBoxes[1].width>=420,'schedule retains comparison space');
   }else assert.ok(planBoxes[0].bottom<=planBoxes[1].top,'narrow Plan stacks readable panes');
   if(width===1440||width===960||width===390)await page.screenshot({path:resolve(out,`plan-${width}.png`)});
+  await firstActions.click();const lastActions=page.locator('.pl-workspace-actions-button').last();await lastActions.scrollIntoViewIfNeeded();
+  const rootBeforeActions=await page.evaluate(()=>scrollY);if(width===390)await lastActions.tap();else await lastActions.press('Enter');
+  assert.equal(await firstActions.getAttribute('aria-expanded'),'false','only one class action group is open at a time');
+  const actionReachability=await lastActions.evaluate(button=>{
+   const host=button.parentElement,targets=[button,...host.querySelectorAll('.OrderingButtons button,[data-pl-action="drag"],[data-pl-position],.pl-course-more')].filter(node=>getComputedStyle(node).visibility!=='hidden');
+   return targets.map(node=>{const rect=node.getBoundingClientRect();let top=0,bottom=innerHeight;for(let parent=node.parentElement;parent&&parent!==document.body;parent=parent.parentElement){const style=getComputedStyle(parent);if(/auto|scroll|hidden|clip/.test(style.overflowY)){const box=parent.getBoundingClientRect();top=Math.max(top,box.top);bottom=Math.min(bottom,box.bottom);}}return {top:rect.top,bottom:rect.bottom,left:rect.left,right:rect.right,clipTop:top,clipBottom:bottom,width:innerWidth};});
+  });
+  assert.ok(actionReachability.every(bounds=>bounds.top>=bounds.clipTop-1&&bounds.bottom<=bounds.clipBottom+1&&bounds.left>=0&&bounds.right<=bounds.width),`last class actions remain reachable inside their scroll container: ${JSON.stringify(actionReachability)}`);
+  assert.equal(await page.evaluate(()=>scrollY),rootBeforeActions,'opening Class actions keeps document scroll unchanged');
+  if(width===1440||width===390)await page.screenshot({path:resolve(out,`class-actions-${width}.png`)});
+  await page.keyboard.press('Escape');assert.equal(await lastActions.getAttribute('aria-expanded'),'false');assert.ok(await lastActions.evaluate(node=>node===document.activeElement));
+  await firstDetails.scrollIntoViewIfNeeded();
   if(width>=900){
    const bottomDetails=page.locator('[data-pl-workspace-details]').last();await bottomDetails.scrollIntoViewIfNeeded();
    const rootBeforeDetails=await page.evaluate(()=>scrollY);await bottomDetails.click();
@@ -116,7 +161,8 @@ try {
    await page.keyboard.press('Escape');assert.ok(await bottomDetails.evaluate(node=>node===document.activeElement));
    await page.locator('[data-pl-workspace-details]').first().scrollIntoViewIfNeeded();
   }
-  await findTask.click();
+  await firstActions.click();await findTask.click();
+  assert.equal(await firstActions.getAttribute('aria-expanded'),'false','Find closes class actions before hiding Plan');
   assert.equal(await findTask.getAttribute('aria-pressed'),'true');assert.equal(await planTask.getAttribute('aria-pressed'),'false');
   assert.equal(await page.locator('.pl-workspace-deck > section:visible').count(),1,'Find classes uses the available workspace');
   assert.ok(await page.locator('.pl-workspace-search').isVisible());
@@ -127,6 +173,8 @@ try {
   assert.equal(await page.evaluate(()=>window.nativeResultClickCount),0,'preview selection must not send native requests');
   assert.ok(await page.locator('#container_course_M2').isVisible(),'loaded hidden course must preview locally');
   assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'result cards fit the browser pane');
+  assert.ok(await page.locator('.ClassSearchWidget.pl-browser-results').evaluate(node=>node.getBoundingClientRect().width<=1281),'Find keeps result reading width bounded on large screens');
+  assert.ok(await page.locator('.pl-browser-body-active .pl-section-card').first().evaluate(node=>[1,2,4,5].every(field=>parseFloat(getComputedStyle(node.querySelector(`[data-pl-field="${field}"]`)).fontSize)>=14)),'primary result values use readable text size');
   assert.equal(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible(),false);
   await verifyResultHeadings(page);
   await page.locator('.pl-browser-toolbar button').getByText('Rooms & instructors',{exact:true}).click();
@@ -178,6 +226,8 @@ try {
    assert.ok(await page.locator('.pl-browser-body .data_row > .span9').first().isVisible(),'print includes instructors');
    assert.ok(await page.locator('.pl-browser-list').evaluate(node=>getComputedStyle(node).maxHeight==='none'&&getComputedStyle(node).overflow==='visible'),'print does not clip result rows');
    assert.equal(await page.locator('.pl-workspace-task-switches').isVisible(),false);
+   assert.equal(await page.locator('.pl-workspace-actions-button:visible').count(),0,'print omits the owned Class actions disclosures');
+   assert.equal(await page.locator('td.linkPanelRight .OrderingButtons:visible').count(),6,'print retains native ordering controls even when Class actions is folded');
    await page.emulateMedia({media:'screen'});
    await page.evaluate(()=>dispatchEvent(new Event('afterprint')));
    assert.equal(await page.locator('.pl-workspace-extras').evaluate(node=>node.open),toolsOpen,'printing restores the prior Tools disclosure choice');
@@ -217,6 +267,10 @@ try {
   }
   const calendar=await page.locator('#gridDiv .planneritembox').evaluateAll(nodes=>nodes.map(node=>({overflow:node.getBoundingClientRect().right-node.parentElement.getBoundingClientRect().right,height:node.getBoundingClientRect().height,intended:parseFloat(node.style.height)+(node.style.border.includes('double')?6:2)})));
   assert.ok(calendar.every(box=>box.overflow<=1&&Math.abs(box.height-box.intended)<1),`native calendar sizing ${width}`);
+  if(width>=900){
+   const calendarText=await page.locator('#gridDiv .planneritembox[data-pl-grid="tidy"]').evaluateAll(nodes=>nodes.map(node=>{const box=node.getBoundingClientRect(),bottom=box.bottom-parseFloat(getComputedStyle(node).borderBottomWidth),lines=[...node.querySelectorAll('.pl-gridline')];return {lines:lines.length,overflow:Math.max(...lines.map(line=>line.getBoundingClientRect().bottom-bottom))};}));
+   assert.ok(calendarText.length&&calendarText.every(box=>box.lines===3&&box.overflow<=1),`all three calendar text lines fit without changing native box geometry: ${JSON.stringify(calendarText)}`);
+  }
   const details=page.locator('[data-pl-workspace-details]').first();await details.click();
   assert.equal(await details.getAttribute('aria-expanded'),'true','Details exposes its expanded state');
   assert.ok(await page.locator('.pl-workspace-preview').isVisible());
@@ -280,6 +334,7 @@ try {
   assert.ok(await single.locator('.pl-browser-preview-title').isVisible());
   await verifyResultHeadings(single);
   const list=single.locator('.pl-browser-list');assert.ok((await list.boundingBox()).height>100);
+  assert.ok(await single.locator('.ClassSearchWidget.pl-browser-results').evaluate(node=>node.getBoundingClientRect().width<=1081),'single-course results retain a readable maximum width');
   assert.ok(await list.evaluate(n=>n.scrollWidth<=n.clientWidth+1));
   assert.ok(await list.evaluate(n=>{const parent=n.parentElement,style=getComputedStyle(parent);return n.getBoundingClientRect().width>=parent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-1;}),'single preview fills the parent content width');
   if(width===1440)await single.screenshot({path:resolve(out,'single-course-browse.png')});
@@ -467,6 +522,7 @@ try {
  const page=await browser.newPage({viewport:{width:1440,height:600}});
  const {errors,requests}=await setup(page,workspaceFixtureHtml(12));
  await page.evaluate(()=>{window.nativeActionCount=0;window.courseListAction=()=>window.nativeActionCount++;});
+ await page.locator('.pl-workspace-actions-button').first().click();
  const grip=await page.locator('[data-pl-action="drag"]').first().boundingBox(),plan=await page.locator('.pl-workspace-plan').boundingBox();
  await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(grip.x+grip.width/2,plan.y+plan.height-12,{steps:8});
  await page.waitForFunction(()=>document.querySelector('.pl-workspace-plan').scrollTop>80);await page.mouse.up();

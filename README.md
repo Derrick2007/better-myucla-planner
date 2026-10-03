@@ -179,10 +179,10 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.15.1` redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.16.0` redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. Plan and Find classes
-are two local views inside the original MyUCLA page. Plan shows a 320px class list
+are two local views inside the original MyUCLA page. Plan shows a 360px class list
 beside the schedule. Its divider resizes with drag or arrow keys (Shift makes
 larger changes); double-click resets it. Tools reopens folded panes. Windows
 below 900px stack the plan modules for legibility.

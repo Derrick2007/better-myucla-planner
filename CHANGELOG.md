@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.16.0 — 2026-10-03 (redesign beta)
+
+- Rework the workspace around readable typography, consistent controls and fewer
+  enclosing borders. Give the class list more room and normalize the schedule's
+  toolbar while keeping UCLA's navigation and calendar geometry intact.
+- Limit the course browser's reading width, keep its list a predictable size,
+  and bring section values closer together. A single course uses a narrower
+  preview instead of stretching across the whole monitor.
+- Keep class cards focused on the course and Details. Class actions reveals
+  the original ordering/color controls and note tools in place; Escape closes
+  them with focus return. This disclosure does not submit or change a plan.
+
 ## 0.15.1 — 2026-10-03 (redesign beta)
 
 - Make Details the first action on each class, with a larger target and visible
