@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PlannerWorkspace } from "../../src/content/planner-workspace";
 import { MyUclaPlannerAdapter } from "../../src/adapters/myucla-adapter";
 // @ts-expect-error Shared browser fixture is plain JavaScript.
-import { workspaceFixtureHtml, introductionFixtureHtml } from "../../harness/workspace-fixture.mjs";
+import { workspaceFixtureHtml, introductionFixtureHtml, emptyPlanFixtureHtml } from "../../harness/workspace-fixture.mjs";
 
 describe("one-page native planner workspace", () => {
   let workspace: PlannerWorkspace;
@@ -331,6 +331,19 @@ describe("one-page native planner workspace", () => {
     document.querySelector<HTMLButtonElement>('.pl-workspace-return')!.click();
     expect(document.querySelectorAll('.pl-workspace-main > section')).toHaveLength(5);
     expect(adapter.inspectContract().ok).toBe(true);
+  });
+  it.each([false,true])("does not reopen an unfamiliar empty plan from Original layout using previously empty=%s snapshots", empty => {
+    if(empty)document.body.innerHTML=new DOMParser().parseFromString(emptyPlanFixtureHtml(),'text/html').body.innerHTML;
+    const courses=adapter.inspectContract().courses;workspace.reconcile(document,courses);
+    document.querySelector<HTMLButtonElement>('.pl-workspace-original')!.click();
+    const next=new DOMParser().parseFromString(emptyPlanFixtureHtml(),'text/html').getElementById('panelPlan')!;
+    next.querySelector('.no_data_text')!.className='unfamiliar_empty_marker';
+    document.getElementById('panelPlan')!.replaceWith(document.importNode(next,true));
+    workspace.reconcile(document,courses);
+    const native=document.getElementById('panelPlan')!,html=native.innerHTML;
+    document.querySelector<HTMLButtonElement>('.pl-workspace-return')!.click();
+    expect(document.querySelector('.pl-workspace-host')).toBeNull();expect(document.querySelector('.pl-workspace-deck')).toBeNull();
+    expect(native.isConnected).toBe(true);expect(native.innerHTML).toBe(html);expect(document.querySelector('tbody.courseItem')).toBeNull();
   });
   it("leaves an unknown native section structure untouched", () => {
     document.getElementById("classSearchTitle")!.id = "unexpectedSearchTitle";

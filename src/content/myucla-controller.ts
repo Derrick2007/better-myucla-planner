@@ -29,7 +29,7 @@ import {
 import { FastReorderCoordinator } from "./fast-reorder";
 import { ClassSearchPresentation } from "./class-search";
 import { restorePlannerFrame, tidyPlannerFrame } from "./planner-frame";
-import { PlannerWorkspace } from "./planner-workspace";
+import { isKnownEmptyPlanner, PlannerWorkspace } from "./planner-workspace";
 import { buildFinalsWeek, type FinalsEntry } from "./finals-week";
 import {
   conflictCodes,
@@ -178,6 +178,7 @@ export class MyUclaPlannerController {
   private restorableDraft: { savedOrder: string[]; desiredOrder: string[]; moved: string[] } | null =
     null;
   private lastRoot: HTMLElement | null = null;
+  private emptyPlanBody: HTMLElement | null = null;
   private lastCourseCount = -1;
   private viewStateSeen = false;
   private sessionCountdown: SessionCountdown | null = null;
@@ -214,7 +215,7 @@ export class MyUclaPlannerController {
     }
     const contract = this.adapter.inspectContract();
     if (!contract.ok) {
-      if (this.tidyLayout) this.workspace.reconcileIntroductionOnly(document);
+      this.presentWithoutEditablePlan();
       return;
     }
     await this.activateContext(this.adapter.getContextKey());
@@ -390,7 +391,11 @@ export class MyUclaPlannerController {
    */
   private needsReconcile(): boolean {
     const root = this.adapter.getRoot();
-    if (!root) return this.contractHealthy || this.workspace.needsReconcile(document);
+    if (!root) {
+      const empty=this.tidyLayout&&isKnownEmptyPlanner(document);
+      return this.contractHealthy || (empty?this.emptyPlanBody!==document.getElementById("panelPlan"):this.emptyPlanBody!==null) ||
+        this.workspace.needsReconcile(document) || (empty&&(this.classSearch.needsReconcile(document)||!!document.querySelector("#gridDiv .planneritembox:not([data-pl-grid])")));
+    }
     if (root !== this.lastRoot) return true;
     if (!document.getElementById(TOOLBAR_ID)) return true;
     const cards = root.querySelectorAll(":scope > tbody.courseItem").length;
@@ -429,14 +434,10 @@ export class MyUclaPlannerController {
     if (this.disposed) return;
     const contract = this.adapter.inspectContract();
     if (!contract.ok) {
-      if (this.activeContextKey || this.loadingContextKey) this.leaveContext();
-      this.classSearch.restore();
-      restorePlannerFrame(document);
-      if (this.tidyLayout) this.workspace.reconcileIntroductionOnly(document);
-      else this.workspace.restore();
-      this.contractHealthy = false;
+      this.presentWithoutEditablePlan();
       return;
     }
+    this.emptyPlanBody=null;
 
     const contextKey = this.adapter.getContextKey();
     if (contextKey !== this.activeContextKey) {
@@ -489,6 +490,22 @@ export class MyUclaPlannerController {
     if (this.isDirty) this.renumberLabels(effectiveOrder);
     this.applyViewState();
     if (this.tidyLayout) this.workspace.reconcile(document, contract.courses);
+  }
+
+  /** Empty plans expose only the existing search, modules and calendar. No
+   * editable context, class tools, drafts or reorder state is activated. */
+  private presentWithoutEditablePlan():void {
+    if(this.activeContextKey||this.loadingContextKey)this.leaveContext();
+    this.contractHealthy=false;
+    const empty=this.tidyLayout&&isKnownEmptyPlanner(document);
+    this.emptyPlanBody=empty?document.getElementById("panelPlan"):null;
+    if(empty){
+      this.classSearch.reconcile(document);tidyPlannerFrame(document);tidyWeekGrid(document);
+      this.workspace.reconcile(document,[]);
+      return;
+    }
+    this.classSearch.restore();restorePlannerFrame(document);restoreWeekGrid(document);
+    if(this.tidyLayout)this.workspace.reconcileIntroductionOnly(document);else this.workspace.restore();
   }
 
   // ---------------------------------------------------------------- toolbar

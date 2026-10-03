@@ -2,7 +2,39 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.2` (result row layout fix).
+Current version: `0.17.3` (New Plan workspace lifecycle fix).
+
+The user explicitly requested trying Plan actions > New Plan. One live native
+click on the exact Class Planner page rendered an empty working plan without a
+dialog. All six native modules remained, but the course table disappeared and
+v0.17.2 incorrectly dropped the workspace into the long native layout.
+
+Empty-plan presentation now has a separate strict structural contract, recorded
+in docs/MYUCLA_CONTRACT.md. It preserves search, calendar, module navigation and
+native plan-menu visibility while leaving the editable/reorder adapter unchanged.
+No course context, annotation/view/draft storage or reorder tools activate for
+an empty plan. My classes displays one full-width native empty message. Unknown
+structures stay native. Returning from Original layout validates current nodes,
+rejecting detached course snapshots after a malformed native redraw.
+
+Typecheck, all 238 unit tests and production build pass. The new
+`npm run test:empty-plan` browser regression reproduces the v0.17.2 failure and
+passes with v0.17.3 at 2048/1440/1280/390. It covers initial empty loads, New Plan,
+all modules, search handlers, empty/full transitions, malformed states, native
+identity/forms/visibility, Original/Tidy/dispose restoration and no empty course
+storage or extra native actions/requests. Desktop/phone fictional visuals reviewed.
+The broader workspace suite and exact-build website preview checks also pass.
+
+Installed at Downloads/better-myucla-v0.10.3/dist; all 17 files SHA-256 match the
+tested production build. v0.17.2 is backed up at outputs/installed-backup-v0.17.2;
+the v0.16.0 rollback remains intact. The reload question has been sent; final
+live v0.17.3 verification is pending. The actual tab remains on ClassPlan.aspx
+in the empty plan produced by the single authorized New Plan click. Do not
+create another plan or select/save/enroll courses for verification. After reload,
+check only bounded structure/geometry and local module navigation; do not read
+field values or capture real account/course content.
+
+## v0.17.2 historical record
 
 The user's next screenshot exposed legacy result styles that the fixtures had
 not reproduced. Optional room/instructor data stayed visible even with Rooms &

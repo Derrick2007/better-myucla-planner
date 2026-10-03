@@ -140,6 +140,22 @@ export function introductionFixtureHtml(count = 6, includeResults = true, result
   doc.head.append(style); return dom.serialize();
 }
 
+/** Native New Plan empty working view, distinct from a future-quarter page. */
+export function emptyPlanFixtureHtml(includeResults = false) {
+  const dom = new JSDOM(introductionFixtureHtml(6, includeResults)), doc = dom.window.document;
+  const panel = doc.getElementById('panelPlan');
+  panel.innerHTML = '<div class="classPlanner_SectionData"><div class="no_data_text">No classes in this fictional new plan. Find classes to begin planning.</div><input type="hidden" id="ctl00_MainContent_planClassListView_clCommandField" value=""><input type="hidden" id="ctl00_MainContent_planClassListView_clCommandFieldTracker" value=""></div><table></table>';
+  doc.getElementById('ctl00_MainContent_planIDField').value = '0';
+  doc.querySelector('.classPlanner_PlanNameContent').textContent = 'Example new plan';
+  for (const id of ['renamePlan', 'newPlanMenuEntry', 'savePlanAsMenuEntry', 'deletePlanMenuEntry', 'printPlanMenuEntry']) {
+    doc.getElementById(id).style.display = 'none';
+  }
+  doc.getElementById('loadMenuEntry').textContent = 'Load plan';
+  doc.getElementById('aboutMenuEntry').textContent = 'About';
+  doc.getElementById('ctl00_MainContent_classPlanPanel').insertAdjacentHTML('beforebegin', '<div id="fixture-empty-status" class="classPlanner_Messages noprint">A fictional empty plan is ready. No saved plan has been changed.</div>');
+  return dom.serialize();
+}
+
 /** Empty/future-quarter presentation without the reorder contract. */
 export function futureQuarterFixtureHtml() {
   const dom = new JSDOM(introductionFixtureHtml()), doc = dom.window.document;

@@ -1,5 +1,28 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Native New Plan empty state (0.17.3)
+
+An explicitly requested live click on `#newPlanMenuEntry` caused a native redraw
+into an empty plan, with no dialog. All six original planner modules remained,
+but `#div_landing` and its course table were absent. The strict course-action
+adapter must continue rejecting that state. Layout recognition is independent
+and must never enable reorder, save, annotations or course-context storage.
+
+The recorded empty marker is
+`section.classPlanner_ClassesInPlanSection > #panelPlan`, containing exactly a
+`div.classPlanner_SectionData` and an empty table. The data div contains a
+`div.no_data_text` with no element children, followed by the two original hidden
+inputs `ctl00_MainContent_planClassListView_clCommandField` and
+`ctl00_MainContent_planClassListView_clCommandFieldTracker`. Both inputs remain
+in the original POST `#aspnetForm` targeting ClassPlan.aspx. Do not inspect their
+values. No course rows may coexist with this marker. Unknown shapes stay native.
+
+New Plan hides the original Rename/New/Save a Copy/Delete/Print buttons; Load
+and About remain visible. Preserve those native visibility choices. The empty
+workspace must preserve native search, calendar, module and plan controls,
+recover after partial redraws, and restore everything when Tidy is disabled.
+Revalidate the empty shape after mutations and when reopening the workspace.
+
 ## Native result-row presentation (0.17.2)
 
 Validated result rows also carry `.row-fluid` clearfix boxes and legacy span

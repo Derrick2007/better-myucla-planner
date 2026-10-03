@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.17.2 fictional preview</title>
+<title>Better MyUCLA · v0.17.3 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -80,7 +80,7 @@
   .ClassSearchList .data_row > .span1 { background:#e6f1f7; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.2"><meta name="planner-source-revision" content="6633232f470fae0203874188c9fb24119de39944"><meta name="planner-production-css-sha256" content="cc17fb30f9ebff4dc0a058e380f748012d806747098c161f99e1b38a731932a1"><meta name="planner-production-content-sha256" content="653b1f04222d49380cb3369b54c1b927ba8bd8a19217a068aeddbb8953a410af"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.3"><meta name="planner-source-revision" content="20f7fff4c1900244a002f5871ec057124630d227"><meta name="planner-production-css-sha256" content="4989590df7414b3fc507230b849a7484a5626e33cb40b88c9614ee8fef5fd1f7"><meta name="planner-production-content-sha256" content="e74c5b347a92a671e5e340651710c2ac2e210aad8a71cc93750404da5ae7998e"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -1560,6 +1560,13 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; overflow: auto; border-right: 1px solid #e1e7ee; }
 .pl-workspace-details-slot { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; color: #68798b; text-align: center; font-size: 14px; }
 .pl-has-docked-details > .pl-workspace-details-slot { color: transparent; }
+@media screen {
+  /* An empty plan has no master/detail split. Keep UCLA's own empty message. */
+  .pl-workspace-empty-plan .pl-workspace-main > .pl-workspace-plan.pl-module-active { grid-template-columns: minmax(0,1fr); }
+  .pl-workspace-empty-plan .pl-workspace-plan > #panelPlan { grid-column: 1 / -1; border-right: 0; padding: 32px; box-sizing: border-box; }
+  .pl-workspace-empty-plan .pl-workspace-plan > #panelPlan > .classPlanner_SectionData { max-width: 480px; padding: 12px 0; color: #59687a; line-height: 1.6; }
+  .pl-workspace-empty-plan .pl-workspace-plan > .pl-workspace-details-slot { display: none; }
+}
 .pl-workspace-plan #div_landing, .pl-workspace-plan #panelPlan > div:first-child:not(#div_landing) { margin: 0 !important; }
 .pl-workspace-plan #div_landing > table { display: block; width: 100%; }
 .pl-workspace-plan tbody.courseItem { display: block; box-sizing: border-box; width: 100%; padding: 14px 12px; border: 0; border-bottom: 1px solid #e7ebf0; border-radius: 0; margin: 0; background: #fff; }
@@ -1910,7 +1917,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-browser-list { max-height: none; }
   .pl-browser-result-actions { position: static; }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.17.2","cssSha256":"cc17fb30f9ebff4dc0a058e380f748012d806747098c161f99e1b38a731932a1","contentSha256":"653b1f04222d49380cb3369b54c1b927ba8bd8a19217a068aeddbb8953a410af","sourceRevision":"6633232f470fae0203874188c9fb24119de39944"}</script><style>
+</style><script id="preview-build-meta" type="application/json">{"version":"0.17.3","cssSha256":"4989590df7414b3fc507230b849a7484a5626e33cb40b88c9614ee8fef5fd1f7","contentSha256":"e74c5b347a92a671e5e340651710c2ac2e210aad8a71cc93750404da5ae7998e","sourceRevision":"20f7fff4c1900244a002f5871ec057124630d227"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -1928,7 +1935,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.2</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.3</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">
@@ -3022,6 +3029,45 @@ section#layoutContentArea.pl-planner-introduction {
     const known = [...PRIMARY.map(([name]) => name), ...SECONDARY.map(([name]) => name)];
     return [...panel.children].some((node) => node.tagName === "SECTION" && !known.some((name) => node.classList.contains(name)));
   }
+  function isKnownEmptyPlanner(doc) {
+    const location = doc.defaultView?.location;
+    if (!location || location.origin !== "https://be.my.ucla.edu" || location.pathname !== "/ClassPlanner/ClassPlan.aspx") return false;
+    const form2 = doc.getElementById("aspnetForm"), panel = doc.getElementById(PANEL), body = doc.getElementById("panelPlan");
+    if (["aspnetForm", PANEL, "panelPlan"].some((id) => doc.querySelectorAll(`#${id}`).length !== 1)) return false;
+    if (!(form2 instanceof HTMLFormElement) || form2.method.toLowerCase() !== "post" || !panel || !body || panel.closest("form") !== form2) return false;
+    try {
+      const action = new URL(form2.action, location.href);
+      if (action.origin !== location.origin || action.pathname !== location.pathname) return false;
+    } catch {
+      return false;
+    }
+    const parent = panel.parentElement, host = parent?.matches(".pl-workspace-shell") ? parent.parentElement : parent;
+    if (!host?.classList.contains("classPlannerWrapper") || hasUnknownSection(panel) || doc.getElementById("div_landing") || panel.querySelector("tbody.courseItem")) return false;
+    const sections = [...panel.querySelectorAll(":scope > section, :scope > .pl-workspace-deck > section, :scope > .pl-workspace-deck > .pl-workspace-main > section")];
+    const shapes = [
+      [PRIMARY[0][0], PRIMARY[0][1], "panelPlan"],
+      [PRIMARY[1][0], PRIMARY[1][1], "ctl00_MainContent_panelGrid"],
+      [PRIMARY[2][0], PRIMARY[2][1], "panelSearch"],
+      [SECONDARY[0][0], "classOptimizerTitle", "panelOptimizer"],
+      [SECONDARY[1][0], "plannerSectionEnip", "panelNotplan"],
+      [SECONDARY[2][0], "plannerSectionPer", "panelPersonal"]
+    ];
+    if (sections.length !== shapes.length || shapes.some(([cls, titleId, bodyId], index) => {
+      const matches = sections.filter((section) => section.classList.contains(cls));
+      if (matches.length !== 1) return true;
+      const children2 = [...matches[0].children].filter((node) => !node.hasAttribute(OWNED5));
+      const title = children2[0], content = children2[children2.length - 1];
+      return title?.id !== titleId || !title.classList.contains("classPlanner_SectionTitle") || content?.id !== bodyId || content.tagName !== "DIV" || index < 3 && children2.length !== 2 || index >= 3 && children2.length < 2;
+    })) return false;
+    const children = [...body.children];
+    if (children.length !== 2 || !children[0].matches("div.classPlanner_SectionData") || children[1].tagName !== "TABLE" || children[1].children.length || children[1].textContent?.trim()) return false;
+    const data = [...children[0].children];
+    if (data.length !== 3 || !data[0].matches("div.no_data_text") || data[0].children.length || !data[0].textContent?.trim()) return false;
+    return ["ctl00_MainContent_planClassListView_clCommandField", "ctl00_MainContent_planClassListView_clCommandFieldTracker"].every((id, index) => {
+      const input = data[index + 1];
+      return input instanceof HTMLInputElement && input.id === id && input.type === "hidden" && input.form === form2 && doc.querySelectorAll(`#${id}`).length === 1;
+    });
+  }
   var MODULE_LABELS = { classes: "My classes", find: "Find classes", optimizer: "Optimizer", study: "Study list", personal: "Personal entries", information: "Information & help" };
   function officialText(node) {
     const copy = node.cloneNode(true);
@@ -3072,7 +3118,7 @@ section#layoutContentArea.pl-planner-introduction {
       if (this.useOriginal) return !!this.returnButton && !this.returnButton.isConnected;
       if (this.introductionOnly) return !this.introductionOnly.toolbar.isConnected || this.introduction.needsRefresh(doc);
       const s = this.state;
-      return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || hasUnknownSection(s.panel) || s.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) || !!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh()) || this.latestCourses.some((c) => {
+      return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || hasUnknownSection(s.panel) || !this.latestCourses.length && !isKnownEmptyPlanner(doc) || s.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) || !!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh()) || this.latestCourses.some((c) => {
         const host = c.node.querySelector(":scope > tr:first-child > td.linkPanelRight"), actions = host && this.actionControls.get(host);
         return !hasKnownDetails(c.node) || !host || !actions || actions.button.parentElement !== host || actions.nativeTools !== host.querySelector(".OrderingButtons") || actions.ownedTools !== host.querySelector(":scope > [data-pl-real-tools]") || this.summaryChanged(c.node);
       }) || this.browser.needsReconcile(doc) || this.introduction.needsRefresh(doc));
@@ -3082,6 +3128,15 @@ section#layoutContentArea.pl-planner-introduction {
       this.latestCourses = courses2;
       if (this.useOriginal) {
         this.ensureReturnButton(doc);
+        return;
+      }
+      if (!courses2.length && !isKnownEmptyPlanner(doc)) {
+        this.restore();
+        return;
+      }
+      const currentRoot = doc.querySelector(`#${PANEL} #panelPlan #div_landing > table`);
+      if (courses2.some((course) => !doc.contains(course.node) || course.node.parentElement !== currentRoot)) {
+        this.restore();
         return;
       }
       const panel = doc.getElementById(PANEL);
@@ -3103,6 +3158,9 @@ section#layoutContentArea.pl-planner-introduction {
       if (this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) this.closePreview(false);
       if (!this.state && !this.useOriginal) this.mount(doc);
       if (!this.state) return;
+      this.state.host.classList.toggle("pl-workspace-empty-plan", courses2.length === 0);
+      const emptyMessage = courses2.length ? "Select a class to see its sections and details." : "No classes in this plan yet. Use Find classes to browse courses.";
+      if (this.state.empty.textContent !== emptyMessage) this.state.empty.textContent = emptyMessage;
       if (this.introduction.needsRefresh(doc)) this.introduction.restore();
       this.introduction.mount(doc, this.state.top, this.state.resize, { navigation: this.state.navFooter, onInformation: () => this.selectModule("information", true), onCloseInformation: () => {
         this.selectModule(this.previousModule);
@@ -3783,7 +3841,7 @@ section#layoutContentArea.pl-planner-introduction {
       s.scrollRoom.remove();
       ["--pl-workspace-top", "--pl-workspace-left", "--pl-workspace-width"].forEach((p) => s.host.style.removeProperty(p));
       if (!s.hostHadStyle && !s.host.getAttribute("style")) s.host.removeAttribute("style");
-      s.host.classList.remove("pl-workspace-host", "pl-workspace-flow", "pl-task-plan", "pl-task-find", "pl-show-schedule");
+      s.host.classList.remove("pl-workspace-host", "pl-workspace-flow", "pl-task-plan", "pl-task-find", "pl-show-schedule", "pl-workspace-empty-plan");
       delete s.host.dataset.plModule;
       s.doc.documentElement.classList.remove("pl-workspace-page");
     }

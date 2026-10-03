@@ -19,6 +19,41 @@ function hasUnknownSection(panel:HTMLElement):boolean {
   const known=[...PRIMARY.map(([name])=>name),...SECONDARY.map(([name])=>name)];
   return [...panel.children].some(node=>node.tagName==="SECTION"&&!known.some(name=>node.classList.contains(name)));
 }
+/** Separate read-only contract for the native New plan result. This never
+ * makes an empty plan eligible for the adapter's editable/reorder contract. */
+export function isKnownEmptyPlanner(doc:Document):boolean {
+  const location=doc.defaultView?.location;
+  if(!location||location.origin!=="https://be.my.ucla.edu"||location.pathname!=="/ClassPlanner/ClassPlan.aspx")return false;
+  const form=doc.getElementById("aspnetForm"),panel=doc.getElementById(PANEL),body=doc.getElementById("panelPlan");
+  if(["aspnetForm",PANEL,"panelPlan"].some(id=>doc.querySelectorAll(`#${id}`).length!==1))return false;
+  if(!(form instanceof HTMLFormElement)||form.method.toLowerCase()!=="post"||!panel||!body||panel.closest("form")!==form)return false;
+  try {const action=new URL(form.action,location.href);if(action.origin!==location.origin||action.pathname!==location.pathname)return false;}catch{return false;}
+  const parent=panel.parentElement,host=parent?.matches(".pl-workspace-shell")?parent.parentElement:parent;
+  if(!host?.classList.contains("classPlannerWrapper")||hasUnknownSection(panel)||doc.getElementById("div_landing")||panel.querySelector("tbody.courseItem"))return false;
+  const sections=[...panel.querySelectorAll<HTMLElement>(":scope > section, :scope > .pl-workspace-deck > section, :scope > .pl-workspace-deck > .pl-workspace-main > section")];
+  const shapes=[
+    [PRIMARY[0][0],PRIMARY[0][1],"panelPlan"],
+    [PRIMARY[1][0],PRIMARY[1][1],"ctl00_MainContent_panelGrid"],
+    [PRIMARY[2][0],PRIMARY[2][1],"panelSearch"],
+    [SECONDARY[0][0],"classOptimizerTitle","panelOptimizer"],
+    [SECONDARY[1][0],"plannerSectionEnip","panelNotplan"],
+    [SECONDARY[2][0],"plannerSectionPer","panelPersonal"]
+  ];
+  if(sections.length!==shapes.length||shapes.some(([cls,titleId,bodyId],index)=>{
+    const matches=sections.filter(section=>section.classList.contains(cls));if(matches.length!==1)return true;
+    const children=[...matches[0].children].filter(node=>!node.hasAttribute(OWNED));
+    const title=children[0],content=children[children.length-1];
+    return title?.id!==titleId||!title.classList.contains("classPlanner_SectionTitle")||content?.id!==bodyId||content.tagName!=="DIV"||
+      (index<3&&children.length!==2)||(index>=3&&children.length<2);
+  }))return false;
+  const children=[...body.children];
+  if(children.length!==2||!children[0].matches("div.classPlanner_SectionData")||children[1].tagName!=="TABLE"||children[1].children.length||children[1].textContent?.trim())return false;
+  const data=[...children[0].children];
+  if(data.length!==3||!data[0].matches("div.no_data_text")||data[0].children.length||!data[0].textContent?.trim())return false;
+  return ["ctl00_MainContent_planClassListView_clCommandField","ctl00_MainContent_planClassListView_clCommandFieldTracker"].every((id,index)=>{
+    const input=data[index+1];return input instanceof HTMLInputElement&&input.id===id&&input.type==="hidden"&&input.form===form&&doc.querySelectorAll(`#${id}`).length===1;
+  });
+}
 type Module = "classes" | "find" | "optimizer" | "study" | "personal" | "information";
 const MODULE_LABELS: Record<Module,string> = {classes:"My classes",find:"Find classes",optimizer:"Optimizer",study:"Study list",personal:"Personal entries",information:"Information & help"};
 interface Placement { node: HTMLElement; anchor: Comment; }
@@ -95,7 +130,7 @@ export class PlannerWorkspace {
     if (this.useOriginal) return !!this.returnButton && !this.returnButton.isConnected;
     if (this.introductionOnly) return !this.introductionOnly.toolbar.isConnected || this.introduction.needsRefresh(doc);
     const s = this.state;
-    return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || hasUnknownSection(s.panel) ||
+    return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || hasUnknownSection(s.panel) || (!this.latestCourses.length&&!isKnownEmptyPlanner(doc)) ||
       s.panes.some(p => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) ||
       (!!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) ||
       this.latestCourses.some(c => {
@@ -110,6 +145,9 @@ export class PlannerWorkspace {
     if (this.introductionOnly) this.restore();
     this.latestCourses = courses;
     if (this.useOriginal) { this.ensureReturnButton(doc); return; }
+    if(!courses.length&&!isKnownEmptyPlanner(doc)){this.restore();return;}
+    const currentRoot=doc.querySelector(`#${PANEL} #panelPlan #div_landing > table`);
+    if(courses.some(course=>!doc.contains(course.node)||course.node.parentElement!==currentRoot)){this.restore();return;}
     const panel=doc.getElementById(PANEL);
     // An unfamiliar module has no reliable navigation destination. Keep the
     // complete native layout accessible instead of trapping it outside the deck.
@@ -127,6 +165,9 @@ export class PlannerWorkspace {
     if (this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) this.closePreview(false);
     if (!this.state && !this.useOriginal) this.mount(doc);
     if (!this.state) return;
+    this.state.host.classList.toggle("pl-workspace-empty-plan",courses.length===0);
+    const emptyMessage=courses.length?"Select a class to see its sections and details.":"No classes in this plan yet. Use Find classes to browse courses.";
+    if(this.state.empty.textContent!==emptyMessage)this.state.empty.textContent=emptyMessage;
     if (this.introduction.needsRefresh(doc)) this.introduction.restore();
     this.introduction.mount(doc,this.state.top,this.state.resize,{navigation:this.state.navFooter,onInformation:()=>this.selectModule("information",true),onCloseInformation:()=>{this.selectModule(this.previousModule);doc.querySelector<HTMLButtonElement>(".pl-intro-info")?.focus({preventScroll:true});}});
     this.browser.reconcile(doc);
@@ -495,6 +536,6 @@ export class PlannerWorkspace {
     PRIMARY.forEach(([, ,cls])=>s.doc.querySelectorAll(`.${cls}`).forEach(n=>n.classList.remove(cls)));
     s.doc.querySelectorAll("[data-pl-workspace-details]").forEach(n=>n.remove());
     s.preview.remove();s.slot.remove();s.deck.remove();s.shell.remove();s.top.remove();s.position.remove();s.scrollRoom.remove();["--pl-workspace-top","--pl-workspace-left","--pl-workspace-width"].forEach(p=>s.host.style.removeProperty(p));
-    if(!s.hostHadStyle&&!s.host.getAttribute("style"))s.host.removeAttribute("style");s.host.classList.remove("pl-workspace-host","pl-workspace-flow","pl-task-plan","pl-task-find","pl-show-schedule");delete s.host.dataset.plModule;s.doc.documentElement.classList.remove("pl-workspace-page");
+    if(!s.hostHadStyle&&!s.host.getAttribute("style"))s.host.removeAttribute("style");s.host.classList.remove("pl-workspace-host","pl-workspace-flow","pl-task-plan","pl-task-find","pl-show-schedule","pl-workspace-empty-plan");delete s.host.dataset.plModule;s.doc.documentElement.classList.remove("pl-workspace-page");
   }
 }
