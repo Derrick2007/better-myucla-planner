@@ -1,6 +1,6 @@
 # Planner UI direction
 
-Implemented in the 0.15.0 redesign beta, inside the existing Chrome extension
+Implemented in the 0.15.1 redesign beta, inside the existing Chrome extension
 and existing MyUCLA Class Planner page. There is no separate app or catalog
 service. Tidy remains opt-in.
 
@@ -81,6 +81,12 @@ control, fewer enclosing borders and consistent spacing establish the hierarchy.
 Section rows respond to the preview's own width, with optional rooms and
 instructors revealed on demand.
 
+At 640px of actual preview width, each native section group's original column
+headings align with its rows and remain visible while scrolling. Individual
+Section, Days, Time and Units labels remain accessible but are visually clipped
+to reduce repetition. Narrow cards keep their labels. Location/instructor
+values retain local captions when revealed; their native help stays available.
+
 Unfamiliar or incomplete results keep MyUCLA's original presentation and loading
 controls. The extension cannot show information MyUCLA has not loaded. Subject
 selection and explicit searches still use native autocomplete and server
@@ -96,12 +102,22 @@ separately. Only one card's details is open at a time.
 Opening a card near the pane's lower edge reveals the Details header and close
 button with a small scroll inside that pane. The document does not jump.
 
+Details is the first class action in both visual and keyboard order, with a
+34px minimum target and a visible open state. Ordering tools remain beside it
+with quieter borders and colors; every original action remains available.
+
 Native status wording and icons remain unchanged; there are no aggregate status
 badges. Section labels are appended as extension-owned read-only text and removed
 on restoration. Hidden native action rows are not reformatted. Partial redraws
 discard disconnected presentation references and never resurrect old controls.
 
 ## Validation and remaining work
+
+Version 0.15.1 passed typecheck, 213 tests and production build. The full fictional
+Chrome suite passed at seven widths, including shared-header alignment/stickiness,
+narrow labels, native header help/identity, Details keyboard order and target size,
+printing and native redraws. Desktop and narrow screenshots were visually reviewed.
+The installed build is updated; live verification awaits the user's reload.
 
 Version 0.15.0 passed typecheck, 211 tests across 20 files and production build.
 The production fixture suite covers Plan/Find transitions, preserved native

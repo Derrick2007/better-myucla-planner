@@ -108,7 +108,10 @@ export class PlannerWorkspace {
       button.type = "button"; button.className = "pl-workspace-detail-button";
       button.setAttribute(OWNED, "true"); button.dataset.plWorkspaceDetails = "true";
       button.textContent = "Details"; button.setAttribute("aria-label", `Details for ${course.label}`);
-      button.addEventListener("click", () => this.openPreview(course, button)); host.append(button);
+      button.setAttribute("aria-expanded", "false");
+      // Put the primary reading action first for both sighted and keyboard use.
+      // Native color/order controls retain their original parent and handlers.
+      button.addEventListener("click", () => this.openPreview(course, button)); host.prepend(button);
     }
     this.state.resize();
     if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
@@ -376,6 +379,7 @@ export class PlannerWorkspace {
     this.task="plan";
     const pane=s.panes[0];pane.collapsed=false;this.paneChoices.set(pane.title.id,false);this.updatePanes();
     this.selected=course.node;this.selectedHadStyle=course.node.hasAttribute("style");this.returnFocus=trigger;
+    trigger?.setAttribute("aria-expanded","true");
     this.selectedTable=course.node.querySelector<HTMLTableElement>("table.coursetable");
     this.detailCards=new SectionCards();if(this.selectedTable)this.detailCards.table(this.selectedTable);
     const title=s.doc.createElement("h2");title.textContent=course.label.replace(/^Class\s+\d+:\s*/,"");s.head.replaceChildren(title);
@@ -416,6 +420,7 @@ export class PlannerWorkspace {
 
   closePreview(focus=true):void{
     this.detailCards?.restore();this.detailCards=null;
+    this.returnFocus?.setAttribute("aria-expanded","false");
     if(this.selected){
       this.selected.classList.remove("pl-workspace-preview-card","pl-preview-inline","pl-section-more");
       for(const name of ["left","top","width","height"])this.selected.style.removeProperty(`--pl-detail-${name}`);

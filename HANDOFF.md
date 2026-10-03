@@ -2,7 +2,36 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.15.0` (redesign beta)
+Current version: `0.15.1` (redesign beta)
+
+This is a visual refinement of the Plan / Find classes design. Details is first
+in each class's control host and keyboard order, with a 34px minimum target and
+aria-expanded state. Adjacent owned order tools are quieter but remain visible.
+Native order/color controls keep their original parents and handlers.
+
+Wide result previews (actual content width >=640px) use each group's original
+native column headings, aligned with rows and sticky within the preview. Repeated
+row captions are visually clipped but accessible; narrow cards retain labels.
+Optional location/instructor fields keep their own captions when revealed, and
+their native header help remains available even while the fields are folded.
+No native header content, status text, form control, request or permission changes.
+
+Typecheck, all 213 tests across 20 files and production build passed. The full
+production fixture suite passed at seven widths, including the three single-course
+widths, five introduction widths, print, redraws, compact-header persistence,
+future-quarter transitions and local dragging. New checks cover Details-first
+Tab order/size, shared-header alignment/stickiness, native header content/help,
+control parents and narrow labels. At 960px both wide single-course and narrow
+multi-course previews passed. No browser errors or extra requests. Fictional
+desktop/narrow screenshots were visually reviewed.
+
+Installed v0.15.1 in the same Downloads/better-myucla-v0.10.3/dist folder; all 17
+file hashes match dist. Prior v0.15.0 is backed up outside Git. A ZIP and fictional
+screenshots are under outputs outside Git. Source/release publication is pending.
+User has been asked to reload the extension and refresh Class Planner; live
+verification of this new version is pending. Do not claim it has passed yet.
+
+## v0.15.0 verification record
 
 The user approved replacing three competing panes with two task views within
 the same extension/page. Plan shows a resizable 320px class list beside Schedule;

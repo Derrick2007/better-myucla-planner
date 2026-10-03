@@ -8,13 +8,13 @@ export class SectionCards {
   private marks: Mark[] = [];
   private labels: HTMLElement[] = [];
 
-  private mark(node: HTMLElement, className: string, field?: number): void {
+  private mark(node: HTMLElement, className: string, field?: number, appendLabel=true): void {
     this.marks.push({node,className:node.getAttribute("class"),added:className,field:node.getAttribute("data-pl-field")});
     node.classList.add(className);
     if (field !== undefined) {
       node.dataset.plField = String(field);
       // Preserve the native status cell contents byte-for-byte.
-      if (field === 0 || field === 2 || field === 3) return;
+      if (!appendLabel || field === 0 || field === 2 || field === 3) return;
       const label = node.ownerDocument.createElement("span");
       label.className = "pl-section-label"; label.textContent = LABELS[field];
       label.setAttribute(OWNED, "true"); node.append(label); this.labels.push(label);
@@ -46,12 +46,11 @@ export class SectionCards {
     if (!rows) return false;
     for (const row of rows) {
       if (row.classList.contains("header-row")) {
-        // Native column headings can contain help buttons. Keep those original
-        // controls accessible rather than hiding the entire header.
-        if (row.querySelector("button,a,input,select")) {
-          this.mark(row,"pl-section-help-row");
-          [...row.children].forEach(cell=>this.mark(cell as HTMLElement,"pl-section-help-field"));
-        } else this.mark(row,"pl-section-heading");
+        // Wide previews share each group's original headings; narrow previews
+        // keep row labels and the original heading help controls. Never copy
+        // labels into these cells or replace their native content/handlers.
+        this.mark(row,"pl-section-result-heading");this.mark(row,"pl-section-help-row");
+        [...row.children].forEach((cell,i)=>this.mark(cell as HTMLElement,"pl-section-help-field",i,false));
       }
       else if (row.classList.contains("data_row")) {
         this.mark(row,"pl-section-card");

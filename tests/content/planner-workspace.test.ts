@@ -38,13 +38,17 @@ describe("one-page native planner workspace", () => {
     const parent = table.parentElement;
     mount();
     const details = course.node.querySelector<HTMLButtonElement>("[data-pl-workspace-details]")!;
+    expect(details.parentElement!.firstElementChild).toBe(details);
+    expect(details.getAttribute("aria-expanded")).toBe("false");
     details.click();
+    expect(details.getAttribute("aria-expanded")).toBe("true");
     expect(course.node.classList.contains("pl-workspace-preview-card")).toBe(true);
     expect(document.querySelector<HTMLElement>(".pl-workspace-preview")!.hidden).toBe(false);
     expect(table.parentElement).toBe(parent);
     expect(adapter.inspectContract().ok).toBe(true);
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(course.node.classList.contains("pl-workspace-preview-card")).toBe(false);
+    expect(details.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(details);
   });
   it("keeps a long exam note in a separate disclosure and preserves its native source", () => {

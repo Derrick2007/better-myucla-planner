@@ -1,5 +1,21 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Visual hierarchy refinement (0.15.1)
+
+Prepend only the owned Details button inside the existing linkPanelRight cell.
+Native order/color controls keep their parent, identity and handlers. The button
+reports aria-expanded and remains first in both visual and keyboard order.
+
+Each validated result header receives pl-section-result-heading and indexed
+pl-section-help-field cells without changing native cell contents. At an actual
+preview width of at least 640px, native captions align with rows and stay sticky
+inside that preview. Repeated row captions are visually clipped, never removed
+from accessibility. Narrow cards keep those captions and native header help.
+Optional location/instructor fields retain their own labels; native help for
+them remains accessible even when the values are folded. Restoration removes
+only owned classes/labels and restores prior data-pl-field attributes.
+Unknown shapes fail closed under the existing exact header contract.
+
 ## Plan and Find classes presentation (0.15.0)
 
 This supersedes the three-pane and floating Details presentation below. Owned

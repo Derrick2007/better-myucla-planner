@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.15.1 — 2026-10-03 (redesign beta)
+
+- Make Details the first action on each class, with a larger target and visible
+  open state. Quiet the adjacent ordering tools while retaining every control
+  and matching the visual order to keyboard navigation.
+- Align wider course results beneath each section group's original column
+  headings. Keep those headings visible while scrolling and reduce repeated
+  captions; narrow cards retain individual labels. Original help controls,
+  statuses and form associations remain intact.
+- Tighten result spacing and use consistent control sizing. Plan / Find classes,
+  original UCLA navigation and native search behavior remain unchanged.
+
 ## 0.15.0 — 2026-10-03 (redesign beta)
 
 - Organize the existing page around Plan and Find classes. Plan shows a resizable
