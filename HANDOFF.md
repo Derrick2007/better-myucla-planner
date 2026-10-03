@@ -27,7 +27,13 @@ desktop/narrow screenshots were visually reviewed.
 
 Installed v0.15.1 in the same Downloads/better-myucla-v0.10.3/dist folder; all 17
 file hashes match dist. Prior v0.15.0 is backed up outside Git. A ZIP and fictional
-screenshots are under outputs outside Git. Source/release publication is pending.
+screenshots are under outputs outside Git. Source and ZIP are published to the
+user's fork as the v0.15.1 prerelease. Exact source commit
+098bf0f795d85cd7fce2182cded3b9dcd9969491 passed both workflows:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37143916639
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37143938987
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.15.1
+The published ZIP is 349909 bytes; release is non-draft and prerelease=true.
 User has been asked to reload the extension and refresh Class Planner; live
 verification of this new version is pending. Do not claim it has passed yet.
 
@@ -758,11 +764,12 @@ before implementing one.
 
 - User must load or reload `dist/` manually through `chrome://extensions`.
 - The extension has not been published to the Chrome Web Store.
-- UI state such as active search, compact mode, and collapsed cards is session-only and resets after a MyUCLA full-page reorder.
+- Plan/Find view and pane widths are in memory for this page session. The header's
+  compact choice is persisted as one local boolean across quarter changes/reloads.
 - Tags stay in the local browser and do not sync to MyUCLA.
 - Status summaries reflect the currently rendered MyUCLA page; they are not independently refreshed.
 - Bruinwalk, DARS, reminders, additional seat polling, and automatic lecture/discussion/lab combination management are not implemented.
-- The working branch is `planner-improvements`; upstream origin is read-only
+- The working branch is `planner-redesign`; upstream origin is read-only
   for this task, and the user's GitHub fork is the publication target.
 
 ## Recommended next work
