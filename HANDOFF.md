@@ -30,6 +30,20 @@ from the final production CSS.
 Installed in Downloads/better-myucla-v0.10.3/dist; all 17 files hash-match the
 production build. v0.17.1 is backed up at outputs/installed-backup-v0.17.1 and
 v0.16.0 remains intact. User reload and live results verification are pending.
+The existing browser tab subsequently reached MyUCLA's sign-out page; only its
+URL was checked, and no other page contents were inspected. The user needs to
+sign in, reload the extension/refresh and reopen results. Do not claim a live
+v0.17.2 pass until that check is complete. Prior live v0.17.1 geometry exposed
+the reported issue: Rooms aria-expanded=false while optional fields were visible,
+result row height 119.4px and header height 79.2px.
+
+Published prerelease source: c33e60f on the user's planner-redesign branch.
+Release: https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.2
+Both CI and release build passed for that commit:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37157366361
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37157367868
+The final ZIP is the exact installed build (after the automated release build):
+SHA-256 36719fb10c4df4c1f5aa342e5ba3cd408873c5920372b16324b900da6401a52b.
 
 ## v0.17.1 historical record
 
