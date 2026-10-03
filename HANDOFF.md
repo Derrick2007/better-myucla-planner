@@ -30,8 +30,16 @@ lower edge. No browser errors or additional requests. Final desktop/mobile
 screenshots were visually reviewed using fictional data only.
 
 Installed v0.15.0 in the existing Downloads/better-myucla-v0.10.3/dist folder;
-all 17 files SHA-256 verified. v0.14.7 is backed up outside Git. User reload/live
-verification and publication are pending. Never
+all 17 files SHA-256 verified. v0.14.7 is backed up outside Git. Source and ZIP
+are published to the fork as the v0.15.0 prerelease. Exact code commit
+837b02b4b0182808a9598b3b6dbd9016b6129ab4 passed CI and release packaging:
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37108200960
+https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37108220893
+https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.15.0
+
+Live verification remains pending: the authorized planner tab had timed out to
+Logged Out. The user has been asked to Reload the extension, sign in again and
+reopen Class Planner; do not inspect credentials or other MyUCLA pages. Never
 automate live enrollment/plan changes; only structural browser facts may be
 retained. Screenshots/fixtures must use invented course/account content.
 
