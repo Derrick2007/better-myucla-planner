@@ -3,6 +3,23 @@ import { JSDOM } from 'jsdom';
 import { calendarFixtureHtml } from './calendar-fixture.mjs';
 import { searchMarkup, recordedSearchOptions, nativeSearchLayoutCss } from './search-fixture.mjs';
 
+// Reproduce public native result layout constraints, including the clearfix
+// children that become unwanted grid items and the legacy span display rules.
+// Text and nested widgets below are fictional; no student page is copied.
+export const nativeResultLayoutCss = `
+  .ClassSearchList .row-fluid.class-info::before,
+  .ClassSearchList .row-fluid.class-info::after { content:""; display:table; }
+  .ClassSearchList .row-fluid.class-info::after { clear:both; }
+  .ClassSearchList .row-fluid.class-info > [class*="span"] { min-height:30px; }
+  .ClassSearchList .row-fluid.class-info > .span7,
+  .ClassSearchList .row-fluid.class-info > .span9 { display:block; }
+  .ClassSearchList .row-fluid.class-info > :is(.span1,.span4,.span5,.span7,.span8) { text-align:center; }
+  .ClassSearchList .data_row:nth-child(even) { background:#eee; }
+  .ClassSearchList .data_row > .span1 { background:#e6f1f7; }
+  .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
+  .ClassSearchList .icon-unlock::before { content:"◇"; }
+`;
+
 export function workspaceFixtureHtml(count = 5, includeResults = false, tallHeader = false, resultSectionCount = 5) {
   const dom = new JSDOM(calendarFixtureHtml(count));
   const doc = dom.window.document;
@@ -47,12 +64,12 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
   panel.insertAdjacentHTML('beforeend', `<section class="classPlanner_EnrolledNotInPlanSection"><div id="plannerSectionEnip" class="classPlanner_SectionTitle"><button type="button">In Study List but Not In Current Plan</button></div>${moduleTools('study','Example study list entries.','<table><thead><tr><th>Course</th><th>Include</th></tr></thead><tbody><tr><td>EXAMPLE 201</td><td><label><input type="checkbox" name="exampleStudyEntry"> Example study entry</label></td></tr></tbody></table>')}</section><section class="classPlanner_PersonalTimeBlocksSection"><div id="plannerSectionPer" class="classPlanner_SectionTitle"><button type="button">Personal Entries</button></div>${moduleTools('personal','Example personal entries.','<label>Example personal entry <input aria-label="Example personal entry" name="examplePersonalEntry"></label><label>Example weekday <select name="examplePersonalDay"><option value="monday">Monday</option><option value="friday">Friday</option></select></label>')}</section>`);
   if (includeResults) {
     const widths = [6,10,19,5,9,15,12,7,17];
-    const cells = values => values.map((value,i) => `<div class="span${i+1}" style="float:left;width:${widths[i]}%;box-sizing:border-box;padding:8px">${value}</div>`).join('');
-    const header = cells(['Select','Section','<button type="button" class="header-Status link">Status</button>','Info','Day(s)','Time in Pacific Time','Location','<button type="button" class="header-Unit link">Units</button>','<button type="button" class="header-Instructor link">Instructor(s)</button>']);
+    const cells = (values, data = false) => values.map((value,i) => `<div class="span${i+1}${i===3?' infoCol':''}${data&&[6,8].includes(i)?' hide-small':''}" style="float:left;width:${widths[i]}%;box-sizing:border-box;padding:8px">${value}</div>`).join('');
+    const header = cells(['Select','Section','<button type="button" class="header-Status link">Status</button>','Info','Day(s)','Time in Pacific Time','<a href="#" class="header-Location link">Location</a>','<button type="button" class="header-Unit link">Units</button>','<button type="button" class="header-Instructor link">Instructor(s)</button>']);
     const rows = Array.from({length:resultSectionCount}, (_,i) => `<div class="row-fluid data_row class-info scrollable-collapse table-width2">${cells([
       `<input type="checkbox" name="exampleSection${i}" aria-label="Example section ${i+1}">`,i ? `Dis 1${String.fromCharCode(64+i)}` : 'Lec 1',
-      'Open<br>10 of 30 seats left','Info',i ? 'F' : 'MWF','10am–10:50am','Example Hall 100',i ? '0.0' : '4.0','Example Instructor'
-    ])}</div>`).join('');
+      '<i class="icon-unlock" aria-hidden="true" style="color:green;display:block;float:left;height:3em"></i>Open<br>10 of 30 seats left','Info',i ? 'F' : 'MWF','10am–10:50am','Example Hall 100',i ? '0.0' : '4.0','Example Instructor <span class="example-native-rating" data-fixture-rating><a href="#">4.2</a></span>'
+    ], true)}</div>`).join('');
     doc.querySelector('#resultHeaderDiv').textContent = 'Example search results';
     doc.querySelector('.ClassSearchWidget').insertAdjacentHTML('beforeend', `<div class="ClassSearchList search_results"><div id="searchLabel">Example results</div>${Array.from({length:3}, (_,c) => `<div id="CourseListEntry_M${c}" class="CourseListEntry"><div class="row-fluid class-title"><h3 class="head"><a href="#" onclick="document.getElementById('container_course_M${c}').hidden = !document.getElementById('container_course_M${c}').hidden; return false">EXAMPLE ${101+c} — Example course ${String.fromCharCode(65+c)}</a></h3></div></div><div id="container_course_M${c}"${c ? ' hidden style="display:none"' : ''}><div></div><div class="classSearchTableSubSectionHeader info-bar">Example section group</div><div class="row-fluid header-row class-info scrollable-collapse table-width2">${header}</div>${rows.replaceAll('exampleSection', `exampleCourse${c}Section`)}</div>`).join('')}<div id="fixture-result-footer"><button type="button">Example native result action</button></div></div>`);
   }
@@ -87,6 +104,9 @@ export function workspaceFixtureHtml(count = 5, includeResults = false, tallHead
   const nativeSearchStyle = doc.createElement('style');
   nativeSearchStyle.textContent = nativeSearchLayoutCss;
   doc.head.append(nativeSearchStyle);
+  const nativeResultStyle = doc.createElement('style');
+  nativeResultStyle.textContent = nativeResultLayoutCss;
+  doc.head.append(nativeResultStyle);
   return dom.serialize();
 }
 
@@ -98,8 +118,8 @@ export function unknownModuleFixtureHtml() {
 }
 
 /** Recorded introduction hierarchy, populated entirely with fictional content. */
-export function introductionFixtureHtml(count = 6, includeResults = true) {
-  const dom = new JSDOM(workspaceFixtureHtml(count, includeResults)), doc = dom.window.document;
+export function introductionFixtureHtml(count = 6, includeResults = true, resultSectionCount = 5) {
+  const dom = new JSDOM(workspaceFixtureHtml(count, includeResults, false, resultSectionCount)), doc = dom.window.document;
   doc.querySelector('.pagehead').remove();
   doc.querySelector('#main_wrapper > label')?.remove();
   doc.getElementById('fixture-native-navigation').style.height = '166px';

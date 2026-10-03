@@ -1,5 +1,20 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Native result-row presentation (0.17.2)
+
+Validated result rows also carry `.row-fluid` clearfix boxes and legacy span
+styles. Remove their generated grid items; normalize only the marked cells'
+minimum height and text alignment. Native status markup/colors stay intact;
+the lock icon's three-line floating box becomes an inline icon through CSS.
+
+Rooms & instructors now gates both optional data fields (6/8) and their original
+header help controls. Expanding it exposes all of them in their original parents;
+the optional headings align with their fields instead of stacking at the right.
+This supersedes the 0.15.1 requirement to keep optional help visible while closed.
+Primary help remains visible. Native inline hidden states and hidden attributes
+or classes win over the expanded presentation; print exposes optional content.
+No control is replaced, no field value is read, and no native action is invoked.
+
 ## Native search layout compatibility (0.17.1)
 
 The validated search row retains native `.row` clearfix pseudo-elements,

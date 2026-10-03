@@ -2,7 +2,36 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.1` (search layout fix).
+Current version: `0.17.2` (result row layout fix).
+
+The user's next screenshot exposed legacy result styles that the fixtures had
+not reproduced. Optional room/instructor data stayed visible even with Rooms &
+instructors closed. Header help stacked at the right. Native clearfix boxes,
+30px minimum cell heights and a three-line floated lock icon enlarged rows.
+
+The fix scopes resets to marked, validated result rows. Optional data and its
+native header help now share the Rooms & instructors disclosure. Open headings
+align with the optional fields; labels/values align left. Status text, icons,
+colors, nested widgets, native controls and form ancestry remain unchanged.
+No runtime JavaScript, permission, request or storage behavior changed.
+
+The shared fictional fixture now includes observed native result constraints.
+Typecheck, 228 unit tests and production build pass. The broader browser suite
+passes at 2048/1440/1280/390 and its additional long-result, print/restoration,
+compact-header and lifecycle scenarios. Focused result verification passes all
+12 single/multiple-course cases at 2048/1440/1366/1280/960/390, including strict
+column alignment, native hidden states, print/Tidy restoration, unchanged native
+status/control/widget identity and zero native actions or extra requests.
+The regression fixture reproduces a 118px one-line row in v0.17.1, reduced to
+46px in v0.17.2. Closed/open desktop and scrolled phone screenshots reviewed.
+Website preview checks also pass at 1440/1280/960/390, and the preview is rebuilt
+from the final production CSS.
+
+Installed in Downloads/better-myucla-v0.10.3/dist; all 17 files hash-match the
+production build. v0.17.1 is backed up at outputs/installed-backup-v0.17.1 and
+v0.16.0 remains intact. User reload and live results verification are pending.
+
+## v0.17.1 historical record
 
 The user's live screenshot exposed a layout regression missed by the original
 fixtures: native `.row` clearfix pseudo-elements became grid items, percentage

@@ -58,10 +58,10 @@ const verifyResultHeadings=async(page)=>{
    return {field,exists:!!label,accessible:!!label&&style.display!=='none'&&style.visibility!=='hidden'&&label.getAttribute('aria-hidden')!=='true',compact:!!rect&&rect.width<=2&&rect.height<=2,visible:visible(label),height:rect?.height};
   });
   const help=[...heading?.querySelectorAll('button,a,input,select')||[]].map(node=>({visible:visible(node),focusable:node.tabIndex>=0&&!node.disabled,field:node.parentElement?.getAttribute('data-pl-field'),height:node.getBoundingClientRect().height}));
-  return {width,wide,heading:!!heading,headerFields:heading?.children.length,alignment,labels,help};
+  return {width,wide,heading:!!heading,headerFields:heading?.children.length,alignment,labels,help,more:preview.classList.contains('pl-section-more')};
  });
  assert.ok(result.heading&&result.headerFields===9,'the validated native result header retains all nine indexed cells');
- assert.ok(result.help.length>=3&&result.help.every(control=>control.visible&&control.focusable&&control.height>1),'all native header help remains accessible, including Instructor when rooms are hidden');
+ assert.ok(result.help.length>=4&&result.help.every(control=>[6,8].includes(Number(control.field))&&!result.more?!control.visible:control.visible&&control.focusable&&control.height>1),'primary native header help is visible; Location and Instructor help follow the Rooms & instructors disclosure');
  assert.ok(result.labels.every(label=>label.exists&&label.accessible),'per-row labels remain available to assistive technology');
  if(result.wide){
   assert.ok(result.alignment.every(field=>field.visible&&field.left<=1&&field.right<=1),`shared headings line up with their section fields: ${JSON.stringify(result)}`);
