@@ -92,6 +92,9 @@ geometry, print, full restoration and quarter lifecycle. Fictional desktop and
 phone screenshots were visually inspected.
 
 v0.17.0 is installed with all 17 files hash-verified and a verified v0.16.0 backup.
-The actual MyUCLA session timed out before the final installed-page check; user
-sign-in and extension reload are pending. Do not infer live verification from
-a generated design draft or a fictional test screenshot.
+After the user signed in and reloaded, the real 2048x927 Class Planner passed
+bounded structural and interaction checks: all modules, public search, native
+forms, Details and help dismissal/focus, plan-menu availability, resizing and
+Original layout restoration. No plan or enrollment action was performed. The
+page is left on Find classes. Only fictional screenshots are retained; quarter
+changes and printing were checked in fixtures rather than the real account.

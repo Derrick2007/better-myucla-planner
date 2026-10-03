@@ -41,11 +41,26 @@ match the production dist. v0.16.0 is backed up and hash-verified at
 outputs/installed-backup-v0.16.0 outside Git. ZIP and fictional screenshots are
 also under outputs outside Git; v0.16.0 remains the published rollback release.
 
-Live read-only inspection confirmed Optimizer's help block and conditionally
-hidden panel; their native visibility is preserved. The real tab later timed
-out. The user has been asked to sign in, reload the extension and refresh Class
-Planner. Final installed-page verification is pending that action; do not infer
-it from the fixture screenshots or inspect the timeout/login page.
+After the user reloaded, live verification passed on the exact Class Planner page
+at 2048x927. All seven navigation destinations were reachable; the schedule stayed
+visible beside every module. Native search-mode changes and one explicit public
+instructor/course search loaded a single course into the bounded preview with
+native controls still associated with aspnetForm. No course names or account
+content were recorded. Details retained its native row ancestry, and Escape
+closed it with focus returning to its trigger. Information & help returned to
+the previous module. All original plan-menu controls were visible. Original
+layout restored all six native modules and the original menu/sidebar, and the
+workspace reopened successfully. Keyboard resizing changed the schedule from
+640 to 624px and back. No horizontal page clipping occurred. Find is left open.
+No Add, Enroll, Drop, Remove, Exchange, Waitlist, reorder or Save action was run.
+Quarter transitions and print were verified in fixtures, not on the real account.
+
+Published source/tag: 9a229e85c9a11ca272848f596a20067f2582606f.
+Release: https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.0
+CI: https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37151668605
+Release build: https://github.com/comet-ctrl/better-myucla-planner/actions/runs/37151670022
+Both workflows passed for the exact release SHA. ZIP: 361854 bytes; SHA-256
+8a05ff14356ae27b743cae238d7b574c4495236425ded52a793803417db71be5.
 
 ## v0.16.0 historical record
 
