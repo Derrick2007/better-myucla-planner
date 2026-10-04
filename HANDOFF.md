@@ -2,7 +2,47 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.5` (Optimizer access and compact section details).
+Current version: `0.17.6` (Plan Actions, search appearance and visible metadata).
+
+User requested normal behavior for every Plan Actions option, a readable Search
+classes button, and rooms/instructors visible without another click. Removed
+those metadata disclosures from Find classes and My classes Details; original
+fields/help remain in place, with all native hidden states preserved.
+
+Live structural inspection reproduced Load and About as static direct-host
+children stealing workspace grid rows. Recognized native Load/About/Save/Response
+panels now receive bounded positioning in place. All original fields, parents,
+form ownership and handlers remain intact. Exact close-only forwarding adds
+Escape and a Close load plan button; no plan mutation is automated. An anonymous
+native menu replacement now survives reconciliation and Original-layout restore.
+Short-screen menus scroll within their available height; native hidden entries
+stay hidden. See the 0.17.6 contract for observed native panel shapes.
+
+The Search classes native input retained UCLA's white-gray gradient behind the
+extension's white caption. Scoped CSS now uses solid blue when enabled and dark
+text on a neutral background when disabled, with visible keyboard focus. The
+native name, Go value, form and disabled state are unchanged.
+
+Search fixtures pass seven widths, Details six widths, and result fixtures twelve
+single/multiple-course cases. Metadata is immediately visible; original status
+content, control identity, hidden states, printing and restoration pass. Long
+results check all nine last-section fields for pointer reachability instead of
+requiring invisible card padding to fit under the footer. Typecheck, 272 unit
+tests, production build and matching preview verification pass. Broad workspace
+regressions pass, including native redraw, empty plans, long results and header
+preferences. The Plan Actions browser harness verifies all seven native handlers,
+dialog submitters, Delete cancellation/confirmation, Load selection, Print,
+foreground-message dismissal and focus return at 1440x900, 1280x900, 390x900 and
+390x600. These plan-changing actions run only on fictional fixtures.
+
+Installed v0.17.6 in Downloads/better-myucla-v0.10.3/dist; all 17 files match the
+tested production build by SHA-256. Previous installed v0.17.5 backed up under
+`outputs/installed-backup-v0.17.5`. The live tab is on ClassPlan.aspx and the user
+has been asked to reload the extension and refresh. Live verification of this
+build is pending; do not claim it until completed. Live inspection before the
+fix safely opened/closed only Load and About, with no saved-plan mutation.
+
+## v0.17.5 historical record
 
 Live inspection reproduced the blank Optimizer pane: navigation selected the
 module while UCLA's `#panelOptimizer.hidden` remained collapsed. One explicit

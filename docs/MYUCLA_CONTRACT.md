@@ -1,5 +1,37 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Plan Actions and always-visible section metadata (0.17.6)
+
+This supersedes earlier room/instructor disclosures: those original fields and
+their native help controls stay visible during selection and in My classes
+Details. Native hidden attributes/classes and inline hidden states still win.
+No field or control is copied, moved or submitted by this presentation.
+
+Live inspection found seven native Plan Actions buttons inside the anonymous
+`.plannerTopMenuLinks`. They retain `#aspnetForm` and their original handlers.
+The current empty plan natively hides Rename/New/Save a Copy/Delete/Print; preserve
+those visibility choices. Load and About are available. Do not inspect plan names
+or field values, or invoke a saved-plan mutation while checking presentation.
+
+Load toggles a direct wrapper child `.mobileloadmenupanel.touchpanelmenu.noprint`
+containing `div.message > ul`. About opens direct `#AboutDragger.message.info`
+(a header and content div); Rename and Save a Copy share direct
+`#SaveDragger.message.info` (a header and three native rows). These static panels
+were incorrectly becoming additional workspace grid children. Present recognized
+panels in place with bounded overlays; native visibility and controls remain
+authoritative. Preserve direct `#ResponseMessageDragger` and its original close
+buttons. Never activate a submit/save/delete/load/print action automatically.
+
+The About close button hides only About and focuses `#aboutMenuEntry`; Save and
+Response have native hide-only close controls. Load has no close button and its
+original `#loadMenuEntry` toggles the panel. Extension dismissal may forward only
+the verified native close/toggle, never an action that saves or loads a plan.
+Keep an anonymous replacement menu through redraws and Original-layout restore.
+
+Search classes is still the original `#ctl00_MainContent_cs_goButton` input,
+including its name, `Go` value, form and disabled state. Scoped CSS suppresses
+the conflicting native gradient without changing whether it can submit.
+
 ## Optimizer disclosure and section details (0.17.5)
 
 Live inspection confirmed Optimizer is initially collapsed: `#panelOptimizer.hidden`

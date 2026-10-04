@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.17.6 — 2026-10-03 (native actions and visible course information)
+
+- Keep rooms and instructors visible alongside every section in Find classes and
+  My classes Details; remove the extra disclosure button.
+- Give Search classes a readable disabled state, solid blue enabled state and
+  keyboard focus indicator while preserving the original native submit input.
+- Keep native Plan Actions panels above the workspace without taking space from
+  the schedule. Preserve the native menu and controls through partial redraws,
+  and make the menu scrollable on short screens.
+
 ## 0.17.5 — 2026-10-03 (workspace compatibility fixes)
 
 - Open the original Plan Optimizer disclosure when its navigation is selected.

@@ -9,12 +9,12 @@
 An unofficial Chrome extension for the MyUCLA Class Planner.
 
 [Install guide](site/index.html) ·
-[v0.17.5 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.5) ·
+[v0.17.6 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.6) ·
 [Contributing](CONTRIBUTING.md)
 
 </div>
 
-<img src="site/workspace-preview.png" width="100%" alt="v0.17.5 workspace with fictional course browsing beside a weekly schedule.">
+<img src="site/workspace-preview.png" width="100%" alt="v0.17.6 workspace with fictional course browsing beside a weekly schedule.">
 
 The optional workspace provides named destinations for My classes, Find classes,
 Optimizer, Study list, Personal entries and Information & help. The original
@@ -202,7 +202,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.17.5` workspace redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.17.6` workspace redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. Named navigation
 opens My classes, Find classes, Optimizer, Study list and Personal entries inside
@@ -215,7 +215,7 @@ Details open beside the class list while keeping native section controls inside
 their original class row. Per-section summaries show meeting time and original
 status text. The final-exam note expands separately. Close with × or Escape; focus
 returns to the selected class. Other page controls remain interactive. Rooms and
-instructors expand when needed.
+instructors stay visible with each section, including during class selection.
 
 For complete, already-rendered results, the browser lists course headings and
 previews one course's native section rows at a time. Selection is local. Search

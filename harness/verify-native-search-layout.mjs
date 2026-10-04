@@ -66,6 +66,13 @@ try {
     check(geometry.fields.every(field => field.width > 86), named(`fields remain wider than 86px (${geometry.fields.map(field => Math.round(field.width)).join(', ')}px)`));
     check([geometry.mode, geometry.go, ...geometry.fields].every(box => box.x >= geometry.controls.x - 1 && box.right <= geometry.controls.right + 1), named('native controls stay inside the search band'));
     check(geometry.documentWidth <= geometry.viewport + 1, named('no horizontal page overflow'));
+    const searchAppearance = await page.locator('.pl-search-submit').evaluate(wrapper => {
+      const input = wrapper.querySelector('input'), label = wrapper.querySelector('.pl-search-submit-label');
+      const style = getComputedStyle(input), caption = getComputedStyle(label);
+      return { disabled: input.disabled, background: style.backgroundColor, image: style.backgroundImage, opacity: style.opacity, color: caption.color, labelFits: label.scrollWidth <= label.clientWidth && label.scrollHeight <= label.clientHeight };
+    });
+    check(searchAppearance.disabled && searchAppearance.background === 'rgb(232, 237, 243)' && searchAppearance.color === 'rgb(82, 97, 116)', named('disabled search has a readable label and neutral background'));
+    check(searchAppearance.image === 'none' && searchAppearance.opacity === '1' && searchAppearance.labelFits, named('native gradient/fading cannot wash out or clip the search label'));
     if (geometry.controls.width >= 700) {
       check(geometry.controls.height <= 105, named(`desktop controls occupy one compact band (${Math.round(geometry.controls.height)}px high)`));
       check(Math.max(...[geometry.mode, geometry.go, ...geometry.fields].map(box => box.bottom)) - Math.min(...[geometry.mode, geometry.go, ...geometry.fields].map(box => box.bottom)) <= 2, named('mode, inputs and submit align on one desktop row'));
@@ -122,6 +129,22 @@ try {
     check(await page.evaluate(() => window.originalSearchControls.every(node => node.isConnected && node.form === document.getElementById('aspnetForm'))), named('original controls retain identity and form association'));
     check(await page.evaluate(() => { const saved = window.originalSearchTitleLink; return saved.node.isConnected && saved.node.parentElement === saved.parent && saved.node.getAttribute('href') === saved.href; }), named('the original enrollment-navigation link retains its identity, parent and target'));
     check(await page.evaluate(() => window.searchChangeCount === 0 && window.searchSubmitCount === 0), named('mount and layout checks send no native search events'));
+    if (width === 1440) {
+      const go = page.locator('#ctl00_MainContent_cs_goButton');
+      check(await go.isDisabled(), named('native disabled behavior is retained'));
+      await go.evaluate(node => { node.disabled = false; });
+      await page.locator('.pl-search-hint').waitFor({ state: 'hidden' });
+      const enabled = await go.evaluate(node => ({ bg: getComputedStyle(node).backgroundColor, image: getComputedStyle(node).backgroundImage, value: node.value, name: node.name }));
+      check(enabled.bg === 'rgb(35, 95, 152)' && enabled.image === 'none', named('enabled native search has a solid primary color'));
+      check(enabled.value === 'Go' && enabled.name === 'ctl00$MainContent$cs$goButton', named('native submitter value and name are preserved'));
+      await page.locator('#searchTier1').focus();
+      await page.keyboard.press('Tab');
+      check(await go.evaluate(node => document.activeElement === node), named('Tab reaches the original search submitter'));
+      check(await go.evaluate(node => getComputedStyle(node).outlineStyle !== 'none'), named('keyboard focus is visible'));
+      await page.screenshot({ path: resolve(output, `${label}-${width}-search-enabled.png`) });
+      await go.press('Enter');
+      check(await page.evaluate(() => window.searchSubmitCount === 1), named('keyboard activation submits the original form exactly once'));
+    }
     check(errors.length === 0, named(`no script errors: ${errors.join('; ')}`));
     check(requests.length === 0, named('no extra requests'));
     await page.close();

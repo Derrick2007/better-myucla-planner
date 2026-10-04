@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.17.5 fictional preview</title>
+<title>Better MyUCLA · v0.17.6 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -68,6 +68,9 @@
   .ClassSearchControls.row .searchType.panel-5 { width:40.17094017094017%; }
   .ClassSearchControls.row .searchFieldPanel.panel-7 { width:57.26495726495726%; margin-left:8px; }
   .ClassSearchControls.row .searchFields.panel-10 { width:82.90598290598291%; }
+  /* Reproduce the native button theme that otherwise overrides the extension. */
+  #panelSearch input.button[type="submit"] { background:linear-gradient(#fff,#eee); color:#2f2f2f; font-size:14px; text-shadow:0 1px #fff; }
+  #panelSearch input.button[type="submit"]:disabled { background:linear-gradient(#fff,#eee); color:#aaa; opacity:.6; }
 </style><style>
   .ClassSearchList .row-fluid.class-info::before,
   .ClassSearchList .row-fluid.class-info::after { content:""; display:table; }
@@ -81,7 +84,7 @@
   #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.5"><meta name="planner-source-revision" content="5c30f26df7393192c861e814d2435b4f259d05a7"><meta name="planner-production-css-sha256" content="42847796edea648361efb747600f79712a4d18fbffa7efa2a960babb414f184d"><meta name="planner-production-content-sha256" content="af33076fc588db16ca1ebccb13c1dc9829d9666e0b9cc86148d415f32fa7f976"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.6"><meta name="planner-source-revision" content="cf933ac467d7465cfd06e9c3b7bd4d5282462e2a"><meta name="planner-production-css-sha256" content="8e13764ce95547ea2884f5982a203998ae087f1b8205427d226bfe6a5e29d351"><meta name="planner-production-content-sha256" content="7e96122c80d97c57083e7c9347a5e3063be9c14575c2e7fae84e39603895faec"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -1407,17 +1410,19 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
 .ClassSearchWidget.pl-search-widget input.ClassSearchBox { width: 100% !important; min-width: 0; max-width: none; margin: 0 !important; }
 .pl-search-widget .goPanel { flex: 0 0 auto; width: auto; float: none; padding: 0; }
 .pl-search-widget .pl-search-submit { position: relative; display: inline-block; vertical-align: middle; }
-.pl-search-widget .pl-search-submit input.csGoButton {
-  box-sizing: border-box; width: 135px; height: 42px; margin: 0; padding: 0;
-  border: 1px solid #235f98; border-radius: 7px; background: #235f98; color: transparent;
-  font-size: 0; cursor: pointer;
+.ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton {
+  appearance: none; box-sizing: border-box; width: 128px; height: 42px; margin: 0; padding: 0;
+  border: 1px solid #235f98; border-radius: 7px; background: #235f98 !important; color: transparent !important;
+  font-size: 0 !important; text-shadow: none !important; box-shadow: none; cursor: pointer; opacity: 1;
 }
 .pl-search-widget .pl-search-submit-label {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   color: #fff; font-family: inherit; font-size: 13px; font-weight: 600; pointer-events: none;
 }
-.pl-search-widget .pl-search-submit input.csGoButton:disabled { background: #edf0f3; border-color: #e2e5e9; cursor: default; opacity: 1; }
-.pl-search-widget .pl-search-submit input.csGoButton:disabled + .pl-search-submit-label { color: #697586; }
+.ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:hover:not(:disabled) { background: #194c7d !important; border-color: #194c7d; }
+.ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:focus-visible { outline: 3px solid #75a9da; outline-offset: 2px; }
+.ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:disabled { background: #e8edf3 !important; border-color: #cbd5e0; cursor: not-allowed; opacity: 1; }
+.ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:disabled + .pl-search-submit-label { color: #526174; }
 .pl-search-widget #resultHeaderDiv { margin-top: 14px; }
 .pl-search-widget #resultHeaderDiv:empty { margin: 0; }
 @media (max-width: 780px) {
@@ -1639,7 +1644,6 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-search .searchFieldPanel { display: flex; flex-direction: row; align-items: end; min-width: 0; gap: 10px; }
 .pl-workspace-search .ClassSearchWidget.pl-search-widget .searchFields { display: grid; gap: 6px 10px; }
 .pl-workspace-search .goPanel { align-self: end; }
-.pl-workspace-search .pl-search-submit input.csGoButton { width: 96px; }
 .pl-workspace-search label.pl-search-field-label:not(:first-child) { margin-top: 0; }
 .pl-workspace-search > .pl-pane-title > button.planSectionToggle { order: 0; flex: 1; min-width: 0; }
 .pl-workspace-search > .pl-pane-title > a { order: 1; margin-left: auto; font-size: 13px; }
@@ -1662,8 +1666,6 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-search .ClassSearchList:not(.pl-browser-list) .row-fluid.class-info.table-width2 { min-width: 940px; }
 .pl-browser-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; }
 .pl-browser-toolbar strong { flex: 1; color: #59687a; font-size: 14px; font-weight: 500; }
-.pl-browser-toolbar button, .pl-workspace-preview-more { min-height: 40px; border: 1px solid #cfd7e1; border-radius: 6px; padding: 8px 12px; color: #465b70; background: #fff; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
-.pl-browser-toolbar button[aria-expanded="true"], .pl-workspace-preview-more[aria-expanded="true"] { background: #edf3f9; border-color: #b9cde1; }
 .pl-browser-selections { margin: 0 0 12px; padding: 10px 12px; border: 1px solid #cbdbea; border-radius: 6px; background: #f2f7fc; color: #365773; font-size: 14px; line-height: 1.5; }
 .pl-browser-selections[hidden] { display: none !important; }
 .pl-browser-selections > summary { cursor: pointer; }
@@ -1686,7 +1688,7 @@ section#layoutContentArea.pl-planner-introduction {
 /* A single loaded course needs only its preview, not a second copy in a list. */
 .pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-index,
 .pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-toolbar > strong { display: none; }
-.pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-toolbar { justify-content: flex-end; }
+.pl-browser-results:has(.pl-browser-choices > button:only-child) > .pl-browser-toolbar { display: none; }
 @container pl-search (min-width: 600px) {
   .ClassSearchWidget.pl-browser-results { display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 16px; align-content: start; }
   .pl-browser-results > * { grid-column: 1 / -1; min-width: 0; }
@@ -1718,10 +1720,6 @@ section#layoutContentArea.pl-planner-introduction {
 .ClassSearchList.pl-browser-list .pl-section-field[data-pl-field="2"] > i:is(.icon-lock,.icon-unlock) {
   display: inline-block !important; float: none !important; height: auto !important; margin-right: 4px; vertical-align: baseline;
 }
-@media screen {
-  .ClassSearchList.pl-browser-list:not(.pl-section-more) .pl-section-card > .pl-section-field:is([data-pl-field="6"],[data-pl-field="8"]),
-  .ClassSearchList.pl-browser-list:not(.pl-section-more) .pl-section-result-heading > .pl-section-help-field:is([data-pl-field="6"],[data-pl-field="8"]) { display: none !important; }
-}
 /* Presentation must not revive a field that UCLA itself has hidden. */
 .ClassSearchList.pl-browser-list :is(.pl-section-field,.pl-section-help-field):is([hidden],.hidden) { display: none !important; }
 @container pl-preview (min-width: 420px) and (max-width: 639px) {
@@ -1732,7 +1730,8 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-browser-list .pl-section-field[data-pl-field="4"] { grid-column: 2; grid-row: 2; }
   .pl-browser-list .pl-section-field[data-pl-field="5"] { grid-column: 3; grid-row: 2; }
   .pl-browser-list .pl-section-field[data-pl-field="7"] { grid-column: 4; grid-row: 2; }
-  .pl-browser-list .pl-section-field[data-pl-field="6"], .pl-browser-list .pl-section-field[data-pl-field="8"] { grid-column: 2 / 5; grid-row: auto; }
+  .pl-browser-list .pl-section-field[data-pl-field="6"] { grid-column: 2; grid-row: 3; }
+  .pl-browser-list .pl-section-field[data-pl-field="8"] { grid-column: 3 / 5; grid-row: 3; }
 }
 @container pl-preview (min-width: 640px) {
   .ClassSearchList.pl-browser-list .pl-section-card,
@@ -1746,8 +1745,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="4"] { grid-column: 4; grid-row: 1; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="5"] { grid-column: 5; grid-row: 1; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="7"] { grid-column: 6; grid-row: 1; }
-  /* Optional headings and their original help controls share the disclosure
-     with their fields, aligned to those fields when expanded. */
+  /* Native metadata help controls align with their always-visible fields. */
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="6"] { grid-column: 2 / 4; grid-row: 2; justify-self: stretch; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="8"] { grid-column: 4 / 7; grid-row: 2; justify-self: stretch; }
   .pl-section-result-heading > .pl-section-help-field > button,
@@ -1797,22 +1795,40 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-section-field[data-pl-field="3"] { grid-column: 1; grid-row: 2; padding: 0 !important; }
 .pl-section-field[data-pl-field="4"] { grid-column: 2; grid-row: 3; }
 .pl-section-field[data-pl-field="5"] { grid-column: 3 / 5; grid-row: 3; }
-.pl-section-field[data-pl-field="6"], .pl-section-field[data-pl-field="8"] { display: none; grid-column: 2 / 5; }
-.pl-section-more .pl-section-field[data-pl-field="6"], .pl-section-more .pl-section-field[data-pl-field="8"] { display: block; }
+.pl-section-field[data-pl-field="6"], .pl-section-field[data-pl-field="8"] { display: block; grid-column: 2 / 5; }
 .pl-section-label { position: absolute; top: 0; left: 0; color: #59687a; font-size: 12px; font-weight: 500; line-height: 16px; text-transform: none; letter-spacing: 0; }
 .pl-section-field input[type="checkbox"], .pl-section-field input[type="radio"] { width: auto !important; height: auto; margin: 0; }
 .pl-workspace-plan-actions { position: relative; flex: none; margin: 0; }
 .pl-workspace-plan-actions > summary { min-height: 38px; padding: 8px 12px; box-sizing: border-box; border: 1px solid #cfd7e1; border-radius: 5px; background: #fff; color: #46566a; cursor: pointer; }
 .pl-workspace-plan-actions > .plannerTopMenuLinks { display: none; }
-.pl-workspace-plan-actions[open] > .plannerTopMenuLinks { display: flex; flex-direction: column; gap: 4px; position: absolute; top: calc(100% + 4px); left: 0; z-index: 180; width: 220px; padding: 8px; margin: 0; box-sizing: border-box; border: 1px solid #dce3eb; border-radius: 6px; background: #fff; box-shadow: 0 8px 24px #2030401a; text-align: left; }
-.pl-workspace-plan-actions .plannerTopMenuLinks a, .pl-workspace-plan-actions .plannerTopMenuLinks button { display: block; min-height: 36px; padding: 8px 10px; box-sizing: border-box; color: #345c85; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; text-align: left; }
+.pl-workspace-plan-actions[open] > .plannerTopMenuLinks { display: flex; flex-direction: column; gap: 4px; position: absolute; top: calc(100% + 4px); right: 0; z-index: 180; width: 220px; max-width: calc(100vw - 48px); max-height: var(--pl-plan-menu-max-height,60dvh); overflow: auto; overscroll-behavior: contain; padding: 8px; margin: 0; box-sizing: border-box; border: 1px solid #dce3eb; border-radius: 6px; background: #fff; box-shadow: 0 8px 24px #2030401a; text-align: left; }
+.pl-workspace-plan-actions .plannerTopMenuLinks > :is(a,button) { display: block; flex: none; min-height: 36px; padding: 8px 10px; box-sizing: border-box; color: #345c85; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; text-align: left; }
+.pl-workspace-plan-actions .plannerTopMenuLinks > :is(a,button):focus-visible { outline: 2px solid #4184c2; outline-offset: -2px; }
+.pl-workspace-plan-actions > .plannerTopMenuLinks:is([hidden],.hidden),
+.pl-workspace-plan-actions .plannerTopMenuLinks > :is(a,button):is([hidden],.hidden) { display: none !important; }
+/* Native plan panels keep their original parents and visibility, but no longer
+   become extra workspace grid rows when their original action opens them. */
+.pl-workspace-host > .pl-plan-action-surface {
+  position: absolute !important; z-index: 240 !important;
+  left: var(--pl-plan-action-left,12px) !important; top: var(--pl-plan-action-top,64px) !important;
+  width: var(--pl-plan-action-width,calc(100% - 24px)) !important;
+  max-width: calc(100% - 24px); max-height: var(--pl-plan-action-max-height,calc(100% - 80px));
+  box-sizing: border-box; overflow: auto; overscroll-behavior: contain;
+  margin: 0 !important; padding: 20px; border: 1px solid #cbd5e0; border-radius: 8px;
+  background: #fff; color: #263344; box-shadow: 0 12px 36px #20304026;
+}
+.pl-workspace-host > .pl-plan-action-surface:is([hidden],.hidden) { display: none !important; }
+.pl-plan-action-surface > header { margin-bottom: 16px; }
+.pl-plan-action-surface > .message { margin: 0; }
+.pl-plan-action-load-close { display: block; margin: 0 0 12px auto; min-height: 36px; padding: 6px 12px; border: 1px solid #cbd5e0; border-radius: 5px; background: #fff; color: #345c85; font: 500 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.pl-plan-action-load-close:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
+@media print { .pl-workspace-host > .pl-plan-action-surface { display: none !important; } }
 .pl-workspace-preview { display: flex; flex-direction: column; position: relative; box-sizing: border-box; height: auto; padding: 0 0 16px; margin-bottom: 8px; background: #fff; border-bottom: 1px solid #e7ebf0; }
 .pl-workspace-preview[hidden] { display: none; }
 .pl-workspace-preview-head { padding-right: 38px; flex: none; max-height: none; }
 .pl-workspace-preview-head h2 { margin: 0 0 12px; color: #1d2a3b; font: 600 20px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-preview-head summary { cursor: pointer; color: #42617f; font-size: 14px; }
 .pl-workspace-preview-head p { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: #59687a; }
-.pl-workspace-preview-more { margin: 4px 0; align-self: start; flex: none; }
 .pl-workspace-preview-content { display: none; }
 .pl-workspace-preview button.pl-workspace-preview-close { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; border-radius: 7px; color: #345577; background: transparent; font: 26px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-workspace-preview button.pl-workspace-preview-close:hover { background: #edf2f7; }
@@ -1841,7 +1857,6 @@ section#layoutContentArea.pl-planner-introduction {
 }
 .pl-workspace-plan table.coursetable.pl-section-table :is(.pl-section-field,.pl-section-help-field,.pl-section-card):is([hidden],.hidden) { display: none !important; }
 @media screen {
-  .pl-workspace-plan .courseItem:not(.pl-section-more) table.pl-section-table :is(.pl-section-field,.pl-section-help-field):is([data-pl-field="6"],[data-pl-field="8"]) { display: none !important; }
   .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card { grid-template-columns: 28px minmax(58px,.8fr) minmax(90px,1.5fr) 32px; gap: 8px 10px; }
   .pl-section-table .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
   .pl-section-table .pl-section-field[data-pl-field="2"] { grid-column: 3 / 5; grid-row: 1; align-self: center; }
@@ -1850,6 +1865,10 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-section-table .pl-section-field[data-pl-field="5"] { grid-column: 3; grid-row: 2; }
   .pl-section-table .pl-section-field[data-pl-field="7"] { grid-column: 4; grid-row: 2; }
   .pl-section-table .pl-section-field:is([data-pl-field="6"],[data-pl-field="8"]) { grid-column: 2 / 5; grid-row: auto; }
+  @container pl-plan-detail (min-width: 420px) and (max-width: 639px) {
+    .pl-section-table .pl-section-field[data-pl-field="6"] { grid-column: 2; grid-row: 3; }
+    .pl-section-table .pl-section-field[data-pl-field="8"] { grid-column: 3 / 5; grid-row: 3; }
+  }
   @container pl-plan-detail (min-width: 640px) {
     .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
@@ -1893,6 +1912,11 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-search .searchFieldPanel { flex-wrap: wrap; }
   .pl-workspace-search .searchFields { flex-basis: 160px; }
   .pl-workspace-search .goPanel { margin-left: auto; }
+  .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="3"] .ClassSearchControls.row { grid-template-columns: minmax(0,1fr) auto; }
+  .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="3"] .searchType { grid-column: 1; grid-row: 1; }
+  .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="3"] .searchFieldPanel { --pl-search-panel-display: contents; display: contents; }
+  .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="3"] .searchFields { grid-column: 1 / -1; grid-row: 2; }
+  .pl-workspace-search .ClassSearchWidget[data-pl-search-fields="3"] .goPanel { grid-column: 2; grid-row: 1; margin: 0; }
 }
 @container pl-search (max-width: 599px) {
   .pl-workspace-search .ClassSearchControls.row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 10px; }
@@ -1958,7 +1982,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-nav, .pl-workspace-mobile-tabs, .pl-workspace-details-slot, .pl-workspace-information-placeholder, .pl-workspace-course-summary { display: none !important; }
   .pl-workspace-top { display: block; }
   .pl-workspace-top > button, .pl-workspace-plan-actions > summary { display: none; }
-  .pl-workspace-plan-actions[open] > .plannerTopMenuLinks { position: static; display: block; width: auto; border: 0; box-shadow: none; }
+  .pl-workspace-plan-actions[open] > .plannerTopMenuLinks { position: static; display: block; width: auto; max-width: none; max-height: none; overflow: visible; border: 0; box-shadow: none; }
   .pl-workspace-preview, .pl-workspace-detail-button, .pl-workspace-actions-button, .pl-workspace-splitter, .pl-pane-toggle, .pl-browser-toolbar, .pl-browser-index { display: none !important; }
   .pl-workspace-plan td.linkPanelRight:not(.pl-course-actions-open) > .OrderingButtons,
   .pl-workspace-plan td.linkPanelRight.pl-course-actions-open > .OrderingButtons { display: block !important; }
@@ -1967,7 +1991,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-search .ClassSearchWidget.pl-browser-bounded { display: block; height: auto; min-height: 0; overflow: visible; }
   .pl-workspace-search > .pl-pane-body:has(> .pl-browser-bounded) { overflow: visible; }
   .pl-browser-results > .pl-browser-list { border: 0; padding: 0; max-height: none; overflow: visible; }
-  .pl-section-more .pl-section-field[data-pl-field="6"], .pl-section-more .pl-section-field[data-pl-field="8"], .pl-section-field[data-pl-field="6"], .pl-section-field[data-pl-field="8"] { display: block; }
+  .pl-section-field[data-pl-field="6"], .pl-section-field[data-pl-field="8"] { display: block; }
   .pl-workspace-empty { display: none; }
   .pl-workspace-plan #panelPlan { max-height: none; overflow: visible; }
   .pl-workspace-plan tbody.courseItem, .pl-workspace-plan tbody.courseItem > tr:first-child { display: table-row-group; }
@@ -1978,7 +2002,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-browser-list { max-height: none; }
   .pl-browser-result-actions { position: static; }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.17.5","cssSha256":"42847796edea648361efb747600f79712a4d18fbffa7efa2a960babb414f184d","contentSha256":"af33076fc588db16ca1ebccb13c1dc9829d9666e0b9cc86148d415f32fa7f976","sourceRevision":"5c30f26df7393192c861e814d2435b4f259d05a7"}</script><style>
+</style><script id="preview-build-meta" type="application/json">{"version":"0.17.6","cssSha256":"8e13764ce95547ea2884f5982a203998ae087f1b8205427d226bfe6a5e29d351","contentSha256":"7e96122c80d97c57083e7c9347a5e3063be9c14575c2e7fae84e39603895faec","sourceRevision":"cf933ac467d7465cfd06e9c3b7bd4d5282462e2a"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -1996,7 +2020,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.5</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.6</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">
@@ -2644,10 +2668,9 @@ section#layoutContentArea.pl-planner-introduction {
       const sameResults = next && previous && next.root === previous.root && next.entries.length === previous.entries.length && next.entries.every((entry, i) => entry.node === previous.entries[i].node && entry.body === previous.entries[i].body && entry.heading === previous.entries[i].heading && entry.label === previous.entries[i].label);
       const retained = sameResults ? {
         query: previous.filter.value,
-        more: previous.root.classList.contains("pl-section-more"),
         scrollTop: previous.index.scrollTop,
         previewScrollTop: previous.root.scrollTop,
-        focus: doc.activeElement === previous.filter ? "filter" : doc.activeElement === previous.more ? "more" : previous.entries.find((entry) => entry.button === doc.activeElement)?.key
+        focus: doc.activeElement === previous.filter ? "filter" : previous.entries.find((entry) => entry.button === doc.activeElement)?.key
       } : null;
       if (this.needsReconcile(doc)) {
         this.restore();
@@ -2667,15 +2690,7 @@ section#layoutContentArea.pl-planner-introduction {
       const toolbar = owned(doc.createElement("div"), "pl-browser-toolbar");
       const title = doc.createElement("strong");
       title.textContent = `Courses (${next.entries.length})`;
-      const more = doc.createElement("button");
-      more.type = "button";
-      more.textContent = "Rooms & instructors";
-      more.setAttribute("aria-expanded", "false");
-      more.addEventListener("click", () => {
-        const expanded = next.root.classList.toggle("pl-section-more");
-        more.setAttribute("aria-expanded", String(expanded));
-      });
-      toolbar.append(title, more);
+      toolbar.append(title);
       const index = owned(doc.createElement("nav"), "pl-browser-index");
       index.setAttribute("aria-label", "Courses in search results");
       const filterLabel = doc.createElement("label");
@@ -2724,7 +2739,7 @@ section#layoutContentArea.pl-planner-introduction {
       widget.classList.toggle("pl-browser-bounded", bounded);
       next.root.classList.add("pl-browser-list");
       const changed = () => this.syncSelections();
-      this.state = { ...next, widget, toolbar, index, more, cards, selected: "", filter, filterStatus, previewTitle, selections, selectionLabel, selectionActions, changed, resultActions, actionsHadClass, bounded };
+      this.state = { ...next, widget, toolbar, index, cards, selected: "", filter, filterStatus, previewTitle, selections, selectionLabel, selectionActions, changed, resultActions, actionsHadClass, bounded };
       next.root.addEventListener("change", changed);
       filter.addEventListener("input", () => this.filterCourses());
       filter.addEventListener("keydown", (event) => {
@@ -2747,9 +2762,7 @@ section#layoutContentArea.pl-planner-introduction {
       this.select(next.entries.some((entry) => entry.key === this.lastKey && entry.label === this.lastLabel) ? this.lastKey : next.entries[0].key);
       this.filterCourses();
       if (retained) {
-        next.root.classList.toggle("pl-section-more", retained.more);
-        more.setAttribute("aria-expanded", String(retained.more));
-        const focus = retained.focus === "filter" ? filter : retained.focus === "more" ? more : next.entries.find((entry) => entry.key === retained.focus)?.button;
+        const focus = retained.focus === "filter" ? filter : next.entries.find((entry) => entry.key === retained.focus)?.button;
         focus?.focus({ preventScroll: true });
         index.scrollTop = retained.scrollTop;
         next.root.scrollTop = retained.previewScrollTop;
@@ -2828,7 +2841,7 @@ section#layoutContentArea.pl-planner-introduction {
       s.resultActions?.classList.remove("pl-browser-result-actions");
       if (s.resultActions && !s.actionsHadClass && !s.resultActions.getAttribute("class")) s.resultActions.removeAttribute("class");
       s.widget.classList.remove("pl-browser-results", "pl-browser-bounded");
-      s.root.classList.remove("pl-browser-list", "pl-section-more");
+      s.root.classList.remove("pl-browser-list");
       for (const entry of s.entries) {
         entry.node.classList.remove("pl-browser-course", "pl-browser-active");
         entry.body.classList.remove("pl-browser-body", "pl-browser-body-active");
@@ -3157,6 +3170,10 @@ section#layoutContentArea.pl-planner-introduction {
     actionControls = /* @__PURE__ */ new Map();
     actionsHost = null;
     pendingOptimizer = null;
+    planSurfaces = /* @__PURE__ */ new Map();
+    activePlanSurface = null;
+    pendingPlanAction = null;
+    planSurfaceTrigger = /* @__PURE__ */ new Map();
     useOriginal = false;
     returnButton = null;
     latestCourses = [];
@@ -3183,7 +3200,7 @@ section#layoutContentArea.pl-planner-introduction {
       if (this.useOriginal) return !!this.returnButton && !this.returnButton.isConnected;
       if (this.introductionOnly) return !this.introductionOnly.toolbar.isConnected || this.introduction.needsRefresh(doc);
       const s = this.state;
-      return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || hasUnknownSection(s.panel) || !this.latestCourses.length && !isKnownEmptyPlanner(doc) || s.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) || !!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh()) || this.latestCourses.some((c) => {
+      return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || this.currentPlanMenu(s) !== s.menu || hasUnknownSection(s.panel) || !this.latestCourses.length && !isKnownEmptyPlanner(doc) || s.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) || !!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh()) || this.latestCourses.some((c) => {
         const host = c.node.querySelector(":scope > tr:first-child > td.linkPanelRight"), actions = host && this.actionControls.get(host);
         return !hasKnownDetails(c.node) || !host || !actions || actions.button.parentElement !== host || actions.nativeTools !== host.querySelector(".OrderingButtons") || actions.ownedTools !== host.querySelector(":scope > [data-pl-real-tools]") || this.summaryChanged(c.node);
       }) || this.browser.needsReconcile(doc) || this.introduction.needsRefresh(doc));
@@ -3216,7 +3233,7 @@ section#layoutContentArea.pl-planner-introduction {
       const old = this.state;
       const view = doc.defaultView;
       let redrawScroll = null;
-      if (old && (doc.getElementById(PANEL) !== old.panel || !old.deck.isConnected || old.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section))) {
+      if (old && (doc.getElementById(PANEL) !== old.panel || !old.deck.isConnected || this.currentPlanMenu(old) !== old.menu || old.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section))) {
         if (view) redrawScroll = { left: view.scrollX, top: view.scrollY };
         this.restore();
       }
@@ -3400,10 +3417,10 @@ section#layoutContentArea.pl-planner-introduction {
         return node;
       };
       const placements = [];
-      const place = (node, destination) => {
+      const place = (node, destination, menu2 = false) => {
         const anchor = doc.createComment("planner-lift-workspace-position");
         node.before(anchor);
-        placements.push({ node, anchor });
+        placements.push({ node, anchor, menu: menu2 });
         destination.append(node);
       };
       const top = doc.createElement("div");
@@ -3527,8 +3544,8 @@ section#layoutContentArea.pl-planner-introduction {
       const summary = owned(doc.createElement("summary"), "");
       summary.textContent = "Plan actions";
       extras.append(summary);
-      const menu = [...host.children].find((node) => node.classList.contains("plannerTopMenuLinks"));
-      if (menu) place(menu, extras);
+      const menu = host.querySelector(":scope > .plannerTopMenuLinks");
+      if (menu) place(menu, extras, true);
       else extras.hidden = true;
       place(panel, shell);
       const splitter = owned(doc.createElement("div"), "pl-workspace-splitter");
@@ -3573,25 +3590,24 @@ section#layoutContentArea.pl-planner-introduction {
       close.textContent = "\xD7";
       close.setAttribute("aria-label", "Close details");
       close.addEventListener("click", () => this.closePreview());
-      const more = doc.createElement("button");
-      more.type = "button";
-      more.className = "pl-workspace-preview-more";
-      more.textContent = "Rooms & instructors";
-      more.setAttribute("aria-expanded", "false");
-      more.addEventListener("click", () => {
-        if (this.selected) more.setAttribute("aria-expanded", String(this.selected.classList.toggle("pl-section-more")));
-      });
-      preview.append(close, head, more, content);
+      preview.append(close, head, content);
       slot.append(preview);
       const resize = () => {
         this.introduction.positionHeader();
         this.positionWorkspace();
         this.updatePanes();
         this.introduction.positionInfo();
+        this.positionPlanActions();
       };
       const key = (event) => {
         if (event.key !== "Escape" || event.defaultPrevented) return;
         const target = event.target;
+        const dialog = target instanceof Element ? target.closest('[role="dialog"],dialog[open],.ui-dialog') : null;
+        if (dialog && dialog !== this.activePlanSurface) return;
+        if (this.activePlanSurface) {
+          if (this.dismissPlanSurface(this.activePlanSurface)) event.preventDefault();
+          return;
+        }
         if (target instanceof Element && target.matches("input.ClassSearchBox") && panes[2].body.contains(target) && [...doc.querySelectorAll(".ui-autocomplete")].some((menu2) => !menu2.hidden && menu2.children.length > 0 && doc.defaultView?.getComputedStyle(menu2).display !== "none" && doc.defaultView?.getComputedStyle(menu2).visibility !== "hidden")) return;
         if (extras.open) {
           extras.open = false;
@@ -3635,7 +3651,18 @@ section#layoutContentArea.pl-planner-introduction {
           before = null;
         }
       };
-      this.state = { doc, host, panel, deck, top, extras, placements, preview, head, content, close, more, panes, splitters: [splitter], empty, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, move, end, beforePrint, afterPrint };
+      const actionObserver = new MutationObserver(() => this.syncPlanSurfaces());
+      const actionClick = (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const entry = target?.closest("button");
+        if (entry?.parentElement === this.currentPlanMenu(this.state)) this.pendingPlanAction = ["renamePlan", "savePlanAsMenuEntry", "loadMenuEntry", "aboutMenuEntry"].includes(entry.id) ? entry.id : null;
+        this.syncPlanSurfaces();
+        if (!this.activePlanSurface && target && !extras.contains(target) && !target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog')) extras.open = false;
+      };
+      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter], empty, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, move, end, beforePrint, afterPrint, actionObserver, actionClick };
+      actionObserver.observe(host, { childList: true });
+      doc.addEventListener("click", actionClick);
+      this.syncPlanSurfaces();
       for (const name of ["resize", "scroll", "focus", "pageshow", "load"]) doc.defaultView?.addEventListener(name, resize);
       doc.addEventListener("visibilitychange", resize);
       doc.addEventListener("keydown", key);
@@ -3659,6 +3686,127 @@ section#layoutContentArea.pl-planner-introduction {
       s.host.style.setProperty("--pl-workspace-left", `${marker.left}px`);
       s.host.style.setProperty("--pl-workspace-width", `${s.doc.documentElement.clientWidth - 32}px`);
       s.scrollRoom.style.height = `${Math.max(0, view.innerHeight - 28)}px`;
+    }
+    currentPlanMenu(s) {
+      return s.host.querySelector(":scope > .plannerTopMenuLinks") || s.extras.querySelector(":scope > .plannerTopMenuLinks");
+    }
+    planSurfaceVisible(node) {
+      const style = node.ownerDocument.defaultView?.getComputedStyle(node);
+      return node.isConnected && !node.hidden && !node.classList.contains("hidden") && style?.display !== "none" && style?.visibility !== "hidden";
+    }
+    /** These are the native action panels observed beside the planner, not copies
+     * of their fields. Presentation never changes their own display/hidden state. */
+    syncPlanSurfaces() {
+      const s = this.state;
+      if (!s) return;
+      const previousActive = this.activePlanSurface;
+      const candidates = [...s.host.children].filter((node) => node instanceof HTMLElement && (node.matches("div.mobileloadmenupanel.touchpanelmenu.noprint") && [...node.children].filter((child) => !child.hasAttribute(OWNED5)).length === 1 && !!node.querySelector(":scope > div.message > ul") || node.matches("div#AboutDragger.message.info,div#SaveDragger.message.info") && node.firstElementChild?.tagName === "HEADER" || node.matches("div#ResponseMessageDragger") && !!node.querySelector(":scope > table")) && node.closest("form") === s.host.closest("form"));
+      for (const [node, record] of this.planSurfaces) if (!candidates.includes(node)) {
+        this.restorePlanSurface(record);
+        this.planSurfaces.delete(node);
+      }
+      for (const node of candidates) {
+        if (!this.planSurfaces.has(node)) {
+          const record = { node, close: null, hadStyle: node.hasAttribute("style"), visible: false };
+          this.planSurfaces.set(node, record);
+          node.classList.add("pl-plan-action-surface");
+          if (node.matches(".mobileloadmenupanel")) {
+            const close = s.doc.createElement("button");
+            close.type = "button";
+            close.className = "pl-plan-action-load-close";
+            close.textContent = "Close load plan";
+            close.setAttribute(OWNED5, "true");
+            close.addEventListener("click", () => this.dismissPlanSurface(node));
+            node.prepend(close);
+            record.close = close;
+          }
+          s.actionObserver.observe(node, { attributes: true, attributeFilter: ["style", "hidden", "class"] });
+        }
+      }
+      const visible = candidates.filter((node) => this.planSurfaceVisible(node));
+      const newlyVisible = visible.filter((node) => !this.planSurfaces.get(node).visible);
+      const targetId = this.pendingPlanAction === "loadMenuEntry" ? "load" : this.pendingPlanAction === "aboutMenuEntry" ? "AboutDragger" : ["renamePlan", "savePlanAsMenuEntry"].includes(this.pendingPlanAction || "") ? "SaveDragger" : null;
+      const requested = visible.find((node) => targetId === "load" ? node.matches(".mobileloadmenupanel") : node.id === targetId);
+      if (requested && this.pendingPlanAction) {
+        this.planSurfaceTrigger.set(requested, this.pendingPlanAction);
+        this.pendingPlanAction = null;
+        if (!requested.contains(s.doc.activeElement)) this.focusPlanSurface(requested);
+      }
+      this.activePlanSurface = requested || newlyVisible.at(-1) || (this.activePlanSurface && visible.includes(this.activePlanSurface) ? this.activePlanSurface : null) || visible.at(-1) || null;
+      if (previousActive && !visible.includes(previousActive) && previousActive.contains(s.doc.activeElement)) this.focusPlanTrigger(previousActive);
+      for (const node of candidates) {
+        const open = visible.includes(node);
+        this.planSurfaces.get(node).visible = open;
+        if (node.classList.contains("pl-plan-action-surface-open") !== open) node.classList.toggle("pl-plan-action-surface-open", open);
+      }
+      this.positionPlanActions();
+    }
+    positionPlanActions() {
+      const s = this.state, view = s?.doc.defaultView;
+      if (!s || !view) return;
+      const host = s.host.getBoundingClientRect(), summary = s.extras.querySelector("summary").getBoundingClientRect();
+      const menuHeight = `${Math.max(40, Math.min(host.bottom, view.innerHeight) - summary.bottom - 12)}px`;
+      if (s.extras.style.getPropertyValue("--pl-plan-menu-max-height") !== menuHeight) s.extras.style.setProperty("--pl-plan-menu-max-height", menuHeight);
+      const width = Math.max(0, Math.min(560, host.width - 24)), left = Math.max(12, Math.min(host.width - width - 12, summary.left - host.left));
+      const top = Math.max(12, summary.bottom - host.top + 8), height = Math.max(80, Math.min(host.bottom, view.innerHeight) - host.top - top - 12);
+      for (const node of this.planSurfaces.keys()) for (const [key, value] of [["left", left], ["top", top], ["width", width], ["max-height", height]]) {
+        const name = `--pl-plan-action-${key}`, next = `${value}px`;
+        if (node.style.getPropertyValue(name) !== next) node.style.setProperty(name, next);
+      }
+    }
+    dismissPlanSurface(node) {
+      const s = this.state;
+      if (!s || !this.planSurfaces.has(node) || !this.planSurfaceVisible(node)) return false;
+      let close = null;
+      if (node.matches(".mobileloadmenupanel")) {
+        const button = this.currentPlanMenu(s)?.querySelector(":scope > button#loadMenuEntry");
+        if (button?.getAttribute("onclick") === '$(".mobileloadmenupanel").toggle(); return false;') close = button;
+      } else {
+        const expected = node.id === "AboutDragger" ? "$('#AboutDragger').hide(); $('#aboutMenuEntry').focus(); return false;" : `$('#${node.id}').hide(); return false;`;
+        close = [...node.querySelectorAll("button.link")].find((button) => button.getAttribute("onclick") === expected) || null;
+      }
+      if (!close || close.disabled || close.matches(":disabled") || close.form !== s.host.closest("form") || close.getAttribute("aria-disabled") === "true" || ["form", "formaction", "formmethod", "formenctype", "formtarget"].some((name) => close.hasAttribute(name)) || close.hasAttribute("type") && close.getAttribute("type") !== "button") return false;
+      const boundary = node.contains(close) ? node : this.currentPlanMenu(s);
+      for (let element = close; element && element !== boundary; element = element.parentElement) {
+        const style = s.doc.defaultView.getComputedStyle(element);
+        if (element.hidden || element.getAttribute("aria-hidden") === "true" || style.display === "none" || ["hidden", "collapse"].includes(style.visibility)) return false;
+      }
+      s.extras.open = true;
+      close.click();
+      this.syncPlanSurfaces();
+      if (!this.planSurfaceVisible(node)) this.focusPlanTrigger(node);
+      return true;
+    }
+    focusPlanTrigger(node) {
+      const s = this.state;
+      if (!s) return;
+      if (this.activePlanSurface && this.activePlanSurface !== node && this.planSurfaceVisible(this.activePlanSurface)) {
+        this.focusPlanSurface(this.activePlanSurface);
+        return;
+      }
+      const id = this.planSurfaceTrigger.get(node) || (node.id === "AboutDragger" ? "aboutMenuEntry" : node.matches(".mobileloadmenupanel") ? "loadMenuEntry" : null);
+      const trigger = id ? s.doc.getElementById(id) : null;
+      s.extras.open = true;
+      (trigger && this.currentPlanMenu(s)?.contains(trigger) ? trigger : s.extras.querySelector("summary"))?.focus({ preventScroll: true });
+    }
+    focusPlanSurface(node) {
+      const input = node.querySelector("#planNameBox:not([disabled])");
+      const controls = [...node.querySelectorAll('button:not([disabled]),input:not([type="hidden"]):not([disabled]),a[href],select:not([disabled]),textarea:not([disabled])')];
+      const visible = (control) => {
+        for (let part = control; part && node.contains(part); part = part.parentElement) {
+          const style = part.ownerDocument.defaultView.getComputedStyle(part);
+          if (part.hidden || part.getAttribute("aria-hidden") === "true" || style.display === "none" || ["hidden", "collapse"].includes(style.visibility)) return false;
+        }
+        return true;
+      };
+      (input && visible(input) ? input : controls.find(visible))?.focus({ preventScroll: true });
+    }
+    restorePlanSurface(record) {
+      record.close?.remove();
+      record.node.classList.remove("pl-plan-action-surface", "pl-plan-action-surface-open");
+      for (const key of ["left", "top", "width", "max-height"]) record.node.style.removeProperty(`--pl-plan-action-${key}`);
+      if (!record.hadStyle && !record.node.getAttribute("style")) record.node.removeAttribute("style");
+      this.planSurfaceTrigger.delete(record.node);
     }
     currentScheduleWidth() {
       const s = this.state, available = s?.deck.clientWidth || 1400;
@@ -3849,7 +3997,6 @@ section#layoutContentArea.pl-planner-introduction {
       }
       course.node.classList.add("pl-workspace-preview-card");
       s.preview.hidden = false;
-      s.more.setAttribute("aria-expanded", "false");
       this.updatePanes();
       s.close.focus({ preventScroll: true });
     }
@@ -3884,7 +4031,7 @@ section#layoutContentArea.pl-planner-introduction {
       this.detailCards = null;
       this.returnFocus?.setAttribute("aria-expanded", "false");
       if (this.selected) {
-        this.selected.classList.remove("pl-workspace-preview-card", "pl-preview-inline", "pl-preview-docked", "pl-section-more");
+        this.selected.classList.remove("pl-workspace-preview-card", "pl-preview-inline", "pl-preview-docked");
         for (const name of ["left", "top", "width", "height"]) this.selected.style.removeProperty(`--pl-detail-${name}`);
         if (!this.selectedHadStyle && !this.selected.getAttribute("style")) this.selected.removeAttribute("style");
       }
@@ -3922,6 +4069,12 @@ section#layoutContentArea.pl-planner-introduction {
       const s = this.state;
       if (!s) return;
       this.closePreview(false);
+      s.actionObserver.disconnect();
+      s.doc.removeEventListener("click", s.actionClick);
+      for (const record of this.planSurfaces.values()) this.restorePlanSurface(record);
+      this.planSurfaces.clear();
+      this.activePlanSurface = null;
+      this.pendingPlanAction = null;
       this.state = null;
       this.drag = null;
       s.doc.defaultView?.removeEventListener("beforeprint", s.beforePrint);
@@ -3947,8 +4100,8 @@ section#layoutContentArea.pl-planner-introduction {
         if (!pane.bodyHadClass && !pane.body.getAttribute("class")) pane.body.removeAttribute("class");
         pane.section.classList.remove("pl-pane-open", "pl-pane-collapsed", "pl-module-active", "pl-has-docked-details");
       }
-      for (const { node, anchor } of [...s.placements].reverse()) {
-        const current = node.isConnected ? node : node.id ? s.doc.getElementById(node.id) : null;
+      for (const { node, anchor, menu } of [...s.placements].reverse()) {
+        const current = menu ? this.currentPlanMenu(s) : node.isConnected ? node : node.id ? s.doc.getElementById(node.id) : null;
         if (anchor.isConnected && current) anchor.replaceWith(current);
         else anchor.remove();
       }

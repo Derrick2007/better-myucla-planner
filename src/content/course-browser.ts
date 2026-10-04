@@ -5,7 +5,7 @@ const ROOT = "section.classPlanner_ClassSearchSection > #panelSearch > .ClassSea
 interface Entry { node: HTMLElement; body: HTMLElement; bodyHadClass: boolean; heading: HTMLElement; rows: HTMLElement[]; cells: Element[]; label: string; key: string; button?: HTMLButtonElement; }
 interface BrowserState {
   root: HTMLElement; widget: HTMLElement; entries: Entry[]; toolbar: HTMLElement; index: HTMLElement;
-  more: HTMLButtonElement; cards: SectionCards; selected: string;
+  cards: SectionCards; selected: string;
   filter: HTMLInputElement; filterStatus: HTMLElement; previewTitle: HTMLElement;
   selections: HTMLDetailsElement; selectionLabel: HTMLElement; selectionActions: HTMLElement; changed: () => void;
   resultActions: HTMLElement | null; actionsHadClass: boolean; bounded: boolean;
@@ -69,10 +69,9 @@ export class CourseBrowserPresentation {
     const sameResults = next && previous && next.root === previous.root && next.entries.length === previous.entries.length && next.entries.every((entry,i)=>entry.node === previous.entries[i].node && entry.body === previous.entries[i].body && entry.heading === previous.entries[i].heading && entry.label === previous.entries[i].label);
     const retained = sameResults ? {
       query: previous.filter.value,
-      more: previous.root.classList.contains("pl-section-more"),
       scrollTop: previous.index.scrollTop,
       previewScrollTop: previous.root.scrollTop,
-      focus: doc.activeElement === previous.filter ? "filter" : doc.activeElement === previous.more ? "more" : previous.entries.find(entry=>entry.button === doc.activeElement)?.key
+      focus: doc.activeElement === previous.filter ? "filter" : previous.entries.find(entry=>entry.button === doc.activeElement)?.key
     } : null;
     if (this.needsReconcile(doc)) {
       this.restore();
@@ -89,11 +88,7 @@ export class CourseBrowserPresentation {
     const owned = <T extends HTMLElement>(node:T,cls:string):T => {node.className=cls;node.setAttribute(OWNED,"true");return node;};
     const toolbar = owned(doc.createElement("div"),"pl-browser-toolbar");
     const title = doc.createElement("strong"); title.textContent=`Courses (${next.entries.length})`;
-    const more = doc.createElement("button"); more.type="button"; more.textContent="Rooms & instructors"; more.setAttribute("aria-expanded","false");
-    more.addEventListener("click",()=>{
-      const expanded=next.root.classList.toggle("pl-section-more"); more.setAttribute("aria-expanded",String(expanded));
-    });
-    toolbar.append(title,more);
+    toolbar.append(title);
     const index = owned(doc.createElement("nav"),"pl-browser-index"); index.setAttribute("aria-label","Courses in search results");
     const filterLabel = doc.createElement("label"); filterLabel.className="pl-browser-filter";
     const filterCaption = doc.createElement("span"); filterCaption.textContent="Filter loaded courses";
@@ -121,7 +116,7 @@ export class CourseBrowserPresentation {
     const bounded=knownWidgetLayout(widget,next.root);
     widget.classList.add("pl-browser-results");widget.classList.toggle("pl-browser-bounded",bounded);next.root.classList.add("pl-browser-list");
     const changed=()=>this.syncSelections();
-    this.state={...next,widget,toolbar,index,more,cards,selected:"",filter,filterStatus,previewTitle,selections,selectionLabel,selectionActions,changed,resultActions,actionsHadClass,bounded};
+    this.state={...next,widget,toolbar,index,cards,selected:"",filter,filterStatus,previewTitle,selections,selectionLabel,selectionActions,changed,resultActions,actionsHadClass,bounded};
     next.root.addEventListener("change",changed);
     filter.addEventListener("input",()=>this.filterCourses());
     // This owned filter lives inside UCLA's form but must never submit it.
@@ -143,8 +138,7 @@ export class CourseBrowserPresentation {
     this.select(next.entries.some(entry=>entry.key===this.lastKey && entry.label===this.lastLabel) ? this.lastKey : next.entries[0].key);
     this.filterCourses();
     if(retained) {
-      next.root.classList.toggle("pl-section-more",retained.more); more.setAttribute("aria-expanded",String(retained.more));
-      const focus=retained.focus === "filter" ? filter : retained.focus === "more" ? more : next.entries.find(entry=>entry.key===retained.focus)?.button;
+      const focus=retained.focus === "filter" ? filter : next.entries.find(entry=>entry.key===retained.focus)?.button;
       focus?.focus({preventScroll:true}); index.scrollTop=retained.scrollTop; next.root.scrollTop=retained.previewScrollTop;
     }
   }
@@ -207,7 +201,7 @@ export class CourseBrowserPresentation {
     s.resultActions?.classList.remove("pl-browser-result-actions");
     if(s.resultActions&&!s.actionsHadClass&&!s.resultActions.getAttribute('class'))s.resultActions.removeAttribute('class');
     s.widget.classList.remove("pl-browser-results","pl-browser-bounded");
-    s.root.classList.remove("pl-browser-list","pl-section-more");
+    s.root.classList.remove("pl-browser-list");
     for(const entry of s.entries) {
       entry.node.classList.remove("pl-browser-course","pl-browser-active");entry.body.classList.remove("pl-browser-body","pl-browser-body-active");
       if (!entry.bodyHadClass && !entry.body.getAttribute("class")) entry.body.removeAttribute("class");

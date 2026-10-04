@@ -58,10 +58,10 @@ const verifyResultHeadings=async(page)=>{
    return {field,exists:!!label,accessible:!!label&&style.display!=='none'&&style.visibility!=='hidden'&&label.getAttribute('aria-hidden')!=='true',compact:!!rect&&rect.width<=2&&rect.height<=2,visible:visible(label),height:rect?.height};
   });
   const help=[...heading?.querySelectorAll('button,a,input,select')||[]].map(node=>({visible:visible(node),focusable:node.tabIndex>=0&&!node.disabled,field:node.parentElement?.getAttribute('data-pl-field'),height:node.getBoundingClientRect().height}));
-  return {width,wide,heading:!!heading,headerFields:heading?.children.length,alignment,labels,help,more:preview.classList.contains('pl-section-more')};
+  return {width,wide,heading:!!heading,headerFields:heading?.children.length,alignment,labels,help};
  });
  assert.ok(result.heading&&result.headerFields===9,'the validated native result header retains all nine indexed cells');
- assert.ok(result.help.length>=4&&result.help.every(control=>[6,8].includes(Number(control.field))&&!result.more?!control.visible:control.visible&&control.focusable&&control.height>1),'primary native header help is visible; Location and Instructor help follow the Rooms & instructors disclosure');
+ assert.ok(result.help.length>=4&&result.help.every(control=>control.visible&&control.focusable&&control.height>1),'native header help, including Location and Instructor, stays directly accessible');
  assert.ok(result.labels.every(label=>label.exists&&label.accessible),'per-row labels remain available to assistive technology');
  if(result.wide){
   assert.ok(result.alignment.every(field=>field.visible&&field.left<=1&&field.right<=1),`shared headings line up with their section fields: ${JSON.stringify(result)}`);
@@ -158,9 +158,9 @@ try {
   assert.equal(await page.evaluate(()=>window.nativeResultClickCount),0,'local preview does not run a native fetch');
   assert.ok(await page.locator('.pl-browser-list').evaluate(node=>node.scrollWidth<=node.clientWidth+1));await verifyResultHeadings(page);
   assert.ok(await page.locator('.pl-browser-body-active .pl-section-card').first().evaluate(node=>[1,2,4,5].every(field=>parseFloat(getComputedStyle(node.querySelector('[data-pl-field="'+field+'"]')).fontSize)>=14)),'primary section values remain readable');
-  assert.equal(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible(),false);await page.locator('.pl-browser-toolbar button').getByText('Rooms & instructors',{exact:true}).click();
+  assert.equal(await page.locator('.pl-browser-toolbar button').count(),0,'room/instructor metadata needs no extra disclosure');
   assert.ok(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible());for(const field of [6,8])assert.ok(await page.locator('.pl-browser-body-active .data_row [data-pl-field="'+field+'"] > .pl-section-label').first().isVisible());
-  await page.locator('.pl-browser-toolbar button').getByText('Rooms & instructors',{exact:true}).click();assert.ok(await page.locator('#fixture-result-footer button').isVisible());
+  assert.ok(await page.locator('#fixture-result-footer button').isVisible());
   const localFilter=page.getByRole('searchbox',{name:'Filter loaded courses',exact:true});await localFilter.fill('Example course B');await localFilter.press('Enter');assert.equal(await page.locator('.pl-browser-index button:visible').count(),1);assert.ok(await page.locator('#container_course_M1').isVisible());
   await localFilter.fill('');await page.locator('.pl-browser-index button').first().press('End');assert.equal(await page.locator('.pl-browser-index button').last().getAttribute('aria-pressed'),'true');
   if(width===2048||width===1440||width===1366||width===1280||width===960||width===390)await page.screenshot({path:resolve(out,'find-classes-'+width+'.png')});
@@ -237,8 +237,10 @@ try {
    assert.ok(await list.evaluate(node=>node.scrollHeight>node.clientHeight+100),'long recognized results use a bounded preview');
    await list.evaluate(node=>{node.scrollTop=node.scrollHeight;});
    assert.deepEqual(await fields.boundingBox(),before,'scrolling long section results keeps native search fields in place');
-   const last=await page.locator('.pl-browser-body-active .pl-section-card').last().boundingBox(),frame=await list.boundingBox();
-   assert.ok(last.y>=frame.y-1&&last.y+last.height<=frame.y+frame.height+1,'last section is reachable inside the preview');
+   // Always-visible metadata can push empty card padding outside a short
+   // preview at maximum scroll. Every native field must still be reachable.
+   const lastFields=page.locator('.pl-browser-body-active .pl-section-card').last().locator('[data-pl-field]');
+   for(let i=0;i<await lastFields.count();i++)await assertUnclipped(lastFields.nth(i),'last section field '+i+' stays reachable');
    await assertUnclipped(page.locator('#fixture-result-footer button'),'global native result action remains reachable with long results');
    await assertUnclipped(page.locator('#searchTier0'),'wide search field remains pinned with long results');
   }

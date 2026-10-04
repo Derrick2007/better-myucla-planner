@@ -25,6 +25,9 @@ export const nativeSearchLayoutCss = `
   .ClassSearchControls.row .searchType.panel-5 { width:40.17094017094017%; }
   .ClassSearchControls.row .searchFieldPanel.panel-7 { width:57.26495726495726%; margin-left:8px; }
   .ClassSearchControls.row .searchFields.panel-10 { width:82.90598290598291%; }
+  /* Reproduce the native button theme that otherwise overrides the extension. */
+  #panelSearch input.button[type="submit"] { background:linear-gradient(#fff,#eee); color:#2f2f2f; font-size:14px; text-shadow:0 1px #fff; }
+  #panelSearch input.button[type="submit"]:disabled { background:linear-gradient(#fff,#eee); color:#aaa; opacity:.6; }
 `;
 export function searchMarkup(options = searchOptions) {
   return `<section class="classPlanner_ClassSearchSection">

@@ -400,6 +400,77 @@ describe("one-page native planner workspace", () => {
     expect(controls.every((node,i)=>node.parentElement===parents[i])).toBe(true);actions.open=true;controls[0].click();expect(handlers[0]).toHaveBeenCalledOnce();
     expect(term.parentElement).toBe(termParent);workspace.restore();expect(menu.parentElement).toBe(parent);expect(menu.nextSibling).toBe(next);
   });
+  it.each([false,true])("preserves an anonymous native menu replacement when reconciling=%s", reconcile => {
+    const original=document.querySelector<HTMLElement>('.plannerTopMenuLinks')!,parent=original.parentElement,next=original.nextSibling;mount();
+    const replacement=original.cloneNode(true) as HTMLElement,button=replacement.querySelector<HTMLButtonElement>('#aboutMenuEntry')!,handler=vi.fn();button.addEventListener('click',handler);original.replaceWith(replacement);
+    expect(workspace.needsReconcile(document)).toBe(true);
+    if(reconcile){mount();expect(document.querySelectorAll('.pl-workspace-plan-actions > .plannerTopMenuLinks')).toHaveLength(1);expect(workspace.needsReconcile(document)).toBe(false);}
+    workspace.restore();expect(replacement.parentElement).toBe(parent);expect(replacement.nextSibling).toBe(next);expect(original.isConnected).toBe(false);
+    button.click();expect(handler).toHaveBeenCalledOnce();expect(button.form).toBe(document.getElementById('aspnetForm'));
+  });
+
+  const planActionPanels=()=>{
+    const host=document.querySelector<HTMLElement>('.classPlannerWrapper')!;
+    const markup=`<div class="mobileloadmenupanel touchpanelmenu noprint" style="display:none"><div class="message"><ul><li><button type="button">Example saved plan</button></li></ul></div></div>
+      <div id="AboutDragger" class="message info" style="display:none"><header><button class="link" onclick="$('#AboutDragger').hide(); $('#aboutMenuEntry').focus(); return false;">Close</button></header><div>Example help</div></div>
+      <div id="SaveDragger" class="message info" style="display:none"><header><button class="link" onclick="$('#SaveDragger').hide(); return false;">Close</button></header><div class="row xsmall-collapse"><input id="planNameBox"><textarea aria-label="Example description"></textarea></div><div class="row xsmall-collapse"><input type="hidden"></div><div class="row xsmall-collapse"><input type="submit" id="ctl00_MainContent_SaveButton" onclick="gatherClientSaveValues();"></div></div>
+      <div id="ResponseMessageDragger" style="position:absolute;z-index:1000;display:none"><table><tbody><tr><td><button class="link" onclick="$('#ResponseMessageDragger').hide(); return false;">Close</button></td></tr></tbody></table></div>`;
+    host.insertAdjacentHTML('beforeend',markup);
+    const load=host.querySelector<HTMLElement>('.mobileloadmenupanel')!,about=document.getElementById('AboutDragger')!,save=document.getElementById('SaveDragger')!,response=document.getElementById('ResponseMessageDragger')!;
+    const controls=[...document.querySelectorAll<HTMLButtonElement>('.plannerTopMenuLinks > button')],handlers=controls.map(()=>vi.fn());
+    const source=["showSave(false); return false;","triggerPostback('2'); return false;","showSave(true); return false;","confirm('Are you sure you want to delete this plan?') && triggerPostback('10'); return false;",'$(".mobileloadmenupanel").toggle(); return false;',"window.print && window.print(); return false;","showAbout(); return false;"];
+    controls.forEach((button,index)=>{button.removeAttribute('type');button.setAttribute('onclick',source[index]);button.onclick=()=>{handlers[index]();if(index===0||index===2)save.style.display='block';if(index===4)load.style.display=load.style.display==='none'?'block':'none';if(index===6)about.style.display='block';return false;};});
+    for(const panel of [about,save,response])panel.querySelector<HTMLButtonElement>('button.link')!.onclick=()=>{panel.style.display='none';if(panel===about)document.getElementById('aboutMenuEntry')!.focus();return false;};
+    return {host,load,about,save,response,controls,handlers};
+  };
+  it("keeps every native Plan action handler and submitter intact with no automatic actions", () => {
+    const {controls,handlers,save,load,about}=planActionPanels(),parents=controls.map(node=>node.parentElement),events=controls.map(node=>node.onclick),attrs=controls.map(node=>node.getAttribute('onclick'));
+    const saveButton=document.getElementById('ctl00_MainContent_SaveButton')!,saveParent=saveButton.parentElement,submit=vi.fn();saveButton.addEventListener('click',submit);
+    const panels=[save,load,about],panelParents=panels.map(node=>node.parentElement);mount();mount();
+    expect(handlers.every(handler=>handler.mock.calls.length===0)).toBe(true);
+    const extras=document.querySelector<HTMLDetailsElement>('.pl-workspace-plan-actions')!;extras.open=true;
+    controls.forEach((node,index)=>{node.click();expect(handlers[index]).toHaveBeenCalledOnce();});
+    expect(controls.every((node,index)=>node.parentElement===parents[index]&&node.onclick===events[index]&&node.getAttribute('onclick')===attrs[index]&&node.form===document.getElementById('aspnetForm'))).toBe(true);
+    expect(panels.every((node,index)=>node.parentElement===panelParents[index])).toBe(true);expect(saveButton.parentElement).toBe(saveParent);expect(submit).not.toHaveBeenCalled();
+    workspace.restore();expect(load.querySelector('.pl-plan-action-load-close')).toBeNull();expect(controls.every(node=>node.form===document.getElementById('aspnetForm'))).toBe(true);
+    expect(panels.every(node=>!node.classList.contains('pl-plan-action-surface'))).toBe(true);
+  });
+  it.each(['renamePlan','savePlanAsMenuEntry','aboutMenuEntry','loadMenuEntry'])("dismisses %s before the action menu and returns focus to the original trigger", id => {
+    const {save,load,about,handlers}=planActionPanels();mount();
+    const extras=document.querySelector<HTMLDetailsElement>('.pl-workspace-plan-actions')!;extras.open=true;
+    const trigger=document.getElementById(id)!;trigger.click();const panel=id==='loadMenuEntry'?load:id==='aboutMenuEntry'?about:save;
+    expect(panel.classList.contains('pl-plan-action-surface-open')).toBe(true);expect(panel.contains(document.activeElement)).toBe(true);
+    document.activeElement!.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+    expect(panel.style.display).toBe('none');expect(extras.open).toBe(true);expect(document.activeElement).toBe(trigger);
+    expect(handlers[id==='loadMenuEntry'?4:id==='aboutMenuEntry'?6:id==='renamePlan'?0:2]).toHaveBeenCalledTimes(id==='loadMenuEntry'?2:1);
+    trigger.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));expect(extras.open).toBe(false);
+  });
+  it("restores focus after the original Save close and leaves foreground native dialogs in control", () => {
+    const {save}=planActionPanels();mount();const extras=document.querySelector<HTMLDetailsElement>('.pl-workspace-plan-actions')!;extras.open=true;
+    document.getElementById('savePlanAsMenuEntry')!.click();const close=save.querySelector<HTMLButtonElement>('button.link')!;close.focus();close.click();
+    expect(save.style.display).toBe('none');expect(document.activeElement).toBe(document.getElementById('savePlanAsMenuEntry'));
+    document.getElementById('renamePlan')!.click();const dialog=document.createElement('div');dialog.setAttribute('role','dialog');dialog.innerHTML='<button type="button">Example native alert</button>';document.body.append(dialog);
+    const event=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});dialog.firstElementChild!.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);expect(save.style.display).toBe('block');expect(extras.open).toBe(true);dialog.remove();
+  });
+  it.each(['onclick','disabled','formaction','type','hidden','aria-hidden','display'])("does not forward an unrecognized or unavailable native close (%s)", kind => {
+    const {save}=planActionPanels();mount();document.getElementById('renamePlan')!.click();const close=save.querySelector<HTMLButtonElement>('button.link')!,handler=vi.fn(()=>false);close.onclick=handler;
+    if(kind==='onclick')close.setAttribute('onclick','unknownNativeAction()');else if(kind==='display')close.style.display='none';else close.setAttribute(kind,kind==='type'?'submit':kind==='aria-hidden'?'true':'');
+    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));expect(handler).not.toHaveBeenCalled();expect(save.style.display).toBe('block');
+  });
+  it("keeps Load close stable through observed mutations, native visibility and restoration", async () => {
+    const {load,about,save}=planActionPanels();const native=load.innerHTML;mount();document.getElementById('loadMenuEntry')!.click();
+    await new Promise(resolve=>setTimeout(resolve,0));expect(load.querySelectorAll('.pl-plan-action-load-close')).toHaveLength(1);
+    expect(about.style.display).toBe('none');expect(save.style.display).toBe('none');load.querySelector<HTMLButtonElement>('.pl-plan-action-load-close')!.click();expect(load.style.display).toBe('none');
+    workspace.restore();expect(load.innerHTML).toBe(native);expect(load.getAttribute('style')).toBe('display: none;');
+  });
+  it("dismisses a newly shown response before the underlying Save panel", async () => {
+    const {save,response}=planActionPanels();mount();document.getElementById('renamePlan')!.click();response.style.display='block';
+    await new Promise(resolve=>setTimeout(resolve,0));response.querySelector<HTMLButtonElement>('button')!.focus();
+    document.activeElement!.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+    expect(response.style.display).toBe('none');expect(save.style.display).toBe('block');expect(save.contains(document.activeElement)).toBe(true);
+    document.activeElement!.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));expect(save.style.display).toBe('none');
+  });
   it("keeps secondary module conditions, help, fields and handlers native", () => {
     const section=document.querySelector<HTMLElement>('.classPlanner_ClassOptimizerSection')!,panel=document.getElementById('panelOptimizer')!,help=document.getElementById('HelpOptimizerDiv')!;
     const fields=[...section.querySelectorAll('input,select,button')],parents=fields.map(node=>node.parentElement),html=panel.innerHTML;

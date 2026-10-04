@@ -43,7 +43,7 @@ async function inspect(page) {
     const rect = node => node.getBoundingClientRect().toJSON();
     const fields = row => [...row.children].map(cell => ({ field: Number(cell.dataset.plField), visible: visible(cell), rect: rect(cell), minHeight: getComputedStyle(cell).minHeight, align: getComputedStyle(cell).textAlign, background: getComputedStyle(cell).backgroundColor }));
     return {
-      width: list.clientWidth, more: list.classList.contains('pl-section-more'), list: rect(list), heading: fields(heading),
+      width: list.clientWidth, list: rect(list), heading: fields(heading),
       rows: rows.map(row => ({ rect: rect(row), fields: fields(row), before: getComputedStyle(row, '::before').display, after: getComputedStyle(row, '::after').display })),
       headerBefore: getComputedStyle(heading, '::before').display, headerAfter: getComputedStyle(heading, '::after').display,
       icons: [...body.querySelectorAll('.pl-section-field[data-pl-field="2"] > i')].map(node => ({ float: getComputedStyle(node).float, height: rect(node).height, lineHeight: parseFloat(getComputedStyle(node).lineHeight) })),
@@ -92,33 +92,35 @@ try {
     await page.waitForSelector('.pl-workspace-deck');
     await page.locator('.pl-workspace-nav [data-pl-module="find"]').click();
     await page.waitForFunction(() => document.getElementById('titleText').getBoundingClientRect().top <= 13);
-    const more = page.locator('.pl-browser-toolbar button');
+    check(await page.locator('.pl-browser-toolbar button').count() === 0, named('no Rooms & instructors disclosure button'));
 
-    for (const state of ['closed', 'open', 'closed-again']) {
-      if (state !== 'closed') await more.click();
-      const view = await inspect(page), open = state === 'open';
+    for (const state of ['initial', 'returned']) {
+      if (state === 'returned') {
+        await page.locator('.pl-workspace-nav [data-pl-module="classes"]').click();
+        await page.locator('.pl-workspace-nav [data-pl-module="find"]').click();
+      }
+      const view = await inspect(page);
       measurements.push({ tag, state, ...view });
-      check(view.more === open, named(`${state} disclosure state matches its content`));
       check(view.rows.length === (single ? 5 : 14), named('all fictional section rows remain present'));
       check(view.headerBefore === 'none' && view.headerAfter === 'none' && view.rows.every(row => row.before === 'none' && row.after === 'none'), named(`${state} clearfix boxes do not create implicit grid cells`));
-      check(view.rows.every(row => row.fields.filter(field => [6, 8].includes(field.field)).every(field => field.visible === open)), named(`${state} optional data follows Rooms & instructors`));
-      check(view.heading.filter(field => [6, 8].includes(field.field)).every(field => field.visible === open), named(`${state} optional header help follows Rooms & instructors`));
+      check(view.rows.every(row => row.fields.filter(field => [6, 8].includes(field.field)).every(field => field.visible)), named(`${state} rooms and instructors appear without another click`));
+      check(view.heading.filter(field => [6, 8].includes(field.field)).every(field => field.visible), named(`${state} native room/instructor help stays accessible`));
       check(view.icons.every(icon => icon.float === 'none' && icon.height <= icon.lineHeight + 1), named(`${state} native icons do not impose a three-line row height`));
       check(view.documentWidth <= view.viewport + 1 && view.rows.every(row => row.rect.left >= view.list.left - 1 && row.rect.right <= view.list.right + 1), named(`${state} rows stay within the preview without horizontal page overflow`));
       check(view.rows.every(row => row.fields.filter(field => field.visible).every(field => field.rect.left >= row.rect.left - 1 && field.rect.right <= row.rect.right + 1)), named(`${state} every visible cell stays within its section row`));
       check(view.rows.every(row => row.fields.filter(field => field.visible).every(field => field.minHeight === '0px' && ['left', 'start'].includes(field.align))), named(`${state} native minimum height and centered cell text do not disturb the layout`));
       check(view.rows.every(row => row.fields.filter(field => field.visible).every(field => field.background === 'rgba(0, 0, 0, 0)')), named(`${state} native gray/blue cell backgrounds do not fragment the section rows`));
       if (view.width >= 640) {
-        const aligned = [0, 1, 2, 3, 4, 5, 7, ...(open ? [6, 8] : [])].every(field => {
+        const aligned = [0, 1, 2, 3, 4, 5, 6, 7, 8].every(field => {
           const head = view.heading.find(cell => cell.field === field), cell = view.rows[0].fields.find(cell => cell.field === field);
           return head.visible && cell.visible && Math.abs(head.rect.left - cell.rect.left) <= 1 && Math.abs(head.rect.right - cell.rect.right) <= 1;
         });
         check(aligned, named(`${state} shared headings line up with their data columns`));
-        if (!open) check(view.rows[0].rect.height <= 80, named(`${state} one-line section stays compact (${Math.round(view.rows[0].rect.height)}px)`));
+        check(view.rows[0].rect.height <= 125, named(`${state} section including metadata stays compact (${Math.round(view.rows[0].rect.height)}px)`));
       }
       const invariants = await preserved(page);
       check(Object.values(invariants).every(Boolean), named(`${state} native control/status/header/widget identity remains intact ${JSON.stringify(invariants)}`));
-      if (state !== 'closed-again') {
+      if (state === 'initial') {
         await page.screenshot({ path: resolve(output, `${label}-${tag}-${state}.png`) });
         if (width === 390) {
           const pane = page.locator('.pl-workspace-search > .pl-pane-body');
@@ -133,27 +135,24 @@ try {
       }
     }
 
-    // The disclosure must not revive a field independently hidden by UCLA.
-    await more.click();
+    // Always-visible metadata must still respect fields hidden by UCLA.
     for (const selector of ['.pl-browser-body-active .pl-section-card > [data-pl-field="6"]', '.pl-browser-body-active .pl-section-result-heading > [data-pl-field="8"]']) {
       const field = page.locator(selector).first(), priorStyle = await field.getAttribute('style');
       await field.evaluate(node => { node.style.display = 'none'; });
-      check(!await field.isVisible(), named('an inline-hidden optional field remains hidden while expanded'));
+      check(!await field.isVisible(), named('an inline-hidden metadata field remains hidden'));
       await field.evaluate((node, value) => { if (value === null) node.removeAttribute('style'); else node.setAttribute('style', value); node.hidden = true; }, priorStyle);
-      check(!await field.isVisible(), named('a native hidden attribute remains hidden while expanded'));
+      check(!await field.isVisible(), named('a native hidden attribute remains hidden'));
       await field.evaluate(node => { node.hidden = false; node.classList.add('hidden'); });
-      check(!await field.isVisible(), named('a native hidden class remains hidden while expanded'));
+      check(!await field.isVisible(), named('a native hidden class remains hidden'));
       await field.evaluate(node => { node.classList.remove('hidden'); });
     }
-    await more.click();
     await page.evaluate(() => dispatchEvent(new Event('beforeprint')));
     await page.emulateMedia({ media: 'print' });
     check(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible() && await page.locator('.pl-browser-body-active .data_row > .span9').first().isVisible(), named('printing includes optional location and instructor data'));
     check(await page.locator('.pl-browser-body-active .header-Location').isVisible() && await page.locator('.pl-browser-body-active .header-Instructor').isVisible(), named('printing includes original optional column headings'));
     await page.emulateMedia({ media: 'screen' });
     await page.evaluate(() => dispatchEvent(new Event('afterprint')));
-    check(await more.getAttribute('aria-expanded') === 'false', named('printing preserves the previous disclosure choice'));
-    check(!await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible(), named('returning from print restores optional-field folding'));
+    check(await page.locator('.pl-browser-body-active .data_row > .span7').first().isVisible(), named('returning from print keeps native metadata visible'));
 
     await page.evaluate(() => window.toggleTidy(false));
     await page.waitForSelector('.pl-workspace-deck', { state: 'detached' });
@@ -169,11 +168,10 @@ try {
 }
 await writeFile(resolve(output, reportName), JSON.stringify({ cssPath, measurements, failures }, null, 2));
 if (baseline) {
-  assert.ok(failures.some(failure => failure.includes('clearfix boxes')), 'the previous build reproduces implicit clearfix grid cells');
-  assert.ok(failures.some(failure => failure.includes('optional data')), 'the previous build reproduces optional fields that do not collapse');
+  assert.ok(failures.some(failure => failure.includes('rooms and instructors')), 'the previous build hides course metadata behind a disclosure');
   console.log(`Confirmed previous-build result regression: ${failures.length} expected failures. Full evidence: ${resolve(output, 'baseline-metrics.json')}`);
   console.log(failures.slice(0, 10).join('\n'));
 } else {
-  assert.deepEqual(failures, [], 'native result layout, disclosure and restoration regressions');
-  console.log(`Native result layout passed for single/multiple courses at ${widths.join(', ')}px, including rooms toggles, native hidden states, print/restoration and identity.`);
+  assert.deepEqual(failures, [], 'native result layout, visible metadata and restoration regressions');
+  console.log(`Native result layout passed for single/multiple courses at ${widths.join(', ')}px, including always-visible metadata, native hidden states, print/restoration and identity.`);
 }

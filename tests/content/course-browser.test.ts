@@ -114,7 +114,7 @@ describe('local course browser',()=>{
  });
  it('restores exact markup including original collapsed courses and action handlers',()=>{
   const before=document.body.innerHTML;
-  browser.reconcile(document);document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.click();
+  browser.reconcile(document);expect(document.querySelector('.pl-browser-toolbar button')).toBeNull();
   browser.restore();expect(document.body.innerHTML).toBe(before);
  });
  it('leaves incomplete or unknown results in native form',()=>{
@@ -145,9 +145,8 @@ describe('local course browser',()=>{
   expect(next.querySelectorAll('.pl-section-label')).toHaveLength(6);
   expect(row.isConnected).toBe(false);expect(browser.needsReconcile(document)).toBe(false);
  });
- it('retains filters, disclosure choices, focus and index scroll through a row-only redraw',()=>{
+ it('retains filters, focus and index scroll through a row-only redraw without a metadata disclosure',()=>{
   browser.reconcile(document);
-  document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.click();
   const filter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   filter.value='102';filter.dispatchEvent(new Event('input',{bubbles:true}));filter.focus();
   document.querySelector<HTMLElement>('.pl-browser-index')!.scrollTop=40;
@@ -158,29 +157,24 @@ describe('local course browser',()=>{
   row.replaceWith(next);browser.reconcile(document);
   const replacementFilter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   expect(replacementFilter.value).toBe('102');expect(document.activeElement).toBe(replacementFilter);
-  expect(document.querySelectorAll('.pl-browser-toolbar button')).toHaveLength(1);
+  expect(document.querySelectorAll('.pl-browser-toolbar button')).toHaveLength(0);
   expect(document.querySelector('.ClassSearchControls')!.closest('.pl-browser-results')).not.toBeNull();
-  expect(document.querySelector('.pl-browser-list')!.classList.contains('pl-section-more')).toBe(true);
   expect(document.querySelector<HTMLElement>('.pl-browser-index')!.scrollTop).toBe(40);
   expect(document.querySelector<HTMLElement>('.pl-browser-list')!.scrollTop).toBe(120);
-  expect(document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button')!.getAttribute('aria-expanded')).toBe('true');
-  expect(document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.getAttribute('aria-expanded')).toBe('true');
   expect(document.querySelector('.pl-browser-body-active')!.id).toBe('container_course_M1');
   browser.restore();
   expect(document.getElementById('container_course_M0')!.hasAttribute('class')).toBe(false);
   expect(document.querySelector('.pl-browser-preview-title')).toBeNull();
  });
- it('starts a fresh local filter and disclosure state for replacement search results',()=>{
+ it('starts a fresh local filter for replacement results without a metadata disclosure',()=>{
   browser.reconcile(document);
-  document.querySelector<HTMLButtonElement>('.pl-browser-toolbar button:last-child')!.click();
   const filter=document.querySelector<HTMLInputElement>('.pl-browser-filter input')!;
   filter.value='missing';filter.dispatchEvent(new Event('input',{bubbles:true}));
   const fresh=new DOMParser().parseFromString(workspaceFixtureHtml(3,true),'text/html').querySelector('.ClassSearchList')!;
   document.querySelector('.ClassSearchList')!.replaceWith(document.importNode(fresh,true));
   browser.reconcile(document);
   expect(document.querySelector<HTMLInputElement>('.pl-browser-filter input')!.value).toBe('');
-  expect(document.querySelectorAll('.pl-browser-toolbar button')).toHaveLength(1);
-  expect(document.querySelector('.pl-browser-list')!.classList.contains('pl-section-more')).toBe(false);
+  expect(document.querySelectorAll('.pl-browser-toolbar button')).toHaveLength(0);
   expect(document.querySelectorAll('.pl-browser-index button:not([hidden])')).toHaveLength(3);
   expect(document.querySelectorAll('.pl-browser-preview-title')).toHaveLength(1);
  });

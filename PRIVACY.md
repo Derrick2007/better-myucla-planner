@@ -114,8 +114,8 @@ The selected public heading/id exists only in memory for the current page and is
 never logged, stored or sent. Search input values are neither read nor cached by
 this presentation. There is no new network API, background load or catalog cache.
 Unknown or incomplete results remain native. Details docking measures element
-bounds only and never copies a native control. Rooms/instructors remain in their
-original cells; the toggle changes local visibility only.
+bounds only and never copies a native control. Rooms/instructors remain visible
+in their original cells, with no separate disclosure required (0.17.6).
 
 In 0.14.6 the separate extension-owned Filter courses field reads its own text
 only to filter those loaded public headings in memory. It has no form name,
@@ -149,6 +149,12 @@ details keep their native course-row parent. Original module bodies, sidebar
 widgets and plan-action controls remain intact. Module choice, sizing, selection
 and scroll positions live only in page memory. No new permissions, storage,
 server access or catalog requests are introduced.
+
+In 0.17.6, recognized native Plan Actions panels receive bounded positioning
+inside the same workspace. Their native buttons and fields remain in the same
+parents and form. Presentation does not read saved plan names or form values,
+or trigger save, rename, delete, new-plan, load or print actions. Dismissal may
+forward a verified original close-only button or the original Load menu toggle.
 
 ## Compact introduction (0.14.3)
 
