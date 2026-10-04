@@ -40,6 +40,11 @@ Previous Optimizer native-response limitation remains unresolved; this cosmetic
 change does not claim to repair it. No live plan/enrollment changes, screenshots
 or account/course content were collected in this turn.
 
+Code commit `6bfd855` is pushed to the fork's planner-redesign branch. CI
+`37172430221` and Release `37172446359` passed. v0.17.8 is a prerelease; after
+the workflow completed, its ZIP was replaced with the exact tested/installed
+Windows build. GitHub's asset digest matches the SHA-256 above.
+
 ## v0.17.7 historical record
 
 User reported Final exam week and asked for every page button to be checked.
