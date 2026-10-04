@@ -33,6 +33,17 @@ uses the same production source and CSS. Final installed-page verification
 still requires the user's Chrome reload/open Class Planner tab; no enrollment
 was attempted. Fictional proof: outputs/panel-layout/ and flexible-panels logs.
 
+Development source commit: `7d40af3`. Installed all 17 build files in
+`C:/Users/freeb/Downloads/better-myucla-v0.10.3/dist`; every SHA-256 matches.
+Backup: outputs/installed-backup-before-flexible-panels-20261003-221052.
+Content JS SHA-256: 8be6aa9833bcd993d27358499564884b2a3ae09f33d061ef8fdf5b32c401caac.
+CSS SHA-256: 58035ab4a153f2a466f79e1c5d058b7b9daf2b7d2ae52ebc869ada34872f5ffd.
+The final three-width docking run includes the empty-center placeholder rather
+than implicit selection of unopened Optimizer. Preview metadata identifies
+the source commit and exact production hashes; preview checks pass four widths.
+An exact-URL Chrome lookup could not find Class Planner. Asked the user to reload
+the extension and open/refresh that page; installed live verification is pending.
+
 ## v0.17.11 published baseline
 
 Merged `planner-redesign` through `0fa3f46` into the fork's `main` by

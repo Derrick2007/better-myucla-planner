@@ -208,6 +208,9 @@ try {
       if (width >= 1100) {
         await nav('classes').click(); await floatPanel(page, 'classes');
         await nav('find').click(); await floatPanel(page, 'find', nav('find'));
+        assert.ok(await page.locator('.pl-workspace-dock-placeholder').isVisible(), 'detaching both primary modules shows a clear empty workspace destination');
+        assert.equal(await page.locator('#panelOptimizer').isVisible(), false, 'detaching primary modules does not silently select unopened Optimizer');
+        assert.deepEqual(await page.evaluate(() => window.fixtureNativeCalls), [], 'empty dock presentation invokes no native disclosure');
         await action.focus(); await frame(page);
         await assertReachable(action, 'native Details content comes forward while My classes and Find classes also float');
         await response.focus(); await frame(page);
