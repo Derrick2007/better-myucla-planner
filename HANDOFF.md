@@ -44,6 +44,10 @@ Build injected.css SHA-256:
 Verified 17-file ZIP: outputs/release-v0.18.2/better-myucla-v0.18.2.zip.
 ZIP SHA-256: 39bdd9e1b6d4d738bcc893b9639500e38530b310211c1a3592492e5a69522139.
 
+Production source commit: `f4c2729`. Fictional site preview regenerated from
+that source with matching production hashes; preview checks pass at
+1440/1280/960/390. Its data and actions are local fixture demonstrations only.
+
 Release workflow note: pushing/creating a v* tag triggers Release, which rebuilds
 and replaces the ZIP and release notes. Wait for that workflow to finish, then
 restore the verified local ZIP and notes, and check remote asset digests against
