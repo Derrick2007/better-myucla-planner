@@ -1,5 +1,26 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Flexible panels (0.18.0 development)
+
+Owned grips and navigation buttons arrange the existing native sections by
+CSS coordinates only. Sections remain under their current workspace parents;
+course rows, native controls, IDs, handlers and form association are unchanged.
+Floating means an in-page panel in the same document, not another browser window.
+The owned details frame supplies viewport bounds; native third rows remain
+under their original TBODY and use the existing clipped projection.
+
+Layout gestures never submit a plan or enrollment action. Explicit dragging or
+floating of a collapsed module may forward its already validated native
+disclosure, under the same exact contracts as named module navigation.
+Displaced panels, snapshot restoration, reset and viewport resizing never
+forward disclosures. Opaque title checks ignore only extension-owned grips,
+and still require the exact native children, handler and form.
+
+Only public panel identifiers and presentation geometry exist in the in-memory
+snapshot. Same-context redraws attach them to fresh recognized nodes; context
+exit resets layout and old course references. Original layout removes all grips,
+resize handles, positioning, listeners and docking targets. Print restores flow.
+
 ## Multiple details and native redraw continuity (0.17.11)
 
 Each expanded My classes course retains its own native third row and section

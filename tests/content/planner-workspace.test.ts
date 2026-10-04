@@ -317,7 +317,7 @@ describe("one-page native planner workspace", () => {
   it("resizes supporting panes with the keyboard and restores original controls", () => {
     const controls = [...document.querySelectorAll(".ClassSearchWidget input,.ClassSearchWidget select")];
     mount();
-    const separators = [...document.querySelectorAll<HTMLElement>('[role="separator"]')];
+    const separators = [...document.querySelectorAll<HTMLElement>('[role="separator"][aria-label="Resize schedule"]')];
     expect(separators).toHaveLength(1);
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
     expect(separators[0].getAttribute('aria-valuenow')).toBe('516');
@@ -330,7 +330,7 @@ describe("one-page native planner workspace", () => {
     workspace.restore(); expect(document.querySelector('[role="separator"]')).toBeNull();
   });
   it("reserves the main workspace when clamping schedule width and reports its responsive size", () => {
-    mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,main=document.querySelector<HTMLElement>('.pl-workspace-main')!,splitter=document.querySelector<HTMLElement>('[role=separator]')!;
+    mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,main=document.querySelector<HTMLElement>('.pl-workspace-main')!,splitter=document.querySelector<HTMLElement>('[role=separator][aria-label="Resize schedule"]')!;
     const width=vi.spyOn(deck,'clientWidth','get').mockReturnValue(1100),bounds=vi.spyOn(main,'getBoundingClientRect').mockReturnValue({width:568} as DOMRect);
     try {
       splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('668');expect(splitter.getAttribute('aria-valuemax')).toBe('668');
@@ -339,7 +339,7 @@ describe("one-page native planner workspace", () => {
     } finally {width.mockRestore();bounds.mockRestore();}
   });
   it("widens beyond the old cap and restores a custom width after viewport changes", () => {
-    mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,splitter=document.querySelector<HTMLElement>('[role=separator]')!,widen=document.querySelector<HTMLButtonElement>('.pl-workspace-schedule-widen')!;
+    mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,splitter=document.querySelector<HTMLElement>('[role=separator][aria-label="Resize schedule"]')!,widen=document.querySelector<HTMLButtonElement>('.pl-workspace-schedule-widen')!;
     const width=vi.spyOn(deck,'clientWidth','get').mockReturnValue(1500);
     try {
       splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
@@ -859,5 +859,86 @@ describe("one-page native planner workspace", () => {
     expect(document.getElementById('page_title_text')).toBe(next); expect(old.isConnected).toBe(false);
     workspace.restore(); expect(next.parentElement?.id).toBe('div_page_title_section2');
     expect(document.querySelectorAll('#page_title_text')).toHaveLength(1);
+  });
+
+  describe("flexible panel presentation", () => {
+    const panelKey=(id:string,key:string,options:KeyboardEventInit={})=>{
+      const handle=document.querySelector<HTMLElement>(`.pl-panel-grip[data-pl-panel-handle='${id}'], .pl-panel-details-handle[data-pl-panel-handle='${id}']`)!;
+      expect(handle).not.toBeNull();handle.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true,...options}));
+    };
+    const float=(id:string)=>panelKey(id,'f',{altKey:true,shiftKey:true});
+    let widthDescriptor:PropertyDescriptor|undefined;
+    beforeEach(()=>{widthDescriptor=Object.getOwnPropertyDescriptor(window,'innerWidth');Object.defineProperty(window,'innerWidth',{configurable:true,value:1440});});
+    afterEach(()=>{if(widthDescriptor)Object.defineProperty(window,'innerWidth',widthDescriptor);});
+
+    it("floats and docks the original calendar without replacing controls or invoking native handlers",()=>{
+      const calendar=document.querySelector<HTMLElement>('.classPlanner_CalendarSection')!,body=document.getElementById('ctl00_MainContent_panelGrid')!;
+      const controls=[...body.querySelectorAll<HTMLInputElement|HTMLButtonElement>('input,button')],parents=controls.map(control=>control.parentElement),forms=controls.map(control=>control.form);
+      const calls=vi.fn();controls.forEach(control=>control.addEventListener('click',calls));mount();const parent=calendar.parentElement;
+      float('schedule');expect(calendar.dataset.plPanelPlacement).toBe('floating');expect(calendar.classList.contains('pl-floating-panel')).toBe(true);
+      panelKey('schedule','ArrowLeft',{altKey:true});expect(calendar.dataset.plPanelPlacement).toBe('left');expect(calendar.classList.contains('pl-panel-docked')).toBe(true);
+      expect(calendar.parentElement).toBe(parent);expect(controls.every((control,index)=>control.parentElement===parents[index]&&control.form===forms[index])).toBe(true);
+      expect(calls).not.toHaveBeenCalled();expect(adapter.inspectContract().ok).toBe(true);
+    });
+
+    it("retains floating details and an independent main module without moving native section rows",()=>{
+      const course=adapter.inspectContract().courses[0],table=course.node.querySelector<HTMLTableElement>('table.coursetable')!,parent=table.parentElement,form=table.closest('form');
+      mount();course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();float('details');
+      document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!.click();
+      const plan=document.querySelector<HTMLElement>('.pl-workspace-plan')!,frame=document.querySelector<HTMLElement>('.pl-workspace-details-frame')!;
+      expect(document.querySelector('.pl-workspace-search')!.classList.contains('pl-module-active')).toBe(true);
+      expect(plan.classList.contains('pl-details-only')).toBe(true);expect(frame.hidden).toBe(false);expect(frame.dataset.plPanelPlacement).toBe('floating');
+      expect(table.parentElement).toBe(parent);expect(table.closest('form')).toBe(form);expect(course.node.classList.contains('pl-preview-docked')).toBe(true);
+      expect(course.node.querySelector('[data-pl-workspace-details]')!.getAttribute('aria-expanded')).toBe('true');
+      const before=Number(frame.style.getPropertyValue('--pl-panel-z'));table.dispatchEvent(new Event('pointerdown',{bubbles:true}));
+      expect(Number(frame.style.getPropertyValue('--pl-panel-z'))).toBeGreaterThan(before);
+    });
+
+    it("restores panel placements across the same-plan native redraw without resurrecting old panels",()=>{
+      mount();float('schedule');panelKey('find','ArrowLeft',{altKey:true});
+      const oldCalendar=document.querySelector('.pl-workspace-calendar')!,oldSearch=document.querySelector('.pl-workspace-search')!;
+      const oldBox=(oldCalendar as HTMLElement).style.getPropertyValue('--pl-panel-width');
+      const fixture=new DOMParser().parseFromString(workspaceFixtureHtml(),'text/html'),replacement=document.importNode(fixture.getElementById('ctl00_MainContent_classPlanPanel')!,true);
+      document.getElementById('ctl00_MainContent_classPlanPanel')!.replaceWith(replacement);mount();
+      const calendar=document.querySelector<HTMLElement>('.pl-workspace-calendar')!,search=document.querySelector<HTMLElement>('.pl-workspace-search')!;
+      expect(oldCalendar.isConnected).toBe(false);expect(oldSearch.isConnected).toBe(false);
+      expect(calendar.dataset.plPanelPlacement).toBe('floating');expect(calendar.style.getPropertyValue('--pl-panel-width')).toBe(oldBox);
+      expect(search.dataset.plPanelPlacement).toBe('left');expect(search.classList.contains('pl-panel-docked')).toBe(true);
+      expect(document.querySelectorAll('.pl-workspace-calendar')).toHaveLength(1);expect(adapter.inspectContract().ok).toBe(true);
+    });
+
+    it("keeps exact native Optimizer disclosure recognition after adding owned drag handles",()=>{
+      const native=optimizerToggle(),parent=native.parentElement,handler=native.onclick;mount();
+      expect(optimizerPostback).not.toHaveBeenCalled();float('optimizer');
+      expect(optimizerPostback).toHaveBeenCalledExactlyOnceWith('ctl00$MainContent$toggleOptimizer','');
+      expect(native.parentElement).toBe(parent);expect(native.onclick).toBe(handler);expect(document.getElementById('panelOptimizer')!.classList.contains('hidden')).toBe(false);
+      expect(document.querySelector<HTMLElement>('.classPlanner_ClassOptimizerSection')!.dataset.plPanelPlacement).toBe('floating');
+      mount();expect(optimizerPostback).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(['study','personal'] as const)("opens %s explicitly when floated but not while its layout snapshot remounts",module=>{
+      const original=secondaryToggle(module);mount();float(module);expect(original.postback).toHaveBeenCalledOnce();
+      const fixture=new DOMParser().parseFromString(workspaceFixtureHtml(),'text/html'),replacement=document.importNode(fixture.getElementById('ctl00_MainContent_classPlanPanel')!,true);
+      document.getElementById('ctl00_MainContent_classPlanPanel')!.replaceWith(replacement);const next=secondaryToggle(module);mount();
+      expect(next.postback).not.toHaveBeenCalled();expect(next.body.classList.contains('hidden')).toBe(true);
+      expect(next.body.parentElement!.dataset.plPanelPlacement).toBe('floating');
+      document.querySelector<HTMLButtonElement>(`button[data-pl-module='${module}']`)!.click();expect(next.postback).toHaveBeenCalledOnce();
+    });
+
+    it("atomically resets custom edge placements, floating panels and collapsed navigation",()=>{
+      mount();panelKey('find','ArrowLeft',{altKey:true});panelKey('classes','ArrowDown',{altKey:true});float('schedule');
+      document.querySelector<HTMLButtonElement>('.pl-navigation-toggle')!.click();expect(document.querySelector('.pl-workspace-host')!.classList.contains('pl-navigation-collapsed')).toBe(true);
+      panelKey('schedule','ContextMenu');const reset=[...document.querySelectorAll<HTMLButtonElement>('.pl-panel-layout-menu button')].find(button=>button.textContent==='Reset layout')!;reset.click();
+      expect(document.querySelector<HTMLElement>('.pl-workspace-calendar')!.dataset.plPanelPlacement).toBe('right');
+      for(const section of document.querySelectorAll<HTMLElement>('.pl-workspace-main > section'))expect(section.dataset.plPanelPlacement).toBe('main');
+      expect(document.querySelectorAll('.pl-floating-panel,.pl-panel-docked')).toHaveLength(0);
+      expect(document.querySelector('.pl-workspace-host')!.classList.contains('pl-navigation-collapsed')).toBe(false);
+      expect(document.querySelector('button[data-pl-module=classes]')!.getAttribute('aria-pressed')).toBe('true');expect(optimizerPostback).not.toHaveBeenCalled();
+    });
+
+    it("restores exact native markup after floating and edge docking",()=>{
+      const original=document.body.innerHTML;mount();panelKey('find','ArrowLeft',{altKey:true});float('schedule');workspace.restore();
+      expect(document.body.innerHTML).toBe(original);
+    });
   });
 });

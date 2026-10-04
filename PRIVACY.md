@@ -53,6 +53,13 @@ extension never constructs a network request of its own.
 
 ## What you control
 
+The development floating-panel layout keeps public module identifiers, panel
+coordinates and navigation visibility in page memory only. It adds no storage,
+permission, network request or external window. Moving panels changes their
+presentation within the same native form. Explicitly opening a collapsed module
+uses the same validated native disclosure as the existing navigation; restoring
+or resizing the layout does not open a module or replay its actions.
+
 Multiple expanded course details and their scroll position remain in memory.
 The extension retains their existing course identifiers only through updates
 within the same plan, and clears them on plan/term changes. Native enrollment

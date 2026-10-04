@@ -2,7 +2,38 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.11` (multiple details and native action continuity).
+Current development version: `0.18.0`, branch `flexible-panels`.
+Published prerelease remains `0.17.11`; no release/tag is made for this iteration.
+
+User requested Obsidian-like draggable tabs, floating schedule/details and
+retractable navigation without a toolbar full of new buttons. Implemented an
+in-page PanelLayoutController: owned dotted grips/nav proxies, thresholded
+pointer dragging, edge docking targets, bounded/resizable floating panels,
+dock dividers, keyboard/context-menu alternatives and atomic Reset layout.
+Navigation can collapse with its chevron or drag edge. Multiple details and
+other modules remain usable together. Floating means within the same document.
+
+Native sections stay under their existing main/deck parents; original course
+third rows remain inside their TBODY, projected into the owned details frame.
+No native controls/handlers/values are cloned or moved out of the original
+form. Existing strict native disclosure forwarding is explicit-user-only;
+layout reset, displaced panes and snapshot remounts never open a module.
+The current plan/term boundary still clears old details and layout. Same-plan
+redraw restores only public panel IDs/geometry from memory. No new persistent
+storage, permission or request is introduced. Print/Original restore native flow.
+
+Typecheck/build and 354 unit tests pass. Production panel-layout fixtures pass
+2048/1440/390, including overlapping floating My classes/Details/Find, trusted
+drag/dock/resize/sidebar gestures, native review focus and hit-testing, same-plan
+redraw, reset, print and exact control identity/ancestry/status. Native detail
+actions passed four widths x four redraw types. Plan Actions and original
+module controls passed four viewports each; broader workspace passed nine
+widths plus long/empty plans, quarter/header redraw and print. Matching preview
+uses the same production source and CSS. Final installed-page verification
+still requires the user's Chrome reload/open Class Planner tab; no enrollment
+was attempted. Fictional proof: outputs/panel-layout/ and flexible-panels logs.
+
+## v0.17.11 published baseline
 
 Merged `planner-redesign` through `0fa3f46` into the fork's `main` by
 fast-forward at the user's request. Local `main` now tracks `fork/main`;

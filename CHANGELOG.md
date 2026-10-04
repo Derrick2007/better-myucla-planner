@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.18.0 — in development (flexible panels; no release published)
+
+- Drag panel grips or navigation tabs to dock at an edge or float inside the
+  existing Class Planner tab. Multiple floating panels can remain open together.
+- Resize floating panels at their corner and docked regions at their dividers.
+  Double-click a grip to float/return; right-click or Shift+F10 offers layout
+  choices and Reset layout. Keyboard docking/resizing is also available.
+- Collapse navigation with its chevron or by dragging its edge. Keep native
+  navigation, controls, handlers, status wording and form association intact.
+- Retain layout through same-plan native redraws, using page memory only.
+  Reset layout on reload/context changes; restore native flow for print and
+  Original layout. No new permissions, persistent storage or external windows.
+
 ## 0.17.11 — 2026-10-03 (multiple details and native action continuity)
 
 - Keep multiple My classes details open in a shared scrolling area, with an
