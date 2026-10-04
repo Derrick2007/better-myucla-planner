@@ -2,8 +2,42 @@
 
 Last updated: 2026-10-03
 
-Current development version: `0.18.0`, branch `flexible-panels`.
+Current development version: `0.18.1`, branch `flexible-panels`.
 Published prerelease remains `0.17.11`; no release/tag is made for this iteration.
+
+## Close panels and live dragging (0.18.1)
+
+Every native module and the owned Details frame now has a header × that hides
+its presentation without removing controls or clearing selections. Navigation
+reopens modules and includes Schedule; a course's Details button reopens the
+whole retained details group. A floating Details panel can remain visible when
+My classes is hidden. Escape does not close concealed course records, and
+closing a visible course returns focus to visible navigation when necessary.
+
+Dragging moves the real panel on every pointermove. Original nodes stay in
+their native parents. Fixed dock targets avoid shifting during the gesture;
+Escape/blur/pointer cancellation restores position, placement and stacking.
+Snapshots taken during dragging use committed geometry. Explicitly dragging or
+floating a closed pane does not displace another pane from its former dock.
+Hidden flags remain in memory through same-context redraws. Reset reveals all;
+print and Original layout restore native content. No storage/permission changes.
+
+Typecheck, production build and all 375 unit tests pass. Final production
+browser fixtures pass at 2048/1440/390 for hide/reopen, live drag before release,
+cancellation, dock/resize, independent Details, native identity, selection
+retention, redraw, reset, print and restoration. Inspected real-drag screenshots
+with fictional data, including mobile close controls. Native Details actions,
+Plan Actions and module-control regressions pass four viewports each. Broad
+workspace checks pass nine widths plus long/empty/future/redraw/print cases.
+Proof: outputs/panel-close-*.log and outputs/panel-layout/. No live enrollment
+was attempted; final installed-page verification still requires Chrome reload.
+
+Build hashes: content.js SHA-256
+24633268db65a0389674ad402189ccf79cee0ba18469ede0bcd11ed0f359ddcc;
+injected.css SHA-256
+f0c24378083d53a1ff4b5278d357b5bb540d7990a61e40233223634774cf626d.
+
+## Prior flexible-panel baseline (0.18.0)
 
 User requested Obsidian-like draggable tabs, floating schedule/details and
 retractable navigation without a toolbar full of new buttons. Implemented an

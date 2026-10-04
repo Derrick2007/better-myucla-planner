@@ -1,6 +1,6 @@
 # MyUCLA Class Planner 脱敏页面合约
 
-## Flexible panels (0.18.0 development)
+## Flexible panels (0.18.1 development)
 
 Owned grips and navigation buttons arrange the existing native sections by
 CSS coordinates only. Sections remain under their current workspace parents;
@@ -17,7 +17,12 @@ forward disclosures. Opaque title checks ignore only extension-owned grips,
 and still require the exact native children, handler and form.
 
 Only public panel identifiers and presentation geometry exist in the in-memory
-snapshot. Same-context redraws attach them to fresh recognized nodes; context
+snapshot, including whether a panel is hidden. Hiding changes presentation only;
+native controls, values and open course records remain in their original nodes.
+Reopening is explicit through navigation or a course's Details button. During
+dragging the actual panel follows the pointer; cancellation restores geometry,
+placement and stacking. A snapshot during dragging uses the committed layout.
+Same-context redraws attach these settings to fresh recognized nodes; context
 exit resets layout and old course references. Original layout removes all grips,
 resize handles, positioning, listeners and docking targets. Print restores flow.
 

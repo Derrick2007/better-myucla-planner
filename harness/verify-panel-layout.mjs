@@ -49,6 +49,42 @@ function fixture() {
 const frame = page => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
 const panel = (page, id) => page.locator(selectors[id]);
 const handle = (page, id) => panel(page, id).locator(`[data-pl-panel-handle="${id}"]:visible`).first();
+const close = (page, id) => panel(page, id).locator(`[data-pl-panel-close="${id}"]`);
+
+async function hidePanel(page, id) {
+  await assertReachable(close(page, id), `${id} close control is pointer reachable`);
+  await close(page, id).click(); await frame(page);
+  assert.ok(await panel(page, id).evaluate(node => node.classList.contains('pl-panel-hidden')), `${id} can be hidden without removing its native content`);
+  await assertIdentity(page);
+}
+
+/** Check the original panel while the pointer remains down, not its final drop. */
+async function assertLiveDragAndCancel(page, id, width) {
+  const original = await panel(page, id).boundingBox();
+  const placement = await panel(page, id).getAttribute('data-pl-panel-placement');
+  const grip = await handle(page, id).boundingBox();
+  assert.ok(original && grip, `${id} starts visible before live drag`);
+  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2); await page.mouse.down();
+  await page.mouse.move(width * .51, 600, { steps: 8 }); await frame(page);
+  const first = await panel(page, id).boundingBox();
+  // A full-width narrow panel cannot move horizontally, and tall panes clamp
+  // at the bottom. Move upward too so even those original panels must move.
+  await page.mouse.move(width * .59, 90, { steps: 8 }); await frame(page);
+  const second = await panel(page, id).boundingBox();
+  assert.ok(first && second && Math.abs(first.x - second.x) + Math.abs(first.y - second.y) > 30,
+    `${id} itself follows the mouse before release: ${JSON.stringify({ first, second })}`);
+  assert.ok(await panel(page, id).isVisible(), 'the dragged original panel remains visible');
+  assert.equal(await page.locator('.pl-panel-drag-ghost').count(), 0, 'dragging shows the actual panel, not only a label ghost');
+  await assertIdentity(page);
+  await page.screenshot({ path: resolve(output, `${id}-live-drag-${width}.png`) });
+  await page.keyboard.press('Escape'); await page.mouse.up(); await frame(page);
+  assert.equal(await panel(page, id).getAttribute('data-pl-panel-placement'), placement, 'Escape cancels temporary undocking');
+  const restored = await panel(page, id).boundingBox();
+  assert.ok(restored && ['x', 'y', 'width', 'height'].every(key => Math.abs(restored[key] - original[key]) <= 2),
+    `${id} returns to its pre-drag geometry after Escape: ${JSON.stringify({ original, restored })}`);
+  assert.equal(await page.locator('[data-pl-dock-target]:visible').count(), 0, 'cancel removes all drop targets');
+  await assertIdentity(page);
+}
 
 async function drag(page, source, destination) {
   await source.scrollIntoViewIfNeeded();
@@ -165,6 +201,7 @@ try {
       await assertIdentity(page);
       assert.deepEqual(await page.evaluate(() => window.fixtureNativeCalls), [], 'mount does not open a native module');
       if (width < 1100) await page.locator('.pl-workspace-schedule-toggle').click();
+      await assertLiveDragAndCancel(page, 'schedule', width);
       await floatPanel(page, 'schedule');
       await assertReachable(handle(page, 'schedule'), 'floating schedule header is pointer reachable');
       const beforeMove = await panel(page, 'schedule').boundingBox();
@@ -189,11 +226,21 @@ try {
       await dockPanel(page, 'schedule', 'bottom');
       await assertReachable(handle(page, 'schedule'), 'bottom-docked schedule has an accessible handle');
       await dockPanel(page, 'schedule', 'right');
+      const mainBeforeHide = await page.locator('.pl-workspace-main').boundingBox();
+      await hidePanel(page, 'schedule');
+      assert.equal(await panel(page, 'schedule').isVisible(), false, 'closed schedule is no longer displayed');
+      if (width >= 1100) {
+        const mainAfterHide = await page.locator('.pl-workspace-main').boundingBox();
+        assert.ok(mainAfterHide.width > mainBeforeHide.width + 100, 'hiding the docked schedule gives its width back to the workspace');
+      }
+      await nav('schedule').click(); await frame(page);
+      assert.ok(await panel(page, 'schedule').isVisible(), 'Schedule navigation reopens the hidden native calendar');
       if (width < 1100) await page.locator('[data-pl-mobile-view="main"]').click();
       await nav('classes').click();
       const details = page.locator('[data-pl-workspace-details]');
       await details.nth(0).click(); await details.nth(1).click();
       assert.equal(await page.locator('[data-pl-workspace-details][aria-expanded="true"]').count(), 2, 'two details remain open');
+      await assertLiveDragAndCancel(page, 'details', width);
       await floatPanel(page, 'details');
       await nav('find').click();
       assert.ok(await panel(page, 'details').isVisible(), 'floating Details remains visible while finding classes');
@@ -203,6 +250,20 @@ try {
       await action.click();
       const response = page.locator('tbody.courseItem').first().locator('.planClass select');
       await response.focus(); await assertReachable(response, 'returned native review is reachable inside floating Details');
+      const actionBeforeHide = await action.boundingBox();
+      await hidePanel(page, 'details');
+      assert.equal(await action.isVisible(), false, 'hiding Details also hides the native fixed course rows');
+      assert.equal(await action.evaluate((node, box) => { const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2); return hit === node || node.contains(hit); }, actionBeforeHide), false,
+        'closed Details native actions cannot intercept pointer clicks');
+      assert.equal(await page.locator('tbody.courseItem.pl-workspace-preview-card').count(), 2, 'closing the Details pane preserves its open course records');
+      assert.equal(await page.locator('[data-pl-workspace-details][aria-expanded="true"]').count(), 0, 'hidden Details is correctly announced as collapsed');
+      await nav('classes').click(); await details.nth(0).click(); await frame(page);
+      assert.equal(await page.locator('[data-pl-workspace-details][aria-expanded="true"]').count(), 2, 'an already-open course Details button reopens the pane without toggling that course off');
+      await response.focus(); await assertReachable(response, 'reopening Details restores the same native review control');
+      await hidePanel(page, 'classes');
+      await response.focus(); await frame(page);
+      await assertReachable(response, 'floating Details stays usable when its My classes list is closed');
+      await nav('classes').click(); await frame(page);
       await assertIdentity(page);
       await page.screenshot({ path: resolve(output, `details-floating-${width}.png`) });
       if (width >= 1100) {
@@ -221,7 +282,14 @@ try {
         await page.getByRole('menuitem', { name: 'Reset layout', exact: true }).click();
         assert.equal(await page.locator('.pl-floating-panel').count(), 0, 'keyboard layout menu restores every panel');
       } else await dockPanel(page, 'details', 'main');
-      await nav('find').click(); await floatPanel(page, 'find', nav('find'));
+      await nav('find').click();
+      const selected = page.locator('#container_course_M0 input[type="checkbox"]').first();
+      await selected.check();
+      await hidePanel(page, 'find');
+      assert.equal(await panel(page, 'find').isVisible(), false, 'Find classes can be closed');
+      await nav('find').click(); await frame(page);
+      assert.ok(await selected.isChecked(), 'closing and reopening Find classes retains the native section selection');
+      await floatPanel(page, 'find', nav('find'));
       await nav('classes').click();
       assert.ok(await panel(page, 'find').isVisible(), 'floating Find classes remains accessible beside My classes');
       await assertIdentity(page);
@@ -243,6 +311,13 @@ try {
       for (const id of ['optimizer', 'study', 'personal']) {
         await nav(id).click();
         assert.ok(await page.locator(`[data-fixture-module="${id}"]`).isVisible(), `${id} body is accessible`);
+        const field = page.locator(`[data-fixture-module="${id}"]`).locator('input,select').first();
+        await field.evaluate(node => { if (node.type === 'checkbox') node.checked = true; else if (node.tagName === 'SELECT') node.selectedIndex = 1; else node.value = 'Example retained input'; });
+        const selectedState = await field.evaluate(node => ({ value: node.value, checked: node.checked }));
+        await hidePanel(page, id);
+        assert.equal(await page.locator(`[data-fixture-module="${id}"]`).isVisible(), false, `${id} body disappears when its panel is closed`);
+        await nav(id).click(); await frame(page);
+        assert.deepEqual(await field.evaluate(node => ({ value: node.value, checked: node.checked })), selectedState, `${id} retains the same native inputs after reopening`);
         await floatPanel(page, id); await nav('classes').click();
         assert.ok(await page.locator(`[data-fixture-module="${id}"]`).isVisible(), `${id} remains accessible while floating`);
         await assertIdentity(page); await dockPanel(page, id, 'main');
@@ -263,23 +338,36 @@ try {
       if (width < 1100) await page.locator('.pl-workspace-schedule-toggle').click();
       await floatPanel(page, 'schedule');
       const beforeRedraw = await panel(page, 'schedule').boundingBox();
+      await hidePanel(page, 'schedule');
       await page.evaluate(() => window.fixtureRedraw());
-      await page.waitForSelector('.pl-workspace-calendar.pl-floating-panel'); await frame(page);
+      await page.waitForSelector('.pl-workspace-calendar.pl-floating-panel.pl-panel-hidden', { state: 'attached' }); await frame(page);
+      assert.equal(await panel(page, 'schedule').isVisible(), false, 'same-context native redraw preserves a hidden panel');
+      await nav('schedule').click(); await frame(page);
       const afterRedraw = await panel(page, 'schedule').boundingBox();
       assert.ok(Math.abs(afterRedraw.x - beforeRedraw.x) <= 2 && Math.abs(afterRedraw.y - beforeRedraw.y) <= 2, 'same-context full native redraw retains floating layout');
       await assertIdentity(page);
+      await hidePanel(page, 'schedule');
+      await nav('find').click(); await hidePanel(page, 'find');
       await page.emulateMedia({ media: 'print' });
       const print = await page.locator('.pl-workspace-calendar').evaluate(node => ({ position: getComputedStyle(node).position, visible: !!node.getClientRects().length }));
       assert.ok(print.visible && !['fixed', 'absolute'].includes(print.position), 'print removes floating bounds and keeps schedule content');
+      assert.ok(await panel(page, 'find').isVisible(), 'print restores content from closed native modules');
       await page.emulateMedia({ media: 'screen' });
+      assert.equal(await panel(page, 'schedule').isVisible(), false, 'leaving print keeps the user\'s hidden screen layout');
+      await nav('classes').click();
+      await handle(page, 'classes').focus(); await page.keyboard.press('Shift+F10');
+      await page.getByRole('menuitem', { name: 'Reset layout', exact: true }).click();
+      assert.equal(await page.locator('.pl-panel-hidden').count(), 0, 'Reset layout reopens all closed panes');
       await page.evaluate(() => window.fixtureRedraw(true));
       await page.waitForSelector('.pl-workspace-deck'); await frame(page);
       assert.equal(await page.locator('[data-pl-workspace-details][aria-expanded="true"]').count(), 0, 'new plan context discards old course Details');
       const overflow = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, viewport: innerWidth }));
       assert.ok(overflow.content <= overflow.viewport + 1, `no document horizontal overflow: ${JSON.stringify(overflow)}`);
+      await nav('find').click(); await hidePanel(page, 'find');
       await page.locator('.pl-workspace-original').click();
       await page.waitForSelector('.pl-workspace-deck', { state: 'detached' });
-      assert.equal(await page.locator('[data-pl-panel-placement],.pl-floating-panel,[data-pl-panel-handle],[data-pl-dock-target],.pl-workspace-details-frame').count(), 0, 'Original layout removes all docking presentation');
+      assert.equal(await page.locator('[data-pl-panel-placement],.pl-floating-panel,.pl-panel-hidden,[data-pl-panel-close],[data-pl-panel-handle],[data-pl-dock-target],.pl-workspace-details-frame').count(), 0, 'Original layout removes all docking and closing presentation');
+      assert.ok(await page.locator('.classPlanner_ClassSearchSection').isVisible(), 'Original layout restores a closed search module');
       await assertIdentity(page);
       assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(), 6, 'all original native sections return to their native parent');
       assert.deepEqual(checks.errors, [], 'no page errors'); assert.deepEqual(checks.requests, [], 'no outgoing fixture requests');
@@ -295,4 +383,4 @@ try {
   await browser.close();
   await writeFile(resolve(output, 'metrics.json'), JSON.stringify(reports, null, 2));
 }
-console.log(`Flexible panels passed at ${widths.join(', ')}px: trusted drag/resize/dock, multiple details/native controls, modules, sidebar, redraws, printing and restoration.`);
+console.log(`Flexible panels passed at ${widths.join(', ')}px: visible native-panel dragging/cancel, close/reopen and preserved selections, resize/dock, multiple details/native controls, modules, sidebar, redraws, printing and restoration.`);

@@ -26,12 +26,17 @@ It is not made by, endorsed by, or affiliated with UCLA.
 
 ## Install or update
 
-**In development on `flexible-panels`:** v0.18.0 adds draggable panel grips and
+**In development on `flexible-panels`:** v0.18.1 adds draggable panel grips and
 navigation tabs. Drag to an edge target to dock, or drop elsewhere to float a
 panel inside Class Planner. Resize floating panels from their lower-right
 corner, and resize docked regions with their dividers. Double-click a grip to
 float/return, or right-click it for placement choices and **Reset layout**.
 The left navigation can collapse with its chevron or by dragging its edge.
+The actual panel follows your pointer while dragging; **Escape** cancels the
+move. Click the small **×** in a panel header to hide it. Reopen modules and
+the calendar from navigation, or reopen the details panel from any course's
+**Details** button. Hidden panels retain their controls and selections; hiding
+the details panel retains its expanded courses. **Reset layout** reveals panels.
 Layout choices live in page memory; they survive same-plan partial redraws,
 but are reset on a reload or a new plan/term. This development build has no
 GitHub release; the download below remains the tested v0.17.11 prerelease.

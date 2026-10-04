@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.18.1 — in development (close panels and live dragging; no release published)
+
+- Close any panel with its header ×; reopen it from navigation. Schedule now
+  has a navigation entry. A course's Details button reopens the details group.
+  Hiding retains native controls, selections, open courses and panel placement.
+- Move the actual panel continuously with the pointer, with stable dock targets.
+  Escape cancels the gesture and restores its original position and stacking.
+- Preserve hidden panels across same-plan redraws and reveal them with Reset
+  layout. Keep hidden content out of keyboard/pointer interaction; return focus
+  to a visible control when closing. No new storage, permissions or release.
+
 ## 0.18.0 — in development (flexible panels; no release published)
 
 - Drag panel grips or navigation tabs to dock at an edge or float inside the
