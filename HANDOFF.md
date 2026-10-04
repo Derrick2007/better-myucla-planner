@@ -2,7 +2,45 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.7` (functional control audit).
+Current version: `0.17.8` (visible control boundaries).
+
+User requested clear boundaries around the tiny expand/collapse chevrons and
+other focused UI improvements. This is CSS-only plus release/preview metadata;
+no runtime JavaScript, native handlers, status wording or form behavior changed.
+
+Primary fold buttons keep their 38px hit areas and accessible labels/titles,
+with a border, light fill, CSS chevron reflecting aria-expanded, visible hover
+and stronger keyboard focus. Class actions gains a quiet outline and chevron.
+Close details/Information retain 44px targets with visible outlines. Native
+secondary disclosure headers and Help gain quiet boundaries; About/final-exam
+summaries are framed, and open Plan Actions has a distinct active appearance.
+Narrow Find headings put the title/fold above the original link/help. Details
+reserve 56px for Close; long titles have 10px measured clearance.
+
+Typecheck, 315 unit tests and production build pass. Existing production-browser
+checks pass: workspace 4 widths plus lifecycle/long content/printing; Search 7;
+module controls 4 viewports; Plan Actions 4; Details 6; matching preview 4. Final
+visual inspection at 1440/390 covers default/hover/focus/open/closed controls,
+long titles, narrow Find, Details and Information Close; no horizontal clipping,
+script errors or unexpected requests. No new trivial styling tests were added.
+Fictional before/after proof: outputs/control-affordance-v0.17.8/before-after.png.
+Final CSS SHA-256: 3ba0dc5e282b00d29bf52f6a130e6b8ce43805cfd0c98ad4d14e1e54e8be5067.
+
+Installed 0.17.8 in existing Downloads/better-myucla-v0.10.3/dist; all 17 files match
+production by SHA-256. Backup: outputs/installed-backup-v0.17.7. Release ZIP:
+outputs/better-myucla-v0.17.8.zip, SHA-256:
+974b8fbd519bde2794c6e95ca0317b662ce1f7e2d9e42eb0b9efe243a7eac484
+
+User reloaded the extension and refreshed Class Planner. Bounded live inspection
+on the exact ClassPlan URL confirms the new 38px outlined controls and light fill.
+My classes and Find classes collapse/expand correctly, with matching accessible
+labels, content visibility and directional chevrons. No horizontal clipping in
+either view. Restored both expanded and My classes active; tab marked deliverable.
+Previous Optimizer native-response limitation remains unresolved; this cosmetic
+change does not claim to repair it. No live plan/enrollment changes, screenshots
+or account/course content were collected in this turn.
+
+## v0.17.7 historical record
 
 User reported Final exam week and asked for every page button to be checked.
 Live reproduction found a 640px finals table inside a roughly 200px course list,

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.8 — 2026-10-03 (clearer controls)
+
+- Give expand/collapse buttons a visible outline, light background and crisp
+  state-aware chevron, with distinct hover and keyboard focus.
+- Outline Class actions, close buttons, native module disclosures and Help;
+  frame the About/final-exam disclosures and highlight open menus.
+- Separate the search heading from its Help/enrollment links in narrow panes.
+  Reserve enough title space for the Close details button on long course names.
+- Keep native handlers, statuses, selection, save behavior and UCLA navigation
+  unchanged. This update changes presentation only.
+
 ## 0.17.7 — 2026-10-03 (control audit)
 
 - Open Final exam week in a bounded, keyboard-accessible panel instead of the

@@ -1421,7 +1421,8 @@ section#layoutContentArea.pl-planner-introduction {
   font-size: 24px; font-weight: 600; line-height: 40px;
 }
 .pl-planner-introduction > #div_page_title_section2 { margin: 0 270px 4px 0; }
-.pl-intro-about > summary { display: list-item; width: fit-content; color: #59687a; font-size: 13px; line-height: 24px; cursor: pointer; }
+.pl-intro-about > summary { display: list-item; width: fit-content; box-sizing: border-box; min-height: 34px; padding: 5px 10px; border: 1px solid #b3c3d4; border-radius: 6px; background: #f7f9fc; color: #405b77; font-size: 13px; line-height: 22px; cursor: pointer; }
+.pl-intro-about > summary:hover, .pl-intro-about[open] > summary { border-color: #7895b3; background: #eaf1f9; }
 .pl-intro-about > summary:focus-visible { outline: 2px solid #4184c2; outline-offset: 3px; }
 .pl-intro-about > #page_title_text { margin: 6px 0 8px; padding: 0; font-size: 13px; line-height: 1.5; color: #62738a; }
 .pl-planner-introduction > layout-columnwrapper.col-2MR { display: block; width: 100%; }
@@ -1439,7 +1440,8 @@ section#layoutContentArea.pl-planner-introduction {
   box-sizing: border-box; overflow: auto; margin: 0; padding: 44px 12px 12px;
   border: 1px solid #d9e0e8; border-radius: 10px; background: #fff; box-shadow: 0 8px 30px #20304024;
 }
-.pl-intro-sidebar button.pl-intro-info-close { position: absolute; top: 0; right: 0; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; border-radius: 7px; background: transparent; color: #345577; font: 26px/1 sans-serif; cursor: pointer; }
+.pl-intro-sidebar button.pl-intro-info-close { position: absolute; top: 4px; right: 4px; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 0; border: 1px solid #91a8c0; border-radius: 7px; background: #f1f5fa; color: #315776; font: 26px/1 sans-serif; cursor: pointer; }
+.pl-intro-sidebar button.pl-intro-info-close:hover { border-color: #5f82a6; background: #e4eef9; }
 .pl-intro-info-close:focus-visible { outline: 2px solid #4184c2; outline-offset: -3px; }
 .pl-workspace-host #classPlanHeader { grid-column: 1; grid-row: 1; align-self: center; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; min-width: 0; margin: 0; padding: 10px 16px; color: #1d2a3b; font: 600 16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-host #classPlanHeader h2, .pl-workspace-host #classPlanHeader h3, .pl-workspace-host #classPlanHeader h4 { margin: 0; color: inherit; font: inherit; }
@@ -1459,7 +1461,7 @@ section#layoutContentArea.pl-planner-introduction {
   background: #f0f3f6; color: #4b5b6f; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
 }
 .pl-workspace-top button:hover, .pl-workspace-top summary:hover { background: #eaf0f6; }
-.pl-workspace-top > button, .pl-workspace-top > details > summary { background: transparent; color: #596678; }
+.pl-workspace-top > button, .pl-workspace-top > details > summary { border-color: #b3c3d4; background: #f7f9fc; color: #405b77; }
 .pl-workspace-top button:focus-visible, .pl-pane-toggle:focus-visible, .pl-browser-toolbar button:focus-visible, .pl-browser-index button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 .pl-workspace-shell { grid-column: 1 / -1; grid-row: 3; display: grid; grid-template-columns: 168px minmax(0,1fr); min-height: 0; min-width: 0; border-top: 1px solid #e1e7ee; }
 .pl-workspace-nav { display: flex; flex-direction: column; min-height: 0; padding: 16px 8px 12px; box-sizing: border-box; background: #f8fafc; border-right: 1px solid #e1e7ee; }
@@ -1498,9 +1500,18 @@ section#layoutContentArea.pl-planner-introduction {
 }
 .pl-workspace-main > section > .pl-pane-title > .popover.clickover > .arrow { display: none; }
 .pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; min-height: 38px; padding: 0; text-align: left; color: inherit; background: transparent; border: 0; font: inherit; }
+.pl-pane-title > button.planSectionHelpTip { box-sizing: border-box; min-width: 32px; min-height: 32px; margin: 0; padding: 5px; border: 1px solid #b3c3d4; border-radius: 6px; background: #f7f9fc; color: #405b77; cursor: pointer; }
+.pl-pane-title > button.planSectionHelpTip:hover { border-color: #7895b3; background: #eaf1f9; }
+.pl-pane-title > button.planSectionHelpTip:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-pane-title > button.planSectionToggle > .icon-minus-sign, .pl-pane-title > button.planSectionToggle > .icon-plus-sign { display: none; }
-.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; margin-left: auto; border: 0; border-radius: 6px; background: transparent; color: #59687a; font: 22px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
-.pl-pane-title > button.pl-pane-toggle:hover { background: #edf2f7; }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 38px; height: 38px; padding: 0; margin-left: auto; border: 1px solid #91a8c0; border-radius: 7px; background: #f1f5fa; color: #315776; font-size: 0; cursor: pointer; }
+/* Draw a consistent chevron instead of the tiny font-dependent down character.
+   The real button retains its accessible label, title and expanded state. */
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle[aria-expanded="true"]::before { transform: translateY(2px) rotate(225deg); }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle:hover { border-color: #5f82a6; background: #e4eef9; color: #174e82; }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle:active { background: #d5e5f5; }
+.classPlannerWrapper .pl-pane-title > button.pl-pane-toggle:focus-visible { outline: 3px solid #3477b5; outline-offset: 2px; }
 .pl-pane-collapsed > .pl-pane-body { display: none !important; }
 .pl-workspace-plan.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]), .pl-workspace-search.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]), .pl-workspace-calendar.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]) { display: block; }
 .pl-workspace-main > .pl-module-active:not(.pl-workspace-plan):not(.pl-workspace-search) { overflow: auto; }
@@ -1508,7 +1519,9 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-information-placeholder { padding: 24px; color: #59687a; }
 .pl-workspace-information-placeholder:not(.pl-module-active) { display: none; }
 /* Opaque secondary modules retain their own server-backed disclosures. */
-.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; cursor: pointer; order: 0; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; box-sizing: border-box; padding: 7px 10px; border: 1px solid #b3c3d4; border-radius: 6px; background: #f7f9fc; cursor: pointer; order: 0; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle:hover { border-color: #7895b3; background: #eaf1f9; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle > :is(.icon-plus-sign,.icon-minus-sign) { display: inline-block; flex: none; color: #52677e; }
 .pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionHelpTip { order: 1; }
 .pl-workspace-main > .classPlanner_ClassOptimizerSection > #panelOptimizer { box-sizing: border-box; padding: 20px; }
@@ -1590,9 +1603,11 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan tbody.courseItem > tr:nth-child(2), .pl-workspace-plan tbody.courseItem > tr:nth-child(3) { display: none; }
 .pl-workspace-plan button.pl-workspace-detail-button, .pl-workspace-plan button.pl-workspace-actions-button { box-sizing: border-box; min-height: 38px; padding: 8px 10px; margin: 0; border: 1px solid #cbd8e5; border-radius: 5px; font: 500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-workspace-plan button.pl-workspace-detail-button { color: #1c5688; background: #eef4fa; }
-.pl-workspace-plan button.pl-workspace-actions-button { margin-left: auto; color: #59687a; border-color: transparent; background: transparent; }
+.pl-workspace-plan button.pl-workspace-actions-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-left: auto; color: #405b77; border-color: #b3c3d4; background: #f7f9fc; }
+.pl-workspace-plan button.pl-workspace-actions-button::after { content: ""; flex: none; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.pl-workspace-plan button.pl-workspace-actions-button[aria-expanded="true"]::after { transform: translateY(2px) rotate(225deg); }
 .pl-workspace-plan button.pl-workspace-detail-button:hover, .pl-workspace-plan button.pl-workspace-detail-button[aria-expanded="true"] { background: #dfebf6; border-color: #adc5da; }
-.pl-workspace-plan button.pl-workspace-actions-button:hover, .pl-workspace-plan button.pl-workspace-actions-button[aria-expanded="true"] { background: #f0f3f6; color: #263344; }
+.pl-workspace-plan button.pl-workspace-actions-button:hover, .pl-workspace-plan button.pl-workspace-actions-button[aria-expanded="true"] { border-color: #7895b3; background: #eaf1f9; color: #174e82; }
 .pl-workspace-plan button.pl-workspace-detail-button:focus-visible, .pl-workspace-plan button.pl-workspace-actions-button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 .pl-workspace-plan .pl-conflict-badge, .pl-workspace-plan .pl-tag-badge { white-space: normal; max-width: 100%; margin-left: 0; font: 12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan #plannerSectionClip { gap: 4px; }
@@ -1769,6 +1784,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-section-field input[type="checkbox"], .pl-section-field input[type="radio"] { width: auto !important; height: auto; margin: 0; }
 .pl-workspace-plan-actions { position: relative; flex: none; margin: 0; }
 .pl-workspace-plan-actions > summary { min-height: 38px; padding: 8px 12px; box-sizing: border-box; border: 1px solid #cfd7e1; border-radius: 5px; background: #fff; color: #46566a; cursor: pointer; }
+.pl-workspace-plan-actions[open] > summary { border-color: #7895b3; background: #eaf1f9; color: #174e82; }
 .pl-workspace-plan-actions > .plannerTopMenuLinks { display: none; }
 .pl-workspace-plan-actions[open] > .plannerTopMenuLinks { display: flex; flex-direction: column; gap: 4px; position: absolute; top: calc(100% + 4px); right: 0; z-index: 180; width: 220px; max-width: calc(100vw - 48px); max-height: var(--pl-plan-menu-max-height,60dvh); overflow: auto; overscroll-behavior: contain; padding: 8px; margin: 0; box-sizing: border-box; border: 1px solid #dce3eb; border-radius: 6px; background: #fff; box-shadow: 0 8px 24px #2030401a; text-align: left; }
 .pl-workspace-plan-actions .plannerTopMenuLinks > :is(a,button) { display: block; flex: none; min-height: 36px; padding: 8px 10px; box-sizing: border-box; color: #345c85; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; text-align: left; }
@@ -1794,13 +1810,15 @@ section#layoutContentArea.pl-planner-introduction {
 @media print { .pl-workspace-host > .pl-plan-action-surface { display: none !important; } }
 .pl-workspace-preview { display: flex; flex-direction: column; position: relative; box-sizing: border-box; height: auto; padding: 0 0 16px; margin-bottom: 8px; background: #fff; border-bottom: 1px solid #e7ebf0; }
 .pl-workspace-preview[hidden] { display: none; }
-.pl-workspace-preview-head { padding-right: 38px; flex: none; max-height: none; }
+.pl-workspace-preview-head { padding-right: 56px; flex: none; max-height: none; }
 .pl-workspace-preview-head h2 { margin: 0 0 12px; color: #1d2a3b; font: 600 20px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-workspace-preview-head summary { cursor: pointer; color: #42617f; font-size: 14px; }
+.pl-workspace-preview-head summary { box-sizing: border-box; width: fit-content; min-height: 34px; padding: 5px 10px; border: 1px solid #b3c3d4; border-radius: 6px; background: #f7f9fc; cursor: pointer; color: #405b77; font-size: 14px; line-height: 22px; }
+.pl-workspace-preview-head summary:hover, .pl-workspace-preview-head details[open] > summary { border-color: #7895b3; background: #eaf1f9; }
+.pl-workspace-preview-head summary:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-workspace-preview-head p { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: #59687a; }
 .pl-workspace-preview-content { display: none; }
-.pl-workspace-preview button.pl-workspace-preview-close { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 0; border: 0; border-radius: 7px; color: #345577; background: transparent; font: 26px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
-.pl-workspace-preview button.pl-workspace-preview-close:hover { background: #edf2f7; }
+.pl-workspace-preview button.pl-workspace-preview-close { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 44px; height: 44px; margin: 0; padding: 0; border: 1px solid #91a8c0; border-radius: 7px; color: #315776; background: #f1f5fa; font: 26px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.pl-workspace-preview button.pl-workspace-preview-close:hover { border-color: #5f82a6; background: #e4eef9; }
 .pl-workspace-preview button.pl-workspace-preview-close:focus-visible { outline: 2px solid #4184c2; outline-offset: -3px; }
 .pl-workspace-plan tbody.pl-workspace-preview-card { transform: none !important; background: #f5f8fc; box-shadow: inset 3px 0 #4184c2; }
 .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) {
@@ -1876,6 +1894,13 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-bar { width: 100%; margin: 0; order: 2; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-pane-toggle { order: 1; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { padding: 14px; }
+@container pl-search (max-width: 420px) {
+  .pl-workspace-search > .pl-pane-title { display: grid; grid-template-columns: minmax(0,1fr) 38px; gap: 8px 10px; }
+  .pl-workspace-search > .pl-pane-title > button.planSectionToggle { grid-column: 1; grid-row: 1; }
+  .pl-workspace-search > .pl-pane-title > button.pl-pane-toggle { grid-column: 2; grid-row: 1; }
+  .pl-workspace-search > .pl-pane-title > a { grid-column: 1; grid-row: 2; margin: 0; justify-self: start; }
+  .pl-workspace-search > .pl-pane-title > button.planSectionHelpTip { grid-column: 2; grid-row: 2; justify-self: center; }
+}
 @container pl-search (max-width: 699px) {
   .pl-workspace-search .ClassSearchControls.row { grid-template-columns: minmax(120px,.7fr) minmax(0,1.6fr); gap: 10px; }
   .pl-workspace-search .searchFieldPanel { flex-wrap: wrap; }
