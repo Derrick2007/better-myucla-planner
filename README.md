@@ -25,6 +25,15 @@ opt-in, and the extension is not yet on the Chrome Web Store. This fork builds
 on [Astro-wen/better-myucla-planner](https://github.com/Astro-wen/better-myucla-planner).
 It is not made by, endorsed by, or affiliated with UCLA.
 
+**Development version: v0.18.6 (unreleased).** Panel arrangements are now saved
+locally across reopening Class Planner. **Default layout** in navigation resets
+the arrangement. Dragging follows the pointer with updates grouped per animation
+frame; native title buttons fit their labels so blank header space is grabbable.
+Docked panels fill the workspace when the center area is unused; reopening a
+module restores room for it. The schedule uses one header row when its controls
+fit; sidebar collapse keeps panels aligned, and single-course Details avoids
+duplicate close controls. The published v0.18.2 archive remains unchanged.
+
 ## Install or update
 
 **New in v0.18.2:** drag a blank part of a panel's header, its dotted grip or its
@@ -43,8 +52,11 @@ move. Click the small **×** in a panel header to hide it. Reopen modules and
 the calendar from navigation, or reopen the details panel from any course's
 **Details** button. Hidden panels retain their controls and selections; hiding
 the details panel retains its expanded courses. **Reset layout** reveals panels.
-Layout choices live in page memory; they survive same-plan partial redraws,
-but are reset on a reload or a new plan/term.
+In the published v0.18.2, layout choices live in page memory and reset on reload.
+In development v0.18.4, panel placement, size, hidden state and navigation choices
+are saved in this browser profile. **Default layout** restores the starting
+workspace and remembers that reset; **Original layout** returns to UCLA's native
+presentation. Neither action changes your plan or course selections.
 
 1. Download `better-myucla-v0.18.2.zip` from the [prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.18.2).
 2. Extract it into a folder you will keep. The ZIP contains a `dist` folder.
@@ -99,7 +111,9 @@ have a separate disclosure.
 Open courses survive native content updates within the same plan. v0.17.11 fixes
 a display bug that closed Details after such an update and could hide the next
 native action panel. Switching plans or quarters clears obsolete details.
-Expansion and pane sizing live in page memory and reset on a full page reload.
+Open course details remain in page memory and reset on a full page reload.
+The development version remembers panel sizing separately, without saving course
+identifiers in the layout preference.
 
 ### Search and section selection
 
@@ -154,13 +168,29 @@ UIDs, grades, DARS or Duo data. Saving a reordered plan uses UCLA's own requests
 the extension does not construct a separate API request.
 
 Local storage holds notes, existing view preferences, the compact-header choice
-and limited recovery state. Open Details, selected modules and divider sizes are
-kept only in memory. The optional **Stay signed in while reading** feature calls
+and limited recovery state. Development v0.18.4 also saves workspace geometry
+and public module choices. Open course Details remain in memory. The optional
+**Stay signed in while reading** feature calls
 UCLA's existing session-extension function during visible, focused activity,
 subject to a user-selected time cap; it does not keep an unattended session alive
 or bypass sign-in. See [PRIVACY.md](PRIVACY.md) for the complete boundaries.
 
 ## Verification and known limitations
+
+For development v0.18.6, typecheck, the production build and **419 unit tests**
+passed. Production browser checks cover saved layouts across fresh documents,
+Default reset, interrupted/cancelled gestures, minimum widths, mobile bounds and
+native control preservation. Live v0.18.4 checks confirmed saved custom layouts
+and Default reset across refreshes. Automatic-fill browser checks passed at
+2048/1440px, including one or two occupied panels, preview/drop geometry and
+remembered divider sizes. Live v0.18.5 checks confirmed the calendar fills the
+workspace after closing My classes, retains that layout after refresh and
+restores the previous split when My classes reopens. The v0.18.6 browser checks
+cover compact schedule controls, non-overlapping native click targets, sidebar
+collapse, floating geometry and individual/group Details closes at 2048/1440/390px.
+Live v0.18.6 checks confirmed the compact row, clean sidebar, same-frame dock
+alignment after collapse, single-course close and reachable native display
+controls. Published v0.18.2 verification is listed below.
 
 For v0.18.2, typecheck, the production build and **389 unit tests** passed. Browser fixtures verify
 docking preview geometry at 2048, 1440 and 390px, including hidden and floating
@@ -171,15 +201,16 @@ requests; current release verification is recorded in [HANDOFF.md](HANDOFF.md).
 
 - The missing-response regression was reproduced on v0.17.10 and corrected in
   the fictional native-action tests. **Actual enrollment completion has not been
-  tested**. Live verification of v0.18.2 remains pending after extension reload
-  and Class Planner refresh.
+  tested**. Live schedule float, close/reopen and left/right docking checks
+  passed on v0.18.2; blank-header dragging was also verified live on v0.18.3.
 - The native Optimizer has previously remained collapsed in both the redesigned
   and original layouts during a live check. Its backend response remains an
   unresolved limitation; fixture success does not establish that it works live.
 - Course availability reflects what MyUCLA last rendered. There is no independent
   refresh or open-seat monitor.
-- Layout widths and expanded Details do not persist across full page reloads.
-  Notes stay local to this browser, not across devices.
+- In the published v0.18.2, layout widths reset on reload; development v0.18.4
+  remembers them. Expanded course Details still reset. Preferences and notes
+  stay local to this browser profile, not across devices.
 - MyUCLA markup can change. The extension requires recognized structures rather
   than guessing which native controls to use.
 

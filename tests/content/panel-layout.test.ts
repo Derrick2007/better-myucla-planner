@@ -6,11 +6,16 @@ describe("native-preserving panel layout", () => {
   let layout: PanelLayoutController;
   let host: HTMLElement, panel: HTMLElement, handle: HTMLButtonElement, field: HTMLInputElement;
   let changed: ReturnType<typeof vi.fn>, activate: ReturnType<typeof vi.fn>;
+  let animationFrames: Map<number, FrameRequestCallback>, nextFrame: number;
+  const paint = () => {
+    const callbacks = [...animationFrames.values()]; animationFrames.clear();
+    callbacks.forEach(callback => callback(0));
+  };
   const rect = (left = 50, top = 60, width = 600, height = 400) => ({ left, top, width, height, right: left + width, bottom: top + height, x: left, y: top, toJSON() {} });
-  const pointer = (node: EventTarget, type: string, x: number, y: number, pointerId = 1) => {
+  const pointer = (node: EventTarget, type: string, x: number, y: number, pointerId = 1, render = true) => {
     const event = new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, clientX: x, clientY: y });
     Object.defineProperties(event, { pointerId: { value: pointerId }, isPrimary: { value: true } });
-    node.dispatchEvent(event); return event;
+    node.dispatchEvent(event); if (render) paint(); return event;
   };
   const key = (node: HTMLElement, value: string, options: KeyboardEventInit = {}) => {
     const event = new KeyboardEvent("keydown", { key: value, bubbles: true, cancelable: true, ...options });
@@ -22,6 +27,9 @@ describe("native-preserving panel layout", () => {
     pointer(document, "pointermove", x, y); pointer(document, "pointerup", x, y);
   };
   beforeEach(() => {
+    animationFrames = new Map(); nextFrame = 0;
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(callback => { const id = ++nextFrame; animationFrames.set(id, callback); return id; });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(id => { animationFrames.delete(id); });
     document.body.innerHTML = '<form id="native"><div id="host"><section id="panel"><button type="button" id="handle">Schedule</button><div><input name="choice"><button type="button" id="native-action">Native action</button></div></section></div></form>';
     host = document.getElementById("host")!; panel = document.getElementById("panel")!;
     handle = document.getElementById("handle") as HTMLButtonElement; field = panel.querySelector("input")!;
@@ -68,7 +76,7 @@ describe("native-preserving panel layout", () => {
     pointer(document, "pointermove", 160, 130);
     expect(panel.style.getPropertyValue("--pl-panel-left")).toBe("130px");
     expect(panel.style.getPropertyValue("--pl-panel-top")).toBe("110px");
-    expect(changed.mock.calls.every(call => call[2] === "geometry")).toBe(true);
+    expect(changed.mock.calls.every(call => call[2] === "drag")).toBe(true);
     expect(layout.snapshot()).toEqual(original); // Remounts must never preserve an uncommitted drag.
     expect(panel.parentElement).toBe(host); expect(field.parentElement).toBe(parent); expect(field.form).toBe(form);
     expect(field.value).toBe("fictional selection"); expect(field.disabled).toBe(false);
@@ -87,6 +95,74 @@ describe("native-preserving panel layout", () => {
     layout.floatPanel("schedule", { left: 100, top: 100, width: 300, height: 250 });
     pointer(handle, "pointerdown", 350, 120); pointer(document, "pointermove", 380, 140); pointer(document, "pointerup", 380, 140);
     expect(layout.snapshot().panels[0].box).toEqual({ left: 130, top: 120, width: 300, height: 250 });
+  });
+  it("coalesces rapid pointer events into one display update at the latest position", () => {
+    const before = layout.snapshot();
+    pointer(handle, "pointerdown", 80, 80);
+    expect(layout.isInteracting()).toBe(false);
+    activate.mockImplementation(() => expect(layout.isInteracting()).toBe(true));
+    for (let x = 100; x <= 400; x += 20) pointer(document, "pointermove", x, 150, 1, false);
+    expect(animationFrames.size).toBe(1); expect(changed).not.toHaveBeenCalled();
+    expect(layout.isInteracting()).toBe(true);
+    expect(activate).toHaveBeenCalledOnce(); expect(layout.snapshot()).toEqual(before);
+    paint();
+    expect(changed).toHaveBeenCalledExactlyOnceWith("schedule", "floating", "drag");
+    expect(panel.style.getPropertyValue("--pl-panel-left")).toBe("370px");
+    expect(panel.style.getPropertyValue("--pl-panel-top")).toBe("130px");
+    expect(animationFrames.size).toBe(0);
+    key(handle, "Escape"); expect(layout.isInteracting()).toBe(false);
+  });
+  it("uses the release coordinates even before the queued animation frame and leaves no late writes", () => {
+    pointer(handle, "pointerdown", 80, 80); pointer(document, "pointermove", 200, 150, 1, false);
+    pointer(document, "pointerup", 400, 720, 1, false);
+    expect(layout.snapshot().panels[0].box).toEqual({ left: 370, top: 356, width: 600, height: 400 });
+    expect(changed.mock.calls.map(call => call[2])).toEqual(["drag", "placement"]);
+    const styles = panel.style.cssText; expect(animationFrames.size).toBe(0); paint();
+    expect(panel.style.cssText).toBe(styles); expect(document.querySelector(".pl-panel-drop-overlay")).toBeNull();
+  });
+  it("keeps the grabbed point under the pointer beyond viewport edges, then bounds the finished floating panel", () => {
+    layout.floatPanel("schedule", { left: 12, top: 12, width: 1000, height: 744 });
+    const before = layout.snapshot();
+    pointer(handle, "pointerdown", 60, 32); pointer(document, "pointermove", 560, 732);
+    expect(panel.style.getPropertyValue("--pl-panel-left")).toBe("512px");
+    expect(panel.style.getPropertyValue("--pl-panel-top")).toBe("712px");
+    expect(layout.snapshot()).toEqual(before);
+    pointer(document, "pointermove", -40, -68);
+    expect(panel.style.getPropertyValue("--pl-panel-left")).toBe("-88px");
+    expect(panel.style.getPropertyValue("--pl-panel-top")).toBe("-88px");
+    pointer(document, "pointerup", -40, -68);
+    expect(layout.snapshot().panels[0].box).toEqual({ left: 12, top: 12, width: 1000, height: 744 });
+  });
+  it.each(["Escape", "pointercancel", "blur", "restore", "removed"])("cancels a queued frame without reapplying it after %s", cancel => {
+    const before = layout.snapshot(), styles = panel.style.cssText;
+    pointer(handle, "pointerdown", 80, 80); pointer(document, "pointermove", 200, 150, 1, false);
+    expect(animationFrames.size).toBe(1);
+    if (cancel === "Escape") key(handle, "Escape");
+    else if (cancel === "blur") window.dispatchEvent(new Event("blur"));
+    else if (cancel === "restore") layout.restore();
+    else if (cancel === "removed") { panel.remove(); paint(); }
+    else pointer(document, "pointercancel", 200, 150, 1, false);
+    expect(animationFrames.size).toBe(0); paint();
+    expect(panel.style.cssText).toBe(styles);
+    if (cancel !== "restore") expect(layout.snapshot()).toEqual(before);
+    expect(changed.mock.calls.some(call => call[2] === "placement" || call[2] === "commit" || call[2] === "drag")).toBe(false);
+    expect(document.querySelector(".pl-panel-drop-overlay")).toBeNull();
+  });
+  it("commits a resize at pointer release while snapshots during the gesture remain unchanged", () => {
+    layout.floatPanel("schedule", { left: 30, top: 30, width: 360, height: 300 });
+    const before = layout.snapshot(), resize = panel.querySelector<HTMLButtonElement>(".pl-panel-resize")!;
+    changed.mockClear();
+    pointer(resize, "pointerdown", 390, 330); pointer(document, "pointermove", 500, 440);
+    expect(layout.snapshot()).toEqual(before);
+    pointer(document, "pointermove", 510, 450, 1, false);
+    pointer(document, "pointerup", 520, 460, 1, false);
+    expect(layout.snapshot().panels[0].box).toEqual({ left: 30, top: 30, width: 490, height: 430 });
+    expect(changed).toHaveBeenLastCalledWith("schedule", "floating", "commit");
+    expect(changed.mock.calls.filter(call => call[2] === "commit")).toHaveLength(1);
+    expect(animationFrames.size).toBe(0); paint();
+    changed.mockClear(); key(resize, "ArrowLeft");
+    expect(layout.snapshot().panels[0].box?.width).toBe(474);
+    expect(changed).toHaveBeenCalledExactlyOnceWith("schedule", "floating", "commit");
   });
   it("Escape cancels a drag before any placement change and cannot close another UI", () => {
     const bubbling = vi.fn(); document.addEventListener("keydown", bubbling); startDrag();
@@ -274,7 +350,8 @@ describe("native-preserving panel layout", () => {
     layout.floatPanel("schedule", { left: 30, top: 30, width: 360, height: 300 });
     const resize = panel.querySelector<HTMLButtonElement>(".pl-panel-resize")!;
     pointer(resize, "pointerdown", 390, 330); pointer(document, "pointermove", 500, 440);
-    expect(layout.snapshot().panels[0].box?.width).toBe(470); key(resize, "Escape");
+    expect(panel.style.getPropertyValue("--pl-panel-width")).toBe("470px");
+    expect(layout.snapshot().panels[0].box?.width).toBe(360); key(resize, "Escape");
     expect(layout.snapshot().panels[0].box).toEqual({ left: 30, top: 30, width: 360, height: 300 });
     key(resize, "ArrowRight"); expect(layout.snapshot().panels[0].box?.width).toBe(376);
     key(resize, "ArrowDown", { shiftKey: true }); expect(layout.snapshot().panels[0].box?.height).toBe(340);
@@ -360,7 +437,7 @@ describe("native-preserving panel layout", () => {
   it("cancels when a native redraw removes the original handle and never resurrects it", () => {
     startDrag(); const parent = panel.parentElement; panel.remove(); pointer(document, "pointermove", 200, 100); pointer(document, "pointerup", 200, 100);
     expect(panel.isConnected).toBe(false); expect(parent?.contains(panel)).toBe(false); expect(document.querySelector(".pl-panel-drag-ghost")).toBeNull();
-    expect(changed.mock.calls).toEqual([["schedule", "floating", "geometry"]]);
+    expect(changed.mock.calls).toEqual([["schedule", "floating", "drag"]]);
   });
   it("cleans up only owned presentation while preserving preexisting styles and attributes", () => {
     layout.removePanel("schedule"); handle.setAttribute("title", "Existing title"); handle.tabIndex = 3;

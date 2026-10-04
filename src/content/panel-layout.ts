@@ -12,7 +12,9 @@ export interface PanelRegistration {
   /** Explicit user intent only; never called by snapshot restoration or resize. */
   onActivate?: () => void;
 }
-type Change = (id: string, placement: PanelPlacement, reason: "placement" | "geometry" | "visibility" | "reset") => void;
+/** Drag/geometry are transient display updates; commit is a completed user resize. */
+export type PanelLayoutChangeReason = "placement" | "geometry" | "visibility" | "reset" | "drag" | "commit";
+type Change = (id: string, placement: PanelPlacement, reason: PanelLayoutChangeReason) => void;
 interface SavedStyle { name: string; value: string; priority: string; }
 interface HandleState {
   node: HTMLElement; title: string | null; tabIndex: string | null; marker: string | null; hadClass: boolean; hadClassAttribute: boolean;
@@ -42,6 +44,8 @@ const HEADER_SURFACES = ".popover,.clickover,dialog,[role='dialog'],[role='alert
 export class PanelLayoutController {
   private panels = new Map<string, Panel>();
   private gesture: Gesture | null = null;
+  private dragFrame: number | null = null;
+  private dragPoint: { x: number; y: number } | null = null;
   private menu: HTMLElement | null = null;
   private menuTrigger: HTMLElement | null = null;
   private clickSuppression: { node: HTMLElement; until: number } | null = null;
@@ -85,7 +89,7 @@ export class PanelLayoutController {
       const box = { ...panel.box };
       box.width += event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
       box.height += event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
-      this.applyBox(panel, box); this.onChange(panel.id, panel.placement, "geometry");
+      this.applyBox(panel, box); this.onChange(panel.id, panel.placement, "commit");
     });
     this.addHandle(registration.id, registration.handle);
   }
@@ -140,6 +144,8 @@ export class PanelLayoutController {
   }
 
   getPlacement(id: string): PanelPlacement | undefined { return this.panels.get(id)?.placement; }
+  /** Includes activation and queued frames, before any transient styles paint. */
+  isInteracting(): boolean { return this.gesture?.started ?? false; }
   isFloating(id: string): boolean { return this.getPlacement(id) === "floating"; }
   isHidden(id: string): boolean { return this.panels.get(id)?.hidden ?? false; }
   hidePanel(id: string): void {
@@ -180,7 +186,7 @@ export class PanelLayoutController {
   snapshot(): PanelLayoutSnapshot {
     return { panels: [...this.panels.values()].map(panel => {
       // A native redraw must restore the committed layout, not a half-finished drag.
-      const state = this.gesture?.panel === panel && !this.gesture.resize ? this.gesture.before : panel;
+      const state = this.gesture?.panel === panel ? this.gesture.before : panel;
       return { id: panel.id, placement: state.placement, ...(state.box ? { box: { ...state.box } } : {}), ...(state.hidden ? { hidden: true } : {}) };
     }) };
   }
@@ -292,27 +298,58 @@ export class PanelLayoutController {
         this.raise(panel); this.createDragTargets(gesture);
       }
     }
-    if (gesture.resize) {
-      this.applyBox(gesture.panel, { ...gesture.original, width: gesture.original.width + dx, height: gesture.original.height + dy });
-      this.onChange(gesture.panel.id, "floating", "geometry");
-    } else {
-      this.applyBox(gesture.panel, { ...gesture.original, left: event.clientX - gesture.offsetX, top: event.clientY - gesture.offsetY });
-      this.onChange(gesture.panel.id, "floating", "geometry");
-      if (this.gesture !== gesture) return;
-      this.showTarget(gesture, this.dockAt(gesture, event.clientX, event.clientY));
-    }
+    // Pointer devices can emit several events per display frame. Keep only the
+    // latest position so projection/layout work runs at the browser's paint rate.
+    this.dragPoint = { x: event.clientX, y: event.clientY };
+    if (this.dragFrame !== null) return;
+    const view = this.doc.defaultView;
+    if (!view) { this.renderDrag(); return; }
+    this.dragFrame = view.requestAnimationFrame(() => {
+      this.dragFrame = null;
+      this.renderDrag();
+    });
   };
+  private renderDrag(): void {
+    const gesture = this.gesture, point = this.dragPoint;
+    this.dragPoint = null;
+    if (!gesture?.started || !point) return;
+    if (!gesture.panel.element.isConnected || !gesture.source.isConnected) { this.cancel(); return; }
+    if (gesture.resize) {
+      this.applyBox(gesture.panel, { ...gesture.original,
+        width: gesture.original.width + point.x - gesture.startX,
+        height: gesture.original.height + point.y - gesture.startY });
+    } else {
+      // A tall/wide panel must still follow the grabbed point. Constraining its
+      // position during movement makes it feel stuck against the viewport edge.
+      // The final floating placement is bounded again by floatPanel on release.
+      this.applyBox(gesture.panel, { ...gesture.original, left: point.x - gesture.offsetX, top: point.y - gesture.offsetY }, false);
+    }
+    this.onChange(gesture.panel.id, "floating", "drag");
+    if (this.gesture === gesture && !gesture.resize) this.showTarget(gesture, this.dockAt(gesture, point.x, point.y));
+  }
+  private clearDragFrame(): void {
+    if (this.dragFrame !== null) this.doc.defaultView?.cancelAnimationFrame(this.dragFrame);
+    this.dragFrame = null; this.dragPoint = null;
+  }
   private up = (event: PointerEvent): void => {
     const gesture = this.gesture; if (!gesture || event.pointerId !== gesture.pointerId) return;
     if (!gesture.panel.element.isConnected || !gesture.source.isConnected) { this.cancel(); return; }
     if (gesture.started) {
       this.clickSuppression = { node: gesture.source, until: Date.now() + 500 };
+      // A release may arrive before the pending frame, or at a newer position.
+      // Commit that exact position synchronously and leave no delayed writes.
+      this.clearDragFrame();
+      this.dragPoint = { x: event.clientX, y: event.clientY }; this.renderDrag();
+      if (this.gesture !== gesture) return;
       if (!gesture.resize) {
         const target = this.dockAt(gesture, event.clientX, event.clientY);
         this.finishGesture();
         if (target) this.dockPanel(gesture.panel.id, target, false);
         else this.floatPanel(gesture.panel.id, { ...gesture.original,
           left: event.clientX - gesture.offsetX, top: event.clientY - gesture.offsetY }, false);
+      } else {
+        this.finishGesture();
+        this.onChange(gesture.panel.id, "floating", "commit");
       }
     }
     this.finishGesture();
@@ -337,6 +374,7 @@ export class PanelLayoutController {
     if (notify && gesture?.started && gesture.panel.element.isConnected) this.onChange(gesture.panel.id, gesture.panel.placement, "geometry");
   }
   private finishGesture(): void {
+    this.clearDragFrame();
     const gesture = this.gesture; if (!gesture) return;
     gesture.panel.element.classList.toggle("pl-panel-dragging", gesture.before.dragging);
     gesture.overlay?.remove();
@@ -405,9 +443,13 @@ export class PanelLayoutController {
     const height = Math.max(Math.min(180, maxHeight), Math.min(box.height, maxHeight));
     return { left: Math.max(12, Math.min(box.left, viewport.width - width - 12)), top: Math.max(12, Math.min(box.top, viewport.height - height - 12)), width, height };
   }
-  private applyBox(panel: Panel, requested: PanelBox): void {
+  private applyBox(panel: Panel, requested: PanelBox, constrainPosition = true): void {
     panel.box = this.bound(requested);
-    for (const key of ["left", "top", "width", "height"] as const) panel.element.style.setProperty(`--pl-panel-${key}`, `${panel.box[key]}px`);
+    if (!constrainPosition) { panel.box.left = requested.left; panel.box.top = requested.top; }
+    for (const key of ["left", "top", "width", "height"] as const) {
+      const name = `--pl-panel-${key}`, value = `${panel.box[key]}px`;
+      if (panel.element.style.getPropertyValue(name) !== value) panel.element.style.setProperty(name, value);
+    }
   }
   private raise(panel: Panel): void {
     if (this.layer >= 79) {

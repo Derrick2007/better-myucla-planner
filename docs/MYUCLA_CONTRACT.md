@@ -1,5 +1,50 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Compact panel controls (0.18.6 development)
+
+Apply navigation collapse before measuring any dock or projected Details bounds.
+The extension's navigation has an explicit scoped shadow reset; UCLA's original
+navigation remains untouched. For one expanded course, omit only the redundant
+group close control. Keep the course close and its focus return; multiple open
+courses retain independent close controls and a labeled group close.
+
+The recognized calendar display menu remains under its original #gridDiv and
+native form. Where the measured title/control gap fits, position that same menu
+beside the title. Smaller or unfamiliar structures retain normal menu flow.
+Keep native IDs, handlers, values, selections and ancestry unchanged; scrolling
+and resizing only recalculate presentation. Original layout and print restore
+the menu's flow, and removal cleans up extension classes and geometry.
+
+## Occupied panes fill available space (0.18.5 development)
+
+An inactive or hidden main workspace does not reserve an empty column beside
+docked panels. One edge panel fills the deck; two edges share its width with one
+divider. Active Information or a main module still receives space. Reopening a
+module restores room using remembered widths, without replacing them with the
+temporary automatic size. Drop previews and committed placements share the same
+occupancy calculation. Keep the main DOM ancestor present for floating native
+panels and projected Details; hide only the empty placeholder. No controls move
+parents and no native actions run as a result of filling space.
+
+## Remembered workspace (0.18.4 development)
+
+The user explicitly requested persistent layout. Store a versioned, strictly
+validated preference containing only public module identifiers, panel placement,
+floating bounds, hidden flags, divider widths and navigation choices. Never
+include course/plan/term identifiers, native values, search text or page content.
+Apply saved presentation only to freshly recognized modules. Restoration must
+not click or replay native disclosures, searches, plan actions or enrollment.
+Unknown or malformed preferences fall back safely. Native course details remain
+ephemeral and cannot be restored from this layout preference.
+
+Default layout resets the extension's workspace arrangement, including closed
+panels, custom sizes and navigation, and saves the reset. It does not change the
+compact-header preference or any native plan state. Original layout still
+restores UCLA's presentation. Drag positions are transient until committed;
+cancellation cannot save an intermediate position. During movement, panels
+follow the pointer, then floating bounds are clamped on release so they remain
+reachable. No additional permissions or requests are introduced.
+
 ## Flexible panels (0.18.2 prerelease)
 
 Dragging an owned grip or navigation button, or a blank native header area,

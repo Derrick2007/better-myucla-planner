@@ -196,7 +196,7 @@ try {
   await page.locator('#plannerSectionClip > button.planSectionToggle').click();assert.equal(await page.locator('#panelPlan').isVisible(),false);assert.ok(await classes.evaluate(node=>node===document.activeElement));await classes.press('Enter');assert.ok(await page.locator('#panelPlan').isVisible(),'module navigation reopens its collapsed native pane');
   if(width>=1100){
    const sep=page.locator('.pl-workspace-splitter'),widen=page.locator('.pl-workspace-schedule-widen');assert.ok(await sep.isVisible());assert.ok(await widen.isVisible());const min=Number(await sep.getAttribute('aria-valuemin')),max=Number(await sep.getAttribute('aria-valuemax'));
-   const defaultWidth=(await schedule.boundingBox()).width,preferences=await page.evaluate(()=>JSON.stringify(window.fixturePreferences));
+   const defaultWidth=(await schedule.boundingBox()).width,preferences=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(window.fixturePreferences).filter(([key])=>key!=='plannerLift.workspace.v1'))));
    await widen.click();assert.equal(await widen.getAttribute('aria-pressed'),'true');assert.equal(await widen.getAttribute('aria-label'),'Restore schedule width');
    const expandedWidth=(await schedule.boundingBox()).width;assert.ok(Math.abs(expandedWidth-max)<=1&&expandedWidth>defaultWidth,'Widen uses available room beside browsing');
    if(width>=1440)assert.ok(expandedWidth>640,'wide desktops can enlarge the calendar beyond the former 640px cap');
@@ -206,7 +206,10 @@ try {
    await sep.press('Home');assert.ok(Math.abs((await schedule.boundingBox()).width-min)<=1);await sep.press('ArrowLeft');if(max>min)assert.ok((await schedule.boundingBox()).width>min,'keyboard divider changes schedule width');
    const manualWidth=(await schedule.boundingBox()).width;await widen.click();await widen.click();assert.ok(Math.abs((await schedule.boundingBox()).width-manualWidth)<=1,'Restore width returns to the exact manual divider setting');
    await sep.press('End');const after=(await schedule.boundingBox()).width;assert.ok(Math.abs(after-max)<=1);const h=await sep.boundingBox();await page.mouse.move(h.x+h.width/2,h.y+20);await page.mouse.down();await page.mouse.move(h.x+35,h.y+20,{steps:8});await page.mouse.up();if(max>min)assert.ok((await schedule.boundingBox()).width<after,'pointer divider changes schedule width');await sep.dblclick();
-   assert.ok(Math.abs((await schedule.boundingBox()).width-defaultWidth)<=1,'double-click restores the original default proportions');assert.equal(await page.evaluate(()=>JSON.stringify(window.fixturePreferences)),preferences,'calendar size controls add no persistent preference');
+   assert.ok(Math.abs((await schedule.boundingBox()).width-defaultWidth)<=1,'double-click restores the original default proportions');
+   await page.waitForFunction(()=>window.fixturePreferences['plannerLift.workspace.v1']?.scheduleWidth===null);
+   assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(window.fixturePreferences).filter(([key])=>key!=='plannerLift.workspace.v1')))),preferences,'calendar sizing changes only the requested workspace preference');
+   assert.equal(await page.evaluate(()=>window.fixturePreferences['plannerLift.workspace.v1'].scheduleExpanded),false,'restoring default proportions is remembered');
   }else{
    const toggle=page.locator('.pl-workspace-schedule-toggle');await toggle.click();assert.ok(await schedule.isVisible());assert.equal(await page.locator('.pl-workspace-schedule-widen').isVisible(),false,'narrow full-width calendar needs no Widen action');assert.equal(await page.locator('.pl-workspace-main').isVisible(),false);await page.keyboard.press('Escape');assert.ok(await page.locator('.pl-workspace-main').isVisible());assert.equal(await schedule.isVisible(),false);assert.ok(await toggle.evaluate(node=>node===document.activeElement));await toggle.click();await page.locator('[data-pl-mobile-view="main"]').click();assert.ok(await page.locator('.pl-workspace-main').isVisible());
   }
@@ -225,20 +228,23 @@ try {
   await page.evaluate(()=>window.toggleTidy(false));await page.waitForSelector('.pl-workspace-deck',{state:'detached'});assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(),6);assert.equal(await page.locator('[data-pl-workspace-details],.pl-section-label,.pl-browser-index').count(),0);assert.ok(await page.evaluate(()=>window.redrawFields.every(node=>node.isConnected&&node.form===document.getElementById('aspnetForm'))));
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log('Workspace verified: '+width+'px');
  }
- // Size preferences belong to this page session: window resizing and native
- // partial redraws retain them, without storing them or replacing controls.
+ // Explicit sizes are saved; automatic viewport clamping and native redraws
+ // retain the preferred size without replacing native controls.
  {
   const page=await browser.newPage({viewport:{width:2048,height:900}}),checks=await setup(page,fixture);
   const schedule=page.locator('.pl-workspace-calendar'),sep=page.locator('.pl-workspace-splitter'),widen=page.locator('.pl-workspace-schedule-widen');
-  const preferences=await page.evaluate(()=>JSON.stringify(window.fixturePreferences));
+  const preferences=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(window.fixturePreferences).filter(([key])=>key!=='plannerLift.workspace.v1'))));
   await page.locator('.pl-workspace-nav [data-pl-module="find"]').click();await page.locator('.pl-browser-index button').nth(2).click();
   const selection=page.locator('#container_course_M2 .data_row input').first();await selection.check();
   await sep.press('End');await sep.press('ArrowRight');const preferredWidth=(await schedule.boundingBox()).width;assert.ok(preferredWidth>640);
+  await page.waitForFunction(expected=>Math.abs(window.fixturePreferences['plannerLift.workspace.v1']?.scheduleWidth-expected)<=1,preferredWidth);
+  const savedPreferred=await page.evaluate(()=>JSON.stringify(window.fixturePreferences['plannerLift.workspace.v1']));
   await page.setViewportSize({width:1280,height:900});
   // The main pane can already meet its minimum before the resize event runs.
   // Wait for the schedule's new geometry too, rather than reading the old frame.
   await page.waitForFunction(previous=>document.querySelector('.pl-workspace-main').getBoundingClientRect().width>=419&&document.querySelector('.pl-workspace-calendar').getBoundingClientRect().width<previous,preferredWidth);
   assert.ok((await schedule.boundingBox()).width<preferredWidth,'smaller desktop clamps the wider manual selection safely');
+  assert.equal(await page.evaluate(()=>JSON.stringify(window.fixturePreferences['plannerLift.workspace.v1'])),savedPreferred,'viewport clamping does not overwrite the preferred geometry');
   await page.setViewportSize({width:2048,height:900});
   await page.waitForFunction(expected=>Math.abs(document.querySelector('.pl-workspace-calendar').getBoundingClientRect().width-expected)<=1,preferredWidth);
   await widen.click();const maximumWidth=(await schedule.boundingBox()).width;assert.ok(maximumWidth>preferredWidth);
@@ -259,7 +265,8 @@ try {
   await page.waitForSelector('.pl-workspace-deck .pl-browser-index',{state:'attached'});assert.equal(await page.locator('.pl-workspace-nav [data-pl-module="find"]').getAttribute('aria-pressed'),'true');
   assert.equal(await widen.count(),1);assert.equal(await widen.getAttribute('aria-pressed'),'true');assert.ok(Math.abs((await schedule.boundingBox()).width-maximumWidth)<=1,'native partial redraw retains Widen selection');
   await widen.click();assert.ok(Math.abs((await schedule.boundingBox()).width-preferredWidth)<=1,'native redraw retains the width to restore');
-  assert.equal(await page.evaluate(()=>JSON.stringify(window.fixturePreferences)),preferences,'resize and redraw do not persist calendar layout selections');
+  assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(window.fixturePreferences).filter(([key])=>key!=='plannerLift.workspace.v1')))),preferences,'sizing and redraw leave unrelated preferences unchanged');
+  assert.ok(Math.abs(await page.evaluate(()=>window.fixturePreferences['plannerLift.workspace.v1'].scheduleWidth)-preferredWidth)<=1,'the manual calendar size remains saved after redraw');
   await page.locator('.pl-workspace-original').click();assert.equal(await widen.count(),0,'Original layout removes the extension Widen control');
   assert.deepEqual(checks.errors,[]);assert.deepEqual(checks.requests,[]);await page.close();console.log('Larger schedule resizing, native identity and redraw verified');
  }

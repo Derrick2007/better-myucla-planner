@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.18.6 — unreleased development
+
+- Place the schedule's title and original display switches on one row when
+  space allows, with a wrapping fallback in smaller panels.
+- Remove the native navigation shadow from the extension's sidebar.
+- Recalculate docked panels after navigation collapses or expands.
+- Show one close button for a single expanded course; keep individual course
+  controls and a distinct Close all class details action for multiple courses.
+
+## 0.18.5 — unreleased development
+
+- Let docked panels occupy unused main-workspace space. One remaining panel
+  fills the available width; two edge panels share it with one divider.
+- Restore space for a reopened module using the remembered width preferences.
+  Automatic filling does not overwrite those preferences.
+- Hide unavailable schedule-width controls in custom dock layouts.
+
+## 0.18.4 — unreleased development
+
+- Remember panel placement, floating bounds, closed panels, divider sizes and
+  navigation preferences locally when Class Planner is reopened.
+- Add **Default layout** to navigation to reset the workspace arrangement.
+  Course selections, plans, notes and the compact-header preference are unchanged.
+- Render drag updates once per animation frame. Let the grabbed panel follow
+  the pointer during movement, then keep floating panels inside the viewport on
+  release. Escape cancels movement without saving a partial layout.
+- Store only validated public module names and display settings. No course,
+  account, search or enrollment data is included in the new preference.
+
+## 0.18.3 — unreleased development
+
+- Reserve the blank area beside native panel titles for dragging. Native title
+  buttons fit their labels instead of stretching invisibly across the header.
+  Their original click handlers and neighboring controls remain unchanged.
+
 ## 0.18.2 — 2026-10-04 (docking preview prerelease)
 
 - Show a full shaded destination preview while moving a panel. Generous left
