@@ -31,8 +31,17 @@ Installed 0.17.9 to existing Downloads/better-myucla-v0.10.3/dist; all 17 files
 match production by SHA-256. Backup: outputs/installed-backup-v0.17.8. Release ZIP
 outputs/better-myucla-v0.17.9.zip SHA-256:
 f63c1afaa1524fffd8cf65ae0d76b75265c50bba0d017cbf93750cc80efd1b7d
-Asked once for extension Reload + Class Planner refresh; live 17.9 verification
-is pending. Exact ClassPlan tab retained and marked handoff.
+User reloaded/refreshed. Bounded live inspection on the exact ClassPlan URL
+confirmed 288px course list, 320px filter, same-row Details/Class actions, clipped
+duplicate plain headings, visible room/instructor fields without overflow, and
+28px outlined native Change targets retaining #aspnetForm. No horizontal page
+clipping. Existing open course and selection left untouched; tab marked deliverable.
+No real-page screenshots, course/account contents or live mutations were taken.
+
+Code `6c8aab5` is pushed to fork/planner-redesign. CI `37174078214` and Release
+`37174080787` passed. v0.17.9 is a prerelease; after the release job completed,
+the asset was replaced with the exact installed Windows ZIP. GitHub's asset
+digest matches the SHA-256 above.
 
 Fictional rendered proof: outputs/course-layout-v0.17.9/detail-after.png.
 Existing live Optimizer response limitation remains unresolved; this change
