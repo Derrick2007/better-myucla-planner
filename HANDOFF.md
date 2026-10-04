@@ -37,10 +37,21 @@ foreground-message dismissal and focus return at 1440x900, 1280x900, 390x900 and
 
 Installed v0.17.6 in Downloads/better-myucla-v0.10.3/dist; all 17 files match the
 tested production build by SHA-256. Previous installed v0.17.5 backed up under
-`outputs/installed-backup-v0.17.5`. The live tab is on ClassPlan.aspx and the user
-has been asked to reload the extension and refresh. Live verification of this
-build is pending; do not claim it until completed. Live inspection before the
-fix safely opened/closed only Load and About, with no saved-plan mutation.
+`outputs/installed-backup-v0.17.5`. After the user reloaded and refreshed,
+bounded live checks verified all seven original menu entries retain their native
+handlers and form. Rename/Save a Copy/Load/About opened and closed correctly;
+the panels fit the viewport and workspace height stayed constant at 691.95px.
+Native Close and Escape returned focus to the visible triggering entries.
+No field values were read or changed, no saved plan selected, and no New/Delete/
+Save/Print action was submitted live; those flows passed fictional fixtures.
+
+Live My classes Details show both original room/instructor fields for lecture
+and discussion with transparent cell backgrounds and native form ancestry. The
+search button is 128x42, with no gradient, readable disabled caption, unchanged
+native disabled state and form. Find keeps the schedule visible; returning to
+My classes retains details. No horizontal page overflow or open action panel
+remained. The real page was left on My classes Details; no account/course text,
+field values or real-page screenshot was captured.
 
 ## v0.17.5 historical record
 
