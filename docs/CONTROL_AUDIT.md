@@ -1,5 +1,16 @@
 # Control audit — 0.17.7
 
+## Follow-up correction — 0.17.9
+
+The earlier local-panel autoscroll assertion was a false positive: opening Class
+actions had already scrolled the list past its absolute threshold. A before/after
+comparison showed neither the old nor redesigned layout scrolled during drag.
+The controller targeted the outer workspace pane instead of its #panelPlan body.
+The correction selects that known direct child, and the browser check now requires
+additional scrolling down and back up while dragging, with zero native commands
+and no document scrolling. This corrects the earlier coverage claim for edge
+autoscroll; ordinary pointer/keyboard reorder checks were separate.
+
 This audit follows a live report that Final exam week was unusable. It records
 actual interactions, not a claim that preserving a handler guarantees UCLA's
 server response. All automated plan-changing operations use fictional data with

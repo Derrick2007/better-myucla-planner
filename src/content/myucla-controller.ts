@@ -1638,7 +1638,13 @@ export class MyUclaPlannerController {
 
     this.workspace.closePreview(false);
     const panel = handle.closest<HTMLElement>(".pl-workspace-plan");
-    const scrollHost = panel && getComputedStyle(panel).overflowY === "auto" ? panel : null;
+    const planBody = handle.closest<HTMLElement>("#panelPlan");
+    // The split workspace scrolls its native course-list body, while the
+    // outer pane also has overflow:auto but no scrollable content of its own.
+    const bodyScrollHost = planBody && planBody.parentElement === panel &&
+      panel?.classList.contains("classPlanner_ClassesInPlanSection") &&
+      getComputedStyle(planBody).overflowY === "auto" ? planBody : null;
+    const scrollHost = bodyScrollHost ?? (panel && getComputedStyle(panel).overflowY === "auto" ? panel : null);
 
     event.preventDefault();
     handle.setPointerCapture?.(event.pointerId);

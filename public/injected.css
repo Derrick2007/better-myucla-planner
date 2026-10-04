@@ -1550,7 +1550,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] { font-size: 12px; }
   .pl-workspace-calendar #gridDiv .planneritembox.smallitem[data-pl-grid="tidy"] { font-size: 11px; line-height: 1.05; }
 }
-.pl-workspace-main > .pl-workspace-plan.pl-module-active { display: grid; grid-template-columns: 220px minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); }
+.pl-workspace-main > .pl-workspace-plan.pl-module-active { display: grid; grid-template-columns: clamp(248px,27%,288px) minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); }
 .pl-workspace-plan > .classPlanner_SectionTitle { grid-column: 1 / -1; grid-row: 1; }
 .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; overflow: auto; border-right: 1px solid #e1e7ee; }
 .pl-workspace-details-slot { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; color: #68798b; text-align: center; font-size: 14px; }
@@ -1567,7 +1567,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan tbody.courseItem { display: block; box-sizing: border-box; width: 100%; padding: 14px 12px; border: 0; border-bottom: 1px solid #e7ebf0; border-radius: 0; margin: 0; background: #fff; }
 .pl-workspace-plan tbody.courseItem.pl-filtered-out { display: none; }
 .pl-workspace-plan tbody.course_divider { display: none; }
-.pl-workspace-plan tbody.courseItem > tr:first-child { display: flex; flex-direction: column; }
+.pl-workspace-plan tbody.courseItem > tr:first-child { display: flex; flex-direction: column; background: transparent !important; }
 .pl-workspace-plan tbody.courseItem > tr:first-child > td { display: block; width: 100%; border: 0 !important; padding: 0 !important; box-sizing: border-box; background: transparent !important; }
 .classPlannerWrapper.pl-workspace-host .pl-workspace-plan tbody.courseItem > tr:first-child > td.SubjectAreaName_ClassName { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 6px; margin: 0 !important; font-size: 14px; line-height: 1.5; }
 .pl-workspace-plan p.pl-headline { font-size: 14px !important; margin: 0 !important; width: 100%; }
@@ -1575,12 +1575,12 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan .pl-headline .pl-code { color: #263344; font: 600 16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; white-space: normal; overflow-wrap: anywhere; }
 .pl-workspace-plan .pl-headline .pl-course-title { display: block; margin-left: 0; color: #59687a; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary { width: 100%; margin-top: 6px; color: #59687a; font: 400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary p { display: flex; flex-wrap: wrap; gap: 2px 8px; margin: 4px 0 0; color: inherit; font: inherit; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary p { display: flex; flex-wrap: wrap; gap: 2px 8px; margin: 7px 0 0; color: inherit; font: inherit; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary span { color: inherit; font: inherit; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-summary-field="1"] { font-weight: 600; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-summary-field="2"] { flex-basis: 100%; }
 .pl-workspace-plan td.linkPanelRight { margin-top: 12px; text-align: left; white-space: normal; }
-.pl-workspace-plan tbody.courseItem > tr:first-child > td.linkPanelRight { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pl-workspace-plan tbody.courseItem > tr:first-child > td.linkPanelRight { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 /* The native ordering group stays in its original cell; a local disclosure
    changes only its visibility, together with the extension's secondary tools. */
 .pl-workspace-plan td.linkPanelRight:not(.pl-course-actions-open) > .OrderingButtons,
@@ -1612,7 +1612,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan .pl-conflict-badge, .pl-workspace-plan .pl-tag-badge { white-space: normal; max-width: 100%; margin-left: 0; font: 12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan #plannerSectionClip { gap: 4px; }
 .pl-workspace-plan #plannerSectionClip > button.planSectionToggle { flex: 1; }
-.pl-workspace-plan .pl-bar { display: block; width: min(260px,100%); margin-left: auto; }
+.pl-workspace-plan .pl-bar { display: block; flex: 0 1 320px; width: min(320px,100%); margin-left: auto; }
 .pl-workspace-plan .pl-bar-main { flex-wrap: nowrap; }
 .pl-workspace-plan .pl-bar input[type="search"] { flex: 1; width: 100%; min-width: 0; height: 40px; padding: 8px 12px; border: 1px solid #cfd7e1; border-radius: 6px; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan .pl-bar [data-pl-action="menu"] { width: 38px; height: 40px; border-color: #cfd7e1; border-radius: 6px; }
@@ -1828,6 +1828,9 @@ section#layoutContentArea.pl-planner-introduction {
 }
 .pl-workspace-plan table.coursetable, .pl-workspace-plan table.coursetable .pl-section-field { font-family: inherit; }
 .pl-workspace-plan tbody.pl-workspace-preview-card > tr:nth-child(3) > td { display: block; padding: 0 !important; border: 0 !important; border-radius: 0; width: 100%; box-sizing: border-box; }
+/* Keep the section and its metadata in a readable group on large displays,
+   rather than stretching a handful of values across the whole workspace. */
+.pl-workspace-plan tbody.pl-workspace-preview-card > tr:nth-child(3) > td { max-width: 1040px; }
 .pl-preview-docked .pl-section-card { border: 0; border-bottom: 1px solid #e1e7ee; border-radius: 0; margin: 0; padding: 12px 0; gap: 8px 10px; }
 /* Details use the native nine-cell table, with primary fields sharing a row
    when the actual details area has room. Native cells and handlers stay put. */
@@ -1842,6 +1845,13 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="2"] > :is(i,span):is(.icon-lock,.icon-unlock,.icon-ok-sign) {
   display: inline-block !important; float: none !important; height: auto !important; margin-right: 4px; vertical-align: baseline;
 }
+.pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button) {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: 28px; min-height: 28px; padding: 0; border: 1px solid #cbd8e5; border-radius: 5px;
+  background: #f7f9fc; color: #315776;
+}
+.pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button):hover { border-color: #7895b3; background: #eaf1f9; }
+.pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button):focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-workspace-plan table.coursetable.pl-section-table :is(.pl-section-field,.pl-section-help-field,.pl-section-card,.pl-section-heading):is([hidden],.hidden) { display: none !important; }
 @media screen {
   .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card { grid-template-columns: 28px minmax(58px,.8fr) minmax(90px,1.5fr) 32px; gap: 8px 10px; }
@@ -1859,7 +1869,7 @@ section#layoutContentArea.pl-planner-introduction {
   @container pl-plan-detail (min-width: 640px) {
     .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
-      display: grid; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px;
+      display: grid; grid-template-columns: 38px minmax(60px,.7fr) minmax(126px,1.15fr) 48px minmax(112px,1fr) 40px 28px;
       gap: 8px 10px; padding: 12px 8px; box-sizing: border-box;
     }
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
@@ -1880,18 +1890,28 @@ section#layoutContentArea.pl-planner-introduction {
     .pl-section-table :is(.pl-section-field,.pl-section-help-field)[data-pl-field="7"] { grid-column: 6; grid-row: 1; }
     .pl-section-table :is(.pl-section-field,.pl-section-help-field)[data-pl-field="6"] { grid-column: 2 / 4; grid-row: 2; }
     .pl-section-table :is(.pl-section-field,.pl-section-help-field)[data-pl-field="8"] { grid-column: 4 / 7; grid-row: 2; }
+    /* Room/instructor captions belong beside each section's values. Keep the
+       original THs accessible without repeating an empty second heading band.
+       An unfamiliar interactive heading stays visible and operable. */
+    .pl-workspace-plan table.coursetable.pl-section-table .pl-section-heading > .pl-section-help-field:is([data-pl-field="6"],[data-pl-field="8"]):not(:has(a,button,input,select,textarea,[tabindex])) {
+      position: absolute; width: 1px !important; height: 1px !important; padding: 0 !important;
+      margin: -1px !important; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+    .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field:is([data-pl-field="6"],[data-pl-field="8"]) {
+      padding-top: 18px !important; font-size: 13px; line-height: 1.5; color: #46566a;
+    }
     .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card > .pl-section-field { align-self: center; }
     .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field:is([data-pl-field="1"],[data-pl-field="2"],[data-pl-field="4"],[data-pl-field="5"],[data-pl-field="7"]) { padding-top: 0 !important; }
     .pl-section-table .pl-section-field:is([data-pl-field="1"],[data-pl-field="4"],[data-pl-field="5"],[data-pl-field="7"]) > .pl-section-label { width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   }
 }
-.pl-workspace-main[data-pl-main-size="medium"] > .pl-workspace-plan.pl-module-active { grid-template-columns: 200px minmax(0,1fr); }
+.pl-workspace-main[data-pl-main-size="medium"] > .pl-workspace-plan.pl-module-active { grid-template-columns: 228px minmax(0,1fr); }
 .pl-workspace-main[data-pl-main-size="narrow"] > .pl-workspace-plan.pl-module-active { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; border-right: 0; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-details-slot { display: none; }
 .pl-workspace-main[data-pl-main-size="narrow"] > .pl-workspace-plan.pl-module-active.pl-has-docked-details { grid-template-rows: auto minmax(120px,180px) minmax(200px,1fr); }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-has-docked-details > .pl-workspace-details-slot { display: flex; grid-column: 1; grid-row: 3; border-top: 1px solid #e1e7ee; }
-.pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-bar { width: 100%; margin: 0; order: 2; }
+.pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-bar { flex-basis: 100%; width: 100%; margin: 0; order: 2; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-pane-toggle { order: 1; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { padding: 14px; }
 @container pl-search (max-width: 420px) {

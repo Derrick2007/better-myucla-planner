@@ -1,5 +1,22 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Course list and details hierarchy (0.17.9)
+
+My classes retains the original course nodes in a wider local list. The docked
+detail TD has a readable maximum width; its table and native controls remain in
+their original ancestry. At wide detail widths, primary headings align with the
+section values. Plain Location/Instructor THs are visually clipped (accessible
+content retained), because each section already has a local caption. If either
+heading contains an interactive descendant, it stays visible. Native room and
+instructor data, help, status markup, hidden states and control identity remain
+authoritative. Change links/buttons get boundaries through scoped CSS only.
+
+Pointer dragging in the workspace uses the direct #panelPlan scroll container
+under the recognized .pl-workspace-plan when it contains the handle and supports
+scrolling. This is local display movement only; save and native reorder behavior
+remain unchanged. Browser verification must compare scroll position before and
+after dragging: an already scrolled list is not proof of autoscrolling.
+
 ## Control audit and native disclosure boundaries (0.17.7)
 
 Final exam week is one extension-owned overflow action. Its nonmodal dialog is

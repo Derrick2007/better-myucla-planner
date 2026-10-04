@@ -2,7 +2,43 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.8` (visible control boundaries).
+Current version: `0.17.9` (course list and details hierarchy).
+
+User asked for further improvements to the cramped course list and scattered
+section details. Widened the index (248–288px, medium 228px), kept Details/Class
+actions on one row, unified selected background and bounded the filter width.
+Docked content caps at 1040px. Wide detail tables have one primary heading band;
+plain metadata THs are visually clipped while interactive native headings remain
+visible. Rooms/instructors retain local captions and always-visible native data.
+Native Change controls now have a visible 28px outlined target.
+
+Visual review at 2048/1440/1280/960/390 uses fictional data only. The Details
+suite covers 6 widths plus long metadata/native help, identity, hidden states,
+printing, dismissal and full restoration. The wider-list test exposed an old
+drag autoscroll bug: the controller selected the non-scrolling outer section
+instead of #panelPlan. The old browser assertion accepted the scroll caused by
+opening Class actions. Fixed the scroll host; the browser test now requires an
+actual scroll delta down and back up, with no native commands or page scrolling.
+
+Final typecheck, all 315 unit tests and production build pass. Broad workspace
+checks pass at 9 widths plus lifecycle/long content/printing; course controls at
+5 widths; empty plans 8 variants; Details 6 widths plus native-help/long-metadata;
+matching production preview 4 widths. No outgoing fixture requests or errors.
+Final CSS SHA-256: 13bb963a233b26712effa9552815335c66e3a9069af1f7460a2c160e076aa270.
+Final content JS SHA-256: 459d9a1e0ec349378a50eafa3e301138603fd7f2ea105c9a423e34b9c0f2531d.
+
+Installed 0.17.9 to existing Downloads/better-myucla-v0.10.3/dist; all 17 files
+match production by SHA-256. Backup: outputs/installed-backup-v0.17.8. Release ZIP
+outputs/better-myucla-v0.17.9.zip SHA-256:
+f63c1afaa1524fffd8cf65ae0d76b75265c50bba0d017cbf93750cc80efd1b7d
+Asked once for extension Reload + Class Planner refresh; live 17.9 verification
+is pending. Exact ClassPlan tab retained and marked handoff.
+
+Fictional rendered proof: outputs/course-layout-v0.17.9/detail-after.png.
+Existing live Optimizer response limitation remains unresolved; this change
+does not claim to repair it. No live plan/enrollment changes are authorized for QA.
+
+## v0.17.8 historical record
 
 User requested clear boundaries around the tiny expand/collapse chevrons and
 other focused UI improvements. This is CSS-only plus release/preview metadata;

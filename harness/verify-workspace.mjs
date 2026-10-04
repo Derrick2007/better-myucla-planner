@@ -455,9 +455,16 @@ try {
  const {errors,requests}=await setup(page,workspaceFixtureHtml(12));
  await page.evaluate(()=>{window.nativeActionCount=0;window.courseListAction=()=>window.nativeActionCount++;});
  await page.locator('.pl-workspace-actions-button').first().click();
- const grip=await page.locator('[data-pl-action="drag"]').first().boundingBox(),plan=await page.locator('.pl-workspace-plan').boundingBox();
+ const grip=await page.locator('[data-pl-action="drag"]').first().boundingBox(),plan=await page.locator('#panelPlan').boundingBox();
+ // Opening Class actions can itself scroll the list. Require further movement
+ // caused by holding the drag at the list edge, not an absolute scroll offset.
+ const beforeDragScroll=await page.locator('#panelPlan').evaluate(node=>node.scrollTop);
  await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(grip.x+grip.width/2,plan.y+plan.height-12,{steps:8});
- await page.waitForFunction(()=>document.querySelector('#panelPlan').scrollTop>80);await page.mouse.up();
+ await page.waitForFunction(before=>document.querySelector('#panelPlan').scrollTop>before+80,beforeDragScroll);
+ const afterDownScroll=await page.locator('#panelPlan').evaluate(node=>node.scrollTop);
+ await page.mouse.move(grip.x+grip.width/2,plan.y+12,{steps:8});
+ await page.waitForFunction(before=>document.querySelector('#panelPlan').scrollTop<before-80,afterDownScroll);
+ await page.mouse.up();
  assert.equal(await page.evaluate(()=>window.nativeActionCount),0);assert.equal(await page.evaluate(()=>scrollY),0);assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
  await page.close();console.log('Local panel dragging verified');
  }

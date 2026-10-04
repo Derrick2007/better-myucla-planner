@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.17.9 — 2026-10-03 (readable course details)
+
+- Give the course list more room and keep Details/Class actions on one row.
+  Use a consistent selected-course background and bound the filter width.
+- Keep section details at a readable width. Show one primary heading row with
+  room and instructor captions beside each section, without duplicate headings.
+  Retain native metadata help controls when present.
+- Give native Change controls a visible boundary, hover and keyboard focus.
+- Correct drag autoscrolling to target the actual course list in the workspace.
+  Verify a change in scroll position instead of accepting a pre-scrolled list.
+- Preserve native status wording, controls, rooms, instructors and plan actions.
+
 ## 0.17.8 — 2026-10-03 (clearer controls)
 
 - Give expand/collapse buttons a visible outline, light background and crisp
