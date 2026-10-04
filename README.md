@@ -4,268 +4,221 @@
 
 # Better MyUCLA
 
-**Browse courses beside your weekly schedule.**
+**Browse courses, compare sections and keep your schedule in view.**
 
-An unofficial Chrome extension for the MyUCLA Class Planner.
+An unofficial Chrome extension that rearranges the existing MyUCLA Class Planner.
 
-[Install guide](site/index.html) ·
-[v0.17.11 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11) ·
-[Contributing](CONTRIBUTING.md)
+[Download v0.17.11](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11) ·
+[Redesign source](https://github.com/comet-ctrl/better-myucla-planner/tree/planner-redesign) ·
+[Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md)
 
 </div>
 
-<img src="site/workspace-preview.png" width="100%" alt="v0.17.11 workspace with fictional course browsing beside a weekly schedule.">
+<img src="docs/images/multiple-details-v0.17.11.png" width="100%" alt="Fictional example: multiple course details open beside the class list and weekly schedule in v0.17.11.">
 
-The optional workspace provides named destinations for My classes, Find classes,
-Optimizer, Study list, Personal entries and Information & help. The original
-calendar stays beside the selected module on desktop; narrower screens have a
-Schedule switch. Original layout remains available.
+*Fictional courses shown. The extension works inside Class Planner; no separate
+planner website or account is required.*
 
-Open Details on several classes to keep their sections available together.
-Each course closes independently. Open details survive native updates within
-the same plan; switching plans or quarters clears the previous selection.
+**Current release: v0.17.11, redesign prerelease.** The redesigned layout is
+opt-in, and the extension is not yet on the Chrome Web Store. This fork builds
+on [Astro-wen/better-myucla-planner](https://github.com/Astro-wen/better-myucla-planner).
+It is not made by, endorsed by, or affiliated with UCLA.
 
-MyUCLA moves a class one place per click, and every click is a full page
-postback. Getting a class from 13th to 2nd costs eleven clicks and eleven page
-loads. This makes it one drag.
+## Install or update
 
-Not made by, endorsed by, or affiliated with UCLA.
+1. Download `better-myucla-v0.17.11.zip` from the [release](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11).
+2. Extract it into a folder you will keep. The ZIP contains a `dist` folder.
+3. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**,
+   and select that `dist` folder.
+4. Open or refresh [MyUCLA Class Planner](https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx).
+5. Open the extension popup and enable **Tidy up MyUCLA's own layout** to use the workspace.
 
----
+**Updating an existing installation:** replace the contents of the `dist` folder
+Chrome already loads, click **Reload** on the extension's card, then refresh
+Class Planner. The folder's name may contain an older version; check the version
+in the extension popup or Chrome's extension card.
 
-## What you get
+Use **Original layout** in the workspace navigation to return to UCLA's layout,
+or turn off the Tidy option. Previous releases remain available for rollback;
+v0.16.0 is the pre-redesign rollback point.
 
-|  | |
+## Using the workspace
+
+Named navigation sits on the left, the active module in the center, and UCLA's
+original weekly calendar on the right. Long lists and details scroll within
+their own areas. UCLA's masthead and top navigation remain intact and can scroll
+away normally.
+
+| Area | What you can do |
 | --- | --- |
-| **Drag to reorder** | Drop a class anywhere in the list. Drag to the top or bottom edge and the page scrolls with you. |
-| **Send to the top** | Open a class's ⋯ menu and choose Move to top. |
-| **Jump to a position** | Pick the spot you want out of a dropdown. |
-| **Class notes** | In the class's ⋯ menu; 24 characters, kept on your own machine. |
-| **Collapse** | Fold a class, or all of them. Native section statuses remain unchanged in the expanded table or workspace Details. |
-| **Filter** | By course, instructor, page text, or your own note. |
-| **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
-| **Clearer search** | The original Search by selector and native fields remain visible, including UCLA's required selections and loading behavior. No automatic searches or extra course requests. |
-| **My classes** | Per-section status and meeting summaries; green Open/Enrolled, amber Waitlist and red Closed keep UCLA's original wording. Unknown statuses stay neutral. Details opens beside the list; Class actions exposes reorder and note tools. |
-| **Find classes** | Native search with a list of loaded courses beside the selected preview. Filter loaded titles/numbers locally; original controls and selections stay in the same form. |
-| **Schedule** | Persistent beside the main workspace above 1100px. Widen gives it more room; Restore width returns to your previous size. Drag the divider or use arrow keys for precise sizing; double-click resets. Native Grid size controls adjust time-row height. Below 1100px, use the full-width Schedule switch. |
+| **My classes** | Read meeting times and the original status for each lecture/discussion. Open **Details** on several classes at once; each has its own Close button. **Class actions** reveals reorder and note tools. |
+| **Find classes** | Use UCLA's original search modes and required fields. Browse already-loaded courses beside their section details, with rooms and instructors visible. Filter loaded course headings locally. |
+| **Weekly schedule** | Keep the native calendar visible while browsing. Click **Widen**, drag the divider, or use its arrow keys to make it larger. **Restore width** returns to your prior size; double-clicking the divider resets it. Native Grid size controls adjust the time-row height. |
+| **Optimizer, Study list, Personal entries** | Reach each complete native module from a named navigation button. These retain UCLA's controls and loading behavior. See the Optimizer limitation below. |
+| **Plan actions** | Access the original Rename, New plan, Save a copy, Delete, Load, Print and About controls where UCLA makes them available. |
+| **Information & help** | Open the original sidebar widgets, including enrollment appointments, planner links and help. |
 
-Single-course results open directly without a duplicate index. When a selected
-section is in another course preview, a small selection reminder lets you review
-it without changing the native checkbox.
+Statuses stay separate for each section: **green** for Open/Enrolled, **amber**
+for Waitlist, and **red** for Closed. Original wording and counts remain intact;
+unrecognized statuses stay neutral. The native detailed view retains its icons
+and wording.
 
-The pane layout remains a work in progress. [UI direction](docs/UI_DIRECTION.md)
-describes the shipped design and the remaining limits of native search.
+Below 1280px, navigation becomes a horizontal row. Below 1100px, a persistent
+**Schedule** button switches between the calendar and browsing while retaining
+their positions. **Compact header / Show header** scrolls the original banner
+away or back; that preference is saved locally across terms and reloads.
 
-`docs/ROADMAP.md` has the rest, including the optional layout switch and the
-things that were considered and declined.
+### Multiple course details
 
-## Preview the current build
+Opening another class keeps existing Details open in a shared scrolling area.
+Close a course with its **×**, its Details button, or **Escape** while using that
+course's details. Keyboard focus returns to the corresponding Details button.
+Rooms, instructors and native section actions stay available; final-exam notes
+have a separate disclosure.
 
-Run `npm run build`, then `npm run preview:build`, and open
-`site/workspace-preview.html` in Chrome. This self-contained preview imports the
-production presentation modules and embeds the exact built stylesheet. Generation
-checks shared source against the production source map and records build hashes.
-`npm run preview:verify` checks the preview at desktop and phone widths.
+Open courses survive native content updates within the same plan. v0.17.11 fixes
+a display bug that closed Details after such an update and could hide the next
+native action panel. Switching plans or quarters clears obsolete details.
+Expansion and pane sizing live in page memory and reset on a full page reload.
 
-Everything shown is fictional. Searches run locally over three sample courses;
-account actions, saving, notes, drag and session features are unavailable. The
-native calendar and secondary modules are fixture approximations. Production
-origin guards are unchanged. The older `public/demo.html` remains a reordering
-fixture, not a representation of the current workspace.
+### Search and section selection
 
-The repository includes the current preview in `site/`; it is not automatically
-published from the `planner-redesign` branch. The Pages workflow deploys `main`.
+<img src="site/workspace-preview.png" width="100%" alt="Fictional Find classes results beside the native weekly calendar.">
 
----
+The extension organizes results MyUCLA has already loaded. A single course opens
+directly; multiple results have a course index beside the selected preview.
+If a checked section is in another preview, a selection reminder lets you return
+to it without changing the checkbox.
 
-## How it works
+UCLA's required autocomplete selections, search submission and loading screens
+still apply. This release does not fetch an entire catalog, search automatically,
+check prerequisites, interpret DARS or generate schedules with AI.
 
-### It lives on exactly one page
+### Reorder, save and notes
 
-```
+- Drag a class, move it to the top, or choose a numbered position. The arrangement
+  stays local until you press **Save to MyUCLA**. One explicit Save authorizes
+  the batch of native moves.
+- Save replays adjacent moves through validated native up/down buttons in a
+  same-origin frame, then refreshes the visible page. MyUCLA may return partial
+  updates or full page loads. The extension checks the plan, controls and expected
+  order before continuing. If saving is unavailable before any moves, the local
+  arrangement remains available; interruption after moves reloads MyUCLA's
+  current order, which may be partly changed.
+- Use Undo before saving. An unsaved arrangement can be recovered locally; it
+  expires after 24 hours and is removed when saved or discarded.
+- Add a local class note of up to 24 characters. Notes remain in this browser
+  and do not sync to MyUCLA.
+- Filter your plan, inspect existing conflict information and open **Final exam
+  week** from the plan toolbar's overflow menu.
+
+## Privacy and native actions
+
+The extension runs only on:
+
+```text
 https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx
 ```
 
-That exact path is the whole of `content_scripts.matches` in the manifest, and
-`storage` is the only permission. There is no background service worker, no
-host permission beyond that URL, and no server behind any of it.
+`storage` is its only extension permission. There is no server, analytics,
+telemetry or background seat polling. It reads information already rendered on
+Class Planner and retains native controls, handlers and form association.
+Unknown structures keep their native presentation or disable the affected
+enhancement.
 
-### Rearranging is local; saving is not
+The extension **does not automate enrollment, dropping, exchanges or waitlisting**.
+Those manual actions remain UCLA's. It does not read passwords, cookies, tokens,
+UIDs, grades, DARS or Duo data. Saving a reordered plan uses UCLA's own requests;
+the extension does not construct a separate API request.
 
-A drag reorders `<tbody>` nodes in your own DOM and stops there. Nothing is
-sent, so you can try three arrangements and throw two away for free. The bottom
-bar tracks the gap between two arrays: `savedOrder`, the order the server still
-believes, and `desiredOrder`, the one on your screen.
+Local storage holds notes, existing view preferences, the compact-header choice
+and limited recovery state. Open Details, selected modules and divider sizes are
+kept only in memory. The optional **Stay signed in while reading** feature calls
+UCLA's existing session-extension function during visible, focused activity,
+subject to a user-selected time cap; it does not keep an unattended session alive
+or bypass sign-in. See [PRIVACY.md](PRIVACY.md) for the complete boundaries.
 
-Save is the moment those two get reconciled, and it does that using controls
-you already had:
+## Verification and known limitations
 
-```mermaid
-flowchart TD
-    A["diff desiredOrder against savedOrder"] --> B["countStepsToOrder gives n adjacent swaps"]
-    B --> C["open an offscreen same-origin iframe of ClassPlan.aspx"]
-    C --> D["nextStepTowardOrder gives one course, one direction"]
-    D --> E["click MyUCLA's own moveupClass / movedownClass"]
-    E --> F["doPostBack fires, the frame re-renders"]
-    F --> G{"is the new order the one we predicted?"}
-    G -- yes --> H{"more steps left?"}
-    H -- yes --> D
-    H -- no --> I["reload the visible page once"]
-    G -- no --> J["stop, write nothing further, keep the arrangement, offer Reload"]
-```
+For v0.17.11, typecheck, **324 unit tests**, the production build and GitHub CI
+passed. Browser fixtures cover workspace layouts at nine widths, Details at six
+widths, native action responses at four widths across four redraw modes,
+keyboard and touch access, Plan Actions, printing, restoration and the matching
+fictional preview. Tests intercept requests and use invented course data.
 
-Two things fall out of that design.
+- The missing-response regression was reproduced on v0.17.10 and corrected in
+  the fictional native-action tests. **Actual enrollment completion has not been
+  tested**, and installed v0.17.11 still awaits live verification after reload.
+- The native Optimizer has previously remained collapsed in both the redesigned
+  and original layouts during a live check. Its backend response remains an
+  unresolved limitation; fixture success does not establish that it works live.
+- Course availability reflects what MyUCLA last rendered. There is no independent
+  refresh or open-seat monitor.
+- Layout widths and expanded Details do not persist across full page reloads.
+  Notes stay local to this browser, not across devices.
+- MyUCLA markup can change. The extension requires recognized structures rather
+  than guessing which native controls to use.
 
-**Why an offscreen frame.** Each move is an ASP.NET UpdatePanel postback that
-re-renders the page. Eleven moves on the visible page means eleven reloads
-under your cursor. The batch runs in a same-origin iframe of the same URL
-instead, so the page you are looking at reloads once, at the end. Budgeted at
-~1.2s per step, capped at 120 steps and a 15s load timeout per postback.
+## Build and test
 
-**Why clicking rather than posting.** The extension never composes a request of
-its own. It finds MyUCLA's own `button.link.moveupClass` / `movedownClass`,
-checks it against a whitelist, and clicks it. Every write is a thing you could
-have done by hand, one confirmed click at a time.
-
-### It fails closed
-
-Before each click the button must pass every one of these, or the run stops:
-
-- it is a `<button>` from that frame's own realm, and a descendant of the card
-  it claims to move
-- its id is exactly `muClass<digits>` / `mdClass<digits>` for that course, and
-  its classes are `link` plus `moveupClass` / `movedownClass`
-- `title` and `aria-label` both equal `Move this Class up in the list` for the
-  direction being asked for
-- its inline `onclick` matches the expected `courseListAction(...)` string
-  character for character, including that same course number
-- it has no `type` attribute, and no `formaction`, `formmethod` or
-  `formenctype`
-- `element.form` is `#aspnetForm`, whose method is POST and whose action
-  resolves to this exact path
-- it is visible and not disabled
-
-After each click the resulting order must equal the order that was predicted
-for that step. Any mismatch in page, term, plan id, DOM shape, button identity
-or resulting order aborts immediately: nothing further is written, your
-arrangement is kept, and a Reload button appears. There is no fuzzy fallback,
-because a fuzzy match here moves the wrong class.
-
-The full verified DOM contract is in [`docs/MYUCLA_CONTRACT.md`](docs/MYUCLA_CONTRACT.md).
-
-### What it will not do
-
-Enroll, drop, waitlist, exchange, or watch for open seats. Poll MyUCLA or send
-any request of its own. Read or store passwords, cookies, tokens, UIDs, grades,
-DARS, or Duo data. These are rules, not defaults; see [`AGENTS.md`](AGENTS.md).
-
----
-
-## Build it
+Use Node.js 22 or newer and npm, then:
 
 ```bash
-npm install
-npm run typecheck && npm test && npm run build
+npm ci
+npm run typecheck
+npm test -- --run
+npm run build
 ```
 
-esbuild bundles four entry points to IIFE, and `public/` is copied wholesale
-into `dist/`. `dist/` is not committed. Load it in Chrome via
-`chrome://extensions` → Developer mode → Load unpacked → `dist/`. After editing
-source you must rebuild **and** press Reload on the extension card.
+The build bundles four entry points with esbuild and copies `public/` into
+`dist/`. Build artifacts are included in release ZIPs, not committed. Load the
+generated `dist` folder as an unpacked extension. After changing source, rebuild,
+reload the extension and refresh Class Planner.
 
-| Command | What it does |
+Browser tests require Playwright Chromium (`npx playwright install chromium`),
+or an installed Chromium executable specified by `BETTER_MYUCLA_CHROMIUM`.
+
+| Command | Coverage |
 | --- | --- |
-| `node harness/run.mjs drag` | Drives the built extension against an invented Class Planner. Also `idle`, `position`, `top`, `default`, `tidy`. |
-| `node harness/probe-position.mjs` | Asserts "move to #N" lands on N from every starting point. |
-| `node harness/verify-install.mjs` | Walks the published install guide: zips `dist` the way the release workflow does, unzips, side-loads into a clean profile, checks the card and every injected control. |
-| `node harness/chrome-extensions-page.mjs` | Retakes the `chrome://extensions` screenshots for the install guide. |
-| `node harness/extension-card.mjs` | Retakes the extension-card screenshot. |
-| `node scripts/make-icons.mjs` | Redraws all four icon sizes into `public/icons/`. |
+| `node harness/verify-workspace.mjs` | Responsive workspace, modules, resizing, native identity, redraws, printing, restoration and drag behavior. |
+| `npm run test:details` | Native section layout, metadata, controls and hidden states. |
+| `npm run test:course-detail-actions` | Multiple Details, native response visibility/focus after redraw, touch scrolling and context changes. |
+| `npm run test:search-layout` / `npm run test:result-layout` | Native search fields and loaded course results. |
+| `npm run test:plan-actions` / `npm run test:module-controls` | Original plan actions and module controls on fictional pages. |
+| `npm run test:empty-plan` / `npm run test:optimizer` | Empty-plan and native Optimizer presentation fixtures. |
+| `npm run test:course-controls` / `npm run test:finals-controls` | Reorder/note/recovery controls and the final-exam panel. |
+| `npm run preview:build` / `npm run preview:verify` | Generate and check a preview using the production presentation code and built stylesheet. |
 
-The harness serves an invented fixture at the real URL through Playwright's
-`page.route()`, so the content script's `matches` pattern fires without an
-account and without touching a real plan. Screenshots land in `harness/shots/`.
-**Never paste a real plan into the fixture.**
+Never copy a real plan or account data into fixtures, screenshots or commits.
 
----
+### Preview without a MyUCLA account
 
-## Where things are written down
+After `npm run build`, run `npm run preview:build` and open
+`site/workspace-preview.html` in Chrome. It uses fictional courses and the same
+presentation modules as the extension. The generator checks shared source against
+the production source map and records the build hashes.
 
-| Question | File |
+Searches in this preview use three local sample courses. Account actions,
+saving, notes, drag and session features are unavailable, and secondary modules
+are approximations. The preview cannot read or change a MyUCLA account.
+`public/demo.html` is a separate reordering fixture and does not represent the
+current workspace.
+
+The current work is on **`planner-redesign`** in this fork. GitHub Pages deploys
+`main`, so pushing this branch does not update the hosted install/preview page.
+Use the versioned release link above for this build.
+
+## Project documentation
+
+| Topic | Reference |
 | --- | --- |
-| Architecture, seams, and traps already paid for | [`HANDOFF.md`](HANDOFF.md) |
-| The verified MyUCLA DOM contract | [`docs/MYUCLA_CONTRACT.md`](docs/MYUCLA_CONTRACT.md) |
-| State of play, open questions, what was declined | [`docs/ROADMAP.md`](docs/ROADMAP.md) |
-| Where the Class Planner hurts, ranked | [`docs/PAIN_POINTS.md`](docs/PAIN_POINTS.md) |
-| A product and UX read of the page | [`docs/UX_AUDIT.md`](docs/UX_AUDIT.md) |
-| Version history and the reasoning per change | [`CHANGELOG.md`](CHANGELOG.md) |
-| What may be stored and what may never be | [`PRIVACY.md`](PRIVACY.md) |
-| Rules no change may break | [`AGENTS.md`](AGENTS.md) |
-| How to propose a change | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
-
-Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
-and refreshes `HANDOFF.md` if the architecture moved.
-
-**Status:** working local beta, `0.17.11` workspace redesign beta. Not on the Chrome Web Store.
-
-The popup shows the installed version. Tidy remains opt-in. Named navigation
-opens My classes, Find classes, Optimizer, Study list and Personal entries inside
-the original MyUCLA page, while the weekly schedule remains alongside. Its divider
-resizes with drag or arrow keys (Shift makes larger changes); double-click resets
-it. Navigation becomes horizontal below 1280px. Below 1100px, Schedule switches
-between the calendar and the workspace without losing their position.
-
-Details open beside the class list while keeping native section controls inside
-their original class row. Per-section summaries show meeting time and original
-status text. The final-exam note expands separately. Close with × or Escape; focus
-returns to the selected class. Other page controls remain interactive. Rooms and
-instructors stay visible with each section, including during class selection.
-
-For complete, already-rendered results, the browser lists course headings and
-previews one course's native section rows at a time. Selection is local. Search
-modes and fields stay visible; native checkboxes, submissions and handlers
-remain in the original form. Unknown or incomplete results retain native controls.
-MyUCLA still loads missing data through its explicit native searches: this does
-not prefetch a catalog, bypass loading, or add background requests.
-
-Optimizer, Study list and Personal entries retain their complete native modules.
-The original plan actions remain under Plan actions, and Information & help
-opens all original sidebar widgets. UCLA's original top navigation stays intact. The planner
-introduction is compact: the original term selector appears beside the heading,
-the explanation expands under About this planner, and term notices remain visible.
-Information & help retains the original sidebar controls. Page
-scrolling lets the unchanged UCLA banner scroll away and the planner use the freed
-space. Compact header does this in one click while keeping the title, term and
-notices visible. The choice is saved locally across terms, reloads and browser
-tab changes; Show header brings UCLA's menu back and saves that choice. Keyboard
-focus on the original menu releases compaction for access. Original layout restores
-all six native section placements; turning Tidy
-off restores presentation. Native section statuses and icons are unchanged.
-
-v0.14.4 passed typecheck, 180 tests, build, fictional production layout checks
-and GitHub CI. Live verification after reload confirmed Compact header / Show
-header, retained title/term visibility, focus and all six modules.
-
-After updating a build, reload the extension and refresh the planner. Run
-`node harness/verify-workspace.mjs` against fictional data to check resizing,
-result selection, native identity, dismissal, redraws, restoration, seven window
-sizes, tall native headers and local panel dragging. Authorized live inspection
-verified the pane controls, course previews, section expansion and Details.
-v0.14.2 also prevents native BODY scrolling behind the workspace after searches,
-keeping original UCLA navigation visible. The reloaded v0.14.2 build passed live
-native search and section expansion with the header and term chooser on screen,
-zero BODY scroll, native-form controls and Details bounds/focus intact.
-v0.14.3 replaces the scroll lock with intentional document scrolling while BODY
-remains non-scrollable. Fictional checks cover the compact introduction at five
-widths, header scrolling in both directions, native redraws while scrolled,
-Details bounds, sidebar reopening, notices and original-control restoration.
-Authorized live v0.14.3 verification after reload passed the compact heading,
-native term selector/notices, explanatory disclosure, all original sidebar widgets,
-close/Escape/focus, scrolling away/back, Details bounds and a native search that
-preserved the scrolled layout and native controls without horizontal overflow.
-
----
+| Current implementation, verification and handoff | [HANDOFF.md](HANDOFF.md) |
+| Native DOM and button contracts | [docs/MYUCLA_CONTRACT.md](docs/MYUCLA_CONTRACT.md) |
+| Version history | [CHANGELOG.md](CHANGELOG.md) |
+| Data and storage boundaries | [PRIVACY.md](PRIVACY.md) |
+| Agent rules and contribution guidance | [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Design history and roadmap (some entries describe older versions) | [docs/UI_DIRECTION.md](docs/UI_DIRECTION.md), [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).

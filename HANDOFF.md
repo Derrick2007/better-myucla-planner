@@ -4,6 +4,14 @@ Last updated: 2026-10-03
 
 Current version: `0.17.11` (multiple details and native action continuity).
 
+README refreshed for the current release: opt-in install/update steps, named
+workspace navigation, multiple Details, schedule sizing/status colors, native
+action continuity, privacy, current test commands and explicit live limitations.
+The leading screenshot is fictional multiple-course Details; the Find classes
+preview is retained. Removed obsolete v0.14.x verification prose and corrected
+Save/partial-postback claims against current code. Source remains on the fork's
+planner-redesign branch; the versioned prerelease links to the existing tested ZIP.
+
 User reported a missing next panel after Enroll from My classes Details and
 requested multiple simultaneous expanded details. Bounded live inspection
 confirmed the requested course's Details/action menu opened and Enroll was
