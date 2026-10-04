@@ -37,6 +37,14 @@ Build hashes: content.js SHA-256
 injected.css SHA-256
 f0c24378083d53a1ff4b5278d357b5bb540d7990a61e40233223634774cf626d.
 
+Development source commit: `4cf2edf`. All 17 files installed in
+`C:/Users/freeb/Downloads/better-myucla-v0.10.3/dist` and SHA-256 matched.
+Backup: outputs/installed-backup-before-panel-close-20261003-223943;
+install record: outputs/panel-close-installed.json. Matching fictional preview
+regenerated from that source commit and verified at 1440/1280/960/390 with the
+exact production CSS and content hashes. Asked the user to Reload the extension
+and refresh Class Planner; actual installed-page check remains pending.
+
 ## Prior flexible-panel baseline (0.18.0)
 
 User requested Obsidian-like draggable tabs, floating schedule/details and
