@@ -2,7 +2,57 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.6` (Plan Actions, search appearance and visible metadata).
+Current version: `0.17.7` (functional control audit).
+
+User reported Final exam week and asked for every page button to be checked.
+Live reproduction found a 640px finals table inside a roughly 200px course list,
+lost focus, and native Study/Personal Help popovers clipped behind navigation.
+Finals now has one entry, an owned nonmodal dialog, local scrolling and Close/
+Escape/outside dismissal with focus return. More uses an owned top-layer popover.
+Stale finals close on plan/root/course replacement, trailing course removal or
+native in-place exam changes; unrelated/owned changes are ignored.
+
+Additional regressions found hidden recovery actions inside their hidden parent,
+search labels left behind by hidden fields, section grids overriding native hidden
+rows, missing Study/Personal disclosure icons, and a natively closed calendar
+remaining blank after Original-layout return. These are fixed. Explicit module
+expansion forwards only exact validated native disclosures; mount/redraw never
+opens them automatically. All primary/secondary original controls remain native.
+Help popovers retain their own nodes and handlers, bounded to the active pane.
+See docs/CONTROL_AUDIT.md and the 0.17.7 contract/privacy changes for boundaries.
+
+Required typecheck, all 315 unit tests, production build and core harness pass.
+Final production-browser passes: search 7 widths; Details 6; Results 12 cases;
+Plan Actions 4 viewports; Optimizer 4 widths; Empty-plan 8 variants; Finals 5 viewports;
+native module controls 4 viewports; course controls 5 viewports; broad workspace 4
+main widths plus redraw/printing/lifecycle/divider checks. Course actions include
+notes, both Undo controls, recovery restore/discard, pointer/keyboard reorder,
+Save/Stop, foreign-plan rejection and error Reload. Requests were intercepted
+with fictional data. Preview rebuilt from matching production modules and hashes,
+verified at 1440/1280/960/390; it does not claim to emulate UCLA's backend.
+
+Installed 0.17.7 to the existing Downloads/better-myucla-v0.10.3/dist; all 17 files
+SHA-256 match production. Prior 0.17.6 backed up under outputs/installed-backup-v0.17.6.
+ZIP outputs/better-myucla-v0.17.7.zip SHA-256:
+9f3251e1be64abe9bf2b607cff36054b9dd48c12eb21e4754882078fa32a5697
+
+Live pre-update check: all 7 Plan Actions hit targets, handler/form identities;
+Rename/Save a Copy/Load/About opened and closed without submission. Native Grid±,
+Agenda and category switches were exercised; original display settings restored
+(Study+Plan on, Alternates off, Grid only). Slow redraws need settled visibility
+checks before the next click; networkidle alone did not establish completion.
+Native Optimizer stayed collapsed even via Original-layout heading; this remains
+an explicit live limitation pending fresh-load verification, not a fixture pass.
+No live plan, enrollment or annotation was changed. No real-page screenshots or
+account/course content were copied into the repository.
+
+Awaiting user's one reload of the extension + Class Planner refresh. Then inspect
+actual finals menu/panel sizing+dismissal, Help bounds, native expansion and safe
+Plan Actions. Preserve the current user's selections. Browser binding is Chrome 3,
+verifiedPlannerTab 505443073; exact ClassPlan URL, user tab marked handoff.
+Do not claim all buttons pass on UCLA solely from the fictional tests.
+
+## v0.17.6 historical record
 
 User requested normal behavior for every Plan Actions option, a readable Search
 classes button, and rooms/instructors visible without another click. Removed

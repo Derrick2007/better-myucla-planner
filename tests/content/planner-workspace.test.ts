@@ -20,6 +20,24 @@ describe("one-page native planner workspace", () => {
     title.innerHTML='<button type="button" id="ctl00_MainContent_planSectionHelpTipOpPop" class="planSectionHelpTip link">Help</button><button id="ctl00_MainContent_toggleOptimizer" class="planSectionToggle link" onclick="shrink(\'panelOptimizer\'); __doPostBack(\'ctl00$MainContent$toggleOptimizer\',\'\')"><i class="icon-plus-sign"></i><label>Plan Optimizer</label></button>';
     const button=title.querySelector<HTMLButtonElement>('#ctl00_MainContent_toggleOptimizer')!;nativeOptimizerHandler(button);return button;
   };
+  const secondaryToggle = (module:'study'|'personal',pending=false) => {
+    const study=module==='study',title=document.getElementById(study?'plannerSectionEnip':'plannerSectionPer')!,body=document.getElementById(study?'panelNotplan':'panelPersonal')!;
+    const id=study?'ctl00_MainContent_toggleNotplan':'ctl00_MainContent_togglePersonal',label=study?'In Study List but Not In Current Plan':'Personal Entries',help=study?'slneTip':'ctl00_MainContent_helpPersonal';
+    title.innerHTML=`${study?'<a class="planSectionHelpTip" href="#">Example native help</a>':''}<button type="button" id="${help}" class="uit-clickover-bottom planSectionHelpTip link">Help</button><button id="${id}" class="planSectionToggle link" onclick="shrink('${body.id}'); __doPostBack('${id.replaceAll('_','$')}','')"><i class="icon-plus-sign"></i><label>${label}</label></button>`;
+    const button=document.getElementById(id) as HTMLButtonElement,postback=vi.fn();body.classList.add('hidden');
+    const setOpen=(open:boolean)=>{body.classList.toggle('hidden',!open);button.firstElementChild!.className=open?'icon-minus-sign':'icon-plus-sign';};
+    button.onclick=()=>{postback(id.replaceAll('_','$'),'');if(!pending)setOpen(body.classList.contains('hidden'));return false;};
+    return {button,body,title,postback,setOpen};
+  };
+  const primaryToggle=(module:'classes'|'schedule'|'find',pending=false)=>{
+    const spec={classes:['plannerSectionClip','panelPlan','togglePlan','Class Plan'],schedule:['plannerSectionCal','gridDiv','toggleGrid','Weekly Schedule'],find:['classSearchTitle','panelSearch','toggleSearch','Search for Class and Add to Plan']}[module];
+    const [titleId,targetId,suffix,label]=spec,title=document.getElementById(titleId)!,target=document.getElementById(targetId)!,id=`ctl00_MainContent_${suffix}`;
+    title.innerHTML=`${module==='find'?'<a class="planSectionHelpTip" href="#">Example search help</a><button id="faceTip" class="uit-clickover-bottom planSectionHelpTip link" onclick="return false;">Help</button>':''}<button id="${id}" class="planSectionToggle link" onclick="shrink('${targetId}'); __doPostBack('ctl00$MainContent$${suffix}','')"><i class="icon-plus-sign"></i><label>${label}</label></button>`;
+    target.classList.add('hidden');const button=document.getElementById(id) as HTMLButtonElement,postback=vi.fn();
+    const setOpen=(open:boolean)=>{target.classList.toggle('hidden',!open);button.firstElementChild!.className=open?'icon-minus-sign':'icon-plus-sign';};
+    button.onclick=()=>{postback(`ctl00$MainContent$${suffix}`,'');if(!pending)setOpen(target.classList.contains('hidden'));return false;};
+    return {button,title,target,postback,setOpen};
+  };
   beforeEach(() => {
     const fixture = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
     document.body.innerHTML = fixture.body.innerHTML;
@@ -392,6 +410,45 @@ describe("one-page native planner workspace", () => {
     reopen.click();expect(body.parentElement!.classList.contains('pl-pane-open')).toBe(true);expect(body.getAttribute('style')).toBe(style);
     workspace.restore();native.click();expect(handler).toHaveBeenCalledOnce();
   });
+  it.each(['classes','schedule','find'] as const)("preserves natively collapsed %s on mount and forwards only explicit expansion", module => {
+    const {button,title,target,postback}=primaryToggle(module),handler=button.onclick,parent=target.parentElement;
+    const grid=document.getElementById('gridDiv')!;grid.classList.add('sgChecked','saChecked');const switches=[...grid.classList].filter(name=>name==='sgChecked'||name==='saChecked');
+    mount();mount();const toggle=title.querySelector<HTMLButtonElement>('.pl-pane-toggle')!;
+    expect(postback).not.toHaveBeenCalled();expect(target.classList.contains('hidden')).toBe(true);expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    toggle.click();expect(postback).toHaveBeenCalledTimes(1);expect(target.classList.contains('hidden')).toBe(false);expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(target.parentElement).toBe(parent);expect(button.onclick).toBe(handler);expect(button.form).toBe(document.getElementById('aspnetForm'));
+    expect([...grid.classList].filter(name=>name==='sgChecked'||name==='saChecked')).toEqual(switches);
+    toggle.click();toggle.click();expect(postback).toHaveBeenCalledTimes(1);workspace.restore();expect(target.classList.contains('hidden')).toBe(false);
+  });
+  it.each(['classes','schedule','find'] as const)("recovers %s collapsed in Original layout without a remount postback", module => {
+    const {button,title,target,postback,setOpen}=primaryToggle(module);setOpen(true);mount();
+    document.querySelector<HTMLButtonElement>('.pl-workspace-original')!.click();button.click();expect(postback).toHaveBeenCalledTimes(1);expect(target.classList.contains('hidden')).toBe(true);
+    document.querySelector<HTMLButtonElement>('.pl-workspace-return')!.click();expect(postback).toHaveBeenCalledTimes(1);expect(title.querySelector('.pl-pane-toggle')!.getAttribute('aria-expanded')).toBe('false');
+    // The original title also remains a valid explicit native expansion path.
+    button.click();expect(postback).toHaveBeenCalledTimes(2);expect(target.classList.contains('hidden')).toBe(false);
+  });
+  it.each(['classes','schedule','find'] as const)("opens collapsed %s through its explicit navigation control", module => {
+    const {target,postback}=primaryToggle(module);mount();
+    const nav=document.querySelector<HTMLButtonElement>(module==='schedule'?'[data-pl-mobile-view=schedule]':`button[data-pl-module=${module}]`)!;nav.click();
+    expect(postback).toHaveBeenCalledTimes(1);expect(target.classList.contains('hidden')).toBe(false);nav.click();expect(postback).toHaveBeenCalledTimes(1);
+  });
+  it("guards pending native grid expansion and resets its disclosure after a target-only redraw", async () => {
+    const {button,title,target,postback}=primaryToggle('schedule',true);mount();const toggle=title.querySelector<HTMLButtonElement>('.pl-pane-toggle')!;
+    toggle.click();document.querySelector<HTMLButtonElement>('[data-pl-mobile-view=schedule]')!.click();button.click();expect(postback).toHaveBeenCalledTimes(1);expect(toggle.getAttribute('aria-busy')).toBe('true');
+    const replacement=target.cloneNode(true) as HTMLElement;target.replaceWith(replacement);await Promise.resolve();mount();
+    expect(postback).toHaveBeenCalledTimes(1);expect(toggle.hasAttribute('aria-busy')).toBe(false);expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    toggle.click();expect(postback).toHaveBeenCalledTimes(2);workspace.restore();expect(document.querySelector('.pl-optimizer-state')).toBeNull();
+  });
+  it.each(['handler','disabled','foreign-form','grid-parent','view-only-hidden'])("never forwards an unfamiliar calendar expansion (%s)", kind => {
+    const {button,target,postback}=primaryToggle('schedule');
+    if(kind==='handler')button.setAttribute('onclick','unknownCalendarAction()');
+    if(kind==='disabled')button.disabled=true;
+    if(kind==='foreign-form')document.querySelector('form')!.action='https://example.invalid/ClassPlanner/ClassPlan.aspx';
+    if(kind==='grid-parent'){const wrap=document.createElement('div');target.before(wrap);wrap.append(target);}
+    if(kind==='view-only-hidden'){target.classList.remove('hidden','sgChecked');button.firstElementChild!.className='icon-minus-sign';}
+    mount();document.querySelector<HTMLButtonElement>('[data-pl-mobile-view=schedule]')?.click();expect(postback).not.toHaveBeenCalled();
+    expect(button.isConnected).toBe(true);expect(target.isConnected).toBe(true);
+  });
   it("places the complete plan menu in a disclosure without changing native control parents", () => {
     const menu=document.querySelector('.plannerTopMenuLinks')!,parent=menu.parentElement,next=menu.nextSibling;
     const controls=[...menu.querySelectorAll('button')],parents=controls.map(node=>node.parentElement),handlers=controls.map(()=>vi.fn());controls.forEach((node,i)=>node.addEventListener('click',handlers[i]));
@@ -548,6 +605,43 @@ describe("one-page native planner workspace", () => {
     expect(optimizerPostback).not.toHaveBeenCalled();expect(document.querySelector('.pl-optimizer-state')).toBeNull();
     expect(document.getElementById('panelOptimizer')!.classList.contains('hidden')).toBe(true);
     expect(native.isConnected).toBe(true);expect(native.parentElement!.id).toBe('classOptimizerTitle');
+  });
+  it.each(['study','personal'] as const)("opens %s only through explicit native navigation and preserves every native control", module => {
+    const {button,body,title,postback}=secondaryToggle(module),handler=button.onclick,source=button.getAttribute('onclick');
+    const controls=[...body.querySelectorAll('input,select,button')],parents=controls.map(node=>node.parentElement),html=body.innerHTML;mount();mount();
+    expect(postback).not.toHaveBeenCalled();expect(body.classList.contains('hidden')).toBe(true);
+    const nav=document.querySelector<HTMLButtonElement>(`button[data-pl-module=${module}]`)!;nav.click();
+    expect(postback).toHaveBeenCalledExactlyOnceWith(button.id.replaceAll('_','$'),'');expect(body.classList.contains('hidden')).toBe(false);
+    nav.click();mount();expect(postback).toHaveBeenCalledTimes(1);expect(button.parentElement).toBe(title);expect(button.onclick).toBe(handler);expect(button.getAttribute('onclick')).toBe(source);
+    expect(body.innerHTML).toBe(html);expect(controls.every((node,index)=>node.parentElement===parents[index]&&node.closest('form')===document.getElementById('aspnetForm'))).toBe(true);
+    button.click();expect(body.classList.contains('hidden')).toBe(true);nav.click();expect(postback).toHaveBeenCalledTimes(3);expect(body.classList.contains('hidden')).toBe(false);
+    button.click();workspace.restore();mount();expect(postback).toHaveBeenCalledTimes(4);expect(body.classList.contains('hidden')).toBe(true);
+  });
+  it.each(['study','personal'] as const)("guards pending %s keyboard expansion and discards stale loading after native replacement", async module => {
+    const {button,body,postback}=secondaryToggle(module,true);mount();
+    const previous=document.querySelector<HTMLButtonElement>(`button[data-pl-module=${module==='study'?'optimizer':'study'}]`)!,nav=document.querySelector<HTMLButtonElement>(`button[data-pl-module=${module}]`)!;
+    previous.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));expect(postback).toHaveBeenCalledTimes(1);expect(document.activeElement).toBe(nav);expect(nav.getAttribute('aria-busy')).toBe('true');
+    nav.click();nav.click();mount();expect(postback).toHaveBeenCalledTimes(1);expect(body.classList.contains('hidden')).toBe(true);
+    const replacement=button.cloneNode(true) as HTMLButtonElement;replacement.onclick=button.onclick;button.replaceWith(replacement);await Promise.resolve();
+    expect(document.querySelector('.pl-optimizer-state')).toBeNull();expect(nav.hasAttribute('aria-busy')).toBe(false);mount();expect(postback).toHaveBeenCalledTimes(1);
+    nav.click();expect(postback).toHaveBeenCalledTimes(2);workspace.restore();expect(document.querySelector('[aria-busy]')).toBeNull();expect(replacement.isConnected).toBe(true);
+  });
+  it.each(['study','personal'] as const)("does not reopen %s when Information restores its closed module", module => {
+    document.body.innerHTML=new DOMParser().parseFromString(introductionFixtureHtml(),'text/html').body.innerHTML;
+    const {button,body,postback}=secondaryToggle(module);mount();document.querySelector<HTMLButtonElement>(`button[data-pl-module=${module}]`)!.click();button.click();expect(postback).toHaveBeenCalledTimes(2);
+    document.querySelector<HTMLButtonElement>('.pl-intro-info')!.click();document.querySelector<HTMLButtonElement>('.pl-intro-info-close')!.click();
+    document.querySelector<HTMLButtonElement>('.pl-intro-info')!.click();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    expect(postback).toHaveBeenCalledTimes(2);expect(body.classList.contains('hidden')).toBe(true);expect(document.querySelector(`button[data-pl-module=${module}]`)!.getAttribute('aria-pressed')).toBe('true');
+  });
+  it.each((['study','personal'] as const).flatMap(module=>['handler','disabled','foreign-form','foreign-button','hidden','extra-child'].map(kind=>({module,kind}))))("keeps $module native when its $kind contract changes", ({module,kind}) => {
+    const {button,body,postback}=secondaryToggle(module);mount();
+    if(kind==='handler')button.setAttribute('onclick','unrecognizedNativeAction()');
+    if(kind==='disabled')button.disabled=true;
+    if(kind==='foreign-form')document.querySelector('form')!.action='https://example.invalid/ClassPlanner/ClassPlan.aspx';
+    if(kind==='foreign-button')button.setAttribute('form','anotherForm');
+    if(kind==='hidden')button.style.display='none';
+    if(kind==='extra-child')button.append(document.createElement('span'));
+    document.querySelector<HTMLButtonElement>(`button[data-pl-module=${module}]`)!.click();expect(postback).not.toHaveBeenCalled();expect(body.classList.contains('hidden')).toBe(true);expect(button.isConnected).toBe(true);expect(document.querySelector('.pl-optimizer-state')).toBeNull();
   });
   it("retains the selected module after a native redraw and rejects unknown primary bodies", () => {
     mount();document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!.click();

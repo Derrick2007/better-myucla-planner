@@ -111,6 +111,20 @@ try {
       }
     }
     const field = page.locator('.pl-preview-docked .pl-section-field[data-pl-field="6"]').first();
+    for (const selector of ['.pl-preview-docked .pl-section-card', '.pl-preview-docked .pl-section-heading']) {
+      const row = page.locator(selector).first(), previousStyle = await row.getAttribute('style');
+      await row.evaluate(node => { node.style.display = 'none'; });
+      check(!await row.isVisible(), named('native inline-hidden section/header row remains hidden after presentation'));
+      await page.emulateMedia({ media: 'print' });
+      check(!await row.isVisible(), named('printing preserves native inline-hidden section/header rows'));
+      await page.emulateMedia({ media: 'screen' });
+      await row.evaluate((node, value) => { if (value === null) node.removeAttribute('style'); else node.setAttribute('style', value); }, previousStyle);
+      await row.evaluate(node => { node.hidden = true; });
+      check(!await row.isVisible(), named('native hidden section/header attribute remains hidden'));
+      await row.evaluate(node => { node.hidden = false; node.classList.add('hidden'); });
+      check(!await row.isVisible(), named('native hidden section/header class remains hidden'));
+      await row.evaluate(node => { node.classList.remove('hidden'); });
+    }
     const prior = await field.getAttribute('style');
     await field.evaluate(node => { node.style.display = 'none'; });
     check(!await field.isVisible(), named('native inline-hidden metadata field stays hidden'));

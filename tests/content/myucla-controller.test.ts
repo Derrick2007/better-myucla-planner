@@ -126,6 +126,87 @@ describe("MyUclaPlannerController UI", () => {
   };
   const enableTidy = () => chrome.storage.local.set({'plannerLift.layout.v1':{tidy:true}});
 
+  const openFinals = () => {
+    const more=document.querySelector<HTMLButtonElement>('[data-pl-action="menu"]')!,entry=document.querySelector<HTMLButtonElement>('[data-pl-action="finals"]')!;
+    more.click();entry.click();return {more,entry,panel:document.querySelector<HTMLDialogElement>('[data-pl-finals]')!};
+  };
+
+  it("shows one owned finals dialog outside the class list without changing the native calendar", async () => {
+    renderWorkspace(introductionFixtureHtml());await enableTidy();controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();await settle();
+    const native=document.querySelector('#ctl00_MainContent_panelGrid')!,parent=native.parentElement,html=native.innerHTML;
+    const courses=[...document.querySelectorAll('#panelPlan tbody.courseItem')],courseParents=courses.map(node=>node.parentElement),nativeClick=vi.fn(),submit=vi.fn();
+    document.querySelectorAll('.OrderingButtons button').forEach(button=>button.addEventListener('click',nativeClick));document.querySelector('form')!.addEventListener('submit',submit);
+    const {more,entry,panel}=openFinals();
+    expect(document.querySelectorAll('[data-pl-action="finals"]')).toHaveLength(1);expect(document.getElementById('planner-lift-finals-toggle')).toBeNull();
+    expect(panel.parentElement).toBe(document.body);expect(panel.open).toBe(true);expect(panel.hasAttribute('data-planner-lift-owned')).toBe(true);expect(panel.getAttribute('aria-modal')).toBe('false');
+    expect(panel.querySelectorAll('.pl-finals-block').length).toBeGreaterThan(0);expect(entry.getAttribute('aria-expanded')).toBe('true');expect(document.activeElement).toBe(panel.querySelector('[data-pl-action="close-finals"]'));
+    expect(native.parentElement).toBe(parent);expect(native.innerHTML).toBe(html);expect(courses.every((node,index)=>node.parentElement===courseParents[index])).toBe(true);
+    expect(nativeClick).not.toHaveBeenCalled();expect(submit).not.toHaveBeenCalled();
+    panel.querySelector<HTMLButtonElement>('[data-pl-action="close-finals"]')!.click();expect(document.querySelector('[data-pl-finals]')).toBeNull();expect(document.activeElement).toBe(more);expect(entry.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it("closes finals with Escape or native dialog cancellation and returns to the visible More button", async () => {
+    controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();
+    let state=openFinals();expect(state.panel.querySelector('.pl-finals-empty')).not.toBeNull();
+    const escape=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});state.panel.dispatchEvent(escape);
+    expect(escape.defaultPrevented).toBe(true);expect(state.panel.isConnected).toBe(false);expect(document.activeElement).toBe(state.more);
+    state=openFinals();state.panel.dispatchEvent(new Event('cancel',{cancelable:true}));expect(state.panel.isConnected).toBe(false);expect(document.activeElement).toBe(state.more);
+  });
+
+  it("does not consume Escape from a foreground native dialog and closes on an outside click", async () => {
+    controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();const {panel}=openFinals();
+    const native=document.createElement('div');native.setAttribute('role','dialog');native.innerHTML='<button type="button">Example native help</button>';document.body.append(native);
+    const escape=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});native.firstElementChild!.dispatchEvent(escape);expect(escape.defaultPrevented).toBe(false);expect(panel.isConnected).toBe(true);
+    (native.firstElementChild as HTMLButtonElement).click();expect(panel.isConnected).toBe(false);native.remove();
+  });
+
+  it("closes a stale finals snapshot on native redraw and regenerates it from current exam lines", async () => {
+    renderWorkspace(introductionFixtureHtml());await enableTidy();controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();await settle();
+    const {panel}=openFinals();replaceWorkspace(introductionFixtureHtml());await settle();await settle();expect(panel.isConnected).toBe(false);expect(document.querySelector('[data-pl-finals]')).toBeNull();
+    const exam=document.querySelector<HTMLElement>('#panelPlan .final_exam_info')!;exam.textContent='Final Exam: Friday, December 11 - 7pm-10pm';
+    const fresh=openFinals();expect(fresh.panel.textContent).toContain('7pm-10pm');expect(document.querySelectorAll('[data-pl-finals]')).toHaveLength(1);
+    replaceWorkspace(emptyPlanFixtureHtml());await settle();await settle();expect(document.querySelector('[data-pl-finals]')).toBeNull();expect(document.querySelector('[data-pl-action="finals"]')).toBeNull();
+  });
+
+  it("cleans finals and menu presentation when tidy is disabled or the controller is disposed", async () => {
+    renderWorkspace(introductionFixtureHtml());await enableTidy();controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();await settle();openFinals();
+    (controller as unknown as {setTidyLayout:(tidy:boolean)=>void}).setTidyLayout(false);expect(document.querySelector('[data-pl-finals]')).toBeNull();expect(document.querySelector<HTMLElement>('[data-pl-menu]')!.hidden).toBe(true);
+    openFinals();controller.dispose();expect(document.querySelector('[data-pl-finals]')).toBeNull();expect(document.querySelector('[data-pl-menu]')).toBeNull();
+  });
+
+  it("closes finals when only the trailing course is removed from the same native table", async () => {
+    const adapter=new MyUclaPlannerAdapter();controller=new MyUclaPlannerController(adapter);await controller.start();
+    const root=adapter.getRoot()!,courses=[...root.querySelectorAll(':scope > tbody.courseItem')],{panel}=openFinals();
+    courses.at(-1)!.remove();
+    (courses.at(-2)!.querySelector('.movedownClass') as HTMLElement).style.visibility='hidden';
+    expect(adapter.getRoot()).toBe(root);expect(adapter.inspectContract().ok).toBe(true);
+    await settle();expect(panel.isConnected).toBe(false);
+  });
+
+  it("invalidates open finals only for native exam source changes, including text-only updates", async () => {
+    renderWorkspace(introductionFixtureHtml());await enableTidy();controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();await settle();
+    const exam=document.querySelector<HTMLElement>('#panelPlan .final_exam_info')!;
+    const original=exam.querySelector<HTMLElement>(':scope > span:nth-of-type(2)')!;
+    const owned=document.createElement('div');owned.setAttribute('data-planner-lift-owned','true');owned.textContent='Owned presentation';exam.append(owned);
+    let {panel}=openFinals();
+    owned.append(document.createElement('span'));owned.firstChild!.nodeValue='Owned presentation update';await settle();expect(panel.isConnected).toBe(true);
+    const unrelated=document.createElement('p');unrelated.textContent='Fictional unrelated module update';document.getElementById('panelNotplan')!.append(unrelated);
+    await settle();expect(panel.isConnected).toBe(true);
+    const text=[...original.childNodes].find(node=>node.nodeType===Node.TEXT_NODE)!;
+    text.nodeValue='Friday, December 11 - 7pm-10pm';await settle();expect(panel.isConnected).toBe(false);
+    ({panel}=openFinals());expect(panel.textContent).toContain('7pm-10pm');
+    const replacement=exam.cloneNode(true) as HTMLElement;exam.replaceWith(replacement);await settle();expect(panel.isConnected).toBe(false);
+    ({panel}=openFinals());replacement.remove();await settle();expect(panel.isConnected).toBe(false);
+  });
+
+  it("keeps More as a bounded popover and returns keyboard focus when it closes", async () => {
+    controller=new MyUclaPlannerController(new MyUclaPlannerAdapter());await controller.start();
+    const more=document.querySelector<HTMLButtonElement>('[data-pl-action="menu"]')!,menu=document.querySelector<HTMLElement>('[data-pl-menu]')!;
+    expect(menu.getAttribute('popover')).toBe('auto');more.click();expect(menu.hidden).toBe(false);expect(menu.style.getPropertyValue('--pl-menu-width')).not.toBe('');
+    expect(more.getAttribute('aria-expanded')).toBe('true');const escape=new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});menu.dispatchEvent(escape);
+    expect(escape.defaultPrevented).toBe(true);expect(menu.hidden).toBe(true);expect(document.activeElement).toBe(more);
+  });
+
   it.each([false,true])("starts an empty New plan with populated Study list=%s as presentation only", async populatedStudy => {
     renderWorkspace(emptyPlanFixtureHtml(false,populatedStudy));await enableTidy();
     const adapter=new MyUclaPlannerAdapter(),body=document.getElementById('panelPlan')!,native=body.innerHTML;
@@ -508,7 +589,7 @@ describe("MyUclaPlannerController UI", () => {
     }
   });
 
-  it("offers back an arrangement that a logout interrupted", async () => {
+  it.each(['restore-draft','drop-draft'])("shows a recovery offer after a logout and supports %s with its parent visible", async action => {
     const key = "plannerLift.draft.v1";
     await chrome.storage.local.set({
       [key]: {
@@ -526,14 +607,17 @@ describe("MyUclaPlannerController UI", () => {
     await Promise.resolve();
 
     const offer = document.querySelector<HTMLElement>("[data-pl-draft]")!;
+    const bar=document.getElementById('planner-lift-actionbar')!;
     expect(offer.hidden).toBe(false);
+    expect(bar.hidden).toBe(false);expect(document.documentElement.classList.contains('pl-has-actionbar')).toBe(true);
     expect(planOrder()).toEqual(ids);
 
-    document.querySelector<HTMLButtonElement>('[data-pl-action="restore-draft"]')!.click();
+    document.querySelector<HTMLButtonElement>(`[data-pl-action="${action}"]`)!.click();
 
-    expect(planOrder()).toEqual([ids[2], ids[0], ids[1]]);
-    expect(document.querySelector<HTMLElement>("[data-pl-dirty]")?.hidden).toBe(false);
+    expect(planOrder()).toEqual(action==='restore-draft'?[ids[2], ids[0], ids[1]]:ids);
+    expect(document.querySelector<HTMLElement>("[data-pl-dirty]")?.hidden).toBe(action!=='restore-draft');
     expect(offer.hidden).toBe(true);
+    expect(bar.hidden).toBe(action!=='restore-draft');expect(document.documentElement.classList.contains('pl-has-actionbar')).toBe(action==='restore-draft');
   });
 
   it("drops a draft once MyUCLA's own order has moved on", async () => {

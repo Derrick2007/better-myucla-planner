@@ -129,7 +129,26 @@ try {
     check(await page.evaluate(() => window.originalSearchControls.every(node => node.isConnected && node.form === document.getElementById('aspnetForm'))), named('original controls retain identity and form association'));
     check(await page.evaluate(() => { const saved = window.originalSearchTitleLink; return saved.node.isConnected && saved.node.parentElement === saved.parent && saved.node.getAttribute('href') === saved.href; }), named('the original enrollment-navigation link retains its identity, parent and target'));
     check(await page.evaluate(() => window.searchChangeCount === 0 && window.searchSubmitCount === 0), named('mount and layout checks send no native search events'));
-    if (width === 1440) {
+    // Exercise the original mode selector and submitter after the zero-event
+    // mount checks. These handlers are fictional; each invocation is counted,
+    // prevented locally, and must never result in a request.
+    {
+      const select = page.locator('select.searchBy');
+      const modes = await select.locator('option').evaluateAll(nodes => nodes.filter(node => !node.disabled).map(node => node.value));
+      for (const [index, mode] of modes.entries()) {
+        await select.selectOption(mode);
+        check(await select.inputValue() === mode, named(`native search mode ${mode} remains selectable`));
+        check(await page.evaluate(() => window.searchChangeCount) === index + 1, named(`mode ${mode} forwards its one native change event`));
+      }
+      check(await page.evaluate(() => window.searchSubmitCount === 0), named('changing search modes does not submit an extra query'));
+      const field = page.locator('#searchTier0'), fieldLabel = page.locator('label[for="searchTier0"]');
+      for (const hiding of ['hidden', 'class']) {
+        await field.evaluate((node, kind) => { if (kind === 'hidden') node.hidden = true; else node.classList.add('hidden'); }, hiding);
+        await page.waitForFunction(() => document.querySelector('label[for="searchTier0"]').hidden);
+        check(!await field.isVisible() && !await fieldLabel.isVisible(), named(`${hiding} native input and its added label stay hidden together`));
+        await field.evaluate(node => { node.hidden = false; node.classList.remove('hidden'); });
+        await page.waitForFunction(() => !document.querySelector('label[for="searchTier0"]').hidden);
+      }
       const go = page.locator('#ctl00_MainContent_cs_goButton');
       check(await go.isDisabled(), named('native disabled behavior is retained'));
       await go.evaluate(node => { node.disabled = false; });
@@ -144,6 +163,8 @@ try {
       await page.screenshot({ path: resolve(output, `${label}-${width}-search-enabled.png`) });
       await go.press('Enter');
       check(await page.evaluate(() => window.searchSubmitCount === 1), named('keyboard activation submits the original form exactly once'));
+      await go.click();
+      check(await page.evaluate(() => window.searchSubmitCount === 2), named('pointer activation submits the original form exactly once'));
     }
     check(errors.length === 0, named(`no script errors: ${errors.join('; ')}`));
     check(requests.length === 0, named('no extra requests'));

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.17.7 — 2026-10-03 (control audit)
+
+- Open Final exam week in a bounded, keyboard-accessible panel instead of the
+  narrow course list. Keep a single entry and support Close, Escape and outside
+  click with focus return. Keep More above workspace clipping containers.
+- Restore native Study list and Personal entries disclosure icons and reopen
+  their known collapsed panels on explicit navigation. Keep native Help popups
+  within their pane, with local scrolling for long instructions.
+- Correct expansion after native Calendar, Class Plan or Search was collapsed
+  in Original layout, preserving native loading and Grid/Agenda visibility.
+- Preserve native hiding of section rows and search fields. Make existing draft
+  recovery actions visible together with their containing bar.
+- Add functional browser audits for course actions, finals and native modules,
+  including native postback-shaped calendar switches, redraws and narrow layouts.
+  See `docs/CONTROL_AUDIT.md` for live/fixture coverage and remaining limitations.
+
 ## 0.17.6 — 2026-10-03 (native actions and visible course information)
 
 - Keep rooms and instructors visible alongside every section in Find classes and

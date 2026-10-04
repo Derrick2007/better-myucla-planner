@@ -136,6 +136,20 @@ try {
     }
 
     // Always-visible metadata must still respect fields hidden by UCLA.
+    for (const selector of ['.pl-browser-body-active .pl-section-card', '.pl-browser-body-active .pl-section-result-heading']) {
+      const row = page.locator(selector).first(), previousStyle = await row.getAttribute('style');
+      await row.evaluate(node => { node.style.display = 'none'; });
+      check(!await row.isVisible(), named('native inline-hidden section/header row remains hidden after presentation'));
+      await page.emulateMedia({ media: 'print' });
+      check(!await row.isVisible(), named('printing preserves native inline-hidden section/header rows'));
+      await page.emulateMedia({ media: 'screen' });
+      await row.evaluate((node, value) => { if (value === null) node.removeAttribute('style'); else node.setAttribute('style', value); }, previousStyle);
+      await row.evaluate(node => { node.hidden = true; });
+      check(!await row.isVisible(), named('native hidden section/header attribute remains hidden'));
+      await row.evaluate(node => { node.hidden = false; node.classList.add('hidden'); });
+      check(!await row.isVisible(), named('native hidden section/header class remains hidden'));
+      await row.evaluate(node => { node.classList.remove('hidden'); });
+    }
     for (const selector of ['.pl-browser-body-active .pl-section-card > [data-pl-field="6"]', '.pl-browser-body-active .pl-section-result-heading > [data-pl-field="8"]']) {
       const field = page.locator(selector).first(), priorStyle = await field.getAttribute('style');
       await field.evaluate(node => { node.style.display = 'none'; });

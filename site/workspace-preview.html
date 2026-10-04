@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.17.6 fictional preview</title>
+<title>Better MyUCLA · v0.17.7 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -84,7 +84,7 @@
   #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.6"><meta name="planner-source-revision" content="cf933ac467d7465cfd06e9c3b7bd4d5282462e2a"><meta name="planner-production-css-sha256" content="8e13764ce95547ea2884f5982a203998ae087f1b8205427d226bfe6a5e29d351"><meta name="planner-production-content-sha256" content="7e96122c80d97c57083e7c9347a5e3063be9c14575c2e7fae84e39603895faec"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.7"><meta name="planner-source-revision" content="a2298a80ec23a3962bffae52edbe5662f62da22c"><meta name="planner-production-css-sha256" content="36d05b41dee148c6adc0cc25885075b301ace3544fcd9373274cf3d94c6f48e5"><meta name="planner-production-content-sha256" content="bb2931a58adda847a8c74c4049942e293b00d27615ab583c912e31a341847596"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -383,17 +383,24 @@ html.pl-has-actionbar body { padding-bottom: 56px; }
 .pl-menu-wrap { position: relative; }
 
 .pl-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 30;
-  width: 250px;
-  padding: 9px;
+  position: fixed;
+  inset: auto;
+  left: var(--pl-menu-left, 12px);
+  top: var(--pl-menu-top, 12px);
+  z-index: 1200;
+  box-sizing: border-box;
+  width: var(--pl-menu-width, 310px);
+  max-width: calc(100vw - 24px);
+  max-height: var(--pl-menu-height, calc(100dvh - 24px));
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
   border: 1px solid var(--pl-line);
   border-radius: var(--pl-radius);
   background: var(--pl-surface);
   box-shadow: 0 6px 18px rgba(20, 50, 80, 0.24);
   text-align: left;
+  font: 400 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .pl-menu[hidden] { display: none; }
@@ -401,14 +408,18 @@ html.pl-has-actionbar body { padding-bottom: 56px; }
 .pl-menu-note {
   margin: 0 0 7px;
   color: var(--pl-muted);
-  font-size: 11.5px;
+  font-size: 13px;
   line-height: 1.5;
+  font-weight: 400;
 }
 
 .pl-menu-item {
   width: 100%;
-  height: 26px;
-  padding: 4px 8px;
+  height: auto;
+  min-height: 38px;
+  padding: 8px 10px;
+  white-space: normal;
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   justify-content: flex-start !important;
   border-color: var(--pl-line) !important;
   color: var(--pl-button) !important;
@@ -688,7 +699,7 @@ p.pl-headline {
    sixteen-class plan. Only the first class the student can see keeps its
    header, and that one is a caption rather than a band.                    */
 
-.pl-plan-root tbody.courseItem:not(.pl-lead-card) tr.pl-thead {
+.pl-plan-root tbody.courseItem:not(.pl-lead-card) tr.pl-thead:not(.pl-section-heading) {
   display: none !important;
 }
 
@@ -1078,27 +1089,55 @@ html.pl-boot #ctl00_MainContent_classPlanPanel {
    actually uses rather than a hardcoded table of exam times. */
 
 .pl-finals-host {
-  margin: 0 0 12px;
-  padding: 10px 12px 12px;
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1100;
+  box-sizing: border-box;
+  width: min(1040px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: 0;
+  padding: 0;
   border: 1px solid var(--pl-line);
   border-radius: var(--pl-radius);
   background: var(--pl-surface);
+  box-shadow: 0 12px 48px #20304040;
+  overflow: hidden;
 }
+.pl-finals-host:not([open]) { display: none; }
+.pl-finals-host[open] { display: flex; flex-direction: column; }
+.pl-finals-content { min-height: 0; overflow: auto; padding: 12px 16px 16px; }
+@media print { .pl-menu, .pl-finals-host { display: none !important; } }
 
 .pl-finals-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 9px;
+  flex: none;
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pl-line);
 }
 
 .pl-finals-title {
   margin: 0;
   color: var(--pl-blue);
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
 }
+.pl-finals-bar > button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #cfd7e1;
+  border-radius: 5px;
+  background: #fff;
+  color: #345c85;
+  font: 500 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+.pl-finals-bar > button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 
 .pl-finals-scroll { overflow-x: auto; }
 
@@ -1408,6 +1447,7 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
   font-family: inherit; font-size: 14px; line-height: 1.4;
 }
 .ClassSearchWidget.pl-search-widget input.ClassSearchBox { width: 100% !important; min-width: 0; max-width: none; margin: 0 !important; }
+.ClassSearchWidget.pl-search-widget input.ClassSearchBox:is([hidden],.hidden) { display: none !important; }
 .pl-search-widget .goPanel { flex: 0 0 auto; width: auto; float: none; padding: 0; }
 .pl-search-widget .pl-search-submit { position: relative; display: inline-block; vertical-align: middle; }
 .ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton {
@@ -1530,23 +1570,38 @@ section#layoutContentArea.pl-planner-introduction {
   background: #fff !important; color: #263344 !important; border: 0 !important; border-bottom: 1px solid #e7ebf0 !important; border-radius: 0 !important; font: 600 17px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
 }
 .pl-pane-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* Native clickover libraries center a 376px popup on a small Help button.
+   Anchor only recorded direct-title popovers inside their module instead of
+   letting a negative native left offset disappear behind the workspace rail.
+   Original nodes, visibility, close controls and handlers stay native. */
+.pl-workspace-main > section > .pl-pane-title > .popover.clickover {
+  position: absolute !important; left: 8px !important; right: 8px !important;
+  top: calc(100% + 4px) !important; width: auto !important; min-width: 0;
+  max-width: calc(100% - 16px) !important;
+  max-height: var(--pl-header-help-height,min(260px,30dvh));
+  box-sizing: border-box; overflow: auto; overscroll-behavior: contain;
+  margin: 0 !important; transform: none !important; z-index: 10;
+}
+.pl-workspace-main > section > .pl-pane-title > .popover.clickover > .arrow { display: none; }
 .pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; min-height: 38px; padding: 0; text-align: left; color: inherit; background: transparent; border: 0; font: inherit; }
 .pl-pane-title > button.planSectionToggle > .icon-minus-sign, .pl-pane-title > button.planSectionToggle > .icon-plus-sign { display: none; }
 .classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; margin-left: auto; border: 0; border-radius: 6px; background: transparent; color: #59687a; font: 22px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-pane-title > button.pl-pane-toggle:hover { background: #edf2f7; }
 .pl-pane-collapsed > .pl-pane-body { display: none !important; }
-.pl-workspace-plan.pl-pane-open > .pl-pane-body, .pl-workspace-search.pl-pane-open > .pl-pane-body, .pl-workspace-calendar.pl-pane-open > .pl-pane-body { display: block !important; }
+.pl-workspace-plan.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]), .pl-workspace-search.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]), .pl-workspace-calendar.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]) { display: block; }
 .pl-workspace-main > .pl-module-active:not(.pl-workspace-plan):not(.pl-workspace-search) { overflow: auto; }
 .pl-workspace-main > .pl-module-active:not(.pl-workspace-plan):not(.pl-workspace-search) > .pl-pane-body { flex: none; min-height: auto; overflow: visible; padding: 16px; box-sizing: border-box; }
 .pl-workspace-information-placeholder { padding: 24px; color: #59687a; }
 .pl-workspace-information-placeholder:not(.pl-module-active) { display: none; }
-/* Optimizer keeps its own server-backed disclosure and native controls. */
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; cursor: pointer; order: 0; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-pane-title > button.planSectionToggle > :is(.icon-plus-sign,.icon-minus-sign) { display: inline-block; flex: none; color: #52677e; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-pane-title > button.planSectionHelpTip { order: 1; }
+/* Opaque secondary modules retain their own server-backed disclosures. */
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; cursor: pointer; order: 0; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle > :is(.icon-plus-sign,.icon-minus-sign) { display: inline-block; flex: none; color: #52677e; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionHelpTip { order: 1; }
 .pl-workspace-main > .classPlanner_ClassOptimizerSection > #panelOptimizer { box-sizing: border-box; padding: 20px; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-optimizer-state { margin: 0; padding: 24px 20px; color: #59687a; font: 14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-optimizer-state[hidden] { display: none; }
+.pl-workspace-main > section > .pl-optimizer-state, .pl-workspace-calendar > .pl-optimizer-state { margin: 0; padding: 24px 20px; color: #59687a; font: 14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-main > section > .pl-optimizer-state[hidden], .pl-workspace-calendar > .pl-optimizer-state[hidden] { display: none; }
+.pl-workspace-plan > .pl-optimizer-state { grid-column: 1 / -1; grid-row: 2; }
+.pl-workspace-plan:has(> .pl-optimizer-state) > .pl-workspace-details-slot { display: none; }
 .pl-planner-introduction right-sidebar.pl-intro-sidebar-workspace.pl-intro-sidebar-open { top: var(--pl-info-top); left: var(--pl-info-left); right: auto; width: var(--pl-info-width); height: var(--pl-info-height); max-height: none; border: 0; border-radius: 0; box-shadow: none; padding: 48px 20px 20px; }
 .pl-workspace-splitter { align-self: stretch; cursor: col-resize; touch-action: none; display: flex; justify-content: center; align-items: center; border-left: 1px solid #e1e7ee; margin-left: 5px; }
 .pl-workspace-splitter::after { content: ""; width: 3px; height: 32px; margin-left: -7px; background: #c6cfda; border-radius: 3px; }
@@ -1721,7 +1776,7 @@ section#layoutContentArea.pl-planner-introduction {
   display: inline-block !important; float: none !important; height: auto !important; margin-right: 4px; vertical-align: baseline;
 }
 /* Presentation must not revive a field that UCLA itself has hidden. */
-.ClassSearchList.pl-browser-list :is(.pl-section-field,.pl-section-help-field):is([hidden],.hidden) { display: none !important; }
+.ClassSearchList.pl-browser-list :is(.pl-section-field,.pl-section-help-field,.pl-section-card,.pl-section-result-heading):is([hidden],.hidden) { display: none !important; }
 @container pl-preview (min-width: 420px) and (max-width: 639px) {
   .ClassSearchList.pl-browser-list .pl-section-card { grid-template-columns: 30px minmax(100px,1fr) minmax(135px,1.4fr) 40px; gap: 10px 12px; padding: 14px 4px; }
   .pl-browser-list .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
@@ -1735,7 +1790,7 @@ section#layoutContentArea.pl-planner-introduction {
 }
 @container pl-preview (min-width: 640px) {
   .ClassSearchList.pl-browser-list .pl-section-card,
-  .ClassSearchList.pl-browser-list .pl-section-result-heading { display: grid !important; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px; gap: 8px 10px; padding: 12px 8px; border-width: 0 0 1px; border-radius: 0; }
+  .ClassSearchList.pl-browser-list .pl-section-result-heading { display: grid; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px; gap: 8px 10px; padding: 12px 8px; border-width: 0 0 1px; border-radius: 0; }
   .ClassSearchList.pl-browser-list .pl-section-result-heading { position: sticky; top: 0; z-index: 2; margin: 4px 0 0; padding: 8px; row-gap: 4px; box-sizing: border-box; border-bottom: 1px solid #dce3eb; background: #f6f8fa; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field] { display: block; min-width: 0; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; align-self: center; color: #526174; font: 500 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="0"] { grid-column: 1; grid-row: 1; }
@@ -1774,15 +1829,15 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-browser-result-actions button:focus-visible, .pl-browser-result-actions input:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 /* Original section rows become labelled cards. No native control is copied. */
 .pl-section-table, .pl-section-table > tbody { display: block; width: 100% !important; }
-.pl-section-heading { display: none !important; }
-.pl-browser-list .pl-section-help-row { display: flex !important; flex-wrap: wrap; gap: 8px; min-width: 0 !important; width: 100% !important; margin: 0 0 8px; }
+.pl-section-heading { display: none; }
+.pl-browser-list .pl-section-help-row { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0 !important; width: 100% !important; margin: 0 0 8px; }
 .pl-section-help-row > .pl-section-help-field { display: none; }
 .pl-section-help-row > .pl-section-help-field:has(button,a,input,select) { display: block; float: none !important; width: auto !important; padding: 0 !important; }
 .pl-browser-list .pl-section-help-row { background: transparent; }
 .pl-section-help-field > button, .pl-section-help-field > a { border: 0; border-radius: 4px; padding: 4px 6px; background: #f3f5f8; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-workspace-plan .pl-plan-root tbody.courseItem .pl-section-heading { display: none !important; }
+.pl-workspace-plan .pl-plan-root tbody.courseItem .pl-section-heading { display: none; }
 .pl-section-table .pl-section-card, .pl-browser-list .pl-section-card {
-  display: grid !important; grid-template-columns: 30px minmax(0,1fr) minmax(0,1fr) 34px; gap: 8px 10px;
+  display: grid; grid-template-columns: 30px minmax(0,1fr) minmax(0,1fr) 34px; gap: 8px 10px;
   width: 100% !important; min-width: 0 !important; box-sizing: border-box; margin: 0 0 8px; padding: 12px 10px;
   border: 1px solid #e2e7ed; border-radius: 6px; background: #fff;
 }
@@ -1855,7 +1910,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="2"] > :is(i,span):is(.icon-lock,.icon-unlock,.icon-ok-sign) {
   display: inline-block !important; float: none !important; height: auto !important; margin-right: 4px; vertical-align: baseline;
 }
-.pl-workspace-plan table.coursetable.pl-section-table :is(.pl-section-field,.pl-section-help-field,.pl-section-card):is([hidden],.hidden) { display: none !important; }
+.pl-workspace-plan table.coursetable.pl-section-table :is(.pl-section-field,.pl-section-help-field,.pl-section-card,.pl-section-heading):is([hidden],.hidden) { display: none !important; }
 @media screen {
   .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card { grid-template-columns: 28px minmax(58px,.8fr) minmax(90px,1.5fr) 32px; gap: 8px 10px; }
   .pl-section-table .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
@@ -1872,7 +1927,7 @@ section#layoutContentArea.pl-planner-introduction {
   @container pl-plan-detail (min-width: 640px) {
     .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
-      display: grid !important; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px;
+      display: grid; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px;
       gap: 8px 10px; padding: 12px 8px; box-sizing: border-box;
     }
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
@@ -2002,7 +2057,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-browser-list { max-height: none; }
   .pl-browser-result-actions { position: static; }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.17.6","cssSha256":"8e13764ce95547ea2884f5982a203998ae087f1b8205427d226bfe6a5e29d351","contentSha256":"7e96122c80d97c57083e7c9347a5e3063be9c14575c2e7fae84e39603895faec","sourceRevision":"cf933ac467d7465cfd06e9c3b7bd4d5282462e2a"}</script><style>
+</style><script id="preview-build-meta" type="application/json">{"version":"0.17.7","cssSha256":"36d05b41dee148c6adc0cc25885075b301ace3544fcd9373274cf3d94c6f48e5","contentSha256":"bb2931a58adda847a8c74c4049942e293b00d27615ab583c912e31a341847596","sourceRevision":"a2298a80ec23a3962bffae52edbe5662f62da22c"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -2020,7 +2075,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.6</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.7</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">
@@ -2523,7 +2578,7 @@ section#layoutContentArea.pl-planner-introduction {
         fields2.forEach((field, index) => {
           const labelText = field.getAttribute("aria-label") || "";
           const label = labels[index];
-          label.hidden = !labelText || /^unused for this search type$/i.test(labelText) || field.style.display === "none";
+          label.hidden = !labelText || /^unused for this search type$/i.test(labelText) || field.style.display === "none" || field.hidden || field.classList.contains("hidden");
           const readable = FIELD_LABELS[labelText] || labelText;
           if (label.textContent !== readable) label.textContent = readable;
           label.title = labelText;
@@ -2534,7 +2589,7 @@ section#layoutContentArea.pl-planner-introduction {
         hint.hidden = !go2.disabled;
       };
       const observer = new MutationObserver(sync);
-      fields2.forEach((field) => observer.observe(field, { attributes: true, attributeFilter: ["aria-label", "placeholder", "style"] }));
+      fields2.forEach((field) => observer.observe(field, { attributes: true, attributeFilter: ["aria-label", "placeholder", "style", "hidden", "class"] }));
       observer.observe(select, { attributes: true, attributeFilter: ["disabled"] });
       observer.observe(go2, { attributes: true, attributeFilter: ["disabled"] });
       select.addEventListener("change", sync);
@@ -3146,6 +3201,15 @@ section#layoutContentArea.pl-planner-introduction {
   var MODULE_LABELS = { classes: "My classes", find: "Find classes", optimizer: "Optimizer", study: "Study list", personal: "Personal entries", information: "Information & help" };
   var OPTIMIZER_TOGGLE = "ctl00_MainContent_toggleOptimizer";
   var OPTIMIZER_OPEN = "shrink('panelOptimizer'); __doPostBack('ctl00$MainContent$toggleOptimizer','')";
+  var SECONDARY_DISCLOSURES = {
+    study: { toggle: "ctl00_MainContent_toggleNotplan", title: "plannerSectionEnip", body: "panelNotplan", label: "In Study List but Not In Current Plan", help: "button#slneTip.uit-clickover-bottom.planSectionHelpTip.link", count: 3 },
+    personal: { toggle: "ctl00_MainContent_togglePersonal", title: "plannerSectionPer", body: "panelPersonal", label: "Personal Entries", help: "button#ctl00_MainContent_helpPersonal.uit-clickover-bottom.planSectionHelpTip.link", count: 2 }
+  };
+  var PRIMARY_DISCLOSURES = {
+    plannerSectionClip: { toggle: "ctl00_MainContent_togglePlan", body: "panelPlan", target: "panelPlan", label: "Class Plan", children: 1 },
+    plannerSectionCal: { toggle: "ctl00_MainContent_toggleGrid", body: "ctl00_MainContent_panelGrid", target: "gridDiv", label: "Weekly Schedule", children: 1 },
+    classSearchTitle: { toggle: "ctl00_MainContent_toggleSearch", body: "panelSearch", target: "panelSearch", label: "Search for Class and Add to Plan", children: 3 }
+  };
   function officialText(node) {
     const copy = node.cloneNode(true);
     copy.querySelectorAll(`[${OWNED5}],script,input,textarea`).forEach((n) => n.remove());
@@ -3169,7 +3233,8 @@ section#layoutContentArea.pl-planner-introduction {
     returnFocus = null;
     actionControls = /* @__PURE__ */ new Map();
     actionsHost = null;
-    pendingOptimizer = null;
+    pendingModuleOpen = null;
+    forwardingPrimary = null;
     planSurfaces = /* @__PURE__ */ new Map();
     activePlanSurface = null;
     pendingPlanAction = null;
@@ -3409,6 +3474,10 @@ section#layoutContentArea.pl-planner-introduction {
       const primary = PRIMARY.map(([cls, title]) => [...panel.children].filter((node) => node.matches(`section.${cls}`) && node.querySelector(`:scope > #${title}.classPlanner_SectionTitle`)));
       const known = (section) => section.children.length === 2 && section.children[0].matches(".classPlanner_SectionTitle") && section.children[1].tagName === "DIV";
       if (primary.some((matches) => matches.length !== 1 || !known(matches[0]))) return;
+      if (primary.some(([section]) => {
+        const title = section.children[0], body = section.children[1], target = this.primaryTarget(title, body);
+        return target?.classList.contains("hidden") && !this.primaryExpansion(title, body);
+      })) return;
       const secondary = SECONDARY.map(([cls]) => [...panel.children].filter((node) => node.matches(`section.${cls}`)));
       if (secondary.some((matches) => matches.length > 1 || matches.some((node) => !node.firstElementChild?.matches(".classPlanner_SectionTitle") || node.children.length < 2))) return;
       const owned = (node, cls) => {
@@ -3443,8 +3512,9 @@ section#layoutContentArea.pl-planner-introduction {
       const panes = [], moduleButtons = /* @__PURE__ */ new Map();
       const add = (section, label, module, opaque = false) => {
         const title = section.children[0], body = section.lastElementChild;
-        const pane = { section, title, body, label, module, opaque, toggle: null, reopen: null, collapsed: this.paneChoices.get(title.id) ?? false, bodyHadClass: body.hasAttribute("class"), click: () => {
+        const pane = { section, title, body, label, module, opaque, toggle: null, reopen: null, collapsed: this.paneChoices.get(title.id) ?? false, bodyHadClass: body.hasAttribute("class"), titleHadStyle: title.hasAttribute("style"), click: () => {
         } };
+        if (!opaque && this.primaryTarget(title, body)?.classList.contains("hidden")) pane.collapsed = true;
         title.classList.add("pl-pane-title");
         if (!opaque) {
           body.classList.add("pl-pane-body");
@@ -3455,11 +3525,25 @@ section#layoutContentArea.pl-planner-introduction {
           pane.toggle = toggle;
           toggle.addEventListener("click", () => this.setPaneCollapsed(pane, !pane.collapsed, true));
           pane.click = (event) => {
-            if (event.target instanceof Element && event.target.closest("button.planSectionToggle")?.parentElement === title) {
-              event.preventDefault();
-              event.stopImmediatePropagation();
-              this.setPaneCollapsed(pane, !pane.collapsed, true);
+            const native = event.target instanceof Element ? event.target.closest("button.planSectionToggle") : null;
+            if (native?.parentElement !== title) return;
+            if (this.forwardingPrimary === native) return;
+            const expansion = this.primaryExpansion(title, body);
+            if (expansion?.button === native) {
+              if (this.pendingModuleOpen) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+              }
+              pane.collapsed = false;
+              this.paneChoices.set(title.id, false);
+              this.beginPrimaryOpen(pane, expansion, false);
+              this.updatePanes();
+              return;
             }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.setPaneCollapsed(pane, !pane.collapsed, true);
           };
           title.addEventListener("click", pane.click, true);
         }
@@ -3534,8 +3618,7 @@ section#layoutContentArea.pl-planner-introduction {
       });
       mobileSchedule.addEventListener("click", () => {
         this.showSchedule = true;
-        panes[1].collapsed = false;
-        this.updatePanes();
+        this.setPaneCollapsed(panes[1], false);
         mobileSchedule.focus({ preventScroll: true });
       });
       const extras = doc.createElement("details");
@@ -3826,13 +3909,65 @@ section#layoutContentArea.pl-planner-introduction {
         pane.collapsed = false;
         this.paneChoices.set(pane.title.id, false);
       }
+      if (pane && !pane.opaque && explicitNavigation) {
+        this.setPaneCollapsed(pane, false);
+        if (!this.state) return;
+      }
       this.updatePanes();
       if (focus) (module === "information" ? s.doc.querySelector(".pl-intro-info") : s.moduleButtons.get(module))?.focus({ preventScroll: true });
-      if (module === "optimizer" && explicitNavigation) this.openNativeOptimizer();
+      if (pane?.opaque && explicitNavigation) this.openNativeModule(pane);
     }
     /** The navigation may forward only a user's explicit request to the exact
      * native expand control. Restoring a selected module never opens it. */
-    optimizerExpandButton(pane) {
+    primaryTarget(title, body) {
+      const spec = PRIMARY_DISCLOSURES[title.id];
+      if (!spec || body.id !== spec.body) return null;
+      return spec.target === spec.body ? body : body.querySelector(":scope > #gridDiv");
+    }
+    primaryExpansion(title, body) {
+      const spec = PRIMARY_DISCLOSURES[title.id], doc = title.ownerDocument, location = doc.defaultView?.location;
+      const target = this.primaryTarget(title, body), form2 = doc.getElementById("aspnetForm");
+      if (!spec || !target || !target.classList.contains("hidden") || title.parentElement !== body.parentElement || !location || location.origin !== "https://be.my.ucla.edu" || location.pathname !== "/ClassPlanner/ClassPlan.aspx" || !(form2 instanceof HTMLFormElement) || form2.method.toLowerCase() !== "post" || body.closest("form") !== form2 || doc.querySelectorAll(`#${spec.target}`).length !== 1 || doc.querySelectorAll(`#${spec.toggle}`).length !== 1) return null;
+      try {
+        const action = new URL(form2.action, location.href);
+        if (action.origin !== location.origin || action.pathname !== location.pathname) return null;
+      } catch {
+        return null;
+      }
+      const children = [...title.children].filter((node) => !node.hasAttribute(OWNED5)), button = doc.getElementById(spec.toggle);
+      if (!(button instanceof HTMLButtonElement) || button.parentElement !== title || button.form !== form2 || children.length !== spec.children || children[children.length - 1] !== button || !button.matches("button.planSectionToggle.link") || button.disabled || button.matches(":disabled") || button.getAttribute("aria-disabled") === "true" || ["type", "form", "formaction", "formmethod", "formenctype", "formtarget"].some((name) => button.hasAttribute(name)) || button.getAttribute("onclick") !== `shrink('${spec.target}'); __doPostBack('${spec.toggle.replaceAll("_", "$")}','')` || button.children.length !== 2 || !button.children[0].matches("i.icon-plus-sign:not(.icon-minus-sign)") || button.children[1].tagName !== "LABEL" || button.children[1].textContent?.trim() !== spec.label) return null;
+      if (spec.children === 3 && (!children[0].matches("a.planSectionHelpTip") || !children[1].matches("button#faceTip.uit-clickover-bottom.planSectionHelpTip.link"))) return null;
+      for (let node = button; node && title.contains(node); node = node.parentElement) {
+        const style = doc.defaultView.getComputedStyle(node);
+        if (node.hidden || node.getAttribute("aria-hidden") === "true" || style.display === "none" || ["hidden", "collapse"].includes(style.visibility)) return null;
+      }
+      return { button, target };
+    }
+    beginPrimaryOpen(pane, expansion, forward = true) {
+      const s = this.state;
+      if (!s || this.pendingModuleOpen || !pane.toggle) return;
+      const { button, target } = expansion, status = s.doc.createElement("p");
+      status.className = "pl-optimizer-state";
+      status.setAttribute(OWNED5, "true");
+      status.setAttribute("role", "status");
+      status.textContent = `Opening ${pane.label}\u2026 If it stays closed, use Original layout to retry the native heading.`;
+      pane.body.before(status);
+      pane.toggle.setAttribute("aria-busy", "true");
+      const observer = new MutationObserver(() => this.refreshModulePending());
+      this.pendingModuleOpen = { pane, button, target, status, navigation: pane.toggle, observer };
+      observer.observe(pane.section, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "style"] });
+      if (forward) {
+        this.forwardingPrimary = button;
+        try {
+          button.click();
+        } finally {
+          this.forwardingPrimary = null;
+        }
+        this.refreshModulePending();
+      }
+    }
+    nativeExpandButton(pane) {
+      if (pane.module === "study" || pane.module === "personal") return this.secondaryExpandButton(pane, pane.module);
       const s = this.state, doc = s?.doc, location = doc?.defaultView?.location;
       if (!s || !doc || !location || location.origin !== "https://be.my.ucla.edu" || location.pathname !== "/ClassPlanner/ClassPlan.aspx" || pane.module !== "optimizer" || !pane.section.isConnected || pane.section.parentElement !== s.main) return null;
       const children = [...pane.section.children].filter((node) => !node.hasAttribute(OWNED5));
@@ -3852,40 +3987,70 @@ section#layoutContentArea.pl-planner-introduction {
       if (pane.title.children.length !== 2 || !pane.title.children[0].matches("button#ctl00_MainContent_planSectionHelpTipOpPop.planSectionHelpTip.link") || pane.title.children[1] !== button || button.children.length !== 2 || !button.children[0].matches("i.icon-plus-sign:not(.icon-minus-sign)") || button.children[1].tagName !== "LABEL" || button.children[1].textContent?.trim() !== "Plan Optimizer") return null;
       return button;
     }
-    openNativeOptimizer() {
-      this.refreshOptimizerPending();
-      const s = this.state, pane = s?.panes.find((candidate) => candidate.module === "optimizer");
-      if (!s || !pane || this.pendingOptimizer) return;
-      const button = this.optimizerExpandButton(pane), navigation = s.moduleButtons.get("optimizer");
+    secondaryExpandButton(pane, module) {
+      const s = this.state, doc = s?.doc, location = doc?.defaultView?.location, spec = SECONDARY_DISCLOSURES[module];
+      if (!s || !doc || !location || location.origin !== "https://be.my.ucla.edu" || location.pathname !== "/ClassPlanner/ClassPlan.aspx" || !pane.opaque || !pane.section.isConnected || pane.section.parentElement !== s.main) return null;
+      const children = [...pane.section.children].filter((node) => !node.hasAttribute(OWNED5));
+      if (children.length !== 2 || children[0] !== pane.title || children[1] !== pane.body || pane.title.id !== spec.title || pane.body.id !== spec.body || !pane.body.classList.contains("hidden")) return null;
+      const form2 = doc.getElementById("aspnetForm"), button = doc.getElementById(spec.toggle);
+      if (!(form2 instanceof HTMLFormElement) || form2.method.toLowerCase() !== "post" || !(button instanceof HTMLButtonElement) || button.parentElement !== pane.title || button.form !== form2 || pane.section.closest("form") !== form2 || doc.querySelectorAll(`#${spec.toggle}`).length !== 1 || doc.querySelectorAll(`#${spec.body}`).length !== 1 || doc.getElementById(spec.body) !== pane.body || !button.matches("button.planSectionToggle.link") || button.disabled || button.matches(":disabled") || button.getAttribute("aria-disabled") === "true" || button.getAttribute("onclick") !== `shrink('${spec.body}'); __doPostBack('${spec.toggle.replaceAll("_", "$")}','')` || ["type", "form", "formaction", "formmethod", "formenctype", "formtarget"].some((name) => button.hasAttribute(name))) return null;
+      try {
+        const action = new URL(form2.action, location.href);
+        if (action.origin !== location.origin || action.pathname !== location.pathname) return null;
+      } catch {
+        return null;
+      }
+      for (let node = button; node && pane.section.contains(node); node = node.parentElement) {
+        const style = doc.defaultView.getComputedStyle(node);
+        if (node.hidden || node.getAttribute("aria-hidden") === "true" || style.display === "none" || ["hidden", "collapse"].includes(style.visibility)) return null;
+      }
+      if (pane.title.children.length !== spec.count || !pane.title.children[spec.count - 2].matches(spec.help) || module === "study" && !pane.title.children[0].matches("a.planSectionHelpTip") || pane.title.children[spec.count - 1] !== button || button.children.length !== 2 || !button.children[0].matches("i.icon-plus-sign:not(.icon-minus-sign)") || button.children[1].tagName !== "LABEL" || button.children[1].textContent?.trim() !== spec.label) return null;
+      return button;
+    }
+    openNativeModule(pane) {
+      this.refreshModulePending();
+      const s = this.state;
+      if (!s || !pane.module || this.pendingModuleOpen) return;
+      const button = this.nativeExpandButton(pane), navigation = s.moduleButtons.get(pane.module);
       if (!button || !navigation) return;
       const status = s.doc.createElement("p");
       status.className = "pl-optimizer-state";
       status.setAttribute(OWNED5, "true");
       status.setAttribute("role", "status");
-      status.textContent = "Opening Plan Optimizer\u2026 If it stays closed, click the Plan Optimizer heading.";
+      status.textContent = `Opening ${pane.module === "optimizer" ? "Plan Optimizer" : MODULE_LABELS[pane.module]}\u2026 If it stays closed, click the module heading.`;
       pane.body.before(status);
       navigation.setAttribute("aria-busy", "true");
-      const observer = new MutationObserver(() => this.refreshOptimizerPending());
-      this.pendingOptimizer = { pane, button, status, navigation, observer };
+      const observer = new MutationObserver(() => this.refreshModulePending());
+      this.pendingModuleOpen = { pane, button, target: pane.body, status, navigation, observer };
       observer.observe(pane.section, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden", "style", "disabled", "onclick", "form"] });
       button.click();
-      this.refreshOptimizerPending();
+      this.refreshModulePending();
     }
-    refreshOptimizerPending() {
-      const pending = this.pendingOptimizer;
+    refreshModulePending() {
+      const pending = this.pendingModuleOpen;
       if (!pending) return;
-      if (!this.state || !pending.pane.section.isConnected || !pending.pane.body.isConnected || !pending.button.isConnected || pending.pane.body.parentElement !== pending.pane.section || this.state.doc.getElementById(OPTIMIZER_TOGGLE) !== pending.button || this.state.doc.getElementById("panelOptimizer") !== pending.pane.body || !pending.pane.body.classList.contains("hidden")) this.clearOptimizerPending();
+      if (!this.state || !pending.pane.section.isConnected || !pending.pane.body.isConnected || !pending.button.isConnected || pending.pane.body.parentElement !== pending.pane.section || this.state.doc.getElementById(pending.button.id) !== pending.button || this.state.doc.getElementById(pending.pane.body.id) !== pending.pane.body || !pending.target.isConnected || this.state.doc.getElementById(pending.target.id) !== pending.target || !pending.target.classList.contains("hidden")) this.clearModulePending();
     }
-    clearOptimizerPending() {
-      const pending = this.pendingOptimizer;
+    clearModulePending() {
+      const pending = this.pendingModuleOpen;
       if (!pending) return;
-      this.pendingOptimizer = null;
+      this.pendingModuleOpen = null;
       pending.observer.disconnect();
       pending.status.remove();
       pending.navigation.removeAttribute("aria-busy");
     }
     setPaneCollapsed(pane, collapsed, focus = false) {
       if (!this.state || pane.opaque) return;
+      if (!collapsed && this.primaryTarget(pane.title, pane.body)?.classList.contains("hidden")) {
+        if (this.pendingModuleOpen) return;
+        const expansion = this.primaryExpansion(pane.title, pane.body);
+        if (!expansion) {
+          this.restore();
+          return;
+        }
+        this.beginPrimaryOpen(pane, expansion);
+        if (!this.state) return;
+      }
       if (collapsed && pane === this.state.panes[0]) {
         this.closeActions(false);
         this.closePreview(false);
@@ -3898,12 +4063,13 @@ section#layoutContentArea.pl-planner-introduction {
     updatePanes() {
       const s = this.state;
       if (!s) return;
-      this.refreshOptimizerPending();
+      this.refreshModulePending();
       if (this.module !== "information" && !s.panes.some((pane) => pane.module === this.module)) this.module = "classes";
       s.host.dataset.plModule = this.module;
       s.host.classList.toggle("pl-show-schedule", this.showSchedule);
       for (const [module, button] of s.moduleButtons) button.setAttribute("aria-pressed", String(this.module === module));
       for (const pane of s.panes) {
+        if (!pane.opaque && this.primaryTarget(pane.title, pane.body)?.classList.contains("hidden") && this.pendingModuleOpen?.pane !== pane) pane.collapsed = true;
         pane.section.classList.toggle("pl-module-active", pane.module === this.module || pane.module === null);
         if (!pane.opaque) {
           pane.section.classList.toggle("pl-pane-collapsed", pane.collapsed);
@@ -3916,6 +4082,8 @@ section#layoutContentArea.pl-planner-introduction {
             pane.toggle.textContent = pane.collapsed ? "\u203A" : "\u2304";
           }
         }
+        const available = Math.min(s.doc.defaultView.innerHeight, pane.section.getBoundingClientRect().bottom) - pane.title.getBoundingClientRect().bottom - 12;
+        pane.title.style.setProperty("--pl-header-help-height", `${Math.max(60, available)}px`);
       }
       const width = this.currentScheduleWidth();
       s.deck.style.setProperty("--pl-schedule-width", `${width}px`);
@@ -4048,7 +4216,7 @@ section#layoutContentArea.pl-planner-introduction {
       this.returnFocus = null;
     }
     restore() {
-      this.clearOptimizerPending();
+      this.clearModulePending();
       for (const host of this.actionControls.keys()) this.removeActions(host);
       for (const summary of this.summaries.values()) summary.node.remove();
       this.summaries.clear();
@@ -4097,6 +4265,8 @@ section#layoutContentArea.pl-planner-introduction {
         pane.toggle?.remove();
         pane.title.classList.remove("pl-pane-title");
         if (!pane.opaque) pane.body.classList.remove("pl-pane-body");
+        pane.title.style.removeProperty("--pl-header-help-height");
+        if (!pane.titleHadStyle && !pane.title.getAttribute("style")) pane.title.removeAttribute("style");
         if (!pane.bodyHadClass && !pane.body.getAttribute("class")) pane.body.removeAttribute("class");
         pane.section.classList.remove("pl-pane-open", "pl-pane-collapsed", "pl-module-active", "pl-has-docked-details");
       }

@@ -66,16 +66,25 @@ interface ClassActions {
   button: HTMLButtonElement; nativeTools: Element | null; ownedTools: Element | null;
   key: (event: KeyboardEvent) => void;
 }
-interface PendingOptimizer {
+interface PendingModuleOpen {
   pane: Pane; button: HTMLButtonElement; status: HTMLElement;
-  navigation: HTMLButtonElement; observer: MutationObserver;
+  target: HTMLElement; navigation: HTMLButtonElement; observer: MutationObserver;
 }
 const OPTIMIZER_TOGGLE = "ctl00_MainContent_toggleOptimizer";
 const OPTIMIZER_OPEN = "shrink('panelOptimizer'); __doPostBack('ctl00$MainContent$toggleOptimizer','')";
+const SECONDARY_DISCLOSURES = {
+  study: {toggle:"ctl00_MainContent_toggleNotplan",title:"plannerSectionEnip",body:"panelNotplan",label:"In Study List but Not In Current Plan",help:"button#slneTip.uit-clickover-bottom.planSectionHelpTip.link",count:3},
+  personal: {toggle:"ctl00_MainContent_togglePersonal",title:"plannerSectionPer",body:"panelPersonal",label:"Personal Entries",help:"button#ctl00_MainContent_helpPersonal.uit-clickover-bottom.planSectionHelpTip.link",count:2}
+} as const;
+const PRIMARY_DISCLOSURES = {
+  plannerSectionClip:{toggle:"ctl00_MainContent_togglePlan",body:"panelPlan",target:"panelPlan",label:"Class Plan",children:1},
+  plannerSectionCal:{toggle:"ctl00_MainContent_toggleGrid",body:"ctl00_MainContent_panelGrid",target:"gridDiv",label:"Weekly Schedule",children:1},
+  classSearchTitle:{toggle:"ctl00_MainContent_toggleSearch",body:"panelSearch",target:"panelSearch",label:"Search for Class and Add to Plan",children:3}
+} as const;
 interface Pane {
   section: HTMLElement; title: HTMLElement; body: HTMLElement; label: string;
   toggle: HTMLButtonElement | null; reopen: HTMLButtonElement | null; collapsed: boolean; module: Module | null; opaque: boolean;
-  bodyHadClass: boolean; click: (event: MouseEvent) => void;
+  bodyHadClass: boolean; titleHadStyle: boolean; click: (event: MouseEvent) => void;
 }
 interface Workspace {
   doc: Document; host: HTMLElement; panel: HTMLElement; deck: HTMLElement;
@@ -116,7 +125,8 @@ export class PlannerWorkspace {
   private returnFocus: HTMLElement | null = null;
   private actionControls = new Map<HTMLElement, ClassActions>();
   private actionsHost: HTMLElement | null = null;
-  private pendingOptimizer: PendingOptimizer | null = null;
+  private pendingModuleOpen: PendingModuleOpen | null = null;
+  private forwardingPrimary: HTMLButtonElement | null = null;
   private planSurfaces = new Map<HTMLElement,PlanSurface>();
   private activePlanSurface: HTMLElement | null = null;
   private pendingPlanAction: string | null = null;
@@ -302,6 +312,12 @@ export class PlannerWorkspace {
     const primary=PRIMARY.map(([cls,title])=>[...panel.children].filter(node=>node.matches(`section.${cls}`)&&node.querySelector(`:scope > #${title}.classPlanner_SectionTitle`)));
     const known=(section:Element)=>section.children.length===2&&section.children[0].matches(".classPlanner_SectionTitle")&&section.children[1].tagName==="DIV";
     if(primary.some(matches=>matches.length!==1||!known(matches[0])))return;
+    // A native collapsed section may need its original postback to populate it.
+    // Recognize that state before our presentation can reveal its outer body.
+    if(primary.some(([section])=>{
+      const title=section.children[0] as HTMLElement,body=section.children[1] as HTMLElement,target=this.primaryTarget(title,body);
+      return target?.classList.contains("hidden")&&!this.primaryExpansion(title,body);
+    }))return;
     const secondary=SECONDARY.map(([cls])=>[...panel.children].filter(node=>node.matches(`section.${cls}`)));
     // Secondary bodies are opaque. Optimizer may include a help block before
     // a conditionally hidden panel; its native visibility must remain native.
@@ -318,13 +334,24 @@ export class PlannerWorkspace {
     const panes:Pane[]=[],moduleButtons=new Map<Module,HTMLButtonElement>();
     const add=(section:HTMLElement,label:string,module:Module|null,opaque=false):Pane=>{
       const title=section.children[0] as HTMLElement,body=section.lastElementChild as HTMLElement;
-      const pane:Pane={section,title,body,label,module,opaque,toggle:null,reopen:null,collapsed:this.paneChoices.get(title.id)??false,bodyHadClass:body.hasAttribute("class"),click:()=>{}};
+      const pane:Pane={section,title,body,label,module,opaque,toggle:null,reopen:null,collapsed:this.paneChoices.get(title.id)??false,bodyHadClass:body.hasAttribute("class"),titleHadStyle:title.hasAttribute("style"),click:()=>{}};
+      if(!opaque&&this.primaryTarget(title,body)?.classList.contains("hidden"))pane.collapsed=true;
       title.classList.add("pl-pane-title");
       if(!opaque){
         body.classList.add("pl-pane-body");
         const toggle=owned(doc.createElement("button"),"pl-pane-toggle");toggle.type="button";if(body.id)toggle.setAttribute("aria-controls",body.id);title.append(toggle);pane.toggle=toggle;
         toggle.addEventListener("click",()=>this.setPaneCollapsed(pane,!pane.collapsed,true));
-        pane.click=event=>{if(event.target instanceof Element&&event.target.closest("button.planSectionToggle")?.parentElement===title){event.preventDefault();event.stopImmediatePropagation();this.setPaneCollapsed(pane,!pane.collapsed,true);}};
+        pane.click=event=>{
+          const native=event.target instanceof Element?event.target.closest<HTMLButtonElement>("button.planSectionToggle"):null;
+          if(native?.parentElement!==title)return;
+          if(this.forwardingPrimary===native)return;
+          const expansion=this.primaryExpansion(title,body);
+          if(expansion?.button===native){
+            if(this.pendingModuleOpen){event.preventDefault();event.stopImmediatePropagation();return;}
+            pane.collapsed=false;this.paneChoices.set(title.id,false);this.beginPrimaryOpen(pane,expansion,false);this.updatePanes();return;
+          }
+          event.preventDefault();event.stopImmediatePropagation();this.setPaneCollapsed(pane,!pane.collapsed,true);
+        };
         title.addEventListener("click",pane.click,true);
       }
       panes.push(pane);return pane;
@@ -355,7 +382,7 @@ export class PlannerWorkspace {
     mobileMain.type=mobileSchedule.type="button";mobileMain.dataset.plMobileView="main";mobileSchedule.dataset.plMobileView="schedule";
     mobileSchedule.className="pl-workspace-schedule-toggle";mobileSchedule.textContent="Schedule";tabs.append(mobileMain,mobileSchedule);
     mobileMain.addEventListener("click",()=>{this.showSchedule=false;this.updatePanes();mobileMain.focus({preventScroll:true});});
-    mobileSchedule.addEventListener("click",()=>{this.showSchedule=true;panes[1].collapsed=false;this.updatePanes();mobileSchedule.focus({preventScroll:true});});
+    mobileSchedule.addEventListener("click",()=>{this.showSchedule=true;this.setPaneCollapsed(panes[1],false);mobileSchedule.focus({preventScroll:true});});
     const extras=doc.createElement("details");extras.className="pl-workspace-plan-actions";top.append(extras);
     const summary=owned(doc.createElement("summary"),"");summary.textContent="Plan actions";extras.append(summary);
     const menu=host.querySelector<HTMLElement>(":scope > .plannerTopMenuLinks");if(menu)place(menu,extras,true);else extras.hidden=true;
@@ -538,13 +565,51 @@ export class PlannerWorkspace {
     if(module==="information"&&this.module!=="information")this.previousModule=this.module;
     this.closeActions(false);this.module=module;this.showSchedule=false;s.extras.open=false;
     const pane=s.panes.find(p=>p.module===module);if(pane&&!pane.opaque){pane.collapsed=false;this.paneChoices.set(pane.title.id,false);}
+    if(pane&&!pane.opaque&&explicitNavigation){this.setPaneCollapsed(pane,false);if(!this.state)return;}
     this.updatePanes();if(focus)(module==="information"?s.doc.querySelector<HTMLButtonElement>(".pl-intro-info"):s.moduleButtons.get(module))?.focus({preventScroll:true});
-    if(module==="optimizer"&&explicitNavigation)this.openNativeOptimizer();
+    if(pane?.opaque&&explicitNavigation)this.openNativeModule(pane);
   }
 
   /** The navigation may forward only a user's explicit request to the exact
    * native expand control. Restoring a selected module never opens it. */
-  private optimizerExpandButton(pane:Pane):HTMLButtonElement|null {
+  private primaryTarget(title:HTMLElement,body:HTMLElement):HTMLElement|null {
+    const spec=PRIMARY_DISCLOSURES[title.id as keyof typeof PRIMARY_DISCLOSURES];
+    if(!spec||body.id!==spec.body)return null;
+    return spec.target===spec.body?body:body.querySelector<HTMLElement>(":scope > #gridDiv");
+  }
+
+  private primaryExpansion(title:HTMLElement,body:HTMLElement):{button:HTMLButtonElement;target:HTMLElement}|null {
+    const spec=PRIMARY_DISCLOSURES[title.id as keyof typeof PRIMARY_DISCLOSURES],doc=title.ownerDocument,location=doc.defaultView?.location;
+    const target=this.primaryTarget(title,body),form=doc.getElementById("aspnetForm");
+    if(!spec||!target||!target.classList.contains("hidden")||title.parentElement!==body.parentElement||
+      !location||location.origin!=="https://be.my.ucla.edu"||location.pathname!=="/ClassPlanner/ClassPlan.aspx"||
+      !(form instanceof HTMLFormElement)||form.method.toLowerCase()!=="post"||body.closest("form")!==form||
+      doc.querySelectorAll(`#${spec.target}`).length!==1||doc.querySelectorAll(`#${spec.toggle}`).length!==1)return null;
+    try{const action=new URL(form.action,location.href);if(action.origin!==location.origin||action.pathname!==location.pathname)return null;}catch{return null;}
+    const children=[...title.children].filter(node=>!node.hasAttribute(OWNED)),button=doc.getElementById(spec.toggle);
+    if(!(button instanceof HTMLButtonElement)||button.parentElement!==title||button.form!==form||
+      children.length!==spec.children||children[children.length-1]!==button||
+      !button.matches("button.planSectionToggle.link")||button.disabled||button.matches(":disabled")||button.getAttribute("aria-disabled")==="true"||
+      ["type","form","formaction","formmethod","formenctype","formtarget"].some(name=>button.hasAttribute(name))||
+      button.getAttribute("onclick")!==`shrink('${spec.target}'); __doPostBack('${spec.toggle.replaceAll("_","$")}','')`||
+      button.children.length!==2||!button.children[0].matches("i.icon-plus-sign:not(.icon-minus-sign)")||
+      button.children[1].tagName!=="LABEL"||button.children[1].textContent?.trim()!==spec.label)return null;
+    if(spec.children===3&&(!children[0].matches("a.planSectionHelpTip")||!children[1].matches("button#faceTip.uit-clickover-bottom.planSectionHelpTip.link")))return null;
+    for(let node:HTMLElement|null=button;node&&title.contains(node);node=node.parentElement){const style=doc.defaultView!.getComputedStyle(node);if(node.hidden||node.getAttribute("aria-hidden")==="true"||style.display==="none"||["hidden","collapse"].includes(style.visibility))return null;}
+    return {button,target};
+  }
+
+  private beginPrimaryOpen(pane:Pane,expansion:{button:HTMLButtonElement;target:HTMLElement},forward=true):void {
+    const s=this.state;if(!s||this.pendingModuleOpen||!pane.toggle)return;
+    const {button,target}=expansion,status=s.doc.createElement("p");status.className="pl-optimizer-state";status.setAttribute(OWNED,"true");status.setAttribute("role","status");
+    status.textContent=`Opening ${pane.label}… If it stays closed, use Original layout to retry the native heading.`;pane.body.before(status);pane.toggle.setAttribute("aria-busy","true");
+    const observer=new MutationObserver(()=>this.refreshModulePending());this.pendingModuleOpen={pane,button,target,status,navigation:pane.toggle,observer};
+    observer.observe(pane.section,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","style"]});
+    if(forward){this.forwardingPrimary=button;try{button.click();}finally{this.forwardingPrimary=null;}this.refreshModulePending();}
+  }
+
+  private nativeExpandButton(pane:Pane):HTMLButtonElement|null {
+    if(pane.module==="study"||pane.module==="personal")return this.secondaryExpandButton(pane,pane.module);
     const s=this.state,doc=s?.doc,location=doc?.defaultView?.location;
     if(!s||!doc||!location||location.origin!=="https://be.my.ucla.edu"||location.pathname!=="/ClassPlanner/ClassPlan.aspx"||
       pane.module!=="optimizer"||!pane.section.isConnected||pane.section.parentElement!==s.main)return null;
@@ -568,37 +633,71 @@ export class PlannerWorkspace {
     return button;
   }
 
-  private openNativeOptimizer():void {
-    this.refreshOptimizerPending();
-    const s=this.state,pane=s?.panes.find(candidate=>candidate.module==="optimizer");
-    if(!s||!pane||this.pendingOptimizer)return;
-    const button=this.optimizerExpandButton(pane),navigation=s.moduleButtons.get("optimizer");
+  private secondaryExpandButton(pane:Pane,module:keyof typeof SECONDARY_DISCLOSURES):HTMLButtonElement|null {
+    const s=this.state,doc=s?.doc,location=doc?.defaultView?.location,spec=SECONDARY_DISCLOSURES[module];
+    if(!s||!doc||!location||location.origin!=="https://be.my.ucla.edu"||location.pathname!=="/ClassPlanner/ClassPlan.aspx"||
+      !pane.opaque||!pane.section.isConnected||pane.section.parentElement!==s.main)return null;
+    const children=[...pane.section.children].filter(node=>!node.hasAttribute(OWNED));
+    if(children.length!==2||children[0]!==pane.title||children[1]!==pane.body||pane.title.id!==spec.title||
+      pane.body.id!==spec.body||!pane.body.classList.contains("hidden"))return null;
+    const form=doc.getElementById("aspnetForm"),button=doc.getElementById(spec.toggle);
+    if(!(form instanceof HTMLFormElement)||form.method.toLowerCase()!=="post"||!(button instanceof HTMLButtonElement)||
+      button.parentElement!==pane.title||button.form!==form||pane.section.closest("form")!==form||
+      doc.querySelectorAll(`#${spec.toggle}`).length!==1||doc.querySelectorAll(`#${spec.body}`).length!==1||
+      doc.getElementById(spec.body)!==pane.body||!button.matches("button.planSectionToggle.link")||
+      button.disabled||button.matches(":disabled")||button.getAttribute("aria-disabled")==="true"||
+      button.getAttribute("onclick")!==`shrink('${spec.body}'); __doPostBack('${spec.toggle.replaceAll("_","$")}','')`||
+      ["type","form","formaction","formmethod","formenctype","formtarget"].some(name=>button.hasAttribute(name)))return null;
+    try {const action=new URL(form.action,location.href);if(action.origin!==location.origin||action.pathname!==location.pathname)return null;}catch{return null;}
+    for(let node:HTMLElement|null=button;node&&pane.section.contains(node);node=node.parentElement){
+      const style=doc.defaultView!.getComputedStyle(node);
+      if(node.hidden||node.getAttribute("aria-hidden")==="true"||style.display==="none"||["hidden","collapse"].includes(style.visibility))return null;
+    }
+    if(pane.title.children.length!==spec.count||!pane.title.children[spec.count-2].matches(spec.help)||
+      (module==="study"&&!pane.title.children[0].matches("a.planSectionHelpTip"))||pane.title.children[spec.count-1]!==button||
+      button.children.length!==2||!button.children[0].matches("i.icon-plus-sign:not(.icon-minus-sign)")||
+      button.children[1].tagName!=="LABEL"||button.children[1].textContent?.trim()!==spec.label)return null;
+    return button;
+  }
+
+  private openNativeModule(pane:Pane):void {
+    this.refreshModulePending();
+    const s=this.state;
+    if(!s||!pane.module||this.pendingModuleOpen)return;
+    const button=this.nativeExpandButton(pane),navigation=s.moduleButtons.get(pane.module);
     if(!button||!navigation)return;
     const status=s.doc.createElement("p");status.className="pl-optimizer-state";status.setAttribute(OWNED,"true");
-    status.setAttribute("role","status");status.textContent="Opening Plan Optimizer… If it stays closed, click the Plan Optimizer heading.";
+    status.setAttribute("role","status");status.textContent=`Opening ${pane.module==="optimizer"?"Plan Optimizer":MODULE_LABELS[pane.module]}… If it stays closed, click the module heading.`;
     pane.body.before(status);navigation.setAttribute("aria-busy","true");
-    const observer=new MutationObserver(()=>this.refreshOptimizerPending());
-    this.pendingOptimizer={pane,button,status,navigation,observer};
+    const observer=new MutationObserver(()=>this.refreshModulePending());
+    this.pendingModuleOpen={pane,button,target:pane.body,status,navigation,observer};
     observer.observe(pane.section,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","style","disabled","onclick","form"]});
     // Mark pending before the native click so reentrant or rapid navigation
     // cannot issue a second postback while MyUCLA has not opened the panel.
-    button.click();this.refreshOptimizerPending();
+    button.click();this.refreshModulePending();
   }
 
-  private refreshOptimizerPending():void {
-    const pending=this.pendingOptimizer;if(!pending)return;
+  private refreshModulePending():void {
+    const pending=this.pendingModuleOpen;if(!pending)return;
     if(!this.state||!pending.pane.section.isConnected||!pending.pane.body.isConnected||!pending.button.isConnected||
-      pending.pane.body.parentElement!==pending.pane.section||this.state.doc.getElementById(OPTIMIZER_TOGGLE)!==pending.button||
-      this.state.doc.getElementById("panelOptimizer")!==pending.pane.body||!pending.pane.body.classList.contains("hidden"))this.clearOptimizerPending();
+      pending.pane.body.parentElement!==pending.pane.section||this.state.doc.getElementById(pending.button.id)!==pending.button||
+      this.state.doc.getElementById(pending.pane.body.id)!==pending.pane.body||!pending.target.isConnected||
+      this.state.doc.getElementById(pending.target.id)!==pending.target||!pending.target.classList.contains("hidden"))this.clearModulePending();
   }
 
-  private clearOptimizerPending():void {
-    const pending=this.pendingOptimizer;if(!pending)return;this.pendingOptimizer=null;
+  private clearModulePending():void {
+    const pending=this.pendingModuleOpen;if(!pending)return;this.pendingModuleOpen=null;
     pending.observer.disconnect();pending.status.remove();pending.navigation.removeAttribute("aria-busy");
   }
 
   private setPaneCollapsed(pane:Pane,collapsed:boolean,focus=false):void {
     if(!this.state||pane.opaque)return;
+    if(!collapsed&&this.primaryTarget(pane.title,pane.body)?.classList.contains("hidden")){
+      if(this.pendingModuleOpen)return;
+      const expansion=this.primaryExpansion(pane.title,pane.body);if(!expansion){this.restore();return;}
+      this.beginPrimaryOpen(pane,expansion);
+      if(!this.state)return;
+    }
     if(collapsed&&pane===this.state.panes[0]){this.closeActions(false);this.closePreview(false);}
     pane.collapsed=collapsed;this.paneChoices.set(pane.title.id,collapsed);this.updatePanes();
     if(focus)(collapsed&&pane.reopen?pane.reopen:pane.toggle)?.focus({preventScroll:true});
@@ -606,13 +705,16 @@ export class PlannerWorkspace {
 
   private updatePanes():void {
     const s=this.state;if(!s)return;
-    this.refreshOptimizerPending();
+    this.refreshModulePending();
     if(this.module!=="information"&&!s.panes.some(pane=>pane.module===this.module))this.module="classes";
     s.host.dataset.plModule=this.module;s.host.classList.toggle("pl-show-schedule",this.showSchedule);
     for(const [module,button] of s.moduleButtons)button.setAttribute("aria-pressed",String(this.module===module));
     for(const pane of s.panes){
+      if(!pane.opaque&&this.primaryTarget(pane.title,pane.body)?.classList.contains("hidden")&&this.pendingModuleOpen?.pane!==pane)pane.collapsed=true;
       pane.section.classList.toggle("pl-module-active",pane.module===this.module||pane.module===null);
       if(!pane.opaque){pane.section.classList.toggle("pl-pane-collapsed",pane.collapsed);pane.section.classList.toggle("pl-pane-open",!pane.collapsed);pane.toggle?.setAttribute("aria-expanded",String(!pane.collapsed));const label=`${pane.collapsed?"Expand":"Collapse"} ${pane.label}`;pane.toggle?.setAttribute("aria-label",label);if(pane.toggle){pane.toggle.title=label;pane.toggle.textContent=pane.collapsed?"›":"⌄";}}
+      const available=Math.min(s.doc.defaultView!.innerHeight,pane.section.getBoundingClientRect().bottom)-pane.title.getBoundingClientRect().bottom-12;
+      pane.title.style.setProperty("--pl-header-help-height",`${Math.max(60,available)}px`);
     }
     const width=this.currentScheduleWidth();s.deck.style.setProperty("--pl-schedule-width",`${width}px`);
     const splitter=s.splitters[0];splitter.setAttribute("aria-valuemin","420");splitter.setAttribute("aria-valuemax",String(Math.max(420,Math.min(640,(s.deck.clientWidth||1400)-632))));splitter.setAttribute("aria-valuenow",String(Math.round(width)));
@@ -702,7 +804,7 @@ export class PlannerWorkspace {
   }
 
   restore():void{
-    this.clearOptimizerPending();
+    this.clearModulePending();
     for(const host of this.actionControls.keys())this.removeActions(host);
     for(const summary of this.summaries.values())summary.node.remove();this.summaries.clear();
     this.useOriginal=false;this.returnButton?.remove();this.returnButton=null;this.browser.restore();this.introduction.restore();
@@ -721,6 +823,7 @@ export class PlannerWorkspace {
     s.doc.removeEventListener("pointermove",s.move);s.doc.removeEventListener("pointerup",s.end);s.doc.removeEventListener("pointercancel",s.end);s.doc.defaultView?.removeEventListener("blur",s.end);
     for(const pane of s.panes){
       pane.title.removeEventListener("click",pane.click,true);pane.toggle?.remove();pane.title.classList.remove("pl-pane-title");if(!pane.opaque)pane.body.classList.remove("pl-pane-body");
+      pane.title.style.removeProperty("--pl-header-help-height");if(!pane.titleHadStyle&&!pane.title.getAttribute("style"))pane.title.removeAttribute("style");
       if(!pane.bodyHadClass&&!pane.body.getAttribute("class"))pane.body.removeAttribute("class");pane.section.classList.remove("pl-pane-open","pl-pane-collapsed","pl-module-active","pl-has-docked-details");
     }
     for(const {node,anchor,menu} of [...s.placements].reverse()){

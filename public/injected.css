@@ -297,17 +297,24 @@ html.pl-has-actionbar body { padding-bottom: 56px; }
 .pl-menu-wrap { position: relative; }
 
 .pl-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 30;
-  width: 250px;
-  padding: 9px;
+  position: fixed;
+  inset: auto;
+  left: var(--pl-menu-left, 12px);
+  top: var(--pl-menu-top, 12px);
+  z-index: 1200;
+  box-sizing: border-box;
+  width: var(--pl-menu-width, 310px);
+  max-width: calc(100vw - 24px);
+  max-height: var(--pl-menu-height, calc(100dvh - 24px));
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
   border: 1px solid var(--pl-line);
   border-radius: var(--pl-radius);
   background: var(--pl-surface);
   box-shadow: 0 6px 18px rgba(20, 50, 80, 0.24);
   text-align: left;
+  font: 400 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .pl-menu[hidden] { display: none; }
@@ -315,14 +322,18 @@ html.pl-has-actionbar body { padding-bottom: 56px; }
 .pl-menu-note {
   margin: 0 0 7px;
   color: var(--pl-muted);
-  font-size: 11.5px;
+  font-size: 13px;
   line-height: 1.5;
+  font-weight: 400;
 }
 
 .pl-menu-item {
   width: 100%;
-  height: 26px;
-  padding: 4px 8px;
+  height: auto;
+  min-height: 38px;
+  padding: 8px 10px;
+  white-space: normal;
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   justify-content: flex-start !important;
   border-color: var(--pl-line) !important;
   color: var(--pl-button) !important;
@@ -602,7 +613,7 @@ p.pl-headline {
    sixteen-class plan. Only the first class the student can see keeps its
    header, and that one is a caption rather than a band.                    */
 
-.pl-plan-root tbody.courseItem:not(.pl-lead-card) tr.pl-thead {
+.pl-plan-root tbody.courseItem:not(.pl-lead-card) tr.pl-thead:not(.pl-section-heading) {
   display: none !important;
 }
 
@@ -992,27 +1003,55 @@ html.pl-boot #ctl00_MainContent_classPlanPanel {
    actually uses rather than a hardcoded table of exam times. */
 
 .pl-finals-host {
-  margin: 0 0 12px;
-  padding: 10px 12px 12px;
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1100;
+  box-sizing: border-box;
+  width: min(1040px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: 0;
+  padding: 0;
   border: 1px solid var(--pl-line);
   border-radius: var(--pl-radius);
   background: var(--pl-surface);
+  box-shadow: 0 12px 48px #20304040;
+  overflow: hidden;
 }
+.pl-finals-host:not([open]) { display: none; }
+.pl-finals-host[open] { display: flex; flex-direction: column; }
+.pl-finals-content { min-height: 0; overflow: auto; padding: 12px 16px 16px; }
+@media print { .pl-menu, .pl-finals-host { display: none !important; } }
 
 .pl-finals-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 9px;
+  flex: none;
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--pl-line);
 }
 
 .pl-finals-title {
   margin: 0;
   color: var(--pl-blue);
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
 }
+.pl-finals-bar > button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #cfd7e1;
+  border-radius: 5px;
+  background: #fff;
+  color: #345c85;
+  font: 500 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+.pl-finals-bar > button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 
 .pl-finals-scroll { overflow-x: auto; }
 
@@ -1322,6 +1361,7 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
   font-family: inherit; font-size: 14px; line-height: 1.4;
 }
 .ClassSearchWidget.pl-search-widget input.ClassSearchBox { width: 100% !important; min-width: 0; max-width: none; margin: 0 !important; }
+.ClassSearchWidget.pl-search-widget input.ClassSearchBox:is([hidden],.hidden) { display: none !important; }
 .pl-search-widget .goPanel { flex: 0 0 auto; width: auto; float: none; padding: 0; }
 .pl-search-widget .pl-search-submit { position: relative; display: inline-block; vertical-align: middle; }
 .ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton {
@@ -1444,23 +1484,38 @@ section#layoutContentArea.pl-planner-introduction {
   background: #fff !important; color: #263344 !important; border: 0 !important; border-bottom: 1px solid #e7ebf0 !important; border-radius: 0 !important; font: 600 17px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
 }
 .pl-pane-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* Native clickover libraries center a 376px popup on a small Help button.
+   Anchor only recorded direct-title popovers inside their module instead of
+   letting a negative native left offset disappear behind the workspace rail.
+   Original nodes, visibility, close controls and handlers stay native. */
+.pl-workspace-main > section > .pl-pane-title > .popover.clickover {
+  position: absolute !important; left: 8px !important; right: 8px !important;
+  top: calc(100% + 4px) !important; width: auto !important; min-width: 0;
+  max-width: calc(100% - 16px) !important;
+  max-height: var(--pl-header-help-height,min(260px,30dvh));
+  box-sizing: border-box; overflow: auto; overscroll-behavior: contain;
+  margin: 0 !important; transform: none !important; z-index: 10;
+}
+.pl-workspace-main > section > .pl-pane-title > .popover.clickover > .arrow { display: none; }
 .pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; min-height: 38px; padding: 0; text-align: left; color: inherit; background: transparent; border: 0; font: inherit; }
 .pl-pane-title > button.planSectionToggle > .icon-minus-sign, .pl-pane-title > button.planSectionToggle > .icon-plus-sign { display: none; }
 .classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; margin-left: auto; border: 0; border-radius: 6px; background: transparent; color: #59687a; font: 22px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-pane-title > button.pl-pane-toggle:hover { background: #edf2f7; }
 .pl-pane-collapsed > .pl-pane-body { display: none !important; }
-.pl-workspace-plan.pl-pane-open > .pl-pane-body, .pl-workspace-search.pl-pane-open > .pl-pane-body, .pl-workspace-calendar.pl-pane-open > .pl-pane-body { display: block !important; }
+.pl-workspace-plan.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]), .pl-workspace-search.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]), .pl-workspace-calendar.pl-pane-open > .pl-pane-body:not(.hidden):not([hidden]) { display: block; }
 .pl-workspace-main > .pl-module-active:not(.pl-workspace-plan):not(.pl-workspace-search) { overflow: auto; }
 .pl-workspace-main > .pl-module-active:not(.pl-workspace-plan):not(.pl-workspace-search) > .pl-pane-body { flex: none; min-height: auto; overflow: visible; padding: 16px; box-sizing: border-box; }
 .pl-workspace-information-placeholder { padding: 24px; color: #59687a; }
 .pl-workspace-information-placeholder:not(.pl-module-active) { display: none; }
-/* Optimizer keeps its own server-backed disclosure and native controls. */
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; cursor: pointer; order: 0; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-pane-title > button.planSectionToggle > :is(.icon-plus-sign,.icon-minus-sign) { display: inline-block; flex: none; color: #52677e; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-pane-title > button.planSectionHelpTip { order: 1; }
+/* Opaque secondary modules retain their own server-backed disclosures. */
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; cursor: pointer; order: 0; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle > :is(.icon-plus-sign,.icon-minus-sign) { display: inline-block; flex: none; color: #52677e; }
+.pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionHelpTip { order: 1; }
 .pl-workspace-main > .classPlanner_ClassOptimizerSection > #panelOptimizer { box-sizing: border-box; padding: 20px; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-optimizer-state { margin: 0; padding: 24px 20px; color: #59687a; font: 14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-workspace-main > .classPlanner_ClassOptimizerSection > .pl-optimizer-state[hidden] { display: none; }
+.pl-workspace-main > section > .pl-optimizer-state, .pl-workspace-calendar > .pl-optimizer-state { margin: 0; padding: 24px 20px; color: #59687a; font: 14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-main > section > .pl-optimizer-state[hidden], .pl-workspace-calendar > .pl-optimizer-state[hidden] { display: none; }
+.pl-workspace-plan > .pl-optimizer-state { grid-column: 1 / -1; grid-row: 2; }
+.pl-workspace-plan:has(> .pl-optimizer-state) > .pl-workspace-details-slot { display: none; }
 .pl-planner-introduction right-sidebar.pl-intro-sidebar-workspace.pl-intro-sidebar-open { top: var(--pl-info-top); left: var(--pl-info-left); right: auto; width: var(--pl-info-width); height: var(--pl-info-height); max-height: none; border: 0; border-radius: 0; box-shadow: none; padding: 48px 20px 20px; }
 .pl-workspace-splitter { align-self: stretch; cursor: col-resize; touch-action: none; display: flex; justify-content: center; align-items: center; border-left: 1px solid #e1e7ee; margin-left: 5px; }
 .pl-workspace-splitter::after { content: ""; width: 3px; height: 32px; margin-left: -7px; background: #c6cfda; border-radius: 3px; }
@@ -1635,7 +1690,7 @@ section#layoutContentArea.pl-planner-introduction {
   display: inline-block !important; float: none !important; height: auto !important; margin-right: 4px; vertical-align: baseline;
 }
 /* Presentation must not revive a field that UCLA itself has hidden. */
-.ClassSearchList.pl-browser-list :is(.pl-section-field,.pl-section-help-field):is([hidden],.hidden) { display: none !important; }
+.ClassSearchList.pl-browser-list :is(.pl-section-field,.pl-section-help-field,.pl-section-card,.pl-section-result-heading):is([hidden],.hidden) { display: none !important; }
 @container pl-preview (min-width: 420px) and (max-width: 639px) {
   .ClassSearchList.pl-browser-list .pl-section-card { grid-template-columns: 30px minmax(100px,1fr) minmax(135px,1.4fr) 40px; gap: 10px 12px; padding: 14px 4px; }
   .pl-browser-list .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
@@ -1649,7 +1704,7 @@ section#layoutContentArea.pl-planner-introduction {
 }
 @container pl-preview (min-width: 640px) {
   .ClassSearchList.pl-browser-list .pl-section-card,
-  .ClassSearchList.pl-browser-list .pl-section-result-heading { display: grid !important; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px; gap: 8px 10px; padding: 12px 8px; border-width: 0 0 1px; border-radius: 0; }
+  .ClassSearchList.pl-browser-list .pl-section-result-heading { display: grid; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px; gap: 8px 10px; padding: 12px 8px; border-width: 0 0 1px; border-radius: 0; }
   .ClassSearchList.pl-browser-list .pl-section-result-heading { position: sticky; top: 0; z-index: 2; margin: 4px 0 0; padding: 8px; row-gap: 4px; box-sizing: border-box; border-bottom: 1px solid #dce3eb; background: #f6f8fa; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field] { display: block; min-width: 0; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; align-self: center; color: #526174; font: 500 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap: anywhere; }
   .pl-section-result-heading > .pl-section-help-field[data-pl-field="0"] { grid-column: 1; grid-row: 1; }
@@ -1688,15 +1743,15 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-browser-result-actions button:focus-visible, .pl-browser-result-actions input:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 /* Original section rows become labelled cards. No native control is copied. */
 .pl-section-table, .pl-section-table > tbody { display: block; width: 100% !important; }
-.pl-section-heading { display: none !important; }
-.pl-browser-list .pl-section-help-row { display: flex !important; flex-wrap: wrap; gap: 8px; min-width: 0 !important; width: 100% !important; margin: 0 0 8px; }
+.pl-section-heading { display: none; }
+.pl-browser-list .pl-section-help-row { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0 !important; width: 100% !important; margin: 0 0 8px; }
 .pl-section-help-row > .pl-section-help-field { display: none; }
 .pl-section-help-row > .pl-section-help-field:has(button,a,input,select) { display: block; float: none !important; width: auto !important; padding: 0 !important; }
 .pl-browser-list .pl-section-help-row { background: transparent; }
 .pl-section-help-field > button, .pl-section-help-field > a { border: 0; border-radius: 4px; padding: 4px 6px; background: #f3f5f8; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.pl-workspace-plan .pl-plan-root tbody.courseItem .pl-section-heading { display: none !important; }
+.pl-workspace-plan .pl-plan-root tbody.courseItem .pl-section-heading { display: none; }
 .pl-section-table .pl-section-card, .pl-browser-list .pl-section-card {
-  display: grid !important; grid-template-columns: 30px minmax(0,1fr) minmax(0,1fr) 34px; gap: 8px 10px;
+  display: grid; grid-template-columns: 30px minmax(0,1fr) minmax(0,1fr) 34px; gap: 8px 10px;
   width: 100% !important; min-width: 0 !important; box-sizing: border-box; margin: 0 0 8px; padding: 12px 10px;
   border: 1px solid #e2e7ed; border-radius: 6px; background: #fff;
 }
@@ -1769,7 +1824,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="2"] > :is(i,span):is(.icon-lock,.icon-unlock,.icon-ok-sign) {
   display: inline-block !important; float: none !important; height: auto !important; margin-right: 4px; vertical-align: baseline;
 }
-.pl-workspace-plan table.coursetable.pl-section-table :is(.pl-section-field,.pl-section-help-field,.pl-section-card):is([hidden],.hidden) { display: none !important; }
+.pl-workspace-plan table.coursetable.pl-section-table :is(.pl-section-field,.pl-section-help-field,.pl-section-card,.pl-section-heading):is([hidden],.hidden) { display: none !important; }
 @media screen {
   .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card { grid-template-columns: 28px minmax(58px,.8fr) minmax(90px,1.5fr) 32px; gap: 8px 10px; }
   .pl-section-table .pl-section-field[data-pl-field="1"] { grid-column: 2; grid-row: 1; }
@@ -1786,7 +1841,7 @@ section#layoutContentArea.pl-planner-introduction {
   @container pl-plan-detail (min-width: 640px) {
     .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
-      display: grid !important; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px;
+      display: grid; grid-template-columns: 38px minmax(60px,.75fr) minmax(126px,1.4fr) 48px minmax(112px,1.1fr) 40px 28px;
       gap: 8px 10px; padding: 12px 8px; box-sizing: border-box;
     }
     .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {

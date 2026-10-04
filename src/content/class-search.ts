@@ -154,7 +154,7 @@ export class ClassSearchPresentation {
       fields.forEach((field, index) => {
         const labelText = field.getAttribute("aria-label") || "";
         const label = labels[index];
-        label.hidden = !labelText || /^unused for this search type$/i.test(labelText) || field.style.display === "none";
+        label.hidden = !labelText || /^unused for this search type$/i.test(labelText) || field.style.display === "none" || field.hidden || field.classList.contains("hidden");
         const readable = FIELD_LABELS[labelText] || labelText;
         if (label.textContent !== readable) label.textContent = readable;
         label.title = labelText;
@@ -165,7 +165,7 @@ export class ClassSearchPresentation {
       hint.hidden = !go.disabled;
     };
     const observer = new MutationObserver(sync);
-    fields.forEach(field => observer.observe(field, { attributes: true, attributeFilter: ["aria-label", "placeholder", "style"] }));
+    fields.forEach(field => observer.observe(field, { attributes: true, attributeFilter: ["aria-label", "placeholder", "style", "hidden", "class"] }));
     observer.observe(select, { attributes: true, attributeFilter: ["disabled"] });
     observer.observe(go, { attributes: true, attributeFilter: ["disabled"] });
     select.addEventListener("change", sync);

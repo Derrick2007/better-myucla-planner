@@ -114,6 +114,24 @@ describe("native class search presentation", () => {
     go().click();
     expect(submitted).toHaveBeenCalledExactlyOnceWith(go());
   });
+  it("tracks native hidden attributes and classes without leaving orphan field labels", async () => {
+    presentation.reconcile(document);
+    const field = document.getElementById("searchTier0")!;
+    const label = document.querySelector<HTMLLabelElement>('label[for="searchTier0"]')!;
+    const widget = document.querySelector<HTMLElement>('.ClassSearchWidget')!;
+    field.hidden = true;
+    await Promise.resolve();
+    expect(label.hidden).toBe(true); expect(widget.dataset.plSearchFields).toBe('1');
+    field.hidden = false;
+    await Promise.resolve();
+    expect(label.hidden).toBe(false); expect(widget.dataset.plSearchFields).toBe('2');
+    field.classList.add('hidden');
+    await Promise.resolve();
+    expect(label.hidden).toBe(true); expect(widget.dataset.plSearchFields).toBe('1');
+    field.classList.remove('hidden');
+    await Promise.resolve();
+    expect(label.hidden).toBe(false); expect(widget.dataset.plSearchFields).toBe('2');
+  });
   it("restores every native node, attribute, value and original position", () => {
     const widget = document.querySelector(".ClassSearchWidget")!;
     const before = widget.outerHTML;

@@ -50,6 +50,7 @@ const ACTIONBAR_ID = "planner-lift-actionbar";
 const TOPBAR_ID = "planner-lift-topbar";
 const JUMP_ID = "planner-lift-jump";
 const FINALS_TOGGLE_ID = "planner-lift-finals-toggle";
+const FINALS_PANEL_ID = "planner-lift-finals-panel";
 const RESUME_KEY = "plannerLift.afterSync.v1";
 /** Rough cost of one MyUCLA postback, used only to phrase the wait in seconds. */
 const SECONDS_PER_STEP = 1.2;
@@ -184,6 +185,10 @@ export class MyUclaPlannerController {
   private sessionCountdown: SessionCountdown | null = null;
   private stopSessionWatch: (() => void) | null = null;
   private status: QueueProgress = IDLE_STATUS;
+  private finalsPanel: HTMLDialogElement | null = null;
+  private finalsReturnFocus: HTMLElement | null = null;
+  private finalsRoot: HTMLElement | null = null;
+  private finalsObserver: MutationObserver | null = null;
 
   constructor(private readonly adapter: MyUclaPlannerAdapter) {
     this.fastCoordinator = new FastReorderCoordinator(adapter, (progress) => {
@@ -257,6 +262,7 @@ export class MyUclaPlannerController {
 
   /** Keep saved drafts in their originating plan; clear only obsolete page state. */
   private leaveContext(): void {
+    this.closeFinalsWeek(false);
     this.contextGeneration += 1;
     this.contractHealthy = false;
     this.activeContextKey = null;
@@ -285,6 +291,7 @@ export class MyUclaPlannerController {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.closeFinalsWeek(false);
     this.contextGeneration += 1;
     if (this.reconcileFrame !== null) window.cancelAnimationFrame(this.reconcileFrame);
     this.reconcileFrame = null; this.reconcileQueued = false;
@@ -344,6 +351,8 @@ export class MyUclaPlannerController {
     document.addEventListener("pointermove", this.onPointerMove);
     document.addEventListener("pointerup", this.onPointerUp);
     document.addEventListener("pointercancel", this.onPointerUp);
+    window.addEventListener("resize", this.positionMenu);
+    document.addEventListener("scroll", this.positionMenu, true);
   }
 
   private detachEvents(): void {
@@ -355,6 +364,8 @@ export class MyUclaPlannerController {
     document.removeEventListener("pointermove", this.onPointerMove);
     document.removeEventListener("pointerup", this.onPointerUp);
     document.removeEventListener("pointercancel", this.onPointerUp);
+    window.removeEventListener("resize", this.positionMenu);
+    document.removeEventListener("scroll", this.positionMenu, true);
   }
 
   /** Flipping the switch must restore MyUCLA's markup immediately, not on the
@@ -364,6 +375,8 @@ export class MyUclaPlannerController {
     if (this.tidyLayout === tidy) return;
     this.tidyLayout = tidy;
     if (!tidy) {
+      this.closeFinalsWeek(false);
+      this.closeMenu();
       this.workspace.restore();
       this.classSearch.restore();
       restorePlannerFrame(document);
@@ -449,6 +462,7 @@ export class MyUclaPlannerController {
     }
 
     this.contractHealthy = true;
+    if(this.finalsPanel&&(this.adapter.getRoot()!==this.finalsRoot||contract.courses.length!==this.courses.length||contract.courses.some((course,index)=>this.courses[index]?.node!==course.node)))this.closeFinalsWeek(false);
     this.courses = contract.courses;
     this.lastRoot = this.adapter.getRoot();
     this.lastCourseCount = contract.courses.length;
@@ -481,7 +495,7 @@ export class MyUclaPlannerController {
       // re-rendered by its own toggles, so it is re-checked on every pass.
       tidyWeekGrid(document);
     }
-    this.ensureFinalsToggle();
+    this.syncFinalsControls();
     const byId = new Map(contract.courses.map((course) => [course.id, course]));
     effectiveOrder.forEach((id, index) => {
       const course = byId.get(id);
@@ -601,11 +615,19 @@ export class MyUclaPlannerController {
     menuButton.title = "More";
     menuButton.setAttribute("aria-label", "More");
     menuButton.setAttribute("aria-expanded", "false");
+    menuButton.setAttribute("aria-controls", "planner-lift-more-menu");
     menuButton.append(makeIcon(ICONS.more));
     const menu = document.createElement("div");
     menu.className = "pl-menu";
+    menu.id = "planner-lift-more-menu";
+    menu.setAttribute("popover", "auto");
     menu.dataset.plMenu = "true";
     menu.hidden = true;
+    menu.addEventListener("toggle",event=>{
+      if((event as ToggleEvent).newState==="closed"){
+        menu.hidden=true;menuButton.setAttribute("aria-expanded","false");
+      }
+    });
     const note = document.createElement("p");
     note.className = "pl-menu-note";
     note.textContent =
@@ -619,6 +641,9 @@ export class MyUclaPlannerController {
     const finalsButton = this.createActionButton("finals", "Final exam week");
     finalsButton.className = "pl-menu-item pl-menu-quiet";
     finalsButton.title = "Every final exam in this plan, drawn as one week";
+    finalsButton.setAttribute("aria-haspopup","dialog");
+    finalsButton.setAttribute("aria-controls",FINALS_PANEL_ID);
+    finalsButton.setAttribute("aria-expanded","false");
     const clearButton = this.createActionButton("clear-all-annotations", "Delete all my notes");
     clearButton.className = "pl-menu-item";
     menu.append(note, finalsButton, limitLink, clearButton);
@@ -1021,7 +1046,6 @@ export class MyUclaPlannerController {
     document.getElementById(TOOLBAR_ID)?.setAttribute("aria-busy", String(busy));
     this.renderSaveState();
     this.renderDraftOffer();
-    this.renderActionBar();
     this.renderTopbar();
   }
 
@@ -1186,6 +1210,9 @@ export class MyUclaPlannerController {
   private renderDraftOffer(): void {
     const host = document.querySelector<HTMLElement>("[data-pl-draft]");
     if (host) host.hidden = this.restorableDraft === null;
+    // Draft loading finishes after the first status render. Its parent must
+    // update too, otherwise a visible recovery offer remains inside a hidden bar.
+    this.renderActionBar();
   }
 
   private clearDirtyState(): void {
@@ -1785,19 +1812,20 @@ export class MyUclaPlannerController {
    * second copy of MyUCLA's weekly grid: that one draws the ten teaching weeks,
    * and nothing on this page draws finals week at all.
    */
-  private toggleFinalsWeek(): void {
-    const open = document.querySelector<HTMLElement>("[data-pl-finals]");
-    if (open) {
-      open.remove();
+  private toggleFinalsWeek(trigger:HTMLElement): void {
+    if (this.finalsPanel) {
+      this.closeFinalsWeek();
       return;
     }
 
     const root = this.adapter.getRoot();
-    if (!root || !root.parentElement) return;
+    const contract=this.adapter.inspectContract();
+    if (!root || !root.parentElement || !contract.ok || !this.isActiveContext()) return;
 
     const entries: FinalsEntry[] = [];
-    this.courses.forEach((course) => {
-      const insight = this.insights.get(course.id) || inspectCourse(course, this.adapter.getTermYear());
+    contract.courses.forEach((course) => {
+      // Read the currently rendered exam line when opened, never a stale cache.
+      const insight = inspectCourse(course, this.adapter.getTermYear());
       if (!insight.finalExam) return;
       // The code a student scans for, when the two paragraphs parse. The full
       // official label otherwise, rather than a guess at a shorter one.
@@ -1809,89 +1837,71 @@ export class MyUclaPlannerController {
       });
     });
 
-    const panel = document.createElement("div");
+    const panel = document.createElement("dialog");
+    panel.id=FINALS_PANEL_ID;
     panel.className = "pl-finals-host";
     panel.dataset.plFinals = "true";
+    panel.setAttribute(OWNED_ATTRIBUTE,"true");
+    panel.setAttribute("aria-labelledby",`${FINALS_PANEL_ID}-title`);
+    panel.setAttribute("aria-modal","false");
 
     const bar = document.createElement("div");
     bar.className = "pl-finals-bar";
     const title = document.createElement("h3");
     title.className = "pl-finals-title";
+    title.id=`${FINALS_PANEL_ID}-title`;
     title.textContent = "Final exam week";
     const close = this.createActionButton("close-finals", "Close");
     close.className = "pl-ghost";
     bar.append(title, close);
 
-    panel.append(bar, buildFinalsWeek(entries));
-    root.parentElement.insertBefore(panel, root);
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const content=document.createElement("div");content.className="pl-finals-content";content.append(buildFinalsWeek(entries));
+    panel.append(bar,content);
+    // Every child is extension-owned. Keep the calendar out of the narrow
+    // master list without moving or changing MyUCLA's own weekly calendar.
+    document.body.append(panel);this.finalsPanel=panel;this.finalsRoot=root;
+    // A native update can replace only an exam text node, leaving the course
+    // table unchanged. Observe that source only while its snapshot is open;
+    // owned disclosure markup must not invalidate the snapshot itself.
+    this.finalsObserver=new MutationObserver(records=>{
+      if(this.finalsPanel!==panel)return;
+      const changed=records.some(record=>{
+        if(this.isExtensionOnlyMutation([record]))return false;
+        const target=record.target instanceof Element?record.target:record.target.parentElement;
+        if(target?.closest(`[${OWNED_ATTRIBUTE}]`))return false;
+        if(target?.closest(".final_exam_info"))return true;
+        return [...record.addedNodes,...record.removedNodes].some(node=>node instanceof Element&&(node.matches(".final_exam_info")||!!node.querySelector(".final_exam_info")));
+      });
+      if(changed)this.closeFinalsWeek(false);
+    });
+    this.finalsObserver.observe(root,{childList:true,characterData:true,subtree:true});
+    this.finalsReturnFocus=trigger.closest("[data-pl-menu]")?document.querySelector<HTMLElement>('[data-pl-action="menu"]'):trigger;
+    panel.addEventListener("cancel",event=>{event.preventDefault();this.closeFinalsWeek();});
+    panel.addEventListener("close",()=>{if(this.finalsPanel===panel)this.closeFinalsWeek();});
+    if(typeof panel.show==="function")panel.show();else panel.open=true;
+    this.syncFinalsControls();close.focus({preventScroll:true});
   }
 
-  /**
-   * A `Final Exams` toggle in MyUCLA's own row of display switches, beside
-   * Study List, Plan and Alternates.
-   *
-   * That row is MyUCLA's markup, so this only exists while the optional layout
-   * switch is on — the rule 0.10.1 settled. It borrows the row's grammar so it
-   * does not read as bolted on, but it is ours and says so: our own id, our own
-   * colour, no `triggerPostback`, and none of MyUCLA's control ids reused. It
-   * sends nothing anywhere; it opens and closes a panel on this page.
-   */
-  private ensureFinalsToggle(): void {
-    const existing = document.getElementById(FINALS_TOGGLE_ID);
-    const menu = document.querySelector<HTMLElement>(".classPlanner_SectionMenu");
-    if (!this.tidyLayout || !menu) {
-      existing?.remove();
-      return;
-    }
-
-    const open = Boolean(document.querySelector("[data-pl-finals]"));
-    if (existing) {
-      this.paintFinalsToggle(existing, open);
-      return;
-    }
-
-    const host = document.createElement("span");
-    host.id = FINALS_TOGGLE_ID;
-    host.className = "pl-native-toggle";
-    host.setAttribute(OWNED_ATTRIBUTE, "true");
-
-    const labelWrap = document.createElement("span");
-    const label = document.createElement("span");
-    label.className = "pl-native-label";
-    label.textContent = "Final Exams";
-    labelWrap.append(" ", label, ":");
-
-    const box = document.createElement("span");
-    box.className = "pl-native-box";
-    const button = this.createActionButton("finals", "");
-    button.className = "link pl-native-check";
-    box.append(button);
-
-    host.append(labelWrap, box);
-    menu.append(host);
-    this.paintFinalsToggle(host, open);
+  private closeFinalsWeek(focus=true):void {
+    const panel=this.finalsPanel,trigger=this.finalsReturnFocus;
+    this.finalsPanel=null;this.finalsRoot=null;this.finalsReturnFocus=null;
+    this.finalsObserver?.disconnect();this.finalsObserver=null;
+    if(panel){if(panel.open&&typeof panel.close==="function")panel.close();panel.remove();}
+    this.syncFinalsControls();
+    if(focus&&trigger?.isConnected)trigger.focus({preventScroll:true});
   }
 
-  private paintFinalsToggle(host: HTMLElement, open: boolean): void {
-    const button = host.querySelector<HTMLButtonElement>(".pl-native-check");
-    if (!button) return;
-    button.textContent = "";
-    // MyUCLA's own tick glyphs, from the icon font this page already loads.
-    button.append(makeIcon(open ? "icon-check" : "icon-check-empty"));
-    button.setAttribute(
-      "aria-label",
-      open
-        ? "checked - final exam week is shown below the plan"
-        : "unchecked - show final exam week below the plan"
-    );
-    button.setAttribute("aria-pressed", String(open));
-    host.classList.toggle("pl-native-on", open);
+  private syncFinalsControls():void {
+    // One entry point; the obsolete native-style checkbox duplicated it and
+    // described a placement that the workspace no longer uses.
+    document.getElementById(FINALS_TOGGLE_ID)?.remove();
+    document.querySelectorAll<HTMLElement>('[data-pl-action="finals"]').forEach(button=>button.setAttribute("aria-expanded",String(!!this.finalsPanel)));
   }
 
   private onClick = (event: MouseEvent): void => {
     const target = event.target;
     if (!(target instanceof Element)) return;
+    if(this.finalsPanel&&!this.finalsPanel.contains(target))this.closeFinalsWeek(false);
     const button = target.closest<HTMLButtonElement>("[data-pl-action]");
     if (!button) {
       this.closeMenu();
@@ -1932,18 +1942,16 @@ export class MyUclaPlannerController {
     if (action === "menu") {
       const menu = document.querySelector<HTMLElement>("[data-pl-menu]");
       if (!menu) return;
-      menu.hidden = !menu.hidden;
-      button.setAttribute("aria-expanded", String(!menu.hidden));
+      if(!menu.hidden)this.closeMenu();
+      else{menu.hidden=false;this.positionMenu();menu.showPopover?.();button.setAttribute("aria-expanded","true");}
       return;
     }
     if (action === "finals") {
-      this.toggleFinalsWeek();
-      this.ensureFinalsToggle();
+      this.toggleFinalsWeek(button);
       return;
     }
     if (action === "close-finals") {
-      document.querySelector("[data-pl-finals]")?.remove();
-      this.ensureFinalsToggle();
+      this.closeFinalsWeek();
       return;
     }
     if (action === "clear-all-annotations") {
@@ -1996,12 +2004,23 @@ export class MyUclaPlannerController {
   private closeMenu(): void {
     const menu = document.querySelector<HTMLElement>("[data-pl-menu]");
     if (menu && !menu.hidden) {
+      if(typeof menu.hidePopover==="function"&&menu.matches(":popover-open"))menu.hidePopover();
       menu.hidden = true;
       document
         .querySelector<HTMLButtonElement>('[data-pl-action="menu"]')
         ?.setAttribute("aria-expanded", "false");
     }
   }
+
+  private positionMenu=():void=>{
+    const menu=document.querySelector<HTMLElement>("[data-pl-menu]"),trigger=document.querySelector<HTMLElement>('[data-pl-action="menu"]');
+    if(!menu||menu.hidden||!trigger)return;
+    const rect=trigger.getBoundingClientRect(),width=Math.min(310,window.innerWidth-24);
+    const below=window.innerHeight-rect.bottom-8,above=rect.top-8,down=below>=Math.min(menu.scrollHeight,200)||below>=above;
+    const height=Math.max(60,(down?below:above)-12),top=down?rect.bottom+6:Math.max(12,rect.top-Math.min(menu.scrollHeight,height)-6);
+    menu.style.setProperty("--pl-menu-left",`${Math.max(12,Math.min(window.innerWidth-width-12,rect.right-width))}px`);
+    menu.style.setProperty("--pl-menu-top",`${top}px`);menu.style.setProperty("--pl-menu-width",`${width}px`);menu.style.setProperty("--pl-menu-height",`${height}px`);
+  };
 
   private closeCourseMenus(except: Element | null = null): void {
     document.querySelectorAll<HTMLDetailsElement>("details[data-pl-course-menu][open]").forEach((menu) => {
@@ -2029,12 +2048,19 @@ export class MyUclaPlannerController {
 
   private onKeyDown = (event: KeyboardEvent): void => {
     if (event.key === "Escape") {
+      if(event.defaultPrevented)return;
+      const target=event.target instanceof Element?event.target:null;
+      const dialog=target?.closest('[role="dialog"],dialog[open],.ui-dialog');
+      if(dialog&&dialog!==this.finalsPanel)return;
+      if(this.finalsPanel){event.preventDefault();this.closeFinalsWeek();return;}
       if (this.drag) {
         const drag = this.drag;
         drag.handle.releasePointerCapture?.(drag.pointerId);
         this.cancelDrag();
         return;
       }
+      const menu=document.querySelector<HTMLElement>("[data-pl-menu]");
+      if(menu&&!menu.hidden){event.preventDefault();this.closeMenu();document.querySelector<HTMLElement>('[data-pl-action="menu"]')?.focus({preventScroll:true});return;}
       this.closeMenu();
       this.closeCourseMenus();
       return;

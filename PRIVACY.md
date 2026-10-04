@@ -62,15 +62,24 @@ Unknown section structures keep the native layout.
 
 Pane folding changes only local presentation. Named pane choices are kept in
 memory for this page session, using public section identifiers; pane widths are also in memory only. They are not
-stored or sent. Primary section-toggle clicks are handled locally only inside
-the validated workspace, and their original handlers return with Original
-layout. Selecting Optimizer explicitly opens its original native disclosure,
-using UCLA's existing button and postback. It is never loaded automatically on
+stored or sent. Primary section-toggle clicks fold an already loaded pane locally
+inside the validated workspace. If UCLA has natively collapsed Calendar, Class
+Plan or Search, explicit expansion forwards its exact original disclosure once;
+mounting never opens it. Their original handlers return with Original
+layout. Selecting Optimizer, Study list or Personal entries may explicitly open
+its known collapsed native disclosure, using UCLA's exact existing button and
+postback. It is never loaded automatically on
 mount, redraw or module restoration; no optimizer calculation or plan-edit
 control is invoked. Header spacing reads element bounds only. UCLA navigation and the term
 chooser keep their original placement. The complete plan action menu is placed
 inside a disclosure; its controls keep their original parent and form, and are
 never copied.
+
+Final exam week is an ephemeral local panel built from the already rendered exam
+lines. Its overflow entry, dismissal and keyboard focus add no stored data or
+network request. Existing native Help popups are positioned inside their module;
+their contents are not copied or stored. The existing draft recovery offer uses
+the same storage and expiry; making its parent bar visible adds no new draft.
 
 - Every action that could change the order MyUCLA has stored asks first, states
   how many steps it will take, and can be stopped part-way.

@@ -1,5 +1,50 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Control audit and native disclosure boundaries (0.17.7)
+
+Final exam week is one extension-owned overflow action. Its nonmodal dialog is
+appended to the body, never inside the plan's native table or calendar. It uses
+only currently rendered exam lines, adds no storage/request, and closes on stale
+course/root replacement or context exit. More uses an owned native popover.
+
+Study list title `#plannerSectionEnip` contains a native link, `#slneTip` help,
+and `#ctl00_MainContent_toggleNotplan`; Personal title `#plannerSectionPer`
+contains `#ctl00_MainContent_helpPersonal` and `#ctl00_MainContent_togglePersonal`.
+Each section has exactly the original title and body (`#panelNotplan` or
+`#panelPersonal`). The original toggle has no type attribute, contains the native
+plus/minus icon and label, and belongs to the same POST `#aspnetForm`.
+The observed closed-state handlers are exactly:
+
+```
+shrink('panelNotplan'); __doPostBack('ctl00$MainContent$toggleNotplan','')
+shrink('panelPersonal'); __doPostBack('ctl00$MainContent$togglePersonal','')
+```
+
+Only explicit module navigation may forward the validated original expand
+button. Do not infer a handler from label text, expand unknown structures, or
+invoke it during mount/redraw. Native closed state, disabled state, same form,
+exact IDs, structure and handler must all match. Pending requests are deduplicated.
+
+The same explicit-only rule applies when native Calendar/Class Plan/Search was
+collapsed before workspace mount. `#ctl00_MainContent_toggleGrid` calls
+`shrink('gridDiv'); __doPostBack('ctl00$MainContent$toggleGrid','')`;
+the Plan/Search counterparts target `panelPlan`/`panelSearch` and
+`togglePlan`/`toggleSearch`. Preserve the nested grid's native closed state and
+Grid/Agenda choices. Owned expansion forwards only the validated closed heading,
+with pending feedback, rather than forcing hidden content visible. Unknown
+primary contracts restore native presentation. Ordinary local folds stay local.
+
+Native Help creates a direct-title `.popover.clickover.fade.bottom.in` whose
+376px width/negative left placement was clipped by the workspace. Scoped CSS
+bounds that same node inside the module; original visibility and handlers win.
+Section rows and headings must retain native inline `display:none`, `hidden`
+and `.hidden` states, including printing. Never use a grid override to revive them.
+
+The 0.17.5 Optimizer opening observation is historical, not a backend guarantee:
+the 0.17.7 audit of installed 0.17.6 saw the native heading remain collapsed in
+both workspace and Original layout. Keep this live result explicit until a fresh
+loaded build verifies otherwise. See `CONTROL_AUDIT.md` for the coverage boundary.
+
 ## Plan Actions and always-visible section metadata (0.17.6)
 
 This supersedes earlier room/instructor disclosures: those original fields and

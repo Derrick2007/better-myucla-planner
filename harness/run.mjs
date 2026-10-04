@@ -223,21 +223,21 @@ if (scenario === "drag") {
 }
 
 if (scenario === "tidy") {
-  // The switch only exists with the layout switch on, and it is ours: it opens
-  // a panel on this page and sends nothing.
+  // Finals has one owned entry in More and sends nothing.
   const before = await page.evaluate(() => ({
     requests: 0,
     panel: Boolean(document.querySelector("[data-pl-finals]"))
   }));
   let posted = 0;
   page.on("request", () => (posted += 1));
-  await page.click("#planner-lift-finals-toggle button");
+  await page.click('[data-pl-action="menu"]');
+  await page.click('[data-pl-action="finals"]');
   await page.waitForTimeout(600);
   console.log({
     before,
     afterClick: await page.evaluate(() => ({
       panel: Boolean(document.querySelector("[data-pl-finals]")),
-      checked: document.querySelector("#planner-lift-finals-toggle .icon-check") ? "on" : "off",
+      expanded: document.querySelector('[data-pl-action="finals"]')?.getAttribute('aria-expanded'),
       exams: document.querySelectorAll(".pl-finals-block").length
     })),
     requestsMade: posted
