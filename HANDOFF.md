@@ -45,6 +45,9 @@ Content JS SHA-256: dced188324b3c0900345d31814a719e3f88e0680203d3e96d4a79a85f4dc
 CSS SHA-256: 0c18e8ed88a54fb5dcdbf01a039bd4e9fa2a30017a46bc5f79e1db6fcb557743.
 Fictional proof: outputs/multi-details-review-v0.17.11/multi-open-2048.png.
 Awaiting requested extension reload/page refresh for installed live verification.
+Code e36c4d7 is pushed to fork/planner-redesign. CI 37176107650 and Release
+37176109011 passed. v0.17.11 is a prerelease; the workflow asset was replaced
+with the exact installed Windows ZIP and GitHub's digest matches above.
 
 Live backend enrollment remains unverified; do not equate fixture success with
 an actual enrollment. The prior native Optimizer limitation also remains.
