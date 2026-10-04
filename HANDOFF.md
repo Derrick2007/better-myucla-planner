@@ -2,8 +2,17 @@
 
 Last updated: 2026-10-03
 
-Current development version: `0.18.1`, branch `flexible-panels`.
-Published prerelease remains `0.17.11`; no release/tag is made for this iteration.
+Current release version: `0.18.1`, branch `flexible-panels`.
+The user explicitly requested a downloadable GitHub release after the branch
+push. Package v0.18.1 as a prerelease; keep v0.17.11 available for rollback.
+
+Release ZIP: outputs/release-v0.18.1/better-myucla-v0.18.1.zip, containing all
+17 verified dist files. Its SHA-256 is
+0640d8f972594c555aabd69b8c7fca0e009cbc771039a0478d85e22ecdba2131.
+Only manifest.version_name changed from development to prerelease; runtime
+JavaScript and CSS exactly match the hashes and checks below. The installed
+manifest label was updated too. The prior installation record describes the
+development-label manifest, while this release ZIP contains the prerelease label.
 
 ## Close panels and live dragging (0.18.1)
 

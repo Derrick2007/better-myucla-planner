@@ -53,9 +53,9 @@ extension never constructs a network request of its own.
 
 ## What you control
 
-The development floating-panel layout keeps public module identifiers, panel
-coordinates, hidden-panel flags and navigation visibility in page memory only. It adds no storage,
-permission, network request or external window. Moving panels changes their
+The floating-panel layout in v0.18.1 keeps public module identifiers, panel
+coordinates, hidden-panel flags and navigation visibility in page memory only.
+It adds no storage, permission, network request or external window. Moving panels changes their
 presentation within the same native form. Explicitly opening a collapsed module
 uses the same validated native disclosure as the existing navigation; restoring
 or resizing the layout does not open a module or replay its actions.

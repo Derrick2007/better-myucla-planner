@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.18.1 — in development (close panels and live dragging; no release published)
+## 0.18.1 — 2026-10-03 (flexible-panels prerelease)
+
+Includes the flexible-panel changes developed in 0.18.0, plus close controls
+and live dragging. This is the first published release of those panel changes.
 
 - Close any panel with its header ×; reopen it from navigation. Schedule now
   has a navigation entry. A course's Details button reopens the details group.
@@ -9,9 +12,12 @@
   Escape cancels the gesture and restores its original position and stacking.
 - Preserve hidden panels across same-plan redraws and reveal them with Reset
   layout. Keep hidden content out of keyboard/pointer interaction; return focus
-  to a visible control when closing. No new storage, permissions or release.
+  to a visible control when closing. No new storage or permissions.
+- Typecheck, 375 unit tests, the production build and fictional browser fixtures
+  pass. Installed-page verification after reload is pending; actual enrollment
+  completion and the native Optimizer backend response remain unverified.
 
-## 0.18.0 — in development (flexible panels; no release published)
+## 0.18.0 — unreleased development baseline (included in 0.18.1)
 
 - Drag panel grips or navigation tabs to dock at an edge or float inside the
   existing Class Planner tab. Multiple floating panels can remain open together.

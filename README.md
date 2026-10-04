@@ -8,25 +8,26 @@
 
 An unofficial Chrome extension that rearranges the existing MyUCLA Class Planner.
 
-[Download v0.17.11](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11) ·
-[Source](https://github.com/comet-ctrl/better-myucla-planner/tree/main) ·
+[Download v0.18.1](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.18.1) ·
+[Source](https://github.com/comet-ctrl/better-myucla-planner/tree/v0.18.1) ·
 [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md)
 
 </div>
 
 <img src="docs/images/multiple-details-v0.17.11.png" width="100%" alt="Fictional example: multiple course details open beside the class list and weekly schedule in v0.17.11.">
 
-*Fictional courses shown. The extension works inside Class Planner; no separate
-planner website or account is required.*
+*Fictional courses shown in the v0.17.11 layout, before draggable and floating
+panels. The extension works inside Class Planner; no separate planner website
+or account is required.*
 
-**Current release: v0.17.11, redesign prerelease.** The redesigned layout is
+**Current release: v0.18.1, flexible-panels prerelease.** The redesigned layout is
 opt-in, and the extension is not yet on the Chrome Web Store. This fork builds
 on [Astro-wen/better-myucla-planner](https://github.com/Astro-wen/better-myucla-planner).
 It is not made by, endorsed by, or affiliated with UCLA.
 
 ## Install or update
 
-**In development on `flexible-panels`:** v0.18.1 adds draggable panel grips and
+**New in v0.18.1:** draggable panel grips and
 navigation tabs. Drag to an edge target to dock, or drop elsewhere to float a
 panel inside Class Planner. Resize floating panels from their lower-right
 corner, and resize docked regions with their dividers. Double-click a grip to
@@ -38,10 +39,9 @@ the calendar from navigation, or reopen the details panel from any course's
 **Details** button. Hidden panels retain their controls and selections; hiding
 the details panel retains its expanded courses. **Reset layout** reveals panels.
 Layout choices live in page memory; they survive same-plan partial redraws,
-but are reset on a reload or a new plan/term. This development build has no
-GitHub release; the download below remains the tested v0.17.11 prerelease.
+but are reset on a reload or a new plan/term.
 
-1. Download `better-myucla-v0.17.11.zip` from the [release](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11).
+1. Download `better-myucla-v0.18.1.zip` from the [prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.18.1).
 2. Extract it into a folder you will keep. The ZIP contains a `dist` folder.
 3. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**,
    and select that `dist` folder.
@@ -59,10 +59,10 @@ v0.16.0 is the pre-redesign rollback point.
 
 ## Using the workspace
 
-Named navigation sits on the left, the active module in the center, and UCLA's
-original weekly calendar on the right. Long lists and details scroll within
-their own areas. UCLA's masthead and top navigation remain intact and can scroll
-away normally.
+By default, named navigation sits on the left, the active module in the center,
+and UCLA's original weekly calendar on the right. Drag, dock, float or hide
+panels to arrange the workspace. Long lists and details scroll within their own
+areas. UCLA's masthead and top navigation remain intact and can scroll away normally.
 
 | Area | What you can do |
 | --- | --- |
@@ -155,15 +155,17 @@ or bypass sign-in. See [PRIVACY.md](PRIVACY.md) for the complete boundaries.
 
 ## Verification and known limitations
 
-For v0.17.11, typecheck, **324 unit tests**, the production build and GitHub CI
-passed. Browser fixtures cover workspace layouts at nine widths, Details at six
-widths, native action responses at four widths across four redraw modes,
-keyboard and touch access, Plan Actions, printing, restoration and the matching
-fictional preview. Tests intercept requests and use invented course data.
+For v0.18.1, typecheck, **375 unit tests** and the production build passed.
+Production browser fixtures cover panel closing/reopening, live dragging,
+cancellation, docking/resizing and independent Details at 2048, 1440 and 390px.
+Broader workspace checks cover nine widths; native Details actions, Plan Actions
+and module controls pass at four viewports each. Redraws, selection retention,
+reset, printing, restoration and the matching fictional preview are also checked.
+Tests intercept requests and use invented course data.
 
 - The missing-response regression was reproduced on v0.17.10 and corrected in
   the fictional native-action tests. **Actual enrollment completion has not been
-  tested**, and installed v0.17.11 still awaits live verification after reload.
+  tested**, and installed v0.18.1 still awaits live verification after reload.
 - The native Optimizer has previously remained collapsed in both the redesigned
   and original layouts during a live check. Its backend response remains an
   unresolved limitation; fixture success does not establish that it works live.
@@ -196,6 +198,7 @@ or an installed Chromium executable specified by `BETTER_MYUCLA_CHROMIUM`.
 | Command | Coverage |
 | --- | --- |
 | `node harness/verify-workspace.mjs` | Responsive workspace, modules, resizing, native identity, redraws, printing, restoration and drag behavior. |
+| `npm run test:panel-layout` | Panel dragging, docking, floating, resizing, close/reopen, cancellation and retained native controls. |
 | `npm run test:details` | Native section layout, metadata, controls and hidden states. |
 | `npm run test:course-detail-actions` | Multiple Details, native response visibility/focus after redraw, touch scrolling and context changes. |
 | `npm run test:search-layout` / `npm run test:result-layout` | Native search fields and loaded course results. |
@@ -213,16 +216,18 @@ After `npm run build`, run `npm run preview:build` and open
 presentation modules as the extension. The generator checks shared source against
 the production source map and records the build hashes.
 
-Searches in this preview use three local sample courses. Account actions,
-saving, notes, drag and session features are unavailable, and secondary modules
-are approximations. The preview cannot read or change a MyUCLA account.
+Searches in this preview use three local sample courses. Panel layout controls
+are interactive. Account actions, saving, notes, course reordering and session
+features are unavailable, and secondary modules are approximations. The preview
+cannot read or change a MyUCLA account.
 `public/demo.html` is a separate reordering fixture and does not represent the
 current workspace.
 
-The current source is on **`main`** in this fork. The GitHub Pages workflow
-publishes `site/` when its files change on `main`. The hosted preview uses
-fictional data; install the extension from the versioned release above to use
-the workspace inside MyUCLA Class Planner.
+The v0.18.1 source is tagged **`v0.18.1`** on **`flexible-panels`** in this fork.
+The GitHub Pages workflow publishes `site/` when its files change on `main`, so
+the hosted preview may lag this branch. Preview content is fictional; install
+the extension from the versioned release above to use the workspace inside
+MyUCLA Class Planner.
 
 ## Project documentation
 

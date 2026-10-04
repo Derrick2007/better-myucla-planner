@@ -1,6 +1,6 @@
 # MyUCLA Class Planner 脱敏页面合约
 
-## Flexible panels (0.18.1 development)
+## Flexible panels (0.18.1 prerelease)
 
 Owned grips and navigation buttons arrange the existing native sections by
 CSS coordinates only. Sections remain under their current workspace parents;
