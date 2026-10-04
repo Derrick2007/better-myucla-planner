@@ -379,6 +379,30 @@ describe("MyUclaPlannerController UI", () => {
     expect(document.querySelectorAll("[data-planner-lift-owned]")).toHaveLength(0);
   });
 
+  it("drops open details when the plan or term changes despite matching course IDs", async () => {
+    renderWorkspace(introductionFixtureHtml()); await enableTidy();
+    controller = new MyUclaPlannerController(new MyUclaPlannerAdapter());
+    await controller.start(); await settle();
+    const open = () => document.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();
+    const redrawCourses = () => {
+      const next = new DOMParser().parseFromString(introductionFixtureHtml(), 'text/html');
+      document.querySelector('#panelPlan #div_landing > table')!.replaceWith(
+        document.importNode(next.querySelector('#panelPlan #div_landing > table')!, true));
+    };
+    open(); expect(document.querySelectorAll('.pl-preview-docked')).toHaveLength(1);
+    document.querySelector<HTMLInputElement>('#ctl00_MainContent_planIDField')!.value = '7654321';
+    redrawCourses();
+    await settle(); await settle();
+    expect(document.querySelectorAll('.pl-preview-docked')).toHaveLength(0);
+    open(); expect(document.querySelectorAll('.pl-preview-docked')).toHaveLength(1);
+    const term = document.querySelector<HTMLSelectElement>('#ctl00_MainContent_termSessionChooser_TermChooser')!;
+    term.add(new Option('Winter', '27W')); term.value = '27W';
+    redrawCourses();
+    await settle(); await settle();
+    expect(document.querySelectorAll('.pl-preview-docked')).toHaveLength(0);
+    expect(document.querySelectorAll('[data-pl-workspace-details]')).not.toHaveLength(0);
+  });
+
   it("loads notes and view preferences for the new plan without carrying an unsaved order", async () => {
     const firstKey = "myucla-26F-plan-1234567", nextKey = "myucla-26F-plan-7654321";
     const courseId = `myucla-class-${ids[0]}`;

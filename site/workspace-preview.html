@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.17.10 fictional preview</title>
+<title>Better MyUCLA · v0.17.11 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -84,7 +84,7 @@
   #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.10"><meta name="planner-source-revision" content="432378fc2e3179cc6cf2b39f2622ddecad78e8ce"><meta name="planner-production-css-sha256" content="f96abc28bf1bb86a813c962f250add72c74c944a33d760f164d554ea67d28481"><meta name="planner-production-content-sha256" content="4e6bd3d4eee178c427a79bc92bf4df803cca0df96769231806846b3be86544fa"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.11"><meta name="planner-source-revision" content="7b4bffda5ee56de92549e107f9c4a9a6b34550fc"><meta name="planner-production-css-sha256" content="0c18e8ed88a54fb5dcdbf01a039bd4e9fa2a30017a46bc5f79e1db6fcb557743"><meta name="planner-production-content-sha256" content="dced188324b3c0900345d31814a719e3f88e0680203d3e96d4a79a85f4dc8bf4"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -1644,7 +1644,9 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan > .classPlanner_SectionTitle { grid-column: 1 / -1; grid-row: 1; }
 .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; overflow: auto; border-right: 1px solid #e1e7ee; }
 .pl-workspace-details-slot { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; color: #68798b; text-align: center; font-size: 14px; }
-.pl-has-docked-details > .pl-workspace-details-slot { color: transparent; }
+.pl-has-docked-details > .pl-workspace-details-slot { display: block; overflow: auto; overscroll-behavior: contain; padding: 0; color: transparent; scrollbar-gutter: stable; }
+.pl-workspace-detail-space { width: 100%; pointer-events: none; }
+.pl-workspace-details-slot:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
 @media screen {
   /* An empty plan has no master/detail split. Keep UCLA's own empty message. */
   .pl-workspace-empty-plan .pl-workspace-main > .pl-workspace-plan.pl-module-active { grid-template-columns: minmax(0,1fr); }
@@ -1920,7 +1922,8 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) {
   display: block !important; position: fixed; z-index: 108; left: var(--pl-detail-left); top: var(--pl-detail-top);
   width: var(--pl-detail-width); height: var(--pl-detail-height); max-height: none;
-  margin: 0; padding: 20px; box-sizing: border-box; overflow: auto; overscroll-behavior: contain; background: #fff; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  clip-path: inset(var(--pl-detail-clip-top,0px) 0 var(--pl-detail-clip-bottom,0px) 0);
+  margin: 0; padding: 20px; box-sizing: border-box; overflow: visible; background: #fff; border-bottom: 1px solid #dce4ee; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 .pl-workspace-plan table.coursetable, .pl-workspace-plan table.coursetable .pl-section-field { font-family: inherit; }
 .pl-workspace-plan tbody.pl-workspace-preview-card > tr:nth-child(3) > td { display: block; padding: 0 !important; border: 0 !important; border-radius: 0; width: 100%; box-sizing: border-box; }
@@ -2006,7 +2009,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; border-right: 0; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-details-slot { display: none; }
 .pl-workspace-main[data-pl-main-size="narrow"] > .pl-workspace-plan.pl-module-active.pl-has-docked-details { grid-template-rows: auto minmax(120px,180px) minmax(200px,1fr); }
-.pl-workspace-main[data-pl-main-size="narrow"] .pl-has-docked-details > .pl-workspace-details-slot { display: flex; grid-column: 1; grid-row: 3; border-top: 1px solid #e1e7ee; }
+.pl-workspace-main[data-pl-main-size="narrow"] .pl-has-docked-details > .pl-workspace-details-slot { display: block; grid-column: 1; grid-row: 3; border-top: 1px solid #e1e7ee; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-bar { flex-basis: 100%; width: 100%; margin: 0; order: 2; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-pane-toggle { order: 1; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { padding: 14px; }
@@ -2108,13 +2111,13 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-plan #panelPlan { max-height: none; overflow: visible; }
   .pl-workspace-plan tbody.courseItem, .pl-workspace-plan tbody.courseItem > tr:first-child { display: table-row-group; }
   .pl-workspace-plan tbody.courseItem > tr:nth-child(2), .pl-workspace-plan tbody.courseItem > tr:nth-child(3), .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-workspace-preview-card > tr:nth-child(3) { display: table-row; position: static; width: auto; max-height: none; overflow: visible; }
-  .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { display: table-row !important; position: static; left: auto; top: auto; width: auto; height: auto; padding: 0; overflow: visible; }
+  .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { display: table-row !important; position: static; left: auto; top: auto; width: auto; height: auto; padding: 0; overflow: visible; clip-path: none; border: 0; }
   .pl-browser-list > .pl-browser-course, .pl-browser-course > .class-title { display: block !important; }
   .pl-browser-body:not(.pl-browser-body-active) { display: block !important; }
   .pl-browser-list { max-height: none; }
   .pl-browser-result-actions { position: static; }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.17.10","cssSha256":"f96abc28bf1bb86a813c962f250add72c74c944a33d760f164d554ea67d28481","contentSha256":"4e6bd3d4eee178c427a79bc92bf4df803cca0df96769231806846b3be86544fa","sourceRevision":"432378fc2e3179cc6cf2b39f2622ddecad78e8ce"}</script><style>
+</style><script id="preview-build-meta" type="application/json">{"version":"0.17.11","cssSha256":"0c18e8ed88a54fb5dcdbf01a039bd4e9fa2a30017a46bc5f79e1db6fcb557743","contentSha256":"dced188324b3c0900345d31814a719e3f88e0680203d3e96d4a79a85f4dc8bf4","sourceRevision":"7b4bffda5ee56de92549e107f9c4a9a6b34550fc"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -2132,7 +2135,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.10</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.11</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">
@@ -3318,10 +3321,8 @@ section#layoutContentArea.pl-planner-introduction {
   var PlannerWorkspace = class {
     state = null;
     selected = null;
-    selectedTable = null;
-    selectedHadStyle = false;
-    detailCards = null;
-    returnFocus = null;
+    openDetails = /* @__PURE__ */ new Map();
+    positioningDetails = false;
     actionControls = /* @__PURE__ */ new Map();
     actionsHost = null;
     pendingModuleOpen = null;
@@ -3357,13 +3358,17 @@ section#layoutContentArea.pl-planner-introduction {
       if (this.useOriginal) return !!this.returnButton && !this.returnButton.isConnected;
       if (this.introductionOnly) return !this.introductionOnly.toolbar.isConnected || this.introduction.needsRefresh(doc);
       const s = this.state;
-      return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || this.currentPlanMenu(s) !== s.menu || hasUnknownSection(s.panel) || !this.latestCourses.length && !isKnownEmptyPlanner(doc) || s.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) || !!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh()) || this.latestCourses.some((c) => {
+      return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || this.currentPlanMenu(s) !== s.menu || hasUnknownSection(s.panel) || !this.latestCourses.length && !isKnownEmptyPlanner(doc) || s.panes.some((p) => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) || [...this.openDetails.values()].some((detail) => !detail.card.isConnected || detail.card.querySelector("table.coursetable") !== detail.table || detail.cards.needsRefresh()) || this.latestCourses.some((c) => {
         const host = c.node.querySelector(":scope > tr:first-child > td.linkPanelRight"), actions = host && this.actionControls.get(host);
         return !hasKnownDetails(c.node) || !host || !actions || actions.button.parentElement !== host || actions.nativeTools !== host.querySelector(".OrderingButtons") || actions.ownedTools !== host.querySelector(":scope > [data-pl-real-tools]") || this.summaryChanged(c.node);
       }) || this.browser.needsReconcile(doc) || this.introduction.needsRefresh(doc));
     }
     reconcile(doc, courses2) {
       if (this.introductionOnly) this.restore();
+      const expanded = [...this.openDetails.values()].map((detail) => ({ id: this.latestCourses.find((course) => course.node === detail.card)?.id, examOpen: detail.preview.querySelector("details")?.open || false }));
+      const detailScroll = this.state?.slot.scrollTop || 0, activeModule = this.module;
+      const active = doc.activeElement;
+      const nativeFocus = active instanceof HTMLElement && active.matches("input,select,textarea,button,a,[tabindex]") && !active.closest(`[${OWNED5}]`) && courses2.some((course) => course.node.contains(active)) ? active : null;
       this.latestCourses = courses2;
       if (this.useOriginal) {
         this.ensureReturnButton(doc);
@@ -3394,7 +3399,7 @@ section#layoutContentArea.pl-planner-introduction {
         if (view) redrawScroll = { left: view.scrollX, top: view.scrollY };
         this.restore();
       }
-      if (this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) this.closePreview(false);
+      for (const detail of this.openDetails.values()) if (!courses2.some((course) => course.node === detail.card) || detail.card.querySelector("table.coursetable") !== detail.table || detail.cards.needsRefresh()) this.closeDetail(detail, false);
       if (!this.state && !this.useOriginal) this.mount(doc);
       if (!this.state) return;
       this.state.host.classList.toggle("pl-workspace-empty-plan", courses2.length === 0);
@@ -3431,7 +3436,24 @@ section#layoutContentArea.pl-planner-introduction {
         summary.node.remove();
         this.summaries.delete(card);
       }
+      for (const saved of expanded) {
+        const course = courses2.find((course2) => course2.id === saved.id);
+        if (course && !this.openDetails.has(course.node)) {
+          this.openPreview(course, course.node.querySelector("[data-pl-workspace-details]"), false);
+          const disclosure = this.openDetails.get(course.node)?.preview.querySelector("details");
+          if (disclosure) disclosure.open = saved.examOpen;
+        }
+      }
+      if (expanded.length) {
+        const ordered = expanded.map((saved) => courses2.find((course) => course.id === saved.id)).map((course) => course && this.openDetails.get(course.node)).filter((detail) => !!detail);
+        for (const detail of this.openDetails.values()) if (!ordered.includes(detail)) ordered.push(detail);
+        this.openDetails = new Map(ordered.map((detail) => [detail.card, detail]));
+        for (const detail of ordered) this.state.slot.append(detail.spacer);
+      }
+      this.module = activeModule;
+      this.state.slot.scrollTop = detailScroll;
       this.state.resize();
+      if (nativeFocus?.isConnected && doc.activeElement !== nativeFocus) nativeFocus.focus({ preventScroll: true });
       if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
         view.scrollTo({ ...redrawScroll, behavior: "instant" });
         this.state.resize();
@@ -3459,7 +3481,6 @@ section#layoutContentArea.pl-planner-introduction {
           return;
         }
         this.introduction.closeInfo(false);
-        this.closePreview(false);
         this.closeActions(false);
         if (this.state) this.state.extras.open = false;
         this.actionsHost = host;
@@ -3775,9 +3796,17 @@ section#layoutContentArea.pl-planner-introduction {
       close.className = "pl-workspace-preview-close";
       close.textContent = "\xD7";
       close.setAttribute("aria-label", "Close details");
-      close.addEventListener("click", () => this.closePreview());
+      close.addEventListener("click", () => {
+        const detail = [...this.openDetails.values()].find((detail2) => detail2.preview === preview);
+        if (detail) this.closeDetail(detail);
+      });
       preview.append(close, head, content);
       slot.append(preview);
+      slot.setAttribute("role", "region");
+      slot.setAttribute("aria-label", "Open class details");
+      slot.tabIndex = 0;
+      const detailsScroll = () => this.positionPreview();
+      slot.addEventListener("scroll", detailsScroll, { passive: true });
       const resize = () => {
         this.introduction.positionHeader();
         this.positionWorkspace();
@@ -3812,7 +3841,8 @@ section#layoutContentArea.pl-planner-introduction {
           mobileSchedule.focus({ preventScroll: true });
           event.preventDefault();
         } else if (this.selected && this.module === "classes") {
-          this.closePreview();
+          const detail = [...this.openDetails.values()].find((detail2) => target instanceof Node && detail2.card.contains(target)) || this.openDetails.get(this.selected);
+          if (detail) this.closeDetail(detail);
           event.preventDefault();
         }
       };
@@ -3846,7 +3876,7 @@ section#layoutContentArea.pl-planner-introduction {
         this.syncPlanSurfaces();
         if (!this.activePlanSurface && target && !extras.contains(target) && !target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog')) extras.open = false;
       };
-      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter], empty, widenSchedule, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, move, end, beforePrint, afterPrint, actionObserver, actionClick };
+      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter], empty, widenSchedule, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, detailsScroll, move, end, beforePrint, afterPrint, actionObserver, actionClick };
       actionObserver.observe(host, { childList: true });
       doc.addEventListener("click", actionClick);
       this.syncPlanSurfaces();
@@ -4245,46 +4275,148 @@ section#layoutContentArea.pl-planner-introduction {
       host.append(summary);
       this.summaries.set(course.node, { node: summary, table, signature });
     }
-    openPreview(course, trigger) {
+    openPreview(course, trigger, focus = true) {
       const s = this.state;
       if (!s || !s.deck.contains(course.node)) return;
-      if (this.selected === course.node) {
-        this.closePreview();
+      const existing = this.openDetails.get(course.node);
+      if (existing) {
+        this.closeDetail(existing);
         return;
       }
-      this.introduction.closeInfo(false);
-      this.closeActions(false);
-      this.closePreview(false);
-      s.extras.open = false;
-      this.module = "classes";
-      this.showSchedule = false;
+      if (focus) {
+        this.introduction.closeInfo(false);
+        this.closeActions(false);
+        s.extras.open = false;
+        this.module = "classes";
+        this.showSchedule = false;
+      }
       const pane = s.panes[0];
       pane.collapsed = false;
       this.paneChoices.set(pane.title.id, false);
       this.updatePanes();
+      const table = course.node.querySelector("table.coursetable"), row = course.node.children[2], destination = row?.firstElementChild;
+      if (!table || !destination) return;
+      let preview = s.preview, head = s.head, close = s.close;
+      if (!preview.hidden) {
+        preview = s.doc.createElement("aside");
+        preview.className = "pl-workspace-preview";
+        preview.setAttribute(OWNED5, "true");
+        preview.setAttribute("role", "region");
+        head = s.doc.createElement("div");
+        head.className = "pl-workspace-preview-head";
+        close = s.doc.createElement("button");
+        close.type = "button";
+        close.className = "pl-workspace-preview-close";
+        close.textContent = "\xD7";
+        close.setAttribute("aria-label", "Close details");
+        close.addEventListener("click", () => {
+          const detail2 = this.openDetails.get(course.node);
+          if (detail2) this.closeDetail(detail2);
+        });
+        preview.append(close, head);
+      }
+      preview.setAttribute("aria-label", `Details for ${course.label}`);
+      const spacer = s.doc.createElement("div");
+      spacer.className = "pl-workspace-detail-space";
+      spacer.setAttribute(OWNED5, "true");
+      spacer.setAttribute("aria-hidden", "true");
+      s.slot.append(spacer);
+      const cards = new SectionCards();
+      cards.table(table);
+      const nestedCanScroll = (origin, delta) => {
+        for (let target = origin instanceof Element ? origin : null; target && target !== row; target = target.parentElement) {
+          if (target instanceof HTMLElement && /^(auto|scroll)$/.test(s.doc.defaultView?.getComputedStyle(target).overflowY || "") && target.scrollHeight > target.clientHeight && (delta < 0 && target.scrollTop > 0 || delta > 0 && target.scrollTop + target.clientHeight < target.scrollHeight)) return true;
+        }
+        return false;
+      };
+      const wheel = (event) => {
+        if (event.ctrlKey || event.defaultPrevented || this.module !== "classes" || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+        if (nestedCanScroll(event.target, event.deltaY)) return;
+        const factor = event.deltaMode === 1 ? 20 : event.deltaMode === 2 ? s.slot.clientHeight : 1;
+        if (s.slot.scrollHeight > s.slot.clientHeight) {
+          event.preventDefault();
+          s.slot.scrollTop += event.deltaY * factor;
+          this.positionPreview();
+        }
+      };
+      let touch = null;
+      const touchStart = (event) => {
+        touch = null;
+        if (event.touches.length !== 1 || event.defaultPrevented || event.target instanceof Element && event.target.closest("input,select,textarea,[contenteditable=true]")) return;
+        const point = event.touches[0];
+        touch = { id: point.identifier, x: point.clientX, y: point.clientY, lastY: point.clientY, target: event.target };
+      };
+      const touchMove = (event) => {
+        if (event.touches.length !== 1) {
+          touch = null;
+          return;
+        }
+        if (!touch || event.defaultPrevented || this.module !== "classes") return;
+        const point = [...event.touches].find((point2) => point2.identifier === touch.id);
+        if (!point) return;
+        const delta = touch.lastY - point.clientY, travel = touch.y - point.clientY;
+        touch.lastY = point.clientY;
+        if (Math.abs(travel) < 8 || Math.abs(travel) < Math.abs(touch.x - point.clientX) || nestedCanScroll(touch.target, delta)) return;
+        if (event.cancelable && s.slot.scrollHeight > s.slot.clientHeight) {
+          event.preventDefault();
+          s.slot.scrollTop += delta;
+          this.positionPreview();
+        }
+      };
+      const touchEnd = () => {
+        touch = null;
+      };
+      const onFocus = (event) => {
+        this.selected = course.node;
+        if (event.target instanceof HTMLElement) this.revealDetailTarget(event.target);
+      };
+      const key = (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        if (event.defaultPrevented || target?.closest("input,select,textarea,[contenteditable=true]")) return;
+        if (!["PageDown", "PageUp", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        s.slot.scrollTop = event.key === "Home" ? 0 : event.key === "End" ? s.slot.scrollHeight : s.slot.scrollTop + (event.key === "PageDown" ? 1 : -1) * s.slot.clientHeight * 0.85;
+        this.positionPreview();
+      };
+      const detail = { card: course.node, table, row, destination, preview, close, spacer, trigger, cards, hadStyle: course.node.hasAttribute("style"), observer: null, wheel, focus: onFocus, key, touchStart, touchMove, touchEnd };
+      this.openDetails.set(course.node, detail);
       this.selected = course.node;
-      this.selectedHadStyle = course.node.hasAttribute("style");
-      this.returnFocus = trigger;
       trigger?.setAttribute("aria-expanded", "true");
-      this.selectedTable = course.node.querySelector("table.coursetable");
-      this.detailCards = new SectionCards();
-      if (this.selectedTable) this.detailCards.table(this.selectedTable);
       const title = s.doc.createElement("h2");
       title.textContent = course.label.replace(/^Class\s+\d+:\s*/, "");
-      s.head.replaceChildren(title);
+      head.replaceChildren(title);
       const exam = course.node.querySelector(":scope > tr:nth-child(2) .final_exam_info");
       if (exam) {
         const disclosure = s.doc.createElement("details"), summary = s.doc.createElement("summary"), line = s.doc.createElement("p");
         summary.textContent = "Final exam";
         line.textContent = officialText(exam);
         disclosure.append(summary, line);
-        s.head.append(disclosure);
+        head.append(disclosure);
         disclosure.addEventListener("toggle", () => this.positionPreview());
       }
-      course.node.classList.add("pl-workspace-preview-card");
-      s.preview.hidden = false;
+      course.node.classList.add("pl-workspace-preview-card", "pl-preview-docked");
+      preview.hidden = false;
+      destination.prepend(preview);
+      row.addEventListener("wheel", wheel, { passive: false });
+      row.addEventListener("focusin", onFocus);
+      row.addEventListener("keydown", key);
+      row.addEventListener("touchstart", touchStart, { passive: true });
+      row.addEventListener("touchmove", touchMove, { passive: false });
+      row.addEventListener("touchend", touchEnd);
+      row.addEventListener("touchcancel", touchEnd);
+      if (typeof ResizeObserver !== "undefined") {
+        detail.observer = new ResizeObserver(() => this.positionPreview());
+        detail.observer.observe(destination);
+      }
       this.updatePanes();
-      s.close.focus({ preventScroll: true });
+      if (focus) {
+        const bounds = s.slot.getBoundingClientRect();
+        if (bounds.height) {
+          s.slot.scrollTop = Math.max(0, s.slot.scrollTop + row.getBoundingClientRect().top - bounds.top);
+          this.positionPreview();
+        }
+        close.focus({ preventScroll: true });
+      }
     }
     revealInPlan(target, start, end) {
       const s = this.state, view = s?.doc.defaultView;
@@ -4304,34 +4436,69 @@ section#layoutContentArea.pl-planner-introduction {
     }
     positionPreview() {
       const s = this.state;
-      if (!s || !this.selected || s.preview.hidden) return;
-      this.selected.classList.add("pl-preview-docked");
-      this.selected.classList.remove("pl-preview-inline");
-      const destination = this.selected.children[2]?.firstElementChild;
-      if (destination && s.preview.parentElement !== destination) destination.prepend(s.preview);
-      const box = s.slot.getBoundingClientRect();
-      for (const [key, value] of [["left", box.left], ["top", box.top], ["width", box.width], ["height", box.height]]) this.selected.style.setProperty(`--pl-detail-${key}`, `${Math.max(0, value)}px`);
+      if (!s || !this.openDetails.size || this.positioningDetails) return;
+      this.positioningDetails = true;
+      try {
+        const box = s.slot.getBoundingClientRect(), width = s.slot.clientWidth || box.width;
+        if (!box.width || !box.height) return;
+        let offset = 0;
+        for (const detail of this.openDetails.values()) {
+          detail.card.style.setProperty("--pl-detail-width", `${Math.max(0, width)}px`);
+          const style = s.doc.defaultView?.getComputedStyle(detail.row), padding = (parseFloat(style?.paddingTop || "0") || 0) + (parseFloat(style?.paddingBottom || "0") || 0);
+          const height = Math.max(120, Math.ceil(detail.destination.getBoundingClientRect().height + padding));
+          detail.spacer.style.height = `${height + 12}px`;
+          const top = box.top + offset - s.slot.scrollTop, clipTop = Math.min(height, Math.max(0, box.top - top)), clipBottom = Math.min(height, Math.max(0, top + height - (box.top + box.height)));
+          for (const [key, value] of [["left", box.left], ["top", top], ["height", height], ["clip-top", clipTop], ["clip-bottom", clipBottom]]) detail.card.style.setProperty(`--pl-detail-${key}`, `${value}px`);
+          offset += height + 12;
+        }
+      } finally {
+        this.positioningDetails = false;
+      }
+    }
+    revealDetailTarget(target) {
+      const s = this.state;
+      if (!s) return;
+      const box = s.slot.getBoundingClientRect(), rect = target.getBoundingClientRect();
+      if (!rect.height || !box.height) return;
+      const shift = rect.top < box.top ? rect.top - box.top : rect.bottom > box.bottom ? rect.bottom - box.bottom : 0;
+      if (shift) {
+        s.slot.scrollTop = Math.max(0, s.slot.scrollTop + shift);
+        this.positionPreview();
+      }
+    }
+    closeDetail(detail, focus = true) {
+      detail.observer?.disconnect();
+      detail.row.removeEventListener("wheel", detail.wheel);
+      detail.row.removeEventListener("focusin", detail.focus);
+      detail.row.removeEventListener("keydown", detail.key);
+      detail.row.removeEventListener("touchstart", detail.touchStart);
+      detail.row.removeEventListener("touchmove", detail.touchMove);
+      detail.row.removeEventListener("touchend", detail.touchEnd);
+      detail.row.removeEventListener("touchcancel", detail.touchEnd);
+      detail.cards.restore();
+      detail.trigger?.setAttribute("aria-expanded", "false");
+      detail.card.classList.remove("pl-workspace-preview-card", "pl-preview-inline", "pl-preview-docked");
+      for (const name of ["left", "top", "width", "height", "clip-top", "clip-bottom"]) detail.card.style.removeProperty(`--pl-detail-${name}`);
+      if (!detail.hadStyle && !detail.card.getAttribute("style")) detail.card.removeAttribute("style");
+      this.openDetails.delete(detail.card);
+      detail.spacer.remove();
+      const s = this.state;
+      if (s && detail.preview === s.preview) {
+        s.preview.hidden = true;
+        s.slot.prepend(s.preview);
+      } else detail.preview.remove();
+      if (this.selected === detail.card) this.selected = [...this.openDetails.keys()].at(-1) || null;
+      if (s) {
+        s.panes[0].section.classList.toggle("pl-has-docked-details", !!this.openDetails.size);
+        s.empty.hidden = !!this.openDetails.size;
+        this.positionPreview();
+      }
+      if (focus && detail.trigger?.isConnected) detail.trigger.focus({ preventScroll: true });
     }
     closePreview(focus = true) {
-      this.detailCards?.restore();
-      this.detailCards = null;
-      this.returnFocus?.setAttribute("aria-expanded", "false");
-      if (this.selected) {
-        this.selected.classList.remove("pl-workspace-preview-card", "pl-preview-inline", "pl-preview-docked");
-        for (const name of ["left", "top", "width", "height"]) this.selected.style.removeProperty(`--pl-detail-${name}`);
-        if (!this.selectedHadStyle && !this.selected.getAttribute("style")) this.selected.removeAttribute("style");
-      }
-      this.selected = null;
-      this.selectedTable = null;
-      if (this.state) {
-        const s = this.state;
-        s.preview.hidden = true;
-        if (s.preview.parentElement !== s.slot) s.slot.append(s.preview);
-        s.panes[0].section.classList.remove("pl-has-docked-details");
-        s.empty.hidden = false;
-      }
-      if (focus && this.returnFocus?.isConnected) this.returnFocus.focus({ preventScroll: true });
-      this.returnFocus = null;
+      const current = this.selected && this.openDetails.get(this.selected);
+      for (const detail of this.openDetails.values()) this.closeDetail(detail, false);
+      if (focus && current?.trigger?.isConnected) current.trigger.focus({ preventScroll: true });
     }
     restore() {
       this.clearModulePending();
@@ -4355,6 +4522,7 @@ section#layoutContentArea.pl-planner-introduction {
       const s = this.state;
       if (!s) return;
       this.closePreview(false);
+      s.slot.removeEventListener("scroll", s.detailsScroll);
       s.actionObserver.disconnect();
       s.doc.removeEventListener("click", s.actionClick);
       for (const record of this.planSurfaces.values()) this.restorePlanSurface(record);

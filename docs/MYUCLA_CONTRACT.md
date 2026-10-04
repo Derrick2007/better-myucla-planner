@@ -1,5 +1,26 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Multiple details and native redraw continuity (0.17.11)
+
+Each expanded My classes course retains its own native third row and section
+table under the original course TBODY. Owned spacers describe a shared scroll
+stack; presentation coordinates align native rows beside the course list.
+Independent Close and Escape return focus to the corresponding Details button.
+Native action menus and workflow content remain inside their original parents,
+with unchanged handlers and form association. Print removes docking/clipping.
+
+Retain only validated course IDs across an automatic same-context reconciliation,
+then attach presentation to the fresh native nodes. Never reinsert stale nodes
+or invoke a native action while restoring details. The controller restores the
+workspace on leaving the validated term/plan context before activating the next
+one, so matching course IDs cannot carry expansion into another plan.
+
+Bounded live structural inspection observed a native section action menu as
+button.link.actionMenu and tr.mobilemenupanel > td[colspan=10] >
+div.message.enrl-plan-actions.touchpanelmenu. The course's third-row TD also
+contains a sibling div.planClass. No final enrollment command was invoked.
+Fictional tests model these structures; they do not assert backend enrollment.
+
 ## Schedule sizing and per-section status colors (0.17.10)
 
 The schedule retains its default proportions but can grow past the old 640px

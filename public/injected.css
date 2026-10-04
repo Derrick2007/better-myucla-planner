@@ -1558,7 +1558,9 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan > .classPlanner_SectionTitle { grid-column: 1 / -1; grid-row: 1; }
 .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; overflow: auto; border-right: 1px solid #e1e7ee; }
 .pl-workspace-details-slot { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; color: #68798b; text-align: center; font-size: 14px; }
-.pl-has-docked-details > .pl-workspace-details-slot { color: transparent; }
+.pl-has-docked-details > .pl-workspace-details-slot { display: block; overflow: auto; overscroll-behavior: contain; padding: 0; color: transparent; scrollbar-gutter: stable; }
+.pl-workspace-detail-space { width: 100%; pointer-events: none; }
+.pl-workspace-details-slot:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
 @media screen {
   /* An empty plan has no master/detail split. Keep UCLA's own empty message. */
   .pl-workspace-empty-plan .pl-workspace-main > .pl-workspace-plan.pl-module-active { grid-template-columns: minmax(0,1fr); }
@@ -1834,7 +1836,8 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) {
   display: block !important; position: fixed; z-index: 108; left: var(--pl-detail-left); top: var(--pl-detail-top);
   width: var(--pl-detail-width); height: var(--pl-detail-height); max-height: none;
-  margin: 0; padding: 20px; box-sizing: border-box; overflow: auto; overscroll-behavior: contain; background: #fff; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  clip-path: inset(var(--pl-detail-clip-top,0px) 0 var(--pl-detail-clip-bottom,0px) 0);
+  margin: 0; padding: 20px; box-sizing: border-box; overflow: visible; background: #fff; border-bottom: 1px solid #dce4ee; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 .pl-workspace-plan table.coursetable, .pl-workspace-plan table.coursetable .pl-section-field { font-family: inherit; }
 .pl-workspace-plan tbody.pl-workspace-preview-card > tr:nth-child(3) > td { display: block; padding: 0 !important; border: 0 !important; border-radius: 0; width: 100%; box-sizing: border-box; }
@@ -1920,7 +1923,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan > #panelPlan { grid-column: 1; grid-row: 2; border-right: 0; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-details-slot { display: none; }
 .pl-workspace-main[data-pl-main-size="narrow"] > .pl-workspace-plan.pl-module-active.pl-has-docked-details { grid-template-rows: auto minmax(120px,180px) minmax(200px,1fr); }
-.pl-workspace-main[data-pl-main-size="narrow"] .pl-has-docked-details > .pl-workspace-details-slot { display: flex; grid-column: 1; grid-row: 3; border-top: 1px solid #e1e7ee; }
+.pl-workspace-main[data-pl-main-size="narrow"] .pl-has-docked-details > .pl-workspace-details-slot { display: block; grid-column: 1; grid-row: 3; border-top: 1px solid #e1e7ee; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-bar { flex-basis: 100%; width: 100%; margin: 0; order: 2; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-pane-toggle { order: 1; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { padding: 14px; }
@@ -2022,7 +2025,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-plan #panelPlan { max-height: none; overflow: visible; }
   .pl-workspace-plan tbody.courseItem, .pl-workspace-plan tbody.courseItem > tr:first-child { display: table-row-group; }
   .pl-workspace-plan tbody.courseItem > tr:nth-child(2), .pl-workspace-plan tbody.courseItem > tr:nth-child(3), .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-workspace-preview-card > tr:nth-child(3) { display: table-row; position: static; width: auto; max-height: none; overflow: visible; }
-  .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { display: table-row !important; position: static; left: auto; top: auto; width: auto; height: auto; padding: 0; overflow: visible; }
+  .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { display: table-row !important; position: static; left: auto; top: auto; width: auto; height: auto; padding: 0; overflow: visible; clip-path: none; border: 0; }
   .pl-browser-list > .pl-browser-course, .pl-browser-course > .class-title { display: block !important; }
   .pl-browser-body:not(.pl-browser-body-active) { display: block !important; }
   .pl-browser-list { max-height: none; }

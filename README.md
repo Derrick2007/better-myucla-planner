@@ -9,17 +9,21 @@
 An unofficial Chrome extension for the MyUCLA Class Planner.
 
 [Install guide](site/index.html) ·
-[v0.17.10 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.10) ·
+[v0.17.11 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11) ·
 [Contributing](CONTRIBUTING.md)
 
 </div>
 
-<img src="site/workspace-preview.png" width="100%" alt="v0.17.10 workspace with fictional course browsing beside a weekly schedule.">
+<img src="site/workspace-preview.png" width="100%" alt="v0.17.11 workspace with fictional course browsing beside a weekly schedule.">
 
 The optional workspace provides named destinations for My classes, Find classes,
 Optimizer, Study list, Personal entries and Information & help. The original
 calendar stays beside the selected module on desktop; narrower screens have a
 Schedule switch. Original layout remains available.
+
+Open Details on several classes to keep their sections available together.
+Each course closes independently. Open details survive native updates within
+the same plan; switching plans or quarters clears the previous selection.
 
 MyUCLA moves a class one place per click, and every click is a full page
 postback. Getting a class from 13th to 2nd costs eleven clicks and eleven page
@@ -202,7 +206,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.17.10` workspace redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.17.11` workspace redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. Named navigation
 opens My classes, Find classes, Optimizer, Study list and Personal entries inside

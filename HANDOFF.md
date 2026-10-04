@@ -2,7 +2,54 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.10` (larger schedule and status colors).
+Current version: `0.17.11` (multiple details and native action continuity).
+
+User reported a missing next panel after Enroll from My classes Details and
+requested multiple simultaneous expanded details. Bounded live inspection
+confirmed the requested course's Details/action menu opened and Enroll was
+enabled, correctly associated with the native form and pointer reachable.
+No live enrollment command was invoked. No private screenshot/content captured.
+
+Found and reproduced a display regression in installed 0.17.10 using fictional
+native menu/action structures: replacing the course, plan table or wrapper
+closes Details and hides the returned native workflow content. The baseline
+fixture records 7 expected failures at 1440px. In-place response already worked.
+
+Open courses now have independent original third rows aligned into a shared
+scrolling details stack with owned spacers. Native table/control ancestry is
+unchanged. Close/Escape is per course, Class actions leaves details open, and
+opening another aligns its content within the details viewport. Wheel, keyboard
+and touch gestures scroll locally; taps, pinch, fields and nested scrollers are
+preserved. Print removes clipping/docking; Original layout removes presentation.
+
+Same-context reconciliation retains open validated course IDs, opening order,
+exam disclosures and local scroll, then decorates only the fresh native nodes.
+Exact still-connected native focus is restored after remounting containers;
+no value, replacement ID or stale node is used. Controller leaveContext now
+restores the workspace before a new term/plan, including matching course IDs.
+No native action replay, extra requests, permission or storage is added.
+
+Typecheck, all 324 unit tests and production build passed. Broad workspace
+browser tests passed all 9 widths; Details passed 6 widths plus rich metadata.
+Final native-action regression passed 4 widths x 4 redraw modes, including
+returned response hit-testing, form/control identity, native focus, context
+reset and no action replay. Trusted touch passed at 2048/1440/390 with unchanged
+document and class-list scroll. Matching production preview passed 4 widths;
+Plan Actions passed 4 viewports. No outgoing fixture requests or script errors.
+
+Installed 0.17.11 in Downloads/better-myucla-v0.10.3/dist; all 17 files SHA-256
+match production. Backup: outputs/installed-backup-v0.17.10. ZIP:
+outputs/better-myucla-v0.17.11.zip SHA-256:
+f8adcae16c370435bc601bdf8ed01b0bf7c849c7ceabac71a0dbd797accc5979.
+Content JS SHA-256: dced188324b3c0900345d31814a719e3f88e0680203d3e96d4a79a85f4dc8bf4.
+CSS SHA-256: 0c18e8ed88a54fb5dcdbf01a039bd4e9fa2a30017a46bc5f79e1db6fcb557743.
+Fictional proof: outputs/multi-details-review-v0.17.11/multi-open-2048.png.
+Awaiting requested extension reload/page refresh for installed live verification.
+
+Live backend enrollment remains unverified; do not equate fixture success with
+an actual enrollment. The prior native Optimizer limitation also remains.
+
+## v0.17.10 historical record
 
 User requested a bigger adjustable calendar and class-list status colors matching
 Details. Added Widen/Restore width beside Weekly schedule. The old 640px maximum

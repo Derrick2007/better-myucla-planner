@@ -263,6 +263,9 @@ export class MyUclaPlannerController {
   /** Keep saved drafts in their originating plan; clear only obsolete page state. */
   private leaveContext(): void {
     this.closeFinalsWeek(false);
+    // Open native details may survive redraws within one plan, never a change
+    // of plan/term, even when the next plan happens to contain the same courses.
+    this.workspace.restore();
     this.contextGeneration += 1;
     this.contractHealthy = false;
     this.activeContextKey = null;

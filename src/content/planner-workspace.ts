@@ -67,6 +67,14 @@ interface ClassActions {
   button: HTMLButtonElement; nativeTools: Element | null; ownedTools: Element | null;
   key: (event: KeyboardEvent) => void;
 }
+interface OpenDetails {
+  card: HTMLElement; table: HTMLTableElement; row: HTMLElement; destination: HTMLElement;
+  preview: HTMLElement; close: HTMLButtonElement; spacer: HTMLElement; trigger: HTMLElement | null;
+  cards: SectionCards; hadStyle: boolean; observer: ResizeObserver | null;
+  wheel: (event: WheelEvent) => void; focus: (event: FocusEvent) => void;
+  key: (event: KeyboardEvent) => void;
+  touchStart: (event: TouchEvent) => void; touchMove: (event: TouchEvent) => void; touchEnd: () => void;
+}
 interface PendingModuleOpen {
   pane: Pane; button: HTMLButtonElement; status: HTMLElement;
   target: HTMLElement; navigation: HTMLButtonElement; observer: MutationObserver;
@@ -96,6 +104,7 @@ interface Workspace {
   moduleButtons: Map<Module,HTMLButtonElement>; mobileMain: HTMLButtonElement; mobileSchedule: HTMLButtonElement;
   position: HTMLElement; scrollRoom: HTMLElement; hostHadStyle: boolean;
   resize: () => void; key: (event: KeyboardEvent) => void;
+  detailsScroll: () => void;
   move: (event: PointerEvent) => void; end: () => void;
   beforePrint: () => void; afterPrint: () => void;
   actionObserver: MutationObserver; actionClick: (event: MouseEvent) => void;
@@ -123,10 +132,8 @@ function sectionSummary(table: HTMLTableElement): string[][] {
 export class PlannerWorkspace {
   private state: Workspace | null = null;
   private selected: HTMLElement | null = null;
-  private selectedTable: HTMLTableElement | null = null;
-  private selectedHadStyle = false;
-  private detailCards: SectionCards | null = null;
-  private returnFocus: HTMLElement | null = null;
+  private openDetails = new Map<HTMLElement,OpenDetails>();
+  private positioningDetails = false;
   private actionControls = new Map<HTMLElement, ClassActions>();
   private actionsHost: HTMLElement | null = null;
   private pendingModuleOpen: PendingModuleOpen | null = null;
@@ -164,7 +171,7 @@ export class PlannerWorkspace {
     const s = this.state;
     return !!s && (doc.getElementById(PANEL) !== s.panel || !s.deck.isConnected || this.currentPlanMenu(s)!==s.menu || hasUnknownSection(s.panel) || (!this.latestCourses.length&&!isKnownEmptyPlanner(doc)) ||
       s.panes.some(p => !p.section.isConnected || p.body.parentElement !== p.section || p.title.parentElement !== p.section) ||
-      (!!this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) ||
+      [...this.openDetails.values()].some(detail=>!detail.card.isConnected||detail.card.querySelector("table.coursetable")!==detail.table||detail.cards.needsRefresh()) ||
       this.latestCourses.some(c => {
         const host=c.node.querySelector<HTMLElement>(":scope > tr:first-child > td.linkPanelRight"),actions=host&&this.actionControls.get(host);
         return !hasKnownDetails(c.node)||!host||!actions||actions.button.parentElement!==host||
@@ -175,6 +182,12 @@ export class PlannerWorkspace {
 
   reconcile(doc: Document, courses: readonly CourseSnapshot[]): void {
     if (this.introductionOnly) this.restore();
+    // This snapshot exists only through this reconciliation. The controller
+    // explicitly restores the workspace before a term/plan context change.
+    const expanded=[...this.openDetails.values()].map(detail=>({id:this.latestCourses.find(course=>course.node===detail.card)?.id,examOpen:detail.preview.querySelector("details")?.open||false}));
+    const detailScroll=this.state?.slot.scrollTop||0,activeModule=this.module;
+    const active=doc.activeElement;
+    const nativeFocus=active instanceof HTMLElement&&active.matches("input,select,textarea,button,a,[tabindex]")&&!active.closest(`[${OWNED}]`)&&courses.some(course=>course.node.contains(active))?active:null;
     this.latestCourses = courses;
     if (this.useOriginal) { this.ensureReturnButton(doc); return; }
     if(!courses.length&&!isKnownEmptyPlanner(doc)){this.restore();return;}
@@ -194,7 +207,7 @@ export class PlannerWorkspace {
       if (view) redrawScroll = {left: view.scrollX, top: view.scrollY};
       this.restore();
     }
-    if (this.selected && (!this.selected.isConnected || this.selected.querySelector("table.coursetable") !== this.selectedTable || this.detailCards?.needsRefresh())) this.closePreview(false);
+    for(const detail of this.openDetails.values())if(!courses.some(course=>course.node===detail.card)||detail.card.querySelector("table.coursetable")!==detail.table||detail.cards.needsRefresh())this.closeDetail(detail,false);
     if (!this.state && !this.useOriginal) this.mount(doc);
     if (!this.state) return;
     this.state.host.classList.toggle("pl-workspace-empty-plan",courses.length===0);
@@ -220,7 +233,25 @@ export class PlannerWorkspace {
       this.ensureSummary(course);
     }
     for(const [card,summary] of this.summaries)if(!courses.some(course=>course.node===card)){summary.node.remove();this.summaries.delete(card);}
+    for(const saved of expanded){
+      const course=courses.find(course=>course.id===saved.id);
+      if(course&&!this.openDetails.has(course.node)){
+        this.openPreview(course,course.node.querySelector<HTMLElement>("[data-pl-workspace-details]"),false);
+        const disclosure=this.openDetails.get(course.node)?.preview.querySelector("details");if(disclosure)disclosure.open=saved.examOpen;
+      }
+    }
+    if(expanded.length){
+      const ordered=expanded.map(saved=>courses.find(course=>course.id===saved.id)).map(course=>course&&this.openDetails.get(course.node)).filter((detail):detail is OpenDetails=>!!detail);
+      for(const detail of this.openDetails.values())if(!ordered.includes(detail))ordered.push(detail);
+      this.openDetails=new Map(ordered.map(detail=>[detail.card,detail]));
+      // Only extension placeholders move. Native course/section ancestry stays put.
+      for(const detail of ordered)this.state.slot.append(detail.spacer);
+    }
+    this.module=activeModule;this.state.slot.scrollTop=detailScroll;
     this.state.resize();
+    // Moving a newly rendered native section into the workspace can blur its
+    // focused field. Restore only that exact still-connected native node.
+    if(nativeFocus?.isConnected&&doc.activeElement!==nativeFocus)nativeFocus.focus({preventScroll:true});
     if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
       view.scrollTo({...redrawScroll, behavior: "instant"});
       // Height is restored now; saved compaction still supplies its minimum.
@@ -241,7 +272,7 @@ export class PlannerWorkspace {
     button.addEventListener("mousedown",event=>{if(event.button===0)event.preventDefault();});
     button.addEventListener("click",()=>{
       if(this.actionsHost===host){this.closeActions();return;}
-      this.introduction.closeInfo(false);this.closePreview(false);this.closeActions(false);
+      this.introduction.closeInfo(false);this.closeActions(false);
       if(this.state)this.state.extras.open=false;
       this.actionsHost=host;host.classList.add("pl-course-actions-open");button.setAttribute("aria-expanded","true");button.focus({preventScroll:true});
       this.revealInPlan(host,button.getBoundingClientRect().top,host.getBoundingClientRect().bottom);
@@ -406,8 +437,10 @@ export class PlannerWorkspace {
     const preview=owned(doc.createElement("aside"),"pl-workspace-preview");preview.hidden=true;preview.setAttribute("role","region");preview.setAttribute("aria-label","Selected class details");
     const head=doc.createElement("div");head.className="pl-workspace-preview-head";
     const content=doc.createElement("div");content.className="pl-workspace-preview-content";
-    const close=doc.createElement("button");close.type="button";close.className="pl-workspace-preview-close";close.textContent="×";close.setAttribute("aria-label","Close details");close.addEventListener("click",()=>this.closePreview());
+    const close=doc.createElement("button");close.type="button";close.className="pl-workspace-preview-close";close.textContent="×";close.setAttribute("aria-label","Close details");close.addEventListener("click",()=>{const detail=[...this.openDetails.values()].find(detail=>detail.preview===preview);if(detail)this.closeDetail(detail);});
     preview.append(close,head,content);slot.append(preview);
+    slot.setAttribute("role","region");slot.setAttribute("aria-label","Open class details");slot.tabIndex=0;
+    const detailsScroll=()=>this.positionPreview();slot.addEventListener("scroll",detailsScroll,{passive:true});
     const resize=()=>{this.introduction.positionHeader();this.positionWorkspace();this.updatePanes();this.introduction.positionInfo();this.positionPlanActions();};
     const key=(event:KeyboardEvent)=>{
       if(event.key!=="Escape"||event.defaultPrevented)return;
@@ -421,7 +454,10 @@ export class PlannerWorkspace {
       else if(this.actionsHost){this.closeActions();event.preventDefault();}
       else if(this.module==="information"){this.selectModule(this.previousModule);doc.querySelector<HTMLButtonElement>(".pl-intro-info")?.focus({preventScroll:true});event.preventDefault();}
       else if(this.showSchedule&&doc.defaultView!.innerWidth<1100){this.showSchedule=false;this.updatePanes();mobileSchedule.focus({preventScroll:true});event.preventDefault();}
-      else if(this.selected&&this.module==="classes"){this.closePreview();event.preventDefault();}
+      else if(this.selected&&this.module==="classes"){
+        const detail=[...this.openDetails.values()].find(detail=>target instanceof Node&&detail.card.contains(target))||this.openDetails.get(this.selected);
+        if(detail)this.closeDetail(detail);event.preventDefault();
+      }
     };
     const move=(event:PointerEvent)=>{if(this.drag&&event.pointerId===this.drag.pointerId){this.scheduleExpanded=false;this.scheduleWidth=this.drag.width+this.drag.start-event.clientX;this.updatePanes();}};
     const end=()=>{this.drag=null;deck.classList.remove("pl-workspace-resizing");};
@@ -436,7 +472,7 @@ export class PlannerWorkspace {
       this.syncPlanSurfaces();
       if(!this.activePlanSurface&&target&&!extras.contains(target)&&!target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog'))extras.open=false;
     };
-    this.state={doc,host,panel,deck,top,extras,menu,placements,preview,head,content,close,panes,splitters:[splitter],empty,widenSchedule,shell,main,navMain,navFooter,slot,moduleButtons,mobileMain,mobileSchedule,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end,beforePrint,afterPrint,actionObserver,actionClick};
+    this.state={doc,host,panel,deck,top,extras,menu,placements,preview,head,content,close,panes,splitters:[splitter],empty,widenSchedule,shell,main,navMain,navFooter,slot,moduleButtons,mobileMain,mobileSchedule,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,detailsScroll,move,end,beforePrint,afterPrint,actionObserver,actionClick};
     actionObserver.observe(host,{childList:true});doc.addEventListener("click",actionClick);
     this.syncPlanSurfaces();
     for(const name of ["resize","scroll","focus","pageshow","load"])doc.defaultView?.addEventListener(name,resize);
@@ -772,26 +808,84 @@ export class PlannerWorkspace {
     host.append(summary);this.summaries.set(course.node,{node:summary,table,signature});
   }
 
-  private openPreview(course:CourseSnapshot,trigger:HTMLElement|null):void{
+  private openPreview(course:CourseSnapshot,trigger:HTMLElement|null,focus=true):void{
     const s=this.state;if(!s||!s.deck.contains(course.node))return;
-    if(this.selected===course.node){this.closePreview();return;}
-    this.introduction.closeInfo(false);this.closeActions(false);
-    this.closePreview(false);s.extras.open=false;
-    this.module="classes";this.showSchedule=false;
+    const existing=this.openDetails.get(course.node);if(existing){this.closeDetail(existing);return;}
+    if(focus){this.introduction.closeInfo(false);this.closeActions(false);s.extras.open=false;this.module="classes";this.showSchedule=false;}
     const pane=s.panes[0];pane.collapsed=false;this.paneChoices.set(pane.title.id,false);this.updatePanes();
-    this.selected=course.node;this.selectedHadStyle=course.node.hasAttribute("style");this.returnFocus=trigger;
+    const table=course.node.querySelector<HTMLTableElement>("table.coursetable"),row=course.node.children[2] as HTMLElement,destination=row?.firstElementChild as HTMLElement;
+    if(!table||!destination)return;
+    let preview=s.preview,head=s.head,close=s.close;
+    if(!preview.hidden){
+      preview=s.doc.createElement("aside");preview.className="pl-workspace-preview";preview.setAttribute(OWNED,"true");preview.setAttribute("role","region");
+      head=s.doc.createElement("div");head.className="pl-workspace-preview-head";
+      close=s.doc.createElement("button");close.type="button";close.className="pl-workspace-preview-close";close.textContent="×";close.setAttribute("aria-label","Close details");
+      close.addEventListener("click",()=>{const detail=this.openDetails.get(course.node);if(detail)this.closeDetail(detail);});preview.append(close,head);
+    }
+    preview.setAttribute("aria-label",`Details for ${course.label}`);
+    const spacer=s.doc.createElement("div");spacer.className="pl-workspace-detail-space";spacer.setAttribute(OWNED,"true");spacer.setAttribute("aria-hidden","true");s.slot.append(spacer);
+    const cards=new SectionCards();cards.table(table);
+    const nestedCanScroll=(origin:EventTarget|null,delta:number):boolean=>{
+      for(let target=origin instanceof Element?origin:null;target&&target!==row;target=target.parentElement){
+        if(target instanceof HTMLElement&&/^(auto|scroll)$/.test(s.doc.defaultView?.getComputedStyle(target).overflowY||"")&&target.scrollHeight>target.clientHeight&&((delta<0&&target.scrollTop>0)||(delta>0&&target.scrollTop+target.clientHeight<target.scrollHeight)))return true;
+      }
+      return false;
+    };
+    const wheel=(event:WheelEvent)=>{
+      if(event.ctrlKey||event.defaultPrevented||this.module!=="classes"||Math.abs(event.deltaX)>Math.abs(event.deltaY))return;
+      if(nestedCanScroll(event.target,event.deltaY))return;
+      // The original body cannot be reparented into the adjacent viewport. Route
+      // its scrolling to the same local stack without changing any native action.
+      const factor=event.deltaMode===1?20:event.deltaMode===2?s.slot.clientHeight:1;
+      if(s.slot.scrollHeight>s.slot.clientHeight){event.preventDefault();s.slot.scrollTop+=event.deltaY*factor;this.positionPreview();}
+    };
+    let touch:{id:number;x:number;y:number;lastY:number;target:EventTarget|null}|null=null;
+    const touchStart=(event:TouchEvent)=>{
+      touch=null;
+      if(event.touches.length!==1||event.defaultPrevented||(event.target instanceof Element&&event.target.closest("input,select,textarea,[contenteditable=true]")))return;
+      const point=event.touches[0];touch={id:point.identifier,x:point.clientX,y:point.clientY,lastY:point.clientY,target:event.target};
+    };
+    const touchMove=(event:TouchEvent)=>{
+      if(event.touches.length!==1){touch=null;return;}
+      if(!touch||event.defaultPrevented||this.module!=="classes")return;
+      const point=[...event.touches].find(point=>point.identifier===touch!.id);if(!point)return;
+      const delta=touch.lastY-point.clientY,travel=touch.y-point.clientY;touch.lastY=point.clientY;
+      if(Math.abs(travel)<8||Math.abs(travel)<Math.abs(touch.x-point.clientX)||nestedCanScroll(touch.target,delta))return;
+      // A swipe inside a fixed native row must scroll its adjacent stack, not
+      // UCLA's document. Taps, editable controls and pinch gestures stay native.
+      if(event.cancelable&&s.slot.scrollHeight>s.slot.clientHeight){event.preventDefault();s.slot.scrollTop+=delta;this.positionPreview();}
+    };
+    const touchEnd=()=>{touch=null;};
+    const onFocus=(event:FocusEvent)=>{
+      this.selected=course.node;
+      if(event.target instanceof HTMLElement)this.revealDetailTarget(event.target);
+    };
+    const key=(event:KeyboardEvent)=>{
+      const target=event.target instanceof Element?event.target:null;
+      if(event.defaultPrevented||target?.closest("input,select,textarea,[contenteditable=true]"))return;
+      if(!["PageDown","PageUp","Home","End"].includes(event.key))return;
+      event.preventDefault();s.slot.scrollTop=event.key==="Home"?0:event.key==="End"?s.slot.scrollHeight:s.slot.scrollTop+(event.key==="PageDown"?1:-1)*s.slot.clientHeight*.85;this.positionPreview();
+    };
+    const detail:OpenDetails={card:course.node,table,row,destination,preview,close,spacer,trigger,cards,hadStyle:course.node.hasAttribute("style"),observer:null,wheel,focus:onFocus,key,touchStart,touchMove,touchEnd};
+    this.openDetails.set(course.node,detail);this.selected=course.node;
     trigger?.setAttribute("aria-expanded","true");
-    this.selectedTable=course.node.querySelector<HTMLTableElement>("table.coursetable");
-    this.detailCards=new SectionCards();if(this.selectedTable)this.detailCards.table(this.selectedTable);
-    const title=s.doc.createElement("h2");title.textContent=course.label.replace(/^Class\s+\d+:\s*/,"");s.head.replaceChildren(title);
+    const title=s.doc.createElement("h2");title.textContent=course.label.replace(/^Class\s+\d+:\s*/,"");head.replaceChildren(title);
     const exam=course.node.querySelector(":scope > tr:nth-child(2) .final_exam_info");
     if(exam){
       const disclosure=s.doc.createElement("details"),summary=s.doc.createElement("summary"),line=s.doc.createElement("p");
-      summary.textContent="Final exam";line.textContent=officialText(exam);disclosure.append(summary,line);s.head.append(disclosure);
+      summary.textContent="Final exam";line.textContent=officialText(exam);disclosure.append(summary,line);head.append(disclosure);
       disclosure.addEventListener("toggle",()=>this.positionPreview());
     }
-    course.node.classList.add("pl-workspace-preview-card");s.preview.hidden=false;
-    this.updatePanes();s.close.focus({preventScroll:true});
+    course.node.classList.add("pl-workspace-preview-card","pl-preview-docked");preview.hidden=false;destination.prepend(preview);
+    row.addEventListener("wheel",wheel,{passive:false});row.addEventListener("focusin",onFocus);row.addEventListener("keydown",key);
+    row.addEventListener("touchstart",touchStart,{passive:true});row.addEventListener("touchmove",touchMove,{passive:false});row.addEventListener("touchend",touchEnd);row.addEventListener("touchcancel",touchEnd);
+    if(typeof ResizeObserver!=="undefined"){detail.observer=new ResizeObserver(()=>this.positionPreview());detail.observer.observe(destination);}
+    this.updatePanes();
+    if(focus){
+      const bounds=s.slot.getBoundingClientRect();
+      if(bounds.height){s.slot.scrollTop=Math.max(0,s.slot.scrollTop+row.getBoundingClientRect().top-bounds.top);this.positionPreview();}
+      close.focus({preventScroll:true});
+    }
   }
 
   private revealInPlan(target:HTMLElement,start:number,end:number):void {
@@ -811,24 +905,52 @@ export class PlannerWorkspace {
   }
 
   private positionPreview():void {
-    const s=this.state;if(!s||!this.selected||s.preview.hidden)return;
-    this.selected.classList.add("pl-preview-docked");this.selected.classList.remove("pl-preview-inline");
-    const destination=this.selected.children[2]?.firstElementChild;if(destination&&s.preview.parentElement!==destination)destination.prepend(s.preview);
-    const box=s.slot.getBoundingClientRect();
-    for(const [key,value] of [["left",box.left],["top",box.top],["width",box.width],["height",box.height]] as const)this.selected.style.setProperty(`--pl-detail-${key}`,`${Math.max(0,value)}px`);
+    const s=this.state;if(!s||!this.openDetails.size||this.positioningDetails)return;
+    this.positioningDetails=true;
+    try {
+      const box=s.slot.getBoundingClientRect(),width=s.slot.clientWidth||box.width;
+      // Hidden modules retain their measured stack and scroll extent until they
+      // are shown again; a zero-size measurement must not collapse that state.
+      if(!box.width||!box.height)return;
+      let offset=0;
+      for(const detail of this.openDetails.values()){
+        detail.card.style.setProperty("--pl-detail-width",`${Math.max(0,width)}px`);
+        const style=s.doc.defaultView?.getComputedStyle(detail.row),padding=(parseFloat(style?.paddingTop||"0")||0)+(parseFloat(style?.paddingBottom||"0")||0);
+        const height=Math.max(120,Math.ceil(detail.destination.getBoundingClientRect().height+padding));
+        detail.spacer.style.height=`${height+12}px`;
+        const top=box.top+offset-s.slot.scrollTop,clipTop=Math.min(height,Math.max(0,box.top-top)),clipBottom=Math.min(height,Math.max(0,top+height-(box.top+box.height)));
+        for(const [key,value] of [["left",box.left],["top",top],["height",height],["clip-top",clipTop],["clip-bottom",clipBottom]] as const)detail.card.style.setProperty(`--pl-detail-${key}`,`${value}px`);
+        offset+=height+12;
+      }
+    } finally {this.positioningDetails=false;}
+  }
+
+  private revealDetailTarget(target:HTMLElement):void {
+    const s=this.state;if(!s)return;const box=s.slot.getBoundingClientRect(),rect=target.getBoundingClientRect();
+    if(!rect.height||!box.height)return;
+    const shift=rect.top<box.top?rect.top-box.top:rect.bottom>box.bottom?rect.bottom-box.bottom:0;
+    if(shift){s.slot.scrollTop=Math.max(0,s.slot.scrollTop+shift);this.positionPreview();}
+  }
+
+  private closeDetail(detail:OpenDetails,focus=true):void {
+    detail.observer?.disconnect();detail.row.removeEventListener("wheel",detail.wheel);detail.row.removeEventListener("focusin",detail.focus);detail.row.removeEventListener("keydown",detail.key);
+    detail.row.removeEventListener("touchstart",detail.touchStart);detail.row.removeEventListener("touchmove",detail.touchMove);detail.row.removeEventListener("touchend",detail.touchEnd);detail.row.removeEventListener("touchcancel",detail.touchEnd);
+    detail.cards.restore();detail.trigger?.setAttribute("aria-expanded","false");
+    detail.card.classList.remove("pl-workspace-preview-card","pl-preview-inline","pl-preview-docked");
+    for(const name of ["left","top","width","height","clip-top","clip-bottom"])detail.card.style.removeProperty(`--pl-detail-${name}`);
+    if(!detail.hadStyle&&!detail.card.getAttribute("style"))detail.card.removeAttribute("style");
+    this.openDetails.delete(detail.card);detail.spacer.remove();
+    const s=this.state;
+    if(s&&detail.preview===s.preview){s.preview.hidden=true;s.slot.prepend(s.preview);}else detail.preview.remove();
+    if(this.selected===detail.card)this.selected=[...this.openDetails.keys()].at(-1)||null;
+    if(s){s.panes[0].section.classList.toggle("pl-has-docked-details",!!this.openDetails.size);s.empty.hidden=!!this.openDetails.size;this.positionPreview();}
+    if(focus&&detail.trigger?.isConnected)detail.trigger.focus({preventScroll:true});
   }
 
   closePreview(focus=true):void{
-    this.detailCards?.restore();this.detailCards=null;
-    this.returnFocus?.setAttribute("aria-expanded","false");
-    if(this.selected){
-      this.selected.classList.remove("pl-workspace-preview-card","pl-preview-inline","pl-preview-docked");
-      for(const name of ["left","top","width","height"])this.selected.style.removeProperty(`--pl-detail-${name}`);
-      if(!this.selectedHadStyle&&!this.selected.getAttribute("style"))this.selected.removeAttribute("style");
-    }
-    this.selected=null;this.selectedTable=null;
-    if(this.state){const s=this.state;s.preview.hidden=true;if(s.preview.parentElement!==s.slot)s.slot.append(s.preview);s.panes[0].section.classList.remove("pl-has-docked-details");s.empty.hidden=false;}
-    if(focus&&this.returnFocus?.isConnected)this.returnFocus.focus({preventScroll:true});this.returnFocus=null;
+    const current=this.selected&&this.openDetails.get(this.selected);
+    for(const detail of this.openDetails.values())this.closeDetail(detail,false);
+    if(focus&&current?.trigger?.isConnected)current.trigger.focus({preventScroll:true});
   }
 
   restore():void{
@@ -842,7 +964,7 @@ export class PlannerWorkspace {
       intro.doc.removeEventListener("visibilitychange", intro.resize); intro.doc.removeEventListener("keydown", intro.key);
       intro.toolbar.remove(); intro.doc.documentElement.classList.remove("pl-intro-page");
     }
-    const s=this.state;if(!s)return;this.closePreview(false);s.actionObserver.disconnect();s.doc.removeEventListener("click",s.actionClick);
+    const s=this.state;if(!s)return;this.closePreview(false);s.slot.removeEventListener("scroll",s.detailsScroll);s.actionObserver.disconnect();s.doc.removeEventListener("click",s.actionClick);
     for(const record of this.planSurfaces.values())this.restorePlanSurface(record);this.planSurfaces.clear();this.activePlanSurface=null;this.pendingPlanAction=null;
     this.state=null;this.drag=null;s.widenSchedule.remove();
     s.doc.defaultView?.removeEventListener("beforeprint",s.beforePrint);s.doc.defaultView?.removeEventListener("afterprint",s.afterPrint);s.afterPrint();

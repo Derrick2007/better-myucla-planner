@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.11 — 2026-10-03 (multiple details and native action continuity)
+
+- Keep multiple My classes details open in a shared scrolling area, with an
+  independent Close button for each course. Opening another course does not
+  discard the previous course's sections or choices.
+- Retain expanded courses through same-plan native redraws so subsequent
+  native action content is not hidden by a closed Details view. Reset open
+  courses on plan/term changes, including matching course identifiers.
+- Preserve native controls, form association and handlers. No enrollment is
+  automated, and no additional requests or persistent storage are introduced.
+
 ## 0.17.10 — 2026-10-03 (larger schedule and status colors)
 
 - Let the schedule grow beyond 640px, using available workspace width while

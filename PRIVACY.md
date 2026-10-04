@@ -53,6 +53,12 @@ extension never constructs a network request of its own.
 
 ## What you control
 
+Multiple expanded course details and their scroll position remain in memory.
+The extension retains their existing course identifiers only through updates
+within the same plan, and clears them on plan/term changes. Native enrollment
+menus and subsequent content remain under MyUCLA's control; restoring the
+display never submits or repeats their actions.
+
 The optional workspace rearranges the original sections within the same MyUCLA
 form. It reads only the course titles/exam text already allowed on this page,
 for an ephemeral details heading; it stores no new data and sends no requests.
