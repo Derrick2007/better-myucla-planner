@@ -58,3 +58,9 @@ the updated extension and a fresh Class Planner load. Do not force a conditional
 native panel visible or repeatedly submit its action to conceal this result.
 
 Updated-build live verification is pending the user's extension reload.
+
+Final local verification: typecheck, all 315 unit tests, production build, core
+harness, all listed browser suites and matching preview passed. All 17 installed
+files match the tested build by SHA-256. Code commit `4ebd7b5` is on the fork;
+CI `37169130903` and Release `37169153266` passed. Published v0.17.7 ZIP digest:
+`9f3251e1be64abe9bf2b607cff36054b9dd48c12eb21e4754882078fa32a5697`.

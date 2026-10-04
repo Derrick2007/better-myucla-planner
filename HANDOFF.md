@@ -36,6 +36,11 @@ SHA-256 match production. Prior 0.17.6 backed up under outputs/installed-backup-
 ZIP outputs/better-myucla-v0.17.7.zip SHA-256:
 9f3251e1be64abe9bf2b607cff36054b9dd48c12eb21e4754882078fa32a5697
 
+Code commit `4ebd7b5` is pushed to the fork's planner-redesign branch. CI
+`37169130903` and Release `37169153266` passed. v0.17.7 is published as a
+prerelease; after the workflow finished its asset was replaced with the exact
+tested/installed Windows ZIP. GitHub's digest matches the SHA-256 above.
+
 Live pre-update check: all 7 Plan Actions hit targets, handler/form identities;
 Rename/Save a Copy/Load/About opened and closed without submission. Native Grid±,
 Agenda and category switches were exercised; original display settings restored
