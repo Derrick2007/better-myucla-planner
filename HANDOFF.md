@@ -4,13 +4,20 @@ Last updated: 2026-10-03
 
 Current version: `0.17.11` (multiple details and native action continuity).
 
+Merged `planner-redesign` through `0fa3f46` into the fork's `main` by
+fast-forward at the user's request. Local `main` now tracks `fork/main`;
+upstream `origin` remains read-only. The source and tested extension build are
+unchanged; README branch links and publication notes now describe `main`.
+The install page's source and issue links now point to this fork, rather than
+directing fork users to the upstream author's support inbox.
+
 README refreshed for the current release: opt-in install/update steps, named
 workspace navigation, multiple Details, schedule sizing/status colors, native
 action continuity, privacy, current test commands and explicit live limitations.
 The leading screenshot is fictional multiple-course Details; the Find classes
 preview is retained. Removed obsolete v0.14.x verification prose and corrected
-Save/partial-postback claims against current code. Source remains on the fork's
-planner-redesign branch; the versioned prerelease links to the existing tested ZIP.
+Save/partial-postback claims against current code. Source is now on the fork's
+main branch; the versioned prerelease links to the existing tested ZIP.
 
 User reported a missing next panel after Enroll from My classes Details and
 requested multiple simultaneous expanded details. Bounded live inspection
@@ -1424,7 +1431,7 @@ before implementing one.
 - Tags stay in the local browser and do not sync to MyUCLA.
 - Status summaries reflect the currently rendered MyUCLA page; they are not independently refreshed.
 - Bruinwalk, DARS, reminders, additional seat polling, and automatic lecture/discussion/lab combination management are not implemented.
-- The working branch is `planner-redesign`; upstream origin is read-only
+- The working branch is `main`, tracking `fork/main`; upstream origin is read-only
   for this task, and the user's GitHub fork is the publication target.
 
 ## Recommended next work

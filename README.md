@@ -9,7 +9,7 @@
 An unofficial Chrome extension that rearranges the existing MyUCLA Class Planner.
 
 [Download v0.17.11](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.11) ·
-[Redesign source](https://github.com/comet-ctrl/better-myucla-planner/tree/planner-redesign) ·
+[Source](https://github.com/comet-ctrl/better-myucla-planner/tree/main) ·
 [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md)
 
 </div>
@@ -204,9 +204,10 @@ are approximations. The preview cannot read or change a MyUCLA account.
 `public/demo.html` is a separate reordering fixture and does not represent the
 current workspace.
 
-The current work is on **`planner-redesign`** in this fork. GitHub Pages deploys
-`main`, so pushing this branch does not update the hosted install/preview page.
-Use the versioned release link above for this build.
+The current source is on **`main`** in this fork. The GitHub Pages workflow
+publishes `site/` when its files change on `main`. The hosted preview uses
+fictional data; install the extension from the versioned release above to use
+the workspace inside MyUCLA Class Planner.
 
 ## Project documentation
 
