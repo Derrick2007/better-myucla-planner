@@ -9,12 +9,12 @@
 An unofficial Chrome extension for the MyUCLA Class Planner.
 
 [Install guide](site/index.html) ·
-[v0.17.9 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.9) ·
+[v0.17.10 redesign prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.17.10) ·
 [Contributing](CONTRIBUTING.md)
 
 </div>
 
-<img src="site/workspace-preview.png" width="100%" alt="v0.17.9 workspace with fictional course browsing beside a weekly schedule.">
+<img src="site/workspace-preview.png" width="100%" alt="v0.17.10 workspace with fictional course browsing beside a weekly schedule.">
 
 The optional workspace provides named destinations for My classes, Find classes,
 Optimizer, Study list, Personal entries and Information & help. The original
@@ -41,9 +41,9 @@ Not made by, endorsed by, or affiliated with UCLA.
 | **Filter** | By course, instructor, page text, or your own note. |
 | **Clash list** | Which classes each one collides with, in time or final exam, read from MyUCLA's own popover payload. |
 | **Clearer search** | The original Search by selector and native fields remain visible, including UCLA's required selections and loading behavior. No automatic searches or extra course requests. |
-| **My classes** | Per-section native status and meeting summaries; Details opens beside the list. Class actions exposes reorder and note tools. UCLA navigation, quarter selector and original plan actions remain available. |
+| **My classes** | Per-section status and meeting summaries; green Open/Enrolled, amber Waitlist and red Closed keep UCLA's original wording. Unknown statuses stay neutral. Details opens beside the list; Class actions exposes reorder and note tools. |
 | **Find classes** | Native search with a list of loaded courses beside the selected preview. Filter loaded titles/numbers locally; original controls and selections stay in the same form. |
-| **Schedule** | Persistent beside the main workspace above 1100px; adjust its width with the divider or arrow keys. Below 1100px, the Schedule switch keeps the current module's state. |
+| **Schedule** | Persistent beside the main workspace above 1100px. Widen gives it more room; Restore width returns to your previous size. Drag the divider or use arrow keys for precise sizing; double-click resets. Native Grid size controls adjust time-row height. Below 1100px, use the full-width Schedule switch. |
 
 Single-course results open directly without a duplicate index. When a selected
 section is in another course preview, a small selection reminder lets you review
@@ -202,7 +202,7 @@ account and without touching a real plan. Screenshots land in `harness/shots/`.
 Every version bump updates the status line below, adds a `CHANGELOG.md` entry,
 and refreshes `HANDOFF.md` if the architecture moved.
 
-**Status:** working local beta, `0.17.9` workspace redesign beta. Not on the Chrome Web Store.
+**Status:** working local beta, `0.17.10` workspace redesign beta. Not on the Chrome Web Store.
 
 The popup shows the installed version. Tidy remains opt-in. Named navigation
 opens My classes, Find classes, Optimizer, Study list and Personal entries inside

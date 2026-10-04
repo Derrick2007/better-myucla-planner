@@ -2,6 +2,7 @@ import type { CourseSnapshot } from "../adapters/planner-adapter";
 import { CourseBrowserPresentation } from "./course-browser";
 import { SectionCards } from "./section-cards";
 import { PlannerIntroduction } from "./planner-introduction";
+import { formatSectionStatus } from "./section-status";
 
 const OWNED = "data-planner-lift-owned";
 const PANEL = "ctl00_MainContent_classPlanPanel";
@@ -90,7 +91,7 @@ interface Workspace {
   doc: Document; host: HTMLElement; panel: HTMLElement; deck: HTMLElement;
   top: HTMLElement; extras: HTMLDetailsElement; menu: HTMLElement | null; placements: Placement[];
   preview: HTMLElement; head: HTMLElement; content: HTMLElement; close: HTMLButtonElement;
-  panes: Pane[]; splitters: HTMLElement[]; empty: HTMLElement;
+  panes: Pane[]; splitters: HTMLElement[]; empty: HTMLElement; widenSchedule: HTMLButtonElement;
   shell: HTMLElement; main: HTMLElement; navMain: HTMLElement; navFooter: HTMLElement; slot: HTMLElement;
   moduleButtons: Map<Module,HTMLButtonElement>; mobileMain: HTMLButtonElement; mobileSchedule: HTMLButtonElement;
   position: HTMLElement; scrollRoom: HTMLElement; hostHadStyle: boolean;
@@ -100,8 +101,11 @@ interface Workspace {
   actionObserver: MutationObserver; actionClick: (event: MouseEvent) => void;
 }
 function officialText(node: Element): string {
+  if (node.matches("[hidden],.hidden") || (node as HTMLElement).style?.display === "none") return "";
   const copy = node.cloneNode(true) as Element;
-  copy.querySelectorAll(`[${OWNED}],script,input,textarea`).forEach(n => n.remove());
+  copy.querySelectorAll(`[${OWNED}],script,input,textarea,[hidden],.hidden`).forEach(n => n.remove());
+  copy.querySelectorAll<HTMLElement>("[style]").forEach(n => { if (n.style.display === "none") n.remove(); });
+  copy.querySelectorAll("br").forEach(n => n.replaceWith(copy.ownerDocument.createTextNode(" ")));
   return (copy.textContent || "").replace(/\s+/g, " ").trim().slice(0, 500);
 }
 function hasKnownDetails(card: HTMLElement): boolean {
@@ -111,7 +115,7 @@ function hasKnownDetails(card: HTMLElement): boolean {
   return rows.length === 3 && rows.every(row => row.tagName === "TR") && tables.length === 1 && header?.children.length === 9;
 }
 function sectionSummary(table: HTMLTableElement): string[][] {
-  return [...table.rows].filter(row=>row.cells.length===9&&[...row.cells].every(cell=>cell.tagName==="TD"&&cell.colSpan===1&&cell.rowSpan===1)&&row.style.display!=="none"&&!row.hidden)
+  return [...table.rows].filter(row=>row.cells.length===9&&[...row.cells].every(cell=>cell.tagName==="TD"&&cell.colSpan===1&&cell.rowSpan===1)&&row.style.display!=="none"&&!row.hidden&&!row.classList.contains("hidden"))
     .map(row=>[1,4,5,2].map(index=>officialText(row.cells[index])));
 }
 
@@ -136,6 +140,7 @@ export class PlannerWorkspace {
   private latestCourses: readonly CourseSnapshot[] = [];
   private paneChoices = new Map<string, boolean>();
   private scheduleWidth: number | null = null;
+  private scheduleExpanded = false;
   private module: Module = "classes";
   private previousModule: Module = "classes";
   private showSchedule = false;
@@ -360,6 +365,10 @@ export class PlannerWorkspace {
       const section=matches[0] as HTMLElement;section.classList.add(PRIMARY[i][2]);
       add(section,PRIMARY[i][3],i===0?"classes":i===2?"find":null);place(section,i===1?deck:main);
     });
+    const widenSchedule=owned(doc.createElement("button"),"pl-workspace-schedule-widen");widenSchedule.type="button";
+    if(panes[1].body.id)widenSchedule.setAttribute("aria-controls",panes[1].body.id);
+    panes[1].toggle!.before(widenSchedule);
+    widenSchedule.addEventListener("click",()=>{this.scheduleExpanded=!this.scheduleExpanded;this.updatePanes();});
     secondary.forEach((matches,i)=>{if(matches[0]){const section=matches[0] as HTMLElement;add(section,SECONDARY[i][1],(["optimizer","study","personal"] as Module[])[i],true);place(section,main);}});
     const slot=owned(doc.createElement("div"),"pl-workspace-details-slot");panes[0].section.append(slot);
     const empty=owned(doc.createElement("p"),"pl-workspace-empty");empty.textContent="Select a class to see its sections and details.";slot.append(empty);
@@ -390,8 +399,8 @@ export class PlannerWorkspace {
     const splitter=owned(doc.createElement("div"),"pl-workspace-splitter");splitter.tabIndex=0;splitter.setAttribute("role","separator");splitter.setAttribute("aria-orientation","vertical");splitter.setAttribute("aria-label","Resize schedule");
     splitter.title="Drag to resize schedule. Arrow keys adjust; double-click resets.";main.after(splitter);
     splitter.addEventListener("pointerdown",event=>{if(event.button!==0)return;event.preventDefault();splitter.focus();this.drag={start:event.clientX,width:this.currentScheduleWidth(),pointerId:event.pointerId};deck.classList.add("pl-workspace-resizing");});
-    splitter.addEventListener("dblclick",()=>{this.scheduleWidth=null;this.updatePanes();});
-    splitter.addEventListener("keydown",event=>{if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;event.preventDefault();this.scheduleWidth=event.key==="Home"?420:event.key==="End"?640:this.currentScheduleWidth()+(event.key==="ArrowLeft"?1:-1)*(event.shiftKey?40:16);this.updatePanes();});
+    splitter.addEventListener("dblclick",()=>{this.scheduleExpanded=false;this.scheduleWidth=null;this.updatePanes();});
+    splitter.addEventListener("keydown",event=>{if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;event.preventDefault();const current=this.currentScheduleWidth();this.scheduleExpanded=false;this.scheduleWidth=event.key==="Home"?420:event.key==="End"?this.maximumScheduleWidth():current+(event.key==="ArrowLeft"?1:-1)*(event.shiftKey?40:16);this.updatePanes();});
     const position=owned(doc.createElement("div"),"pl-workspace-position");host.before(position);
     const scrollRoom=owned(doc.createElement("div"),"pl-workspace-scroll-room");host.after(scrollRoom);
     const preview=owned(doc.createElement("aside"),"pl-workspace-preview");preview.hidden=true;preview.setAttribute("role","region");preview.setAttribute("aria-label","Selected class details");
@@ -414,7 +423,7 @@ export class PlannerWorkspace {
       else if(this.showSchedule&&doc.defaultView!.innerWidth<1100){this.showSchedule=false;this.updatePanes();mobileSchedule.focus({preventScroll:true});event.preventDefault();}
       else if(this.selected&&this.module==="classes"){this.closePreview();event.preventDefault();}
     };
-    const move=(event:PointerEvent)=>{if(this.drag&&event.pointerId===this.drag.pointerId){this.scheduleWidth=this.drag.width+this.drag.start-event.clientX;this.updatePanes();}};
+    const move=(event:PointerEvent)=>{if(this.drag&&event.pointerId===this.drag.pointerId){this.scheduleExpanded=false;this.scheduleWidth=this.drag.width+this.drag.start-event.clientX;this.updatePanes();}};
     const end=()=>{this.drag=null;deck.classList.remove("pl-workspace-resizing");};
     let before:boolean|null=null;
     const beforePrint=()=>{if(before===null)before=extras.open;extras.open=true;};
@@ -427,7 +436,7 @@ export class PlannerWorkspace {
       this.syncPlanSurfaces();
       if(!this.activePlanSurface&&target&&!extras.contains(target)&&!target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog'))extras.open=false;
     };
-    this.state={doc,host,panel,deck,top,extras,menu,placements,preview,head,content,close,panes,splitters:[splitter],empty,shell,main,navMain,navFooter,slot,moduleButtons,mobileMain,mobileSchedule,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end,beforePrint,afterPrint,actionObserver,actionClick};
+    this.state={doc,host,panel,deck,top,extras,menu,placements,preview,head,content,close,panes,splitters:[splitter],empty,widenSchedule,shell,main,navMain,navFooter,slot,moduleButtons,mobileMain,mobileSchedule,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,move,end,beforePrint,afterPrint,actionObserver,actionClick};
     actionObserver.observe(host,{childList:true});doc.addEventListener("click",actionClick);
     this.syncPlanSurfaces();
     for(const name of ["resize","scroll","focus","pageshow","load"])doc.defaultView?.addEventListener(name,resize);
@@ -554,9 +563,16 @@ export class PlannerWorkspace {
     this.planSurfaceTrigger.delete(record.node);
   }
 
+  private maximumScheduleWidth():number {
+    // Retain a usable 420px browsing pane plus the 12px divider. Narrow
+    // viewports already switch to the full-width Schedule view through CSS.
+    return Math.max(420,(this.state?.deck.clientWidth||1400)-432);
+  }
+
   private currentScheduleWidth():number {
     const s=this.state,available=s?.deck.clientWidth||1400;
-    return Math.max(420,Math.min(640,Math.max(420,available-632),this.scheduleWidth??available*.38));
+    const preferred=this.scheduleExpanded?this.maximumScheduleWidth():this.scheduleWidth??Math.min(640,available*.38);
+    return Math.max(420,Math.min(this.maximumScheduleWidth(),preferred));
   }
 
   private selectModule(module:Module,focus=false,explicitNavigation=false):void {
@@ -717,7 +733,13 @@ export class PlannerWorkspace {
       pane.title.style.setProperty("--pl-header-help-height",`${Math.max(60,available)}px`);
     }
     const width=this.currentScheduleWidth();s.deck.style.setProperty("--pl-schedule-width",`${width}px`);
-    const splitter=s.splitters[0];splitter.setAttribute("aria-valuemin","420");splitter.setAttribute("aria-valuemax",String(Math.max(420,Math.min(640,(s.deck.clientWidth||1400)-632))));splitter.setAttribute("aria-valuenow",String(Math.round(width)));
+    const splitter=s.splitters[0];splitter.setAttribute("aria-valuemin","420");splitter.setAttribute("aria-valuemax",String(Math.floor(this.maximumScheduleWidth())));splitter.setAttribute("aria-valuenow",String(Math.round(width)));
+    splitter.setAttribute("aria-valuetext",`${Math.round(width)} pixels wide`);
+    s.widenSchedule.textContent=this.scheduleExpanded?"Restore width":"Widen";
+    s.widenSchedule.setAttribute("aria-label",this.scheduleExpanded?"Restore schedule width":"Widen schedule");
+    s.widenSchedule.setAttribute("aria-pressed",String(this.scheduleExpanded));
+    s.widenSchedule.title=this.scheduleExpanded?"Restore your previous schedule width":"Give the schedule more room. Drag the divider for finer adjustment.";
+    s.widenSchedule.disabled=!this.scheduleExpanded&&width>=this.maximumScheduleWidth()-1;
     s.mobileMain.textContent=MODULE_LABELS[this.module];s.mobileMain.setAttribute("aria-pressed",String(!this.showSchedule));s.mobileSchedule.setAttribute("aria-pressed",String(this.showSchedule));
     s.panes[0].section.classList.toggle("pl-has-docked-details",!!this.selected);s.empty.hidden=!!this.selected;
     const mainWidth=s.main.getBoundingClientRect().width;
@@ -738,7 +760,13 @@ export class PlannerWorkspace {
     previous?.node.remove();const summary=host.ownerDocument.createElement("div");summary.className="pl-workspace-course-summary";summary.setAttribute(OWNED,"true");
     for(const fields of values){
       const line=host.ownerDocument.createElement("p");
-      fields.forEach((text,index)=>{const value=host.ownerDocument.createElement("span");value.dataset.plSummaryField=String([1,4,5,2][index]);value.textContent=text;line.append(value);});
+      fields.forEach((text,index)=>{
+        const value=host.ownerDocument.createElement("span"),field=[1,4,5,2][index];
+        value.dataset.plSummaryField=String(field);value.textContent=text;
+        // Color describes this section only; UCLA's wording and counts remain authoritative.
+        if(field===2){const status=formatSectionStatus(text);if(status)value.dataset.plStatusTone=status.tone;}
+        line.append(value);
+      });
       summary.append(line);
     }
     host.append(summary);this.summaries.set(course.node,{node:summary,table,signature});
@@ -816,7 +844,7 @@ export class PlannerWorkspace {
     }
     const s=this.state;if(!s)return;this.closePreview(false);s.actionObserver.disconnect();s.doc.removeEventListener("click",s.actionClick);
     for(const record of this.planSurfaces.values())this.restorePlanSurface(record);this.planSurfaces.clear();this.activePlanSurface=null;this.pendingPlanAction=null;
-    this.state=null;this.drag=null;
+    this.state=null;this.drag=null;s.widenSchedule.remove();
     s.doc.defaultView?.removeEventListener("beforeprint",s.beforePrint);s.doc.defaultView?.removeEventListener("afterprint",s.afterPrint);s.afterPrint();
     s.doc.defaultView?.removeEventListener("resize",s.resize);s.doc.defaultView?.removeEventListener("scroll",s.resize);s.extras.removeEventListener("toggle",s.resize);s.doc.removeEventListener("keydown",s.key);
     s.doc.defaultView?.removeEventListener("focus",s.resize);s.doc.defaultView?.removeEventListener("pageshow",s.resize);s.doc.defaultView?.removeEventListener("load",s.resize);s.doc.removeEventListener("visibilitychange",s.resize);

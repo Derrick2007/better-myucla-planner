@@ -1539,6 +1539,10 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-empty { margin: 32px; color: #647080; }
 .pl-workspace-empty[hidden] { display: none; }
 .pl-workspace-calendar #gridDiv { margin-top: 16px; }
+.pl-workspace-calendar .pl-workspace-schedule-widen { flex: none; min-height: 38px; padding: 7px 10px; border: 1px solid #91a8c0; border-radius: 7px; background: #f1f5fa; color: #315776; font: 500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.pl-workspace-calendar .pl-workspace-schedule-widen:hover, .pl-workspace-calendar .pl-workspace-schedule-widen[aria-pressed="true"] { border-color: #5f82a6; background: #e4eef9; }
+.pl-workspace-calendar .pl-workspace-schedule-widen:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
+.pl-workspace-calendar .pl-workspace-schedule-widen:disabled { opacity: .55; cursor: default; }
 .pl-workspace-calendar .plannerMenuLinks { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; justify-content: flex-start; padding: 0 12px; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-calendar .plannerMenuLinks button { min-height: 34px; padding: 5px 7px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: #526174; font: inherit; }
 .pl-workspace-calendar .plannerMenuLinks button:hover { background: #f0f3f6; }
@@ -1579,6 +1583,12 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary span { color: inherit; font: inherit; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-summary-field="1"] { font-weight: 600; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-summary-field="2"] { flex-basis: 100%; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone] { font-weight: 500; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone]::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 6px 2px 0; border-radius: 50%; background: currentColor; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="open"],
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="enrolled"] { color: #18713b; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="waitlist"] { color: #8a5700; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="closed"] { color: #a8282f; }
 .pl-workspace-plan td.linkPanelRight { margin-top: 12px; text-align: left; white-space: normal; }
 .pl-workspace-plan tbody.courseItem > tr:first-child > td.linkPanelRight { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 /* The native ordering group stays in its original cell; a local disclosure
@@ -1956,6 +1966,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-nav button { min-height: 38px; padding: 8px 10px; white-space: nowrap; }
 }
 @media(max-width:1099px) {
+  .pl-workspace-calendar .pl-workspace-schedule-widen { display: none; }
   .pl-workspace-deck { grid-template-columns: minmax(0,1fr) !important; }
   .pl-workspace-splitter { display: none; }
   .pl-workspace-host:not(.pl-show-schedule) .pl-workspace-deck > .pl-workspace-calendar, .pl-workspace-host.pl-show-schedule .pl-workspace-main { display: none !important; }
@@ -1980,6 +1991,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-intro-term select { width: min(220px,65vw); }
 }
 @media print {
+  .pl-workspace-schedule-widen { display: none !important; }
   .pl-workspace-scroll-room { display: none; }
   html.pl-workspace-page body { overflow: visible; }
   .classPlannerWrapper.pl-workspace-host { position: static; left: auto; display: block; border: 0; padding: 0; margin: 0 !important; width: auto !important; height: auto; overflow: visible; }

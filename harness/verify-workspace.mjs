@@ -23,6 +23,8 @@ const setup=async(page,html,compactHeader=false,ready='.pl-workspace-deck')=>{
   window.chrome={storage:{local:{get:async key=>({[key]:stored[key]}),set:async values=>Object.assign(stored,values),remove:async key=>delete stored[key]},onChanged:{addListener:fn=>listeners.push(fn),removeListener:()=>{}}}};
   window.toggleTidy=tidy=>listeners.forEach(fn=>fn({'plannerLift.layout.v1':{newValue:{tidy}}},'local'));
   window.nativeFields=[...document.querySelectorAll('input,select')];
+  window.nativeCalendarControls=[...document.querySelectorAll('.plannerMenuLinks button,.plannerMenuLinks input,.plannerMenuLinks select,#gridDiv a,#gridDiv button')].map(node=>({node,parent:node.parentElement,handler:node.getAttribute('onclick')}));
+  window.nativeCalendarMeetings=[...document.querySelectorAll('#gridDiv .planneritembox')].map(node=>({node,parent:node.parentElement,top:node.style.top,height:node.style.height}));
   window.nativeModuleControls=[...document.querySelectorAll('.classPlanner_ClassOptimizerSection button,.classPlanner_ClassOptimizerSection input,.classPlanner_ClassOptimizerSection select,.classPlanner_EnrolledNotInPlanSection button,.classPlanner_EnrolledNotInPlanSection input,.classPlanner_PersonalTimeBlocksSection button,.classPlanner_PersonalTimeBlocksSection input,.classPlanner_PersonalTimeBlocksSection select,.plannerTopMenuLinks button')].map(node=>({node,parent:node.parentElement,handler:node.getAttribute('onclick')}));
   window.nativeModuleWrappers=[...document.querySelectorAll('#HelpOptimizerDiv,#panelOptimizer,#panelNotplan,#panelPersonal')].map(node=>({node,parent:node.parentElement}));
   window.nativePlanRows=[...document.querySelectorAll('tbody.courseItem > tr:nth-child(3)')].map(node=>({node,parent:node.parentElement}));
@@ -85,6 +87,11 @@ const assertUnclipped=async(locator,label)=>{
   return {x:rect.left,y:rect.top,right:rect.right,bottom:rect.bottom,width:rect.width,height:rect.height,viewport:{width:innerWidth,height:innerHeight},hits:points.map(([left,top])=>node.contains(document.elementFromPoint(left,top)))};
  });
  assert.ok(bounds.width>0&&bounds.height>0&&bounds.x>=-1&&bounds.y>=-1&&bounds.right<=bounds.viewport.width+1&&bounds.bottom<=bounds.viewport.height+1&&bounds.hits.every(Boolean),label+': '+JSON.stringify(bounds));
+};
+const assertCalendarPreserved=async(page)=>{
+ assert.ok(await page.evaluate(()=>window.nativeCalendarControls.every(({node,parent,handler})=>node.isConnected&&node.parentElement===parent&&node.getAttribute('onclick')===handler)&&window.nativeCalendarMeetings.every(({node,parent,top,height})=>node.isConnected&&node.parentElement===parent&&node.style.top===top&&node.style.height===height)),'resizing retains native calendar controls, handlers, meeting nodes and time geometry');
+ const geometry=await page.locator('#gridDiv .planneritembox').evaluateAll(nodes=>nodes.map(node=>({overflow:node.getBoundingClientRect().right-node.parentElement.getBoundingClientRect().right,height:node.getBoundingClientRect().height,intended:parseFloat(node.style.height)+(node.style.border.includes('double')?6:2)})));
+ assert.ok(geometry.length&&geometry.every(box=>box.overflow<=1&&Math.abs(box.height-box.intended)<1),'native calendar meetings fit their columns without changing duration');
 };
 try {
  for(const width of [2048,1440,1366,1280,960]){
@@ -188,11 +195,20 @@ try {
   await classes.click();
   await page.locator('#plannerSectionClip > button.planSectionToggle').click();assert.equal(await page.locator('#panelPlan').isVisible(),false);assert.ok(await classes.evaluate(node=>node===document.activeElement));await classes.press('Enter');assert.ok(await page.locator('#panelPlan').isVisible(),'module navigation reopens its collapsed native pane');
   if(width>=1100){
-   const sep=page.locator('.pl-workspace-splitter');assert.ok(await sep.isVisible());const min=Number(await sep.getAttribute('aria-valuemin')),max=Number(await sep.getAttribute('aria-valuemax'));
+   const sep=page.locator('.pl-workspace-splitter'),widen=page.locator('.pl-workspace-schedule-widen');assert.ok(await sep.isVisible());assert.ok(await widen.isVisible());const min=Number(await sep.getAttribute('aria-valuemin')),max=Number(await sep.getAttribute('aria-valuemax'));
+   const defaultWidth=(await schedule.boundingBox()).width,preferences=await page.evaluate(()=>JSON.stringify(window.fixturePreferences));
+   await widen.click();assert.equal(await widen.getAttribute('aria-pressed'),'true');assert.equal(await widen.getAttribute('aria-label'),'Restore schedule width');
+   const expandedWidth=(await schedule.boundingBox()).width;assert.ok(Math.abs(expandedWidth-max)<=1&&expandedWidth>defaultWidth,'Widen uses available room beside browsing');
+   if(width>=1440)assert.ok(expandedWidth>640,'wide desktops can enlarge the calendar beyond the former 640px cap');
+   assert.ok((await page.locator('.pl-workspace-main').boundingBox()).width>=419,'the largest calendar retains a usable browsing pane');
+   assert.ok(await page.evaluate(()=>document.body.scrollWidth<=innerWidth+1),'Widen introduces no page overflow');await assertCalendarPreserved(page);
+   await widen.click();assert.equal(await widen.getAttribute('aria-pressed'),'false');assert.ok(Math.abs((await schedule.boundingBox()).width-defaultWidth)<=1,'Restore width returns to the previous automatic width');
    await sep.press('Home');assert.ok(Math.abs((await schedule.boundingBox()).width-min)<=1);await sep.press('ArrowLeft');if(max>min)assert.ok((await schedule.boundingBox()).width>min,'keyboard divider changes schedule width');
+   const manualWidth=(await schedule.boundingBox()).width;await widen.click();await widen.click();assert.ok(Math.abs((await schedule.boundingBox()).width-manualWidth)<=1,'Restore width returns to the exact manual divider setting');
    await sep.press('End');const after=(await schedule.boundingBox()).width;assert.ok(Math.abs(after-max)<=1);const h=await sep.boundingBox();await page.mouse.move(h.x+h.width/2,h.y+20);await page.mouse.down();await page.mouse.move(h.x+35,h.y+20,{steps:8});await page.mouse.up();if(max>min)assert.ok((await schedule.boundingBox()).width<after,'pointer divider changes schedule width');await sep.dblclick();
+   assert.ok(Math.abs((await schedule.boundingBox()).width-defaultWidth)<=1,'double-click restores the original default proportions');assert.equal(await page.evaluate(()=>JSON.stringify(window.fixturePreferences)),preferences,'calendar size controls add no persistent preference');
   }else{
-   const toggle=page.locator('.pl-workspace-schedule-toggle');await toggle.click();assert.ok(await schedule.isVisible());assert.equal(await page.locator('.pl-workspace-main').isVisible(),false);await page.keyboard.press('Escape');assert.ok(await page.locator('.pl-workspace-main').isVisible());assert.equal(await schedule.isVisible(),false);assert.ok(await toggle.evaluate(node=>node===document.activeElement));await toggle.click();await page.locator('[data-pl-mobile-view="main"]').click();assert.ok(await page.locator('.pl-workspace-main').isVisible());
+   const toggle=page.locator('.pl-workspace-schedule-toggle');await toggle.click();assert.ok(await schedule.isVisible());assert.equal(await page.locator('.pl-workspace-schedule-widen').isVisible(),false,'narrow full-width calendar needs no Widen action');assert.equal(await page.locator('.pl-workspace-main').isVisible(),false);await page.keyboard.press('Escape');assert.ok(await page.locator('.pl-workspace-main').isVisible());assert.equal(await schedule.isVisible(),false);assert.ok(await toggle.evaluate(node=>node===document.activeElement));await toggle.click();await page.locator('[data-pl-mobile-view="main"]').click();assert.ok(await page.locator('.pl-workspace-main').isVisible());
   }
   // Calendar geometry is checked in its visible mode at each viewport.
   if(width<1100)await page.locator('.pl-workspace-schedule-toggle').click();
@@ -208,6 +224,42 @@ try {
   assert.equal(await page.locator('.pl-workspace-deck').count(),1);assert.equal(await page.locator('#panelPlan').count(),1);assert.equal(await page.locator('[name="examplePersonalEntry"]').count(),1);
   await page.evaluate(()=>window.toggleTidy(false));await page.waitForSelector('.pl-workspace-deck',{state:'detached'});assert.equal(await page.locator('#ctl00_MainContent_classPlanPanel > section').count(),6);assert.equal(await page.locator('[data-pl-workspace-details],.pl-section-label,.pl-browser-index').count(),0);assert.ok(await page.evaluate(()=>window.redrawFields.every(node=>node.isConnected&&node.form===document.getElementById('aspnetForm'))));
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);await page.close();console.log('Workspace verified: '+width+'px');
+ }
+ // Size preferences belong to this page session: window resizing and native
+ // partial redraws retain them, without storing them or replacing controls.
+ {
+  const page=await browser.newPage({viewport:{width:2048,height:900}}),checks=await setup(page,fixture);
+  const schedule=page.locator('.pl-workspace-calendar'),sep=page.locator('.pl-workspace-splitter'),widen=page.locator('.pl-workspace-schedule-widen');
+  const preferences=await page.evaluate(()=>JSON.stringify(window.fixturePreferences));
+  await page.locator('.pl-workspace-nav [data-pl-module="find"]').click();await page.locator('.pl-browser-index button').nth(2).click();
+  const selection=page.locator('#container_course_M2 .data_row input').first();await selection.check();
+  await sep.press('End');await sep.press('ArrowRight');const preferredWidth=(await schedule.boundingBox()).width;assert.ok(preferredWidth>640);
+  await page.setViewportSize({width:1280,height:900});
+  await page.waitForFunction(()=>document.querySelector('.pl-workspace-main').getBoundingClientRect().width>=419);
+  assert.ok((await schedule.boundingBox()).width<preferredWidth,'smaller desktop clamps the wider manual selection safely');
+  await page.setViewportSize({width:2048,height:900});
+  await page.waitForFunction(expected=>Math.abs(document.querySelector('.pl-workspace-calendar').getBoundingClientRect().width-expected)<=1,preferredWidth);
+  await widen.click();const maximumWidth=(await schedule.boundingBox()).width;assert.ok(maximumWidth>preferredWidth);
+  for(const width of [1280,960,390,2048]){
+   await page.setViewportSize({width,height:900});
+   if(width<1100){
+    await page.locator('.pl-workspace-schedule-toggle').click();assert.ok(await schedule.isVisible());assert.equal(await widen.isVisible(),false);await page.locator('[data-pl-mobile-view="main"]').click();
+   }else{
+    await page.waitForFunction(()=>document.querySelector('.pl-workspace-main').getBoundingClientRect().width>=419);
+    assert.ok(await widen.isVisible());assert.equal(await widen.getAttribute('aria-pressed'),'true');await assertCalendarPreserved(page);
+   }
+   assert.ok(await selection.isChecked(),'viewport changes preserve native section selection');assert.equal(await page.locator('.pl-browser-index button').nth(2).getAttribute('aria-pressed'),'true','viewport changes preserve the selected local course');
+   assert.ok(await page.evaluate(()=>document.body.scrollWidth<=innerWidth+1),'resizing a widened calendar introduces no document overflow');
+  }
+  assert.ok(Math.abs((await schedule.boundingBox()).width-maximumWidth)<=1,'widened view returns to its available desktop width');
+  await widen.click();assert.ok(Math.abs((await schedule.boundingBox()).width-preferredWidth)<=1,'Restore survives narrower and full-width calendar layouts');await selection.uncheck();await widen.click();
+  await page.evaluate(html=>{const panel=document.importNode(new DOMParser().parseFromString(html,'text/html').getElementById('ctl00_MainContent_classPlanPanel'),true);document.getElementById('ctl00_MainContent_classPlanPanel').replaceWith(panel);},fixture);
+  await page.waitForSelector('.pl-workspace-deck .pl-browser-index',{state:'attached'});assert.equal(await page.locator('.pl-workspace-nav [data-pl-module="find"]').getAttribute('aria-pressed'),'true');
+  assert.equal(await widen.count(),1);assert.equal(await widen.getAttribute('aria-pressed'),'true');assert.ok(Math.abs((await schedule.boundingBox()).width-maximumWidth)<=1,'native partial redraw retains Widen selection');
+  await widen.click();assert.ok(Math.abs((await schedule.boundingBox()).width-preferredWidth)<=1,'native redraw retains the width to restore');
+  assert.equal(await page.evaluate(()=>JSON.stringify(window.fixturePreferences)),preferences,'resize and redraw do not persist calendar layout selections');
+  await page.locator('.pl-workspace-original').click();assert.equal(await widen.count(),0,'Original layout removes the extension Widen control');
+  assert.deepEqual(checks.errors,[]);assert.deepEqual(checks.requests,[]);await page.close();console.log('Larger schedule resizing, native identity and redraw verified');
  }
  if(process.env.BETTER_MYUCLA_QA_FOCUS!=='workspace'){
  const unknown=await browser.newPage({viewport:{width:1440,height:900}});

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.17.9 fictional preview</title>
+<title>Better MyUCLA · v0.17.10 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -84,7 +84,7 @@
   #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.9"><meta name="planner-source-revision" content="6faac16d5892b2e3f69b46ffe31ea400d1ee7ef6"><meta name="planner-production-css-sha256" content="13bb963a233b26712effa9552815335c66e3a9069af1f7460a2c160e076aa270"><meta name="planner-production-content-sha256" content="459d9a1e0ec349378a50eafa3e301138603fd7f2ea105c9a423e34b9c0f2531d"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.17.10"><meta name="planner-source-revision" content="432378fc2e3179cc6cf2b39f2622ddecad78e8ce"><meta name="planner-production-css-sha256" content="f96abc28bf1bb86a813c962f250add72c74c944a33d760f164d554ea67d28481"><meta name="planner-production-content-sha256" content="4e6bd3d4eee178c427a79bc92bf4df803cca0df96769231806846b3be86544fa"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -1625,6 +1625,10 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-empty { margin: 32px; color: #647080; }
 .pl-workspace-empty[hidden] { display: none; }
 .pl-workspace-calendar #gridDiv { margin-top: 16px; }
+.pl-workspace-calendar .pl-workspace-schedule-widen { flex: none; min-height: 38px; padding: 7px 10px; border: 1px solid #91a8c0; border-radius: 7px; background: #f1f5fa; color: #315776; font: 500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
+.pl-workspace-calendar .pl-workspace-schedule-widen:hover, .pl-workspace-calendar .pl-workspace-schedule-widen[aria-pressed="true"] { border-color: #5f82a6; background: #e4eef9; }
+.pl-workspace-calendar .pl-workspace-schedule-widen:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
+.pl-workspace-calendar .pl-workspace-schedule-widen:disabled { opacity: .55; cursor: default; }
 .pl-workspace-calendar .plannerMenuLinks { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; justify-content: flex-start; padding: 0 12px; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-calendar .plannerMenuLinks button { min-height: 34px; padding: 5px 7px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: #526174; font: inherit; }
 .pl-workspace-calendar .plannerMenuLinks button:hover { background: #f0f3f6; }
@@ -1665,6 +1669,12 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary span { color: inherit; font: inherit; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-summary-field="1"] { font-weight: 600; }
 .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-summary-field="2"] { flex-basis: 100%; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone] { font-weight: 500; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone]::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 6px 2px 0; border-radius: 50%; background: currentColor; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="open"],
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="enrolled"] { color: #18713b; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="waitlist"] { color: #8a5700; }
+.pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="closed"] { color: #a8282f; }
 .pl-workspace-plan td.linkPanelRight { margin-top: 12px; text-align: left; white-space: normal; }
 .pl-workspace-plan tbody.courseItem > tr:first-child > td.linkPanelRight { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 /* The native ordering group stays in its original cell; a local disclosure
@@ -2042,6 +2052,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-workspace-nav button { min-height: 38px; padding: 8px 10px; white-space: nowrap; }
 }
 @media(max-width:1099px) {
+  .pl-workspace-calendar .pl-workspace-schedule-widen { display: none; }
   .pl-workspace-deck { grid-template-columns: minmax(0,1fr) !important; }
   .pl-workspace-splitter { display: none; }
   .pl-workspace-host:not(.pl-show-schedule) .pl-workspace-deck > .pl-workspace-calendar, .pl-workspace-host.pl-show-schedule .pl-workspace-main { display: none !important; }
@@ -2066,6 +2077,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-intro-term select { width: min(220px,65vw); }
 }
 @media print {
+  .pl-workspace-schedule-widen { display: none !important; }
   .pl-workspace-scroll-room { display: none; }
   html.pl-workspace-page body { overflow: visible; }
   .classPlannerWrapper.pl-workspace-host { position: static; left: auto; display: block; border: 0; padding: 0; margin: 0 !important; width: auto !important; height: auto; overflow: visible; }
@@ -2102,7 +2114,7 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-browser-list { max-height: none; }
   .pl-browser-result-actions { position: static; }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.17.9","cssSha256":"13bb963a233b26712effa9552815335c66e3a9069af1f7460a2c160e076aa270","contentSha256":"459d9a1e0ec349378a50eafa3e301138603fd7f2ea105c9a423e34b9c0f2531d","sourceRevision":"6faac16d5892b2e3f69b46ffe31ea400d1ee7ef6"}</script><style>
+</style><script id="preview-build-meta" type="application/json">{"version":"0.17.10","cssSha256":"f96abc28bf1bb86a813c962f250add72c74c944a33d760f164d554ea67d28481","contentSha256":"4e6bd3d4eee178c427a79bc92bf4df803cca0df96769231806846b3be86544fa","sourceRevision":"432378fc2e3179cc6cf2b39f2622ddecad78e8ce"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -2120,7 +2132,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.9</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.17.10</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">
@@ -3187,6 +3199,35 @@ section#layoutContentArea.pl-planner-introduction {
     }
   };
 
+  // src/content/section-status.ts
+  function formatSectionStatus(value) {
+    const text = value.replace(/\s+/g, " ").trim();
+    if (text.length > 160) return null;
+    if (/^Enrolled(?:\s+Class Full\s*\(\d{1,6}\))?$/i.test(text)) {
+      return { label: "Enrolled", tone: "enrolled", detail: "" };
+    }
+    if (/^Closed(?:\s+Class Full\s*\(\d{1,6}\))?$/i.test(text)) {
+      return { label: "Closed", tone: "closed", detail: "" };
+    }
+    if (/^Open$/i.test(text)) return { label: "Open", tone: "open", detail: "" };
+    if (/^Waitlist(?:ed)?(?:\s+Class Full\s*\(\d{1,6}\))?$/i.test(text)) {
+      return { label: "Waitlist", tone: "waitlist", detail: "" };
+    }
+    const counted = /^(Open|Waitlist(?:ed)?)\s*:?\s+(\d{1,6})\s+of\s+(\d{1,6})\s+(Left|Taken)$/i.exec(text);
+    if (!counted) return null;
+    const [, state, rawCount, rawCapacity, meaning] = counted;
+    const count = Number(rawCount);
+    const capacity = Number(rawCapacity);
+    if (capacity < 1 || count > capacity) return null;
+    if (/^Open$/i.test(state) && /^Left$/i.test(meaning)) {
+      return { label: "Open", tone: "open", detail: `${count} ${count === 1 ? "seat" : "seats"} left` };
+    }
+    if (/^Waitlist/i.test(state) && /^Taken$/i.test(meaning)) {
+      return { label: "Waitlist", tone: "waitlist", detail: `${count}/${capacity} places filled` };
+    }
+    return null;
+  }
+
   // src/content/planner-workspace.ts
   var OWNED5 = "data-planner-lift-owned";
   var PANEL = "ctl00_MainContent_classPlanPanel";
@@ -3256,8 +3297,13 @@ section#layoutContentArea.pl-planner-introduction {
     classSearchTitle: { toggle: "ctl00_MainContent_toggleSearch", body: "panelSearch", target: "panelSearch", label: "Search for Class and Add to Plan", children: 3 }
   };
   function officialText(node) {
+    if (node.matches("[hidden],.hidden") || node.style?.display === "none") return "";
     const copy = node.cloneNode(true);
-    copy.querySelectorAll(`[${OWNED5}],script,input,textarea`).forEach((n) => n.remove());
+    copy.querySelectorAll(`[${OWNED5}],script,input,textarea,[hidden],.hidden`).forEach((n) => n.remove());
+    copy.querySelectorAll("[style]").forEach((n) => {
+      if (n.style.display === "none") n.remove();
+    });
+    copy.querySelectorAll("br").forEach((n) => n.replaceWith(copy.ownerDocument.createTextNode(" ")));
     return (copy.textContent || "").replace(/\s+/g, " ").trim().slice(0, 500);
   }
   function hasKnownDetails(card) {
@@ -3267,7 +3313,7 @@ section#layoutContentArea.pl-planner-introduction {
     return rows.length === 3 && rows.every((row) => row.tagName === "TR") && tables.length === 1 && header?.children.length === 9;
   }
   function sectionSummary(table) {
-    return [...table.rows].filter((row) => row.cells.length === 9 && [...row.cells].every((cell) => cell.tagName === "TD" && cell.colSpan === 1 && cell.rowSpan === 1) && row.style.display !== "none" && !row.hidden).map((row) => [1, 4, 5, 2].map((index) => officialText(row.cells[index])));
+    return [...table.rows].filter((row) => row.cells.length === 9 && [...row.cells].every((cell) => cell.tagName === "TD" && cell.colSpan === 1 && cell.rowSpan === 1) && row.style.display !== "none" && !row.hidden && !row.classList.contains("hidden")).map((row) => [1, 4, 5, 2].map((index) => officialText(row.cells[index])));
   }
   var PlannerWorkspace = class {
     state = null;
@@ -3289,6 +3335,7 @@ section#layoutContentArea.pl-planner-introduction {
     latestCourses = [];
     paneChoices = /* @__PURE__ */ new Map();
     scheduleWidth = null;
+    scheduleExpanded = false;
     module = "classes";
     previousModule = "classes";
     showSchedule = false;
@@ -3601,6 +3648,14 @@ section#layoutContentArea.pl-planner-introduction {
         add(section, PRIMARY[i][3], i === 0 ? "classes" : i === 2 ? "find" : null);
         place(section, i === 1 ? deck : main);
       });
+      const widenSchedule = owned(doc.createElement("button"), "pl-workspace-schedule-widen");
+      widenSchedule.type = "button";
+      if (panes[1].body.id) widenSchedule.setAttribute("aria-controls", panes[1].body.id);
+      panes[1].toggle.before(widenSchedule);
+      widenSchedule.addEventListener("click", () => {
+        this.scheduleExpanded = !this.scheduleExpanded;
+        this.updatePanes();
+      });
       secondary.forEach((matches, i) => {
         if (matches[0]) {
           const section = matches[0];
@@ -3691,13 +3746,16 @@ section#layoutContentArea.pl-planner-introduction {
         deck.classList.add("pl-workspace-resizing");
       });
       splitter.addEventListener("dblclick", () => {
+        this.scheduleExpanded = false;
         this.scheduleWidth = null;
         this.updatePanes();
       });
       splitter.addEventListener("keydown", (event) => {
         if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
         event.preventDefault();
-        this.scheduleWidth = event.key === "Home" ? 420 : event.key === "End" ? 640 : this.currentScheduleWidth() + (event.key === "ArrowLeft" ? 1 : -1) * (event.shiftKey ? 40 : 16);
+        const current = this.currentScheduleWidth();
+        this.scheduleExpanded = false;
+        this.scheduleWidth = event.key === "Home" ? 420 : event.key === "End" ? this.maximumScheduleWidth() : current + (event.key === "ArrowLeft" ? 1 : -1) * (event.shiftKey ? 40 : 16);
         this.updatePanes();
       });
       const position = owned(doc.createElement("div"), "pl-workspace-position");
@@ -3760,6 +3818,7 @@ section#layoutContentArea.pl-planner-introduction {
       };
       const move = (event) => {
         if (this.drag && event.pointerId === this.drag.pointerId) {
+          this.scheduleExpanded = false;
           this.scheduleWidth = this.drag.width + this.drag.start - event.clientX;
           this.updatePanes();
         }
@@ -3787,7 +3846,7 @@ section#layoutContentArea.pl-planner-introduction {
         this.syncPlanSurfaces();
         if (!this.activePlanSurface && target && !extras.contains(target) && !target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog')) extras.open = false;
       };
-      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter], empty, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, move, end, beforePrint, afterPrint, actionObserver, actionClick };
+      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter], empty, widenSchedule, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, move, end, beforePrint, afterPrint, actionObserver, actionClick };
       actionObserver.observe(host, { childList: true });
       doc.addEventListener("click", actionClick);
       this.syncPlanSurfaces();
@@ -3936,9 +3995,13 @@ section#layoutContentArea.pl-planner-introduction {
       if (!record.hadStyle && !record.node.getAttribute("style")) record.node.removeAttribute("style");
       this.planSurfaceTrigger.delete(record.node);
     }
+    maximumScheduleWidth() {
+      return Math.max(420, (this.state?.deck.clientWidth || 1400) - 432);
+    }
     currentScheduleWidth() {
       const s = this.state, available = s?.deck.clientWidth || 1400;
-      return Math.max(420, Math.min(640, Math.max(420, available - 632), this.scheduleWidth ?? available * 0.38));
+      const preferred = this.scheduleExpanded ? this.maximumScheduleWidth() : this.scheduleWidth ?? Math.min(640, available * 0.38);
+      return Math.max(420, Math.min(this.maximumScheduleWidth(), preferred));
     }
     selectModule(module, focus = false, explicitNavigation = false) {
       const s = this.state;
@@ -4134,8 +4197,14 @@ section#layoutContentArea.pl-planner-introduction {
       s.deck.style.setProperty("--pl-schedule-width", `${width}px`);
       const splitter = s.splitters[0];
       splitter.setAttribute("aria-valuemin", "420");
-      splitter.setAttribute("aria-valuemax", String(Math.max(420, Math.min(640, (s.deck.clientWidth || 1400) - 632))));
+      splitter.setAttribute("aria-valuemax", String(Math.floor(this.maximumScheduleWidth())));
       splitter.setAttribute("aria-valuenow", String(Math.round(width)));
+      splitter.setAttribute("aria-valuetext", `${Math.round(width)} pixels wide`);
+      s.widenSchedule.textContent = this.scheduleExpanded ? "Restore width" : "Widen";
+      s.widenSchedule.setAttribute("aria-label", this.scheduleExpanded ? "Restore schedule width" : "Widen schedule");
+      s.widenSchedule.setAttribute("aria-pressed", String(this.scheduleExpanded));
+      s.widenSchedule.title = this.scheduleExpanded ? "Restore your previous schedule width" : "Give the schedule more room. Drag the divider for finer adjustment.";
+      s.widenSchedule.disabled = !this.scheduleExpanded && width >= this.maximumScheduleWidth() - 1;
       s.mobileMain.textContent = MODULE_LABELS[this.module];
       s.mobileMain.setAttribute("aria-pressed", String(!this.showSchedule));
       s.mobileSchedule.setAttribute("aria-pressed", String(this.showSchedule));
@@ -4162,9 +4231,13 @@ section#layoutContentArea.pl-planner-introduction {
       for (const fields2 of values) {
         const line = host.ownerDocument.createElement("p");
         fields2.forEach((text, index) => {
-          const value = host.ownerDocument.createElement("span");
-          value.dataset.plSummaryField = String([1, 4, 5, 2][index]);
+          const value = host.ownerDocument.createElement("span"), field = [1, 4, 5, 2][index];
+          value.dataset.plSummaryField = String(field);
           value.textContent = text;
+          if (field === 2) {
+            const status = formatSectionStatus(text);
+            if (status) value.dataset.plStatusTone = status.tone;
+          }
           line.append(value);
         });
         summary.append(line);
@@ -4290,6 +4363,7 @@ section#layoutContentArea.pl-planner-introduction {
       this.pendingPlanAction = null;
       this.state = null;
       this.drag = null;
+      s.widenSchedule.remove();
       s.doc.defaultView?.removeEventListener("beforeprint", s.beforePrint);
       s.doc.defaultView?.removeEventListener("afterprint", s.afterPrint);
       s.afterPrint();

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.10 — 2026-10-03 (larger schedule and status colors)
+
+- Let the schedule grow beyond 640px, using available workspace width while
+  retaining at least 420px for browsing. Add Widen/Restore width beside its title.
+  Keep drag/keyboard adjustment and double-click reset; narrow screens keep the
+  existing full-width Schedule view. Native Grid size controls remain unchanged.
+- Color each lecture/discussion status in the class list: green Open/Enrolled,
+  amber Waitlist and red Closed. Keep original wording/counts, with unknown
+  statuses neutral. Preserve readable spacing at native line breaks.
+- Keep all sizing in memory and preserve native controls, data and navigation.
+
 ## 0.17.9 — 2026-10-03 (readable course details)
 
 - Give the course list more room and keep Details/Class actions on one row.

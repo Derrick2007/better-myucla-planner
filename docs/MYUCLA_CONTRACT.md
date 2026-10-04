@@ -1,5 +1,20 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Schedule sizing and per-section status colors (0.17.10)
+
+The schedule retains its default proportions but can grow past the old 640px
+cap. Its maximum is deck width minus a 420px browsing area and 12px divider.
+The owned Widen/Restore width control changes only layout, keeps the previous
+custom width in memory and is removed on restoration. Divider bounds and End
+follow available width; narrow full-width Schedule and native Grid size controls
+are unchanged. Resizing never invokes native schedule or plan actions.
+
+Class-list summaries use the existing strict status parser only for color.
+Original text/counts stay intact; each section is independent. Open/Enrolled
+is green, Waitlist amber, Closed red, unknown or contradictory wording neutral.
+Native status nodes/icons are untouched. Summary text separates native BRs with
+spaces and excludes explicitly hidden rows/content. No new stored data or requests.
+
 ## Course list and details hierarchy (0.17.9)
 
 My classes retains the original course nodes in a wider local list. The docked

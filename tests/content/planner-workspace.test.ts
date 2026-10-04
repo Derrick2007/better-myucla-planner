@@ -264,7 +264,7 @@ describe("one-page native planner workspace", () => {
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
     expect(separators[0].getAttribute('aria-valuenow')).toBe('516');
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));
-    expect(separators[0].getAttribute('aria-valuenow')).toBe('640');
+    expect(separators[0].getAttribute('aria-valuenow')).toBe('968');
     separators[0].dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
     expect(separators[0].getAttribute('aria-valuenow')).toBe('532');
     expect([...document.querySelectorAll(".ClassSearchWidget input,.ClassSearchWidget select")]).toEqual(controls);
@@ -275,10 +275,24 @@ describe("one-page native planner workspace", () => {
     mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,main=document.querySelector<HTMLElement>('.pl-workspace-main')!,splitter=document.querySelector<HTMLElement>('[role=separator]')!;
     const width=vi.spyOn(deck,'clientWidth','get').mockReturnValue(1100),bounds=vi.spyOn(main,'getBoundingClientRect').mockReturnValue({width:568} as DOMRect);
     try {
-      splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('468');expect(splitter.getAttribute('aria-valuemax')).toBe('468');
+      splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('668');expect(splitter.getAttribute('aria-valuemax')).toBe('668');
       expect(main.dataset.plMainSize).toBe('medium');bounds.mockReturnValue({width:540} as DOMRect);window.dispatchEvent(new Event('resize'));expect(main.dataset.plMainSize).toBe('narrow');
       bounds.mockReturnValue({width:760} as DOMRect);window.dispatchEvent(new Event('resize'));expect(main.dataset.plMainSize).toBe('wide');
     } finally {width.mockRestore();bounds.mockRestore();}
+  });
+  it("widens beyond the old cap and restores a custom width after viewport changes", () => {
+    mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,splitter=document.querySelector<HTMLElement>('[role=separator]')!,widen=document.querySelector<HTMLButtonElement>('.pl-workspace-schedule-widen')!;
+    const width=vi.spyOn(deck,'clientWidth','get').mockReturnValue(1500);
+    try {
+      splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+      const previous=splitter.getAttribute('aria-valuenow');
+      widen.click();expect(splitter.getAttribute('aria-valuenow')).toBe('1068');expect(widen.getAttribute('aria-pressed')).toBe('true');
+      width.mockReturnValue(1200);window.dispatchEvent(new Event('resize'));expect(splitter.getAttribute('aria-valuenow')).toBe('768');
+      width.mockReturnValue(1500);window.dispatchEvent(new Event('resize'));expect(splitter.getAttribute('aria-valuenow')).toBe('1068');
+      widen.click();expect(splitter.getAttribute('aria-valuenow')).toBe(previous);expect(widen.textContent).toBe('Widen');
+      widen.click();splitter.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('570');expect(widen.getAttribute('aria-pressed')).toBe('false');
+      workspace.restore();expect(document.querySelector('.pl-workspace-schedule-widen')).toBeNull();
+    } finally {width.mockRestore();}
   });
   it("changes modules without replacing native inputs or submitting", () => {
     mount();const plan=document.querySelector<HTMLButtonElement>('button[data-pl-module=classes]')!,find=document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!;

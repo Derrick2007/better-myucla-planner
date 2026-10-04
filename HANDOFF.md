@@ -2,7 +2,44 @@
 
 Last updated: 2026-10-03
 
-Current version: `0.17.9` (course list and details hierarchy).
+Current version: `0.17.10` (larger schedule and status colors).
+
+User requested a bigger adjustable calendar and class-list status colors matching
+Details. Added Widen/Restore width beside Weekly schedule. The old 640px maximum
+is replaced by available deck width minus 432px (420px browsing + 12px divider).
+Default proportions remain; pointer/keyboard resizing, End and ARIA bounds use
+the larger range. Widen tracks viewport changes and restores the prior manual
+width. Narrow screens keep the existing full-width Schedule switch. New owned
+controls are removed for Original layout and hidden in print. No native action
+or new storage is involved.
+
+Section summaries use the existing strict status parser for tone only: green
+Open/Enrolled, amber Waitlist, red Closed; unknown/contradictory stays neutral.
+Original wording and counts remain separate per lecture/discussion. BR boundaries
+become spaces; explicitly hidden native rows/text are excluded. Native cells,
+icons and handlers are unchanged. Small dots complement colored text.
+
+Typecheck, all 319 unit tests and production build pass. Visual probes at
+2048/1440/1280/390 confirm color/style/wording, Widen/Restore and no overflow.
+At 2048px the calendar grows from 640 to 1414px; at 1440px it grows to 806px,
+retaining a 420px browsing pane. Matching preview passes all 4 widths.
+Full workspace browser suite passes at 9 widths, including wider/custom sizes,
+resize and partial-redraw retention, native identity/geometry, narrow fallback,
+printing, restoration, long content, future quarters and drag scrolling.
+
+Installed 0.17.10 in Downloads/better-myucla-v0.10.3/dist; all 17 files match by
+SHA-256. Backup: outputs/installed-backup-v0.17.9. ZIP:
+outputs/better-myucla-v0.17.10.zip SHA-256:
+30cbb91814c7761a14e21be91a493398caa3dd8d22fafdf07786776969cea48e
+Requested Reload + refresh once; live verification pending. Exact ClassPlan tab
+retained and marked handoff. No actual plan/enrollment changes.
+
+CSS SHA-256: f96abc28bf1bb86a813c962f250add72c74c944a33d760f164d554ea67d28481.
+Content JS SHA-256: 4e6bd3d4eee178c427a79bc92bf4df803cca0df96769231806846b3be86544fa.
+Fictional proof: outputs/schedule-status-v0.17.10/widened-1440.png.
+The prior native Optimizer response limitation remains unresolved.
+
+## v0.17.9 historical record
 
 User asked for further improvements to the cramped course list and scattered
 section details. Widened the index (248–288px, medium 228px), kept Details/Class
