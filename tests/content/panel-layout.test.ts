@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PanelLayoutController } from "../../src/content/panel-layout";
+import { PanelLayoutController, type PanelDock, type PanelDockTarget } from "../../src/content/panel-layout";
 
 describe("native-preserving panel layout", () => {
   let layout: PanelLayoutController;
@@ -17,10 +17,8 @@ describe("native-preserving panel layout", () => {
     node.dispatchEvent(event); return event;
   };
   const startDrag = (node: HTMLElement = handle) => { pointer(node, "pointerdown", 80, 80); pointer(document, "pointermove", 96, 98); };
-  const dropOn = (dock: string) => {
-    const target = document.querySelector<HTMLElement>(`[data-pl-dock-target='${dock}']`)!;
-    const x = parseFloat(target.style.left) + parseFloat(target.style.width) / 2;
-    const y = parseFloat(target.style.top) + parseFloat(target.style.height) / 2;
+  const dropOn = (dock: PanelDock) => {
+    const x = dock === "left" ? 100 : dock === "right" ? 900 : 500, y = 320;
     pointer(document, "pointermove", x, y); pointer(document, "pointerup", x, y);
   };
   beforeEach(() => {
@@ -40,7 +38,7 @@ describe("native-preserving panel layout", () => {
     const parent = panel.parentElement, fieldParent = field.parentElement, form = field.form;
     const native = document.getElementById("native-action")!, action = vi.fn(); native.addEventListener("click", action);
     field.value = "example chosen value";
-    layout.floatPanel("schedule"); layout.dockPanel("schedule", "bottom"); layout.floatPanel("schedule"); layout.restore();
+    layout.floatPanel("schedule"); layout.dockPanel("schedule", "left"); layout.floatPanel("schedule"); layout.restore();
     expect(panel.parentElement).toBe(parent); expect(field.parentElement).toBe(fieldParent); expect(field.form).toBe(form);
     expect(field.value).toBe("example chosen value"); expect(document.getElementById("native-action")).toBe(native);
     expect(action).not.toHaveBeenCalled(); native.click(); expect(action).toHaveBeenCalledOnce();
@@ -52,9 +50,9 @@ describe("native-preserving panel layout", () => {
     expect(layout.getPlacement("schedule")).toBe("right"); expect(changed).not.toHaveBeenCalled(); expect(activate).not.toHaveBeenCalled();
     expect(clicked).toHaveBeenCalledOnce(); expect(document.querySelector(".pl-panel-drop-overlay")).toBeNull();
   });
-  it.each(["left", "right", "bottom", "main"])("docks by an explicit pointer drop at %s without clicking the navigation handle", dock => {
+  it.each<PanelDock>(["left", "right", "main"])("docks by an explicit pointer drop at %s without clicking the navigation handle", dock => {
     const clicked = vi.fn(); handle.addEventListener("click", clicked); startDrag();
-    expect(document.querySelectorAll("[data-pl-dock-target]")).toHaveLength(4); dropOn(dock); handle.click();
+    expect(document.querySelectorAll("[data-pl-dock-target]")).toHaveLength(1); dropOn(dock); handle.click();
     expect(layout.getPlacement("schedule")).toBe(dock); expect(panel.dataset.plPanelPlacement).toBe(dock);
     expect(activate).toHaveBeenCalledOnce(); expect(clicked).not.toHaveBeenCalled();
     expect(document.querySelector(".pl-panel-drop-overlay")).toBeNull(); expect(panel.parentElement).toBe(host);
@@ -76,7 +74,7 @@ describe("native-preserving panel layout", () => {
     expect(field.value).toBe("fictional selection"); expect(field.disabled).toBe(false);
     expect(document.querySelectorAll("#native-action")).toHaveLength(1); expect(document.getElementById("native-action")).toBe(native);
     native.click(); expect(action).not.toHaveBeenCalled();
-    pointer(document, "pointerup", 900, 70);
+    pointer(document, "pointerup", 900, 720);
     expect(layout.isFloating("schedule")).toBe(true); expect(panel.classList.contains("pl-floating-panel")).toBe(true);
     expect(panel.classList.contains("pl-panel-dragging")).toBe(false);
     expect(panel.querySelector<HTMLButtonElement>(".pl-panel-resize")!.hidden).toBe(false);
@@ -87,7 +85,7 @@ describe("native-preserving panel layout", () => {
   });
   it("moves an existing floating panel relative to its original position", () => {
     layout.floatPanel("schedule", { left: 100, top: 100, width: 300, height: 250 });
-    pointer(handle, "pointerdown", 120, 120); pointer(document, "pointermove", 150, 140); pointer(document, "pointerup", 150, 140);
+    pointer(handle, "pointerdown", 350, 120); pointer(document, "pointermove", 380, 140); pointer(document, "pointerup", 380, 140);
     expect(layout.snapshot().panels[0].box).toEqual({ left: 130, top: 120, width: 300, height: 250 });
   });
   it("Escape cancels a drag before any placement change and cannot close another UI", () => {
@@ -104,26 +102,137 @@ describe("native-preserving panel layout", () => {
     native.dispatchEvent(new MouseEvent("dblclick", { bubbles: true })); key(native, "f", { altKey: true, shiftKey: true });
     expect(layout.getPlacement("schedule")).toBe("right"); expect(activate).not.toHaveBeenCalled();
   });
+  it("leaves native labels, selection controls, accessible controls and links usable inside a full header", () => {
+    const header = document.createElement("div");
+    header.innerHTML = '<span>Heading</span><label for="header-choice">Choose</label><input id="header-choice" type="radio" checked><a href="#help">Help</a><span role="button">Help control</span><span role="checkbox" aria-checked="true">Toggle</span>';
+    panel.prepend(header); layout.addHandle("schedule", header);
+    const selected = header.querySelector<HTMLInputElement>("input")!, parent = selected.parentElement, form = selected.form;
+    for (const control of header.querySelectorAll<HTMLElement>("label,input,a,[role]")) {
+      startDrag(control); pointer(document, "pointerup", 900, 320);
+      expect(key(control, "f", { altKey: true, shiftKey: true }).defaultPrevented).toBe(false);
+      const double = new MouseEvent("dblclick", { bubbles: true, cancelable: true }); control.dispatchEvent(double);
+      expect(double.defaultPrevented).toBe(false);
+    }
+    expect(layout.getPlacement("schedule")).toBe("right"); expect(activate).not.toHaveBeenCalled();
+    expect(selected.checked).toBe(true); expect(selected.parentElement).toBe(parent); expect(selected.form).toBe(form);
+    const clicked = vi.fn(), control = header.querySelector<HTMLElement>("[role='button']")!; control.addEventListener("click", clicked);
+    startDrag(header.firstElementChild as HTMLElement); pointer(document, "pointerup", 500, 720);
+    control.click(); expect(clicked).toHaveBeenCalledOnce();
+  });
+  it("handles nested grips once and lets blank header space move the same panel", () => {
+    const header = document.createElement("div"), title = document.createElement("span");
+    title.textContent = "Heading"; header.append(title, handle); panel.prepend(header); layout.addHandle("schedule", header);
+    startDrag(handle); pointer(document, "pointerup", 500, 720);
+    expect(activate).toHaveBeenCalledOnce(); expect(layout.isFloating("schedule")).toBe(true);
+    activate.mockClear(); handle.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(activate).toHaveBeenCalledOnce(); expect(layout.getPlacement("schedule")).toBe("right");
+    activate.mockClear(); startDrag(title); pointer(document, "pointerup", 100, 320);
+    expect(activate).toHaveBeenCalledOnce(); expect(layout.getPlacement("schedule")).toBe("left");
+  });
+  it.each(['<div class="popover">', '<div class="clickover">', '<div role="dialog">', '<div role="alertdialog">', '<div popover>', '<dialog open>'])("preserves native Help text and scroll gestures inside header surface %s", opening => {
+    const header = document.createElement("div");
+    header.innerHTML = `${opening}<p>Example native Help text</p>${opening.startsWith("<dialog") ? "</dialog>" : "</div>"}`;
+    panel.prepend(header); layout.addHandle("schedule", header);
+    const text = header.querySelector<HTMLElement>("p")!, clicked = vi.fn(), scrolled = vi.fn();
+    text.addEventListener("click", clicked); text.addEventListener("wheel", scrolled);
+    startDrag(text); pointer(document, "pointerup", 900, 320);
+    for (const type of ["dblclick", "contextmenu"]) {
+      const event = new MouseEvent(type, { bubbles: true, cancelable: true }); text.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(key(text, "f", { altKey: true, shiftKey: true }).defaultPrevented).toBe(false);
+    const wheel = new WheelEvent("wheel", { bubbles: true, cancelable: true, deltaY: 80 }); text.dispatchEvent(wheel); text.click();
+    expect(wheel.defaultPrevented).toBe(false); expect(scrolled).toHaveBeenCalledOnce(); expect(clicked).toHaveBeenCalledOnce();
+    expect(layout.getPlacement("schedule")).toBe("right"); expect(activate).not.toHaveBeenCalled();
+    expect(document.querySelector(".pl-panel-drop-overlay,.pl-panel-layout-menu")).toBeNull();
+  });
   it("allows a navigation proxy to float its panel", () => {
     const proxy = document.createElement("button"); proxy.type = "button"; host.prepend(proxy); layout.addHandle("schedule", proxy);
-    startDrag(proxy); pointer(document, "pointerup", 900, 70);
+    startDrag(proxy); pointer(document, "pointerup", 900, 720);
     expect(layout.isFloating("schedule")).toBe(true); expect(activate).toHaveBeenCalledOnce();
   });
   it("anchors a proxy drag under the pointer instead of using the panel's former screen position", () => {
     const proxy = document.createElement("button"); proxy.type = "button"; host.prepend(proxy); layout.addHandle("schedule", proxy);
     layout.floatPanel("schedule", { left: 600, top: 400, width: 300, height: 220 });
-    pointer(proxy, "pointerdown", 80, 80); pointer(document, "pointermove", 200, 130);
-    expect(panel.style.getPropertyValue("--pl-panel-left")).toBe("80px");
+    pointer(proxy, "pointerdown", 320, 80); pointer(document, "pointermove", 400, 130);
+    expect(panel.style.getPropertyValue("--pl-panel-left")).toBe("280px");
     expect(panel.style.getPropertyValue("--pl-panel-top")).toBe("108px");
-    pointer(document, "pointerup", 200, 130);
-    expect(layout.snapshot().panels[0].box).toEqual({ left: 80, top: 108, width: 300, height: 220 });
+    pointer(document, "pointerup", 400, 130);
+    expect(layout.snapshot().panels[0].box).toEqual({ left: 280, top: 108, width: 300, height: 220 });
   });
   it("keeps dock targets at their original bounds when the workspace shrinks during a drag", () => {
-    startDrag();
+    startDrag(); pointer(document, "pointermove", 900, 320);
     const target = document.querySelector<HTMLElement>("[data-pl-dock-target='right']")!, before = target.style.cssText;
     host.getBoundingClientRect = () => rect(400, 400, 200, 150);
     dropOn("right");
     expect(layout.getPlacement("schedule")).toBe("right"); expect(target.style.cssText).toBe(before);
+  });
+  it("fills the entire hovered destination and leaves room to float between the generous side targets", () => {
+    startDrag();
+    const preview = () => document.querySelector<HTMLElement>(".pl-panel-drop-preview");
+    expect(preview()?.dataset.plDockTarget).toBe("left");
+    expect(preview()?.style.height).toBe("640px"); expect(parseFloat(preview()!.style.width)).toBeCloseTo(403.2);
+    expect(document.querySelector(".pl-panel-drop-target")).toBeNull(); expect(preview()?.textContent).toBe("");
+    pointer(document, "pointermove", 300, 320);
+    expect(preview()).toBeNull(); expect(document.querySelector(".pl-panel-drop-overlay")?.childElementCount).toBe(0);
+    pointer(document, "pointermove", 500, 320);
+    expect(preview()?.dataset.plDockTarget).toBe("main"); expect(preview()?.style.width).toBe("960px");
+    pointer(document, "pointermove", 900, 650);
+    expect(preview()?.dataset.plDockTarget).toBe("right"); expect(preview()?.style.top).toBe("40px"); expect(preview()?.style.height).toBe("640px");
+    expect(document.querySelectorAll("[data-pl-dock-target]")).toHaveLength(1);
+    pointer(document, "pointermove", 700, 320); pointer(document, "pointerup", 700, 320);
+    expect(layout.isFloating("schedule")).toBe(true);
+  });
+  it("does not offer a bottom dock through pointer, keyboard or layout menu", () => {
+    startDrag(); pointer(document, "pointermove", 500, 660);
+    expect(document.querySelector("[data-pl-dock-target]")).toBeNull();
+    pointer(document, "pointerup", 500, 660); expect(layout.isFloating("schedule")).toBe(true);
+    expect(key(handle, "ArrowDown", { altKey: true }).defaultPrevented).toBe(false);
+    expect(layout.isFloating("schedule")).toBe(true);
+    key(handle, "ContextMenu");
+    expect(document.querySelector(".pl-panel-layout-menu")?.textContent).not.toContain("Bottom");
+  });
+  it("freezes supplied hit regions and full previews before activation can reflow the workspace", () => {
+    const target: PanelDockTarget = { hit: { left: 800, top: 40, width: 180, height: 640 }, preview: { left: 700, top: 40, width: 280, height: 640 } };
+    const targets = vi.fn(() => ({ right: target }));
+    layout.removePanel("schedule");
+    layout.addPanel({ id: "schedule", label: "Schedule", element: panel, handle, defaultDock: "right", getDockTargets: targets, onActivate: () => {
+      target.hit.left = 100; target.preview.left = 20; target.preview.width = 500;
+    } });
+    pointer(handle, "pointerdown", 80, 80);
+    expect(targets).toHaveBeenCalledOnce();
+    pointer(document, "pointermove", 900, 100);
+    const preview = document.querySelector<HTMLElement>(".pl-panel-drop-preview")!;
+    expect(preview.dataset.plDockTarget).toBe("right");
+    expect(preview.style.left).toBe("700px"); expect(preview.style.width).toBe("280px");
+    pointer(document, "pointerup", 900, 100);
+    expect(layout.getPlacement("schedule")).toBe("right"); expect(targets).toHaveBeenCalledOnce();
+  });
+  it("prioritizes side targets over overlapping main space and retains the active edge for twelve pixels", () => {
+    const box = { left: 20, top: 40, width: 960, height: 640 };
+    layout.removePanel("schedule");
+    layout.addPanel({ id: "schedule", label: "Schedule", element: panel, handle, defaultDock: "right", getDockTargets: () => ({
+      main: { hit: box, preview: box },
+      left: { hit: { ...box, width: 240 }, preview: { ...box, width: 400 } },
+      right: { hit: { ...box, left: 740, width: 240 }, preview: { ...box, left: 580, width: 400 } }
+    }) });
+    startDrag();
+    const target = () => document.querySelector<HTMLElement>("[data-pl-dock-target]")?.dataset.plDockTarget;
+    expect(target()).toBe("left");
+    pointer(document, "pointermove", 272, 320); expect(target()).toBe("left");
+    pointer(document, "pointermove", 273, 320); expect(target()).toBe("main");
+    pointer(document, "pointermove", 900, 320); expect(target()).toBe("right");
+    pointer(document, "pointermove", 728, 320); expect(target()).toBe("right");
+    pointer(document, "pointerup", 728, 320); expect(layout.getPlacement("schedule")).toBe("right");
+  });
+  it("uses only valid supplied destinations and does not create fallback targets for missing entries", () => {
+    layout.removePanel("schedule");
+    layout.addPanel({ id: "schedule", label: "Schedule", element: panel, handle, defaultDock: "right", getDockTargets: () => ({
+      left: { hit: { left: 20, top: 40, width: 240, height: 640 }, preview: { left: 20, top: 40, width: NaN, height: 640 } }
+    }) });
+    startDrag(); pointer(document, "pointermove", 900, 320);
+    expect(document.querySelector("[data-pl-dock-target]")).toBeNull();
+    pointer(document, "pointerup", 900, 320); expect(layout.isFloating("schedule")).toBe(true);
   });
   it.each(["Escape", "pointercancel", "blur"])("restores placement, geometry and stacking when a real-panel drag is cancelled by %s", cancel => {
     layout.floatPanel("schedule", { left: 100, top: 100, width: 350, height: 250 });
@@ -145,9 +254,10 @@ describe("native-preserving panel layout", () => {
     handle.dispatchEvent(new MouseEvent("dblclick", { bubbles: true })); expect(layout.getPlacement("schedule")).toBe("right");
   });
   it("limits pointer, keyboard and menu destinations to the registered docks", () => {
-    layout.removePanel("schedule"); layout.addPanel({ id: "schedule", label: "Schedule", element: panel, handle, defaultDock: "right", allowedDocks: ["right", "bottom"] });
+    layout.removePanel("schedule"); layout.addPanel({ id: "schedule", label: "Schedule", element: panel, handle, defaultDock: "right", allowedDocks: ["right"] });
     key(handle, "ArrowLeft", { altKey: true }); expect(layout.getPlacement("schedule")).toBe("right");
-    startDrag(); expect(document.querySelectorAll("[data-pl-dock-target]")).toHaveLength(2); layout.cancelActiveDrag();
+    startDrag(); expect(document.querySelectorAll("[data-pl-dock-target]")).toHaveLength(0);
+    pointer(document, "pointermove", 900, 320); expect(document.querySelectorAll("[data-pl-dock-target]")).toHaveLength(1); layout.cancelActiveDrag();
     key(handle, "F10", { shiftKey: true }); const menu = document.querySelector(".pl-panel-layout-menu")!;
     expect(menu.textContent).toContain("Dock: Right side"); expect(menu.textContent).not.toContain("Dock: Left side");
   });
@@ -193,7 +303,7 @@ describe("native-preserving panel layout", () => {
     expect(changed.mock.calls).toEqual([["schedule", "floating", "visibility"], ["schedule", "floating", "visibility"]]);
   });
   it("restores hidden docked and floating panels from snapshots without activating a native disclosure", () => {
-    layout.floatPanel("schedule", { left: 100, top: 100, width: 350, height: 300 }); layout.dockPanel("schedule", "bottom");
+    layout.floatPanel("schedule", { left: 100, top: 100, width: 350, height: 300 }); layout.dockPanel("schedule", "left");
     layout.hidePanel("schedule"); const snapshot = layout.snapshot(); layout.reset(); activate.mockClear();
     layout.restoreSnapshot(snapshot); expect(layout.snapshot()).toEqual(snapshot); expect(activate).not.toHaveBeenCalled();
     layout.floatPanel("schedule", undefined, false); expect(layout.isHidden("schedule")).toBe(true);
@@ -203,9 +313,11 @@ describe("native-preserving panel layout", () => {
   });
   it("cancels a hidden navigation-tab drag back to the original hidden layout", () => {
     const proxy = document.createElement("button"); proxy.type = "button"; host.prepend(proxy); layout.addHandle("schedule", proxy);
+    field.type = "radio"; field.checked = true; const parent = field.parentElement, form = field.form;
     layout.hidePanel("schedule"); const before = layout.snapshot(); startDrag(proxy);
     expect(layout.isHidden("schedule")).toBe(false); key(proxy, "Escape");
     expect(layout.snapshot()).toEqual(before); expect(layout.isHidden("schedule")).toBe(true);
+    expect(field.checked).toBe(true); expect(field.parentElement).toBe(parent); expect(field.form).toBe(form);
   });
   it.each(["drag", "float", "dock"])("does not displace another pane from the old dock while activating a closed pane to %s", action => {
     const other = document.createElement("section"), otherHandle = document.createElement("button"), proxy = document.createElement("button");

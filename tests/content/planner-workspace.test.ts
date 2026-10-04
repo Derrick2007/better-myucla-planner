@@ -144,6 +144,30 @@ describe("one-page native planner workspace", () => {
       workspace.restore();expect(touch(row,"touchmove",[200]).defaultPrevented).toBe(false);
     } finally {metrics.forEach(spy=>spy.mockRestore());}
   });
+  it("reveals a native Details control focused before the pending stack scroll event", () => {
+    const course=adapter.inspectContract().courses[0];mount();
+    course.node.querySelector<HTMLButtonElement>("[data-pl-workspace-details]")!.click();
+    const destination=course.node.children[2].firstElementChild as HTMLElement,slot=document.querySelector<HTMLElement>(".pl-workspace-details-slot")!;
+    const control=document.createElement("button");control.type="button";control.textContent="Example native action";destination.append(control);
+    const rect=(top:number,height:number)=>({left:320,right:730,top,bottom:top+height,width:410,height,x:320,y:top,toJSON:()=>({})}) as DOMRect;
+    const metrics=[
+      vi.spyOn(slot,"getBoundingClientRect").mockReturnValue(rect(200,160)),
+      vi.spyOn(destination,"getBoundingClientRect").mockReturnValue(rect(0,500)),
+      vi.spyOn(control,"getBoundingClientRect").mockImplementation(()=>rect(parseFloat(course.node.style.getPropertyValue("--pl-detail-top"))+180,30)),
+      vi.spyOn(window,"scrollTo").mockImplementation(()=>{})
+    ];
+    try {
+      slot.scrollTop=100;slot.dispatchEvent(new Event("scroll"));
+      expect(control.getBoundingClientRect().top).toBe(280);
+      // DOM scrolling can precede its event. Focus must use the new projection.
+      slot.scrollTop=0;control.focus();
+      expect(document.activeElement).toBe(control);expect(control.parentElement).toBe(destination);
+      expect(slot.scrollTop).toBe(50);
+      expect(control.getBoundingClientRect().top).toBeGreaterThanOrEqual(200);
+      expect(control.getBoundingClientRect().bottom).toBeLessThanOrEqual(360);
+      expect(metrics[metrics.length-1]).not.toHaveBeenCalled();
+    } finally {metrics.forEach(spy=>spy.mockRestore());}
+  });
   it("shows exact per-section native summaries and refreshes changed statuses without aggregating", () => {
     const course=adapter.inspectContract().courses[0],table=course.node.querySelector<HTMLTableElement>('table.coursetable')!;
     const rows=[...table.rows].filter(row=>row.cells.length===9&&row.cells[0].tagName==='TD');
@@ -915,6 +939,15 @@ describe("one-page native planner workspace", () => {
       expect(document.querySelector<HTMLElement>('.pl-workspace-calendar')!.dataset.plPanelPlacement).toBe('floating');expect(optimizerPostback).not.toHaveBeenCalled();
     });
 
+    it("makes space when docking Details back into hidden My classes at an occupied edge",()=>{
+      mount();panelKey('classes','ArrowLeft',{altKey:true});const course=adapter.inspectContract().courses[0];course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();float('details');
+      hide('classes');panelKey('find','ArrowLeft',{altKey:true});panelKey('details','ArrowUp',{altKey:true});
+      const plan=document.querySelector<HTMLElement>('.pl-workspace-plan')!;
+      expect(plan.classList.contains('pl-panel-hidden')).toBe(false);expect(plan.dataset.plPanelPlacement).toBe('left');
+      expect(document.querySelector<HTMLElement>('.pl-workspace-search')!.dataset.plPanelPlacement).toBe('main');
+      expect(document.querySelector<HTMLElement>('.pl-workspace-details-frame')!.dataset.plPanelPlacement).toBe('main');expect(optimizerPostback).not.toHaveBeenCalled();
+    });
+
     it("preserves closed panes across native redraw and reveals everything on Reset layout",()=>{
       mount();hide('schedule');hide('classes');hide('optimizer');
       const fixture=new DOMParser().parseFromString(workspaceFixtureHtml(),'text/html');
@@ -1001,7 +1034,7 @@ describe("one-page native planner workspace", () => {
     });
 
     it("atomically resets custom edge placements, floating panels and collapsed navigation",()=>{
-      mount();panelKey('find','ArrowLeft',{altKey:true});panelKey('classes','ArrowDown',{altKey:true});float('schedule');
+      mount();panelKey('find','ArrowLeft',{altKey:true});panelKey('classes','ArrowRight',{altKey:true});float('schedule');
       document.querySelector<HTMLButtonElement>('.pl-navigation-toggle')!.click();expect(document.querySelector('.pl-workspace-host')!.classList.contains('pl-navigation-collapsed')).toBe(true);
       panelKey('schedule','ContextMenu');const reset=[...document.querySelectorAll<HTMLButtonElement>('.pl-panel-layout-menu button')].find(button=>button.textContent==='Reset layout')!;reset.click();
       expect(document.querySelector<HTMLElement>('.pl-workspace-calendar')!.dataset.plPanelPlacement).toBe('right');

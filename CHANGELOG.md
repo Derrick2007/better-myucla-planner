@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.18.2 — 2026-10-04 (docking preview prerelease)
+
+- Show a full shaded destination preview while moving a panel. Generous left
+  and right regions and the main panel's header accept drops.
+- Remove the bottom dock from dragging, layout menus and keyboard shortcuts.
+- Drag blank panel-header space as well as the dotted grip or navigation tab.
+  Native buttons, links, fields and Help retain their normal behavior.
+- Keep the actual panel following the pointer and Escape cancellation. Closing,
+  reopening, resizing, selections and expanded course details remain supported.
+- Reveal focused native Details controls immediately after a scroll change,
+  including on small screens, so they do not remain clipped below the panel.
+- Keep layout state in page memory; permissions, storage and native action
+  boundaries are unchanged. v0.18.1 remains available for rollback.
+- Typecheck, 389 unit tests, production build and fictional browser regressions
+  pass. Installed-page verification after Chrome reload remains pending.
+
 ## 0.18.1 — 2026-10-03 (flexible-panels prerelease)
 
 Includes the flexible-panel changes developed in 0.18.0, plus close controls

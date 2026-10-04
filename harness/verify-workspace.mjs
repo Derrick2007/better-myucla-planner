@@ -235,7 +235,9 @@ try {
   const selection=page.locator('#container_course_M2 .data_row input').first();await selection.check();
   await sep.press('End');await sep.press('ArrowRight');const preferredWidth=(await schedule.boundingBox()).width;assert.ok(preferredWidth>640);
   await page.setViewportSize({width:1280,height:900});
-  await page.waitForFunction(()=>document.querySelector('.pl-workspace-main').getBoundingClientRect().width>=419);
+  // The main pane can already meet its minimum before the resize event runs.
+  // Wait for the schedule's new geometry too, rather than reading the old frame.
+  await page.waitForFunction(previous=>document.querySelector('.pl-workspace-main').getBoundingClientRect().width>=419&&document.querySelector('.pl-workspace-calendar').getBoundingClientRect().width<previous,preferredWidth);
   assert.ok((await schedule.boundingBox()).width<preferredWidth,'smaller desktop clamps the wider manual selection safely');
   await page.setViewportSize({width:2048,height:900});
   await page.waitForFunction(expected=>Math.abs(document.querySelector('.pl-workspace-calendar').getBoundingClientRect().width-expected)<=1,preferredWidth);

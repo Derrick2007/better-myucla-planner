@@ -1,13 +1,21 @@
 # MyUCLA Class Planner 脱敏页面合约
 
-## Flexible panels (0.18.1 prerelease)
+## Flexible panels (0.18.2 prerelease)
 
-Owned grips and navigation buttons arrange the existing native sections by
-CSS coordinates only. Sections remain under their current workspace parents;
+Dragging an owned grip or navigation button, or a blank native header area,
+arranges the existing native sections by CSS coordinates only. Sections remain
+under their current workspace parents;
 course rows, native controls, IDs, handlers and form association are unchanged.
 Floating means an in-page panel in the same document, not another browser window.
 The owned details frame supplies viewport bounds; native third rows remain
 under their original TBODY and use the existing clipped projection.
+
+Docking supports left, right and main placements only. Generous side regions
+and the main panel's header accept drops; a shaded preview covers the full
+destination area. There is no bottom dock. Hit regions and destination bounds
+are captured before the panel leaves its dock so targets stay stable during
+the gesture. Header dragging starts only from blank, noninteractive content;
+native buttons, links, fields and Help popups retain their ordinary behavior.
 
 Layout gestures never submit a plan or enrollment action. Explicit dragging or
 floating of a collapsed module may forward its already validated native
@@ -24,7 +32,7 @@ dragging the actual panel follows the pointer; cancellation restores geometry,
 placement and stacking. A snapshot during dragging uses the committed layout.
 Same-context redraws attach these settings to fresh recognized nodes; context
 exit resets layout and old course references. Original layout removes all grips,
-resize handles, positioning, listeners and docking targets. Print restores flow.
+resize handles, positioning, listeners and docking previews. Print restores flow.
 
 ## Multiple details and native redraw continuity (0.17.11)
 

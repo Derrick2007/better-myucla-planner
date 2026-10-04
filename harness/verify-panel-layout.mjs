@@ -48,8 +48,64 @@ function fixture() {
 
 const frame = page => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
 const panel = (page, id) => page.locator(selectors[id]);
-const handle = (page, id) => panel(page, id).locator(`[data-pl-panel-handle="${id}"]:visible`).first();
+const handle = (page, id) => panel(page, id).locator(`button[data-pl-panel-handle="${id}"]:visible`).first();
 const close = (page, id) => panel(page, id).locator(`[data-pl-panel-close="${id}"]`);
+
+const preview = page => page.locator('.pl-panel-drop-preview[data-pl-dock-target]:visible');
+const interactive = 'button,a,input,select,textarea,label,[role="button"],[contenteditable="true"]';
+
+async function dockRegions(page) {
+  return { deck: await page.locator('.pl-workspace-deck').boundingBox(), main: await page.locator('.pl-workspace-main').boundingBox(), classes: await panel(page, 'classes').boundingBox() };
+}
+
+/** Point at the pane itself: a target must not be needed to discover a drop. */
+async function hoverDockDestination(page, destination, regions) {
+  const { deck, main, classes } = regions;
+  assert.ok(deck && deck.width > 0 && deck.height > 0, 'the workspace supplies a visible drop area');
+  const view = page.viewportSize();
+  const points = destination === 'main'
+    ? [classes, main, deck].filter(box => box && box.width > 0 && box.height > 0).flatMap(box => [.5, .4, .6].flatMap(x => [.08, .16, .3, .5, .7].map(y => ({ x: box.x + box.width * x, y: box.y + box.height * y }))))
+    : [.5, .3, .7, .15].flatMap(y => [20, 48, deck.width * .12].map(inset => ({ x: destination === 'left' ? deck.x + inset : deck.x + deck.width - inset, y: deck.y + deck.height * y })));
+  for (const point of points) {
+    if (point.x < 0 || point.x >= view.width || point.y < 0 || point.y >= view.height) continue;
+    await page.mouse.move(point.x, point.y, { steps: 6 }); await frame(page);
+    if (await preview(page).count() && await preview(page).getAttribute('data-pl-dock-target') === destination) {
+      assert.equal(await preview(page).count(), 1, 'only the hovered destination is previewed');
+      assert.equal(await page.locator('[data-pl-dock-target="bottom"],.pl-panel-drop-target').count(), 0, 'no bottom target or small target button is rendered');
+      const box = await preview(page).boundingBox();
+      const style = await preview(page).evaluate(node => ({ background: getComputedStyle(node).backgroundColor, pointerEvents: getComputedStyle(node).pointerEvents }));
+      assert.ok(box && box.width * box.height > deck.width * deck.height * .1 && box.height > Math.min(160, deck.height * .5), `the ${destination} preview fills a pane-sized destination: ${JSON.stringify({ box, deck })}`);
+      assert.ok(style.background !== 'transparent' && !/rgba\([^)]*,\s*0\s*\)/.test(style.background), 'the drop preview is a filled rectangle');
+      assert.equal(style.pointerEvents, 'none', 'the destination preview does not intercept native controls');
+      return { point, box };
+    }
+  }
+  assert.fail(`Moving over the measured ${destination} pane region did not show its destination preview`);
+}
+
+async function assertNoBottomDock(page, id) {
+  assert.equal(await page.locator('[data-pl-dock-divider="bottom"],[data-pl-dock-target="bottom"]').count(), 0, 'the workspace has no bottom docking controls');
+  const placement = await panel(page, id).getAttribute('data-pl-panel-placement');
+  await handle(page, id).focus(); await page.keyboard.press('Alt+ArrowDown'); await frame(page);
+  assert.equal(await panel(page, id).getAttribute('data-pl-panel-placement'), placement, 'Alt+Down has no bottom docking action');
+  await page.keyboard.press('Shift+F10');
+  const items = await page.getByRole('menuitem').allTextContents();
+  assert.ok(items.length > 0 && items.every(text => !/bottom/i.test(text)), 'the layout menu exposes no bottom docking action');
+  await page.keyboard.press('Escape'); await frame(page);
+}
+
+async function blankHeaderPoint(page, id) {
+  return handle(page, id).evaluate((grip, excluded) => {
+    const header = grip.closest('.classPlanner_SectionTitle') || grip.parentElement;
+    const box = header.getBoundingClientRect();
+    for (const y of [.5, .25, .75]) for (let x = box.right - 8; x >= box.left + 8; x -= 8) {
+      const point = { x, y: box.top + box.height * y };
+      const target = document.elementFromPoint(point.x, point.y);
+      if (target && header.contains(target) && !target.closest(excluded)) return point;
+    }
+    return null;
+  }, interactive);
+}
 
 async function hidePanel(page, id) {
   await assertReachable(close(page, id), `${id} close control is pointer reachable`);
@@ -59,12 +115,16 @@ async function hidePanel(page, id) {
 }
 
 /** Check the original panel while the pointer remains down, not its final drop. */
-async function assertLiveDragAndCancel(page, id, width) {
+async function assertLiveDragAndCancel(page, id, width, useBlankHeader = false) {
   const original = await panel(page, id).boundingBox();
   const placement = await panel(page, id).getAttribute('data-pl-panel-placement');
   const grip = await handle(page, id).boundingBox();
+  const regions = await dockRegions(page);
   assert.ok(original && grip, `${id} starts visible before live drag`);
-  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2); await page.mouse.down();
+  const start = useBlankHeader ? await blankHeaderPoint(page, id) : { x: grip.x + grip.width / 2, y: grip.y + grip.height / 2 };
+  assert.ok(start, `${id} has blank header space that can start a drag`);
+  assert.equal(await page.locator('[data-pl-dock-target]').count(), 0, 'no destination target exists before a drag');
+  await page.mouse.move(start.x, start.y); await page.mouse.down();
   await page.mouse.move(width * .51, 600, { steps: 8 }); await frame(page);
   const first = await panel(page, id).boundingBox();
   // A full-width narrow panel cannot move horizontally, and tall panes clamp
@@ -75,14 +135,16 @@ async function assertLiveDragAndCancel(page, id, width) {
     `${id} itself follows the mouse before release: ${JSON.stringify({ first, second })}`);
   assert.ok(await panel(page, id).isVisible(), 'the dragged original panel remains visible');
   assert.equal(await page.locator('.pl-panel-drag-ghost').count(), 0, 'dragging shows the actual panel, not only a label ghost');
+  assert.equal(await preview(page).count(), 0, 'free-space dragging shows no destination preview');
   await assertIdentity(page);
+  await hoverDockDestination(page, id === 'schedule' ? 'right' : 'main', regions);
   await page.screenshot({ path: resolve(output, `${id}-live-drag-${width}.png`) });
   await page.keyboard.press('Escape'); await page.mouse.up(); await frame(page);
   assert.equal(await panel(page, id).getAttribute('data-pl-panel-placement'), placement, 'Escape cancels temporary undocking');
   const restored = await panel(page, id).boundingBox();
   assert.ok(restored && ['x', 'y', 'width', 'height'].every(key => Math.abs(restored[key] - original[key]) <= 2),
     `${id} returns to its pre-drag geometry after Escape: ${JSON.stringify({ original, restored })}`);
-  assert.equal(await page.locator('[data-pl-dock-target]:visible').count(), 0, 'cancel removes all drop targets');
+  assert.equal(await page.locator('[data-pl-dock-target],.pl-panel-drop-overlay').count(), 0, 'cancel removes the destination preview and drag overlay');
   await assertIdentity(page);
 }
 
@@ -100,28 +162,43 @@ async function drag(page, source, destination) {
 }
 
 async function floatPanel(page, id, source = handle(page, id)) {
-  await drag(page, source, async () => page.evaluate(() => {
-    const targets = [...document.querySelectorAll('[data-pl-dock-target]')].filter(node => node.getClientRects().length).map(node => node.getBoundingClientRect());
+  await drag(page, source, async () => {
+    const { width, height } = page.viewportSize();
     // Narrow floating panes are deliberately placed below the navigation row,
     // so this test can reach it without first moving the window out of the way.
-    for (const y of innerWidth < 600 ? [.68, .74, .55, .42] : [.42, .55, .68, .3]) for (const x of [.52, .64, .4, .74]) {
-      const point = { x: innerWidth * x, y: innerHeight * y };
-      if (!targets.some(box => point.x >= box.left - 8 && point.x <= box.right + 8 && point.y >= box.top - 8 && point.y <= box.bottom + 8)) return point;
+    for (const y of width < 600 ? [.68, .74, .55, .42, .98, .1] : [.42, .55, .68, .3, .1]) for (const x of [.52, .64, .4, .74]) {
+      const point = { x: width * x, y: height * y };
+      await page.mouse.move(point.x, point.y, { steps: 4 }); await frame(page);
+      if (!await preview(page).count()) return point;
     }
     throw Error('No free position outside docking targets');
-  }));
+  });
   assert.ok(await panel(page, id).evaluate(node => node.classList.contains('pl-floating-panel')), `${id} floats after dragging to free space`);
+  assert.equal(await page.locator('.pl-panel-drop-overlay').count(), 0, 'floating finishes without a stale preview overlay');
 }
 
-async function dockPanel(page, id, destination) {
+async function dockPanel(page, id, destination, scenario = '') {
+  const regions = await dockRegions(page);
+  const detailsGeometry = () => page.evaluate(() => {
+    const plan = document.querySelector('.pl-workspace-plan'), title = plan.querySelector('.classPlanner_SectionTitle'), main = document.querySelector('.pl-workspace-main'), details = document.querySelector('.pl-workspace-details-frame');
+    const style = getComputedStyle(plan);
+    return { placement: plan.getAttribute('data-pl-panel-placement'), classes: plan.className, plan: plan.getBoundingClientRect().toJSON(), title: title.getBoundingClientRect().toJSON(), rows: style.gridTemplateRows, columns: style.gridTemplateColumns, clientHeight: plan.clientHeight, clientWidth: plan.clientWidth, main: main.getBoundingClientRect().toJSON(), details: details.getBoundingClientRect().toJSON() };
+  });
+  const before = id === 'details' ? await detailsGeometry() : null;
+  let targetBox, whileDragging;
   await drag(page, handle(page, id), async () => {
-    const target = page.locator(`[data-pl-dock-target="${destination}"]:visible`).first();
-    const box = await target.boundingBox();
-    assert.ok(box, `${destination} docking destination is visible while dragging`);
-    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const { point, box } = await hoverDockDestination(page, destination, regions);
+    targetBox = box;
+    if (id === 'details') whileDragging = await detailsGeometry();
+    await page.screenshot({ path: resolve(output, `${id}-${destination}${scenario ? `-${scenario}` : ''}-drop-preview-${page.viewportSize().width}.png`) });
+    return point;
   });
   assert.equal(await panel(page, id).getAttribute('data-pl-panel-placement'), destination, `${id} docks ${destination}`);
   assert.equal(await panel(page, id).evaluate(node => node.classList.contains('pl-floating-panel')), false);
+  const dropped = await panel(page, id).boundingBox();
+  const after = id === 'details' ? await detailsGeometry() : null;
+  assert.ok(dropped && ['x', 'y', 'width', 'height'].every(key => Math.abs(dropped[key] - targetBox[key]) <= 2), `${id} ${destination} drop matches the filled destination preview: ${JSON.stringify({ preview: targetBox, dropped, ...(before ? { before, whileDragging, after } : {}) })}`);
+  assert.equal(await page.locator('[data-pl-dock-target],.pl-panel-drop-overlay').count(), 0, 'a completed drop removes its preview');
 }
 
 async function assertReachable(locator, message) {
@@ -201,7 +278,8 @@ try {
       await assertIdentity(page);
       assert.deepEqual(await page.evaluate(() => window.fixtureNativeCalls), [], 'mount does not open a native module');
       if (width < 1100) await page.locator('.pl-workspace-schedule-toggle').click();
-      await assertLiveDragAndCancel(page, 'schedule', width);
+      await assertNoBottomDock(page, 'schedule');
+      await assertLiveDragAndCancel(page, 'schedule', width, true);
       await floatPanel(page, 'schedule');
       await assertReachable(handle(page, 'schedule'), 'floating schedule header is pointer reachable');
       const beforeMove = await panel(page, 'schedule').boundingBox();
@@ -223,8 +301,6 @@ try {
       await page.screenshot({ path: resolve(output, `schedule-floating-${width}.png`) });
       await dockPanel(page, 'schedule', 'left');
       await assertReachable(handle(page, 'schedule'), 'left-docked schedule has an accessible handle');
-      await dockPanel(page, 'schedule', 'bottom');
-      await assertReachable(handle(page, 'schedule'), 'bottom-docked schedule has an accessible handle');
       await dockPanel(page, 'schedule', 'right');
       const mainBeforeHide = await page.locator('.pl-workspace-main').boundingBox();
       await hidePanel(page, 'schedule');
@@ -266,6 +342,14 @@ try {
       await nav('classes').click(); await frame(page);
       await assertIdentity(page);
       await page.screenshot({ path: resolve(output, `details-floating-${width}.png`) });
+      await dockPanel(page, 'details', 'main', 'normal-classes');
+      await response.focus(); await assertReachable(response, 'native review remains reachable after docking Details');
+      await floatPanel(page, 'details');
+      await hidePanel(page, 'classes');
+      await dockPanel(page, 'details', 'main', 'hidden-classes');
+      assert.ok(await panel(page, 'classes').isVisible(), 'docking Details reopens its hidden My classes destination');
+      await response.focus(); await assertReachable(response, 'Details docked into reopened My classes retains the native review');
+      await floatPanel(page, 'details');
       if (width >= 1100) {
         await nav('classes').click(); await floatPanel(page, 'classes');
         await nav('find').click(); await floatPanel(page, 'find', nav('find'));
@@ -278,6 +362,14 @@ try {
         await assertReachable(response, 'native response comes forward without changing its original parent');
         await assertIdentity(page);
         await page.screenshot({ path: resolve(output, `multiple-floating-${width}.png`) });
+        await dockPanel(page, 'details', 'main', 'floating-classes');
+        assert.equal(await panel(page, 'classes').getAttribute('data-pl-panel-placement'), 'floating', 'docking Details preserves the floating My classes placement');
+        await response.focus(); await assertReachable(response, 'native review remains reachable when Details docks inside floating My classes');
+        await floatPanel(page, 'details');
+        await hidePanel(page, 'classes');
+        await dockPanel(page, 'details', 'main', 'hidden-floating-classes');
+        assert.equal(await panel(page, 'classes').getAttribute('data-pl-panel-placement'), 'floating', 'docking Details reopens hidden floating My classes in its retained position');
+        await response.focus(); await assertReachable(response, 'Details rejoined to hidden floating My classes preserves the reachable native review');
         await handle(page, 'details').focus(); await page.keyboard.press('Shift+F10');
         await page.getByRole('menuitem', { name: 'Reset layout', exact: true }).click();
         assert.equal(await page.locator('.pl-floating-panel').count(), 0, 'keyboard layout menu restores every panel');
@@ -383,4 +475,4 @@ try {
   await browser.close();
   await writeFile(resolve(output, 'metrics.json'), JSON.stringify(reports, null, 2));
 }
-console.log(`Flexible panels passed at ${widths.join(', ')}px: visible native-panel dragging/cancel, close/reopen and preserved selections, resize/dock, multiple details/native controls, modules, sidebar, redraws, printing and restoration.`);
+console.log(`Flexible panels passed at ${widths.join(', ')}px: native header dragging/cancel, full destination previews matching drops, no bottom docking, close/reopen and preserved selections, resize/dock, multiple details/native controls, modules, sidebar, redraws, printing and restoration.`);

@@ -1,8 +1,56 @@
 # Better MyUCLA — Agent handoff
 
-Last updated: 2026-10-03
+Last updated: 2026-10-04
 
-Current release version: `0.18.1`, branch `flexible-panels`.
+Current release version: `0.18.2`, branch `flexible-panels`.
+Keep v0.18.1 available for rollback; publish this as a prerelease on the fork.
+
+## Filled docking preview and simpler placement (0.18.2)
+
+Removed bottom docking from runtime, menus, keyboard and dividers. Dragging
+blank native header space, the dotted grip or navigation tab moves the actual
+panel. One shaded rectangle fills its predicted destination. Generous side
+regions and the main header accept drops; empty space leaves the panel floating.
+Targets are captured before movement, with edge hysteresis and Escape/blur
+cancellation. Native header controls and Help popovers cannot start a drag.
+
+Preview and committed layout share geometry, including collisions, narrow
+Details stacking, and returning Details to hidden/floating My classes. Revealing
+hidden Classes frees an occupied edge first. Details focus synchronizes its
+projected native row before measuring, fixing a reproduced small-screen action
+that stayed clipped after a synchronous scroll/focus change. Native nodes,
+parents, form association, selections and statuses remain intact. No additional
+storage, permission, API, server or background requests.
+
+Typecheck, production build and 389 unit tests pass. Browser fixtures pass:
+panel dragging/destination bounds within 2px at 2048/1440/390; native Details
+actions at 2048/1440/1280/390 across four redraw modes; Plan Actions and native
+module controls at four widths; broader workspace at nine widths plus long,
+empty/future, header/quarter redraw, resize, print and restoration cases. The
+resize fixture now waits for the actual schedule geometry after viewport
+changes, rather than accepting the previous main-pane frame. Screenshots and
+requests are fictional/intercepted. Evidence: outputs/dock-preview-*.log and
+outputs/panel-layout/. No live enrollment action was performed. User has been
+asked to reload Chrome's extension and refresh; installed-page QA is pending.
+
+All 17 built files installed and SHA-256 matched in
+`C:/Users/freeb/Downloads/better-myucla-v0.10.3/dist`.
+Backup: outputs/installed-backup-before-dock-preview-20261004-002511.
+Record: outputs/dock-preview-installed.json.
+Build content.js SHA-256:
+106c50090b346a7a369d486afac104617f02bafe993e8396937ed1e799b61317.
+Build injected.css SHA-256:
+37fcee649c1cb75a7799f9661136f9b07c67fe527e6d673f78e071cee3fab77b.
+Verified 17-file ZIP: outputs/release-v0.18.2/better-myucla-v0.18.2.zip.
+ZIP SHA-256: 39bdd9e1b6d4d738bcc893b9639500e38530b310211c1a3592492e5a69522139.
+
+Release workflow note: pushing/creating a v* tag triggers Release, which rebuilds
+and replaces the ZIP and release notes. Wait for that workflow to finish, then
+restore the verified local ZIP and notes, and check remote asset digests against
+SHA256SUMS.txt. Do not claim published hashes before that final verification.
+
+## Prior release packaging (0.18.1)
+
 The user explicitly requested a downloadable GitHub release after the branch
 push. Package v0.18.1 as a prerelease; keep v0.17.11 available for rollback.
 
