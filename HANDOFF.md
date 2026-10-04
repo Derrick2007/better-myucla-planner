@@ -31,8 +31,16 @@ Installed 0.17.10 in Downloads/better-myucla-v0.10.3/dist; all 17 files match by
 SHA-256. Backup: outputs/installed-backup-v0.17.9. ZIP:
 outputs/better-myucla-v0.17.10.zip SHA-256:
 30cbb91814c7761a14e21be91a493398caa3dd8d22fafdf07786776969cea48e
-Requested Reload + refresh once; live verification pending. Exact ClassPlan tab
-retained and marked handoff. No actual plan/enrollment changes.
+User reloaded/refreshed. On the exact ClassPlan page, Widen grew the calendar
+640→1399px while retaining 420.4px browsing with no horizontal clipping. Restore
+returned it exactly to 640px. Known status tones and their text/dot CSS colors
+match the build. Inspected only structural geometry/style/control labels; no
+course text or private screenshots collected. Prior width restored; tab marked
+deliverable. No actual plan/enrollment changes.
+
+Code `89c9a6f` is pushed to fork/planner-redesign. CI `37174783389` and Release
+`37174784926` passed. v0.17.10 is a prerelease; the asset was replaced after the
+workflow with the exact installed Windows ZIP, and GitHub's digest matches above.
 
 CSS SHA-256: f96abc28bf1bb86a813c962f250add72c74c944a33d760f164d554ea67d28481.
 Content JS SHA-256: 4e6bd3d4eee178c427a79bc92bf4df803cca0df96769231806846b3be86544fa.
