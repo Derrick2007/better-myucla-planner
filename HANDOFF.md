@@ -53,6 +53,12 @@ My classes retains details. No horizontal page overflow or open action panel
 remained. The real page was left on My classes Details; no account/course text,
 field values or real-page screenshot was captured.
 
+Code commit `7ad4e1e` and live-verification commit `88916e3` are on the fork's
+`planner-redesign` branch. CI `37166887966` and Release `37166890105` passed.
+v0.17.6 is published as a prerelease. Its asset was replaced after the release
+workflow with the exact installed/tested build; GitHub's SHA-256 matches local:
+`1509ea23a2b5cc0b98b81ba94d1751f9e385c579f02724336f52fd0c4dc6d4df`.
+
 ## v0.17.5 historical record
 
 Live inspection reproduced the blank Optimizer pane: navigation selected the
