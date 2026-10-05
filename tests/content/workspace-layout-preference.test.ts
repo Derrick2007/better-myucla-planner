@@ -95,7 +95,8 @@ describe("remembered workspace presentation",()=>{
     button('.pl-workspace-default').click();await Promise.resolve();
     const saved=save.mock.calls.at(-1)![0];expect(saved.module).toBe("classes");expect(saved.navigationCollapsed).toBe(false);expect(saved.scheduleWidth).toBeNull();expect(saved.scheduleExpanded).toBe(false);expect(saved.dockSizes).toEqual({});expect(saved.collapsedPanes).toEqual([]);
     expect(saved.panels.find((panel:{id:string})=>panel.id==="schedule")).toEqual({id:"schedule",placement:"right",hidden:false});
-    expect(saved.panels.every((panel:{hidden:boolean})=>!panel.hidden)).toBe(true);
+    expect(saved.groups.panels.classes.open).toBe(true);expect(saved.groups.panels.find.open).toBe(true);expect(saved.groups.panels.schedule.open).toBe(true);
+    for(const id of ['optimizer','study','personal'])expect(saved.groups.panels[id].open).toBe(false);
     expect(course.node.querySelector("table.coursetable")).toBe(table);expect(table!.parentElement).toBe(parent);expect(document.querySelectorAll(".pl-workspace-detail-space")).toHaveLength(1);
     expect(state.map(({node})=>({node,value:node.value,checked:node.checked}))).toEqual(state);expect(clicked).not.toHaveBeenCalled();
   });

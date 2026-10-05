@@ -3,18 +3,23 @@ export type PanelDock = "main" | "left" | "right";
 export type PanelPlacement = PanelDock | "floating";
 export interface PanelBox { left: number; top: number; width: number; height: number; }
 export interface PanelDockTarget { hit: PanelBox; preview: PanelBox; }
+export interface PanelDropOperation { kind: "merge" | "split"; dock: PanelDock; index?: number; }
+export interface PanelDropTarget extends PanelDockTarget { operation: PanelDropOperation; }
 export interface PanelLayoutSnapshot { panels: { id: string; placement: PanelPlacement; box?: PanelBox; hidden?: boolean }[]; }
 export interface PanelRegistration {
   id: string; label: string; element: HTMLElement; handle: HTMLElement; defaultDock: PanelDock;
   allowedDocks?: readonly PanelDock[];
   /** Viewport rectangles captured before a gesture changes the workspace. */
   getDockTargets?: () => Partial<Record<PanelDock, PanelDockTarget>>;
+  /** Ordered explicit grouping targets; edges can split while centers merge. */
+  getDropTargets?: () => PanelDropTarget[];
+  canDrop?: (operation: PanelDropOperation) => boolean;
   /** Explicit user intent only; never called by snapshot restoration or resize. */
   onActivate?: () => void;
 }
 /** Drag/geometry are transient display updates; commit is a completed user resize. */
 export type PanelLayoutChangeReason = "placement" | "geometry" | "visibility" | "reset" | "drag" | "commit";
-type Change = (id: string, placement: PanelPlacement, reason: PanelLayoutChangeReason) => void;
+type Change = (id: string, placement: PanelPlacement, reason: PanelLayoutChangeReason, operation?: PanelDropOperation) => void;
 interface SavedStyle { name: string; value: string; priority: string; }
 interface HandleState {
   node: HTMLElement; title: string | null; tabIndex: string | null; marker: string | null; hadClass: boolean; hadClassAttribute: boolean;
@@ -31,7 +36,7 @@ interface Gesture {
   panel: Panel; pointerId: number; source: HTMLElement; startX: number; startY: number;
   original: PanelBox; offsetX: number; offsetY: number; resize: boolean; started: boolean;
   before: { placement: PanelPlacement; box?: PanelBox; hidden: boolean; styles: SavedStyle[]; dragging: boolean; resizeHidden: boolean };
-  targets: Map<PanelDock, PanelDockTarget>; overlay?: HTMLElement; target?: PanelDock;
+  targets: PanelDropTarget[]; legacyTargets:boolean; overlay?: HTMLElement; target?: PanelDropTarget;
 }
 const OWNED = "data-planner-lift-owned";
 const DOCKS: readonly PanelDock[] = ["main", "left", "right"];
@@ -174,14 +179,15 @@ export class PanelLayoutController {
     panel.element.setAttribute("data-pl-panel-placement", "floating"); panel.resize.hidden = false;
     this.applyBox(panel, box); this.raise(panel); this.onChange(id, "floating", "placement");
   }
-  dockPanel(id: string, placement: PanelDock = "main", activate = true): void {
+  dockPanel(id: string, placement: PanelDock = "main", activate = true, operation:PanelDropOperation={kind:"merge",dock:placement}): void {
     const panel = this.panels.get(id); if (!panel || !this.allowed(panel).includes(placement)) return;
+    if(activate&&panel.canDrop&&!panel.canDrop(operation))return;
     if (activate) this.activateForPlacement(panel);
     if (this.panels.get(id) !== panel || !panel.element.isConnected) return;
     if (activate) this.setHidden(panel, false);
     panel.placement = placement; panel.element.classList.remove("pl-floating-panel"); panel.resize.hidden = true;
     panel.element.setAttribute("data-pl-panel-placement", placement);
-    this.onChange(id, placement, "placement");
+    this.onChange(id, placement, "placement", operation);
   }
   snapshot(): PanelLayoutSnapshot {
     return { panels: [...this.panels.values()].map(panel => {
@@ -277,7 +283,7 @@ export class PanelLayoutController {
         dragging: panel.element.classList.contains("pl-panel-dragging"), resizeHidden: panel.resize.hidden,
         styles: BOX_PROPERTIES.map(name => ({ name, value: panel.element.style.getPropertyValue(name), priority: panel.element.style.getPropertyPriority(name) })) },
       // Leaving a dock can resize the workspace. Its targets stay still throughout this gesture.
-      targets: resize ? new Map() : this.captureTargets(panel) };
+      targets: resize ? [] : this.captureTargets(panel),legacyTargets:!panel.getDropTargets };
   }
   private move = (event: PointerEvent): void => {
     const gesture = this.gesture; if (!gesture || event.pointerId !== gesture.pointerId) return;
@@ -343,8 +349,9 @@ export class PanelLayoutController {
       if (this.gesture !== gesture) return;
       if (!gesture.resize) {
         const target = this.dockAt(gesture, event.clientX, event.clientY);
+        if(target&&gesture.panel.canDrop&&!gesture.panel.canDrop(target.operation)){this.cancel();return;}
         this.finishGesture();
-        if (target) this.dockPanel(gesture.panel.id, target, false);
+        if (target) this.dockPanel(gesture.panel.id, target.operation.dock, false, target.operation);
         else this.floatPanel(gesture.panel.id, { ...gesture.original,
           left: event.clientX - gesture.offsetX, top: event.clientY - gesture.offsetY }, false);
       } else {
@@ -386,24 +393,25 @@ export class PanelLayoutController {
     overlay.setAttribute(OWNED, ""); overlay.setAttribute("aria-hidden", "true");
     this.doc.body.append(overlay); gesture.overlay = overlay;
   }
-  private showTarget(gesture: Gesture, dock: PanelDock | undefined): void {
-    if (gesture.target === dock) return;
-    gesture.target = dock; gesture.overlay?.replaceChildren();
-    const target = dock ? gesture.targets.get(dock) : undefined;
+  private showTarget(gesture: Gesture, target: PanelDropTarget | undefined): void {
+    if (gesture.target === target) return;
+    gesture.target = target; gesture.overlay?.replaceChildren();
     if (!target || !gesture.overlay) return;
     const preview = this.doc.createElement("div"); preview.className = "pl-panel-drop-preview";
-    preview.dataset.plDockTarget = dock;
+    preview.dataset.plDockTarget = target.operation.dock;
+    preview.dataset.plDropOperation = target.operation.kind;
     const box = target.preview;
     Object.assign(preview.style, { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` });
     gesture.overlay.append(preview);
   }
-  private captureTargets(panel: Panel): Map<PanelDock, PanelDockTarget> {
-    const supplied = panel.getDockTargets?.(), targets = new Map<PanelDock, PanelDockTarget>();
-    for (const dock of this.allowed(panel)) {
-      const target = supplied ? supplied[dock] : this.defaultTarget(dock);
+  private captureTargets(panel: Panel): PanelDropTarget[] {
+    const supplied = panel.getDockTargets?.(), targets:PanelDropTarget[]=[];
+    const candidates=panel.getDropTargets?.()||HIT_PRIORITY.filter(dock=>this.allowed(panel).includes(dock)).map(dock=>({...(supplied?supplied[dock]:this.defaultTarget(dock)),operation:{kind:"merge" as const,dock}}));
+    for (const target of candidates) {
+      if(!target?.operation||!this.allowed(panel).includes(target.operation.dock)||!["merge","split"].includes(target.operation.kind))continue;
       if (!target || !this.validBox(target.hit) || !this.validBox(target.preview) || target.hit.width <= 0 || target.hit.height <= 0 || target.preview.width <= 0 || target.preview.height <= 0) continue;
       // Copy both boxes: a workspace callback may reuse objects during reflow.
-      targets.set(dock, { hit: { ...target.hit }, preview: { ...target.preview } });
+      targets.push({hit:{...target.hit},preview:{...target.preview},operation:{...target.operation}});
     }
     return targets;
   }
@@ -417,17 +425,17 @@ export class PanelLayoutController {
     if (dock === "right") return { hit: { left: left + width * .75, top, width: width * .25, height }, preview: { left: left + width * .58, top, width: width * .42, height } };
     return { hit: { left: left + width * .34, top: top + height * .3, width: width * .32, height: height * .28 }, preview: { left, top, width, height } };
   }
-  private dockAt(gesture: Gesture, x: number, y: number): PanelDock | undefined {
-    const contains = (dock: PanelDock, margin = 0): boolean => {
-      const box = gesture.targets.get(dock)?.hit;
+  private dockAt(gesture: Gesture, x: number, y: number): PanelDropTarget | undefined {
+    const contains = (target: PanelDropTarget, margin = 0): boolean => {
+      const box = target.hit;
       return !!box && x >= box.left - margin && x <= box.left + box.width + margin && y >= box.top - margin && y <= box.top + box.height + margin;
     };
     // Side destinations win over a main workspace that overlaps them. Keep an
     // active side steady at its edge instead of flickering into the main pane.
-    const side = HIT_PRIORITY.find(dock => dock !== "main" && contains(dock));
+    const side = gesture.legacyTargets?gesture.targets.find(target=>target.operation.dock!=="main"&&contains(target)):gesture.targets.find(target => target.operation.kind==="split"&&contains(target));
     if (side) return side;
     if (gesture.target && contains(gesture.target, 12)) return gesture.target;
-    return contains("main") ? "main" : undefined;
+    return gesture.targets.find(target=>contains(target));
   }
   private initialBox(panel: Panel): PanelBox {
     const rect = panel.element.getBoundingClientRect(), viewport = this.viewport();

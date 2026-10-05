@@ -2165,3 +2165,61 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-panel-close { display: none !important; }
   .classPlannerWrapper.pl-workspace-host section.pl-panel-hidden { display: block !important; }
 }
+
+/* Workspace groups add only owned tab controls; native sections keep their
+   parents and their existing presentation beneath the measured 40px strip. */
+@media screen {
+  .classPlannerWrapper.pl-grouped-workspace .pl-workspace-group-strip {
+    position: fixed; left: var(--pl-group-left); top: var(--pl-group-top); width: var(--pl-group-width);
+    height: 40px; display: flex; align-items: stretch; gap: 4px; box-sizing: border-box;
+    padding: 4px 6px 0; margin: 0; border: 1px solid #dfe6ef; border-bottom-color: #d3dfea;
+    border-radius: 6px 6px 0 0; background: #f6f9fc; color: #596f85; z-index: 120;
+    overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+    scrollbar-width: thin; scrollbar-color: #c6d4e2 transparent;
+  }
+  .classPlannerWrapper.pl-grouped-workspace .pl-workspace-group-strip[hidden],
+  .classPlannerWrapper.pl-grouped-workspace .pl-workspace-group-tab-wrap[hidden],
+  .classPlannerWrapper.pl-grouped-workspace section.pl-group-inactive:not(.pl-details-only) { display: none !important; }
+  /* Group selection replaces the old mobile .pl-show-schedule switch. Keep
+     the actual calendar visible without hiding other groups' DOM ancestors. */
+  .pl-workspace-host.pl-grouped-workspace .pl-workspace-calendar.pl-module-active:not(.pl-group-inactive) {
+    display: flex !important; flex-direction: column;
+  }
+  /* Retain native Help in its header but let it escape a short pane's clip.
+     The search container otherwise becomes a containing block for fixed UI. */
+  .pl-grouped-workspace .pl-header-help-open { container-type: normal !important; z-index: 240 !important; }
+  .pl-grouped-workspace .pl-pane-title > .popover.clickover.pl-header-help-floating {
+    position: fixed !important; left: var(--pl-header-help-left) !important;
+    top: var(--pl-header-help-top) !important; right: auto !important;
+    width: var(--pl-header-help-width) !important; max-width: calc(100vw - 24px) !important;
+    max-height: var(--pl-header-help-max-height) !important;
+    box-sizing: border-box; overflow: auto; z-index: 230;
+  }
+  .pl-grouped-workspace .pl-workspace-group-tab-wrap {
+    flex: 0 0 auto; display: flex; align-items: center; min-width: 0; max-width: 230px;
+    margin: 0; padding: 0; border: 1px solid transparent; border-bottom: 2px solid transparent;
+    border-radius: 5px 5px 0 0; background: transparent;
+  }
+  .pl-grouped-workspace .pl-workspace-group-tab-wrap:has(> button.pl-workspace-group-tab[aria-selected="true"]) {
+    border-color: #d5e1ed; border-bottom-color: #347db5; background: #fff;
+  }
+  .pl-grouped-workspace button.pl-workspace-group-tab {
+    flex: 1 1 auto; min-width: 0; max-width: 194px; min-height: 30px; height: 30px;
+    box-sizing: border-box; margin: 0; padding: 5px 10px; border: 0; border-radius: 4px;
+    background: transparent; color: #60768d; text-align: left; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; font: 500 13px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: grab;
+  }
+  .pl-grouped-workspace button.pl-workspace-group-tab[aria-selected="true"] { color: #245e8d; font-weight: 600; }
+  .pl-grouped-workspace button.pl-workspace-group-tab:hover { background: #edf3f9; color: #245e8d; }
+  .pl-grouped-workspace button.pl-workspace-group-tab:active { cursor: grabbing; }
+  .pl-grouped-workspace button.pl-workspace-group-tab-close {
+    flex: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+    width: 30px; height: 30px; min-width: 30px; min-height: 30px; margin: 0; padding: 0;
+    border: 0; border-radius: 4px; background: transparent; color: #73869b;
+    font: 20px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
+  }
+  .pl-grouped-workspace button.pl-workspace-group-tab-close:hover { background: #e8f0f8; color: #245e8d; }
+  .pl-grouped-workspace button.pl-workspace-group-tab:focus-visible,
+  .pl-grouped-workspace button.pl-workspace-group-tab-close:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
+}
+@media print { .pl-workspace-group-strip { display: none !important; } }

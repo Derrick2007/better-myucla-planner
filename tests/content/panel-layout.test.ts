@@ -416,7 +416,8 @@ describe("native-preserving panel layout", () => {
     expect(layout.getPlacement("find")).toBe("right");
     expect(changed.mock.calls.filter(call => call[2] === "visibility")).toHaveLength(0);
     expect(activate).toHaveBeenCalledOnce();
-    if (action !== "drag") expect(changed).toHaveBeenCalledExactlyOnceWith("schedule", action === "float" ? "floating" : "left", "placement");
+    if (action === "dock") expect(changed).toHaveBeenCalledExactlyOnceWith("schedule", "left", "placement", { kind: "merge", dock: "left" });
+    else if (action === "float") expect(changed).toHaveBeenCalledExactlyOnceWith("schedule", "floating", "placement");
   });
   it("provides Hide and Show actions through the existing layout menu", () => {
     const proxy = document.createElement("button"); proxy.type = "button"; host.prepend(proxy); layout.addHandle("schedule", proxy);

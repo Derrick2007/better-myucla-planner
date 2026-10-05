@@ -1,6 +1,8 @@
 import type { PanelLayoutSnapshot } from "../content/panel-layout";
+import { migrateLegacyGroups, normalizeWorkspaceGroups, WORKSPACE_PANEL_IDS, type WorkspaceGroups } from "../content/workspace-groups";
 
-export const WORKSPACE_LAYOUT_KEY = "plannerLift.workspace.v1";
+export const WORKSPACE_LAYOUT_KEY = "plannerLift.workspace.v2";
+export const LEGACY_WORKSPACE_LAYOUT_KEY = "plannerLift.workspace.v1";
 const PANEL_IDS = ["classes", "find", "optimizer", "study", "personal", "schedule", "details"] as const;
 const MODULE_IDS = ["classes", "find", "optimizer", "study", "personal", "information"] as const;
 const PANE_IDS = ["plannerSectionClip", "plannerSectionCal", "classSearchTitle"] as const;
@@ -8,7 +10,8 @@ export type WorkspaceModule = typeof MODULE_IDS[number];
 
 /** Presentation only: no course ids, plan ids, text, selections or native values. */
 export interface WorkspaceLayoutPreference extends PanelLayoutSnapshot {
-  version: 1;
+  version: 2;
+  groups: WorkspaceGroups;
   module: WorkspaceModule;
   mainModule: WorkspaceModule;
   navigationCollapsed: boolean;
@@ -27,7 +30,7 @@ const moduleId = (value: unknown): WorkspaceModule => MODULE_IDS.includes(value 
 /** Rebuild the schema from an allowlist on both read and write. */
 export function normalizeWorkspaceLayout(value: unknown): WorkspaceLayoutPreference | null {
   const candidate = record(value);
-  if (!candidate || candidate.version !== 1 || !Array.isArray(candidate.panels)) return null;
+  if (!candidate || (candidate.version !== 1 && candidate.version !== 2) || !Array.isArray(candidate.panels)) return null;
   const panels: PanelLayoutSnapshot["panels"] = [], seen = new Set<string>();
   const occupied = new Set<string>();
   for (const value of candidate.panels.slice(0, 32)) {
@@ -35,9 +38,9 @@ export function normalizeWorkspaceLayout(value: unknown): WorkspaceLayoutPrefere
     if (!panel || !PANEL_IDS.includes(panel.id as never) || seen.has(panel.id as string)) continue;
     const id = panel.id as string;
     let placement = panel.placement;
-    if (!["main", "left", "right", "floating"].includes(placement as string) || (id === "schedule" && placement === "main") || (id === "details" && placement !== "main" && placement !== "floating")) continue;
+    if (!["main", "left", "right", "floating"].includes(placement as string) || (candidate.version===1 && id === "schedule" && placement === "main") || (id === "details" && placement !== "main" && placement !== "floating")) continue;
     // Invalid overlapping saved docks must never make a module unreachable.
-    if (panel.hidden !== true && (placement === "left" || placement === "right")) {
+    if (candidate.version===1 && panel.hidden !== true && (placement === "left" || placement === "right")) {
       if (occupied.has(placement)) placement = id === "schedule" ? "floating" : "main";
       else occupied.add(placement);
     }
@@ -48,9 +51,18 @@ export function normalizeWorkspaceLayout(value: unknown): WorkspaceLayoutPrefere
     panels.push({id, placement: placement as PanelLayoutSnapshot["panels"][number]["placement"], ...(box ? {box} : {}), hidden: panel.hidden === true});
     seen.add(id);
   }
+  const groups=candidate.version===1?migrateLegacyGroups({...candidate,panels}):normalizeWorkspaceGroups(candidate.groups);
+  if(!groups)return null;
+  // Group membership is authoritative. Geometry remains bounded per public
+  // panel; projected Details keeps its separate, existing snapshot contract.
+  for(const id of WORKSPACE_PANEL_IDS){
+    let panel=panels.find(panel=>panel.id===id);
+    if(!panel){panel={id,placement:groups.panels[id].placement};panels.push(panel);}
+    panel.placement=groups.panels[id].placement;panel.hidden=!groups.panels[id].open;
+  }
   const sizes = record(candidate.dockSizes), left = bounded(sizes?.left, 200, 16384), right = bounded(sizes?.right, 200, 16384);
   return {
-    version: 1, panels, module: moduleId(candidate.module), mainModule: moduleId(candidate.mainModule),
+    version: 2, groups, panels, module: moduleId(candidate.module), mainModule: moduleId(candidate.mainModule),
     navigationCollapsed: candidate.navigationCollapsed === true,
     scheduleWidth: bounded(candidate.scheduleWidth, 420, 16384), scheduleExpanded: candidate.scheduleExpanded === true,
     dockSizes: {...(left === null ? {} : {left}), ...(right === null ? {} : {right})},
@@ -62,7 +74,11 @@ export async function readWorkspaceLayout(): Promise<WorkspaceLayoutPreference |
   if (!globalThis.chrome?.storage?.local) return null;
   try {
     const stored = await chrome.storage.local.get(WORKSPACE_LAYOUT_KEY);
-    return normalizeWorkspaceLayout(stored[WORKSPACE_LAYOUT_KEY]);
+    const current=record(stored[WORKSPACE_LAYOUT_KEY]);
+    if(current?.version===2){const normalized=normalizeWorkspaceLayout(current);if(normalized)return normalized;}
+    const legacy=await chrome.storage.local.get(LEGACY_WORKSPACE_LAYOUT_KEY);
+    const previous=record(legacy[LEGACY_WORKSPACE_LAYOUT_KEY]);
+    return previous?.version===1?normalizeWorkspaceLayout(previous):null;
   } catch { return null; }
 }
 
@@ -70,7 +86,7 @@ let writes: Promise<void> = Promise.resolve();
 /** Serialize committed changes so a slow earlier write cannot undo Default layout. */
 export function saveWorkspaceLayout(value: WorkspaceLayoutPreference): Promise<void> {
   const preference = normalizeWorkspaceLayout(value);
-  if (!preference || !globalThis.chrome?.storage?.local) return Promise.resolve();
+  if (value?.version!==2 || !preference || !globalThis.chrome?.storage?.local) return Promise.resolve();
   writes = writes.then(async () => {
     try { await chrome.storage.local.set({[WORKSPACE_LAYOUT_KEY]: preference}); } catch { /* Private/offline contexts may deny storage. */ }
   });

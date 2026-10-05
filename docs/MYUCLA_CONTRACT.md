@@ -1,5 +1,24 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Grouped workspace (0.19 development)
+
+The six recognized primary panels may share main/left/right tab groups, with
+one active native panel per group and at most two visible docked groups. Owned
+tab strips select, close and arrange the original panels without moving native
+controls or course rows out of their existing parents. Inactive and closed are
+distinct states. An independently floating Details projection remains usable
+while its Classes tab is inactive; docked Details is concealed with Classes.
+
+Drop targets explicitly identify merge versus split and the destination dock.
+The preview and committed layout use the same reducer; unsupported or cramped
+splits are rejected. Cancellation restores membership, selection and geometry.
+Native redraw restoration never replays an action. V2 storage contains only
+allowlisted public layout fields and retains legacy v1 storage for rollback.
+Grouped pane bounds fit the visible viewport. A native Help popup directly
+under a recognized title may receive bounded viewport positioning and flip
+above the title when needed. Keep its parent, visibility and handlers intact;
+restore prior presentation properties on dismissal or Original layout.
+
 ## Compact panel controls (0.18.6 development)
 
 Apply navigation collapse before measuring any dock or projected Details bounds.

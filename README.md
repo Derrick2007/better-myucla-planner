@@ -25,14 +25,13 @@ opt-in, and the extension is not yet on the Chrome Web Store. This fork builds
 on [Astro-wen/better-myucla-planner](https://github.com/Astro-wen/better-myucla-planner).
 It is not made by, endorsed by, or affiliated with UCLA.
 
-**Development version: v0.18.6 (unreleased).** Panel arrangements are now saved
-locally across reopening Class Planner. **Default layout** in navigation resets
-the arrangement. Dragging follows the pointer with updates grouped per animation
-frame; native title buttons fit their labels so blank header space is grabbable.
-Docked panels fill the workspace when the center area is unused; reopening a
-module restores room for it. The schedule uses one header row when its controls
-fit; sidebar collapse keeps panels aligned, and single-course Details avoids
-duplicate close controls. The published v0.18.2 archive remains unchanged.
+**Development branch: v0.19-workspace (unreleased).** The next version replaces
+accidental narrow columns with tab groups and readable panel widths. See the
+[v0.19 scope and validation checklist](docs/V019_WORKSPACE.md) and the
+[interactive fictional design draft](harness/v019-design-draft.html). The draft
+also explores later course-list and calendar refinements; it is not an installed
+extension screenshot. The v0.18.6 baseline is preserved on `flexible-panels` at
+`1337c94`. The published v0.18.2 archive remains unchanged.
 
 ## Install or update
 

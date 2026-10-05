@@ -2,8 +2,57 @@
 
 Last updated: 2026-10-04
 
-Current development version: `0.18.6`, branch `flexible-panels`.
-Published prerelease: `0.18.2`; keep it unchanged while validating this local fix.
+Current development version: `0.19.0`, branch `v0.19-workspace`.
+Installed version: `0.18.6`. Published prerelease: `0.18.2`.
+
+## v0.19 tab-group milestone
+
+The user requested saving GitHub first, then beginning v0.19. Baseline v0.18.6
+is committed and pushed as `1337c94b32a8a095ff36061ec8cb04ff272d5626` on
+`fork/flexible-panels`. Draft PR #1 targets the user's fork main and CI passed:
+https://github.com/comet-ctrl/better-myucla-planner/pull/1.
+Do not overwrite the installed v0.18.6 build until the development milestone
+is ready for a separately identified live check.
+
+`workspace-groups.ts` is a pure six-panel model (Classes, Find, Optimizer, Study,
+Personal, Schedule). It supports open/closed remembered membership, active tabs,
+visible-tab insertion order, singleton floating and at most two docked groups.
+Find's 560px minimum is reserved while it is an open tab; Schedule needs 420px.
+Narrow views select one group without overwriting saved desktop grouping.
+
+Native sections remain in their existing parents and project beneath owned
+40px tab strips. Inactive sections are hidden; independently floating Details
+keeps its Classes anchor, while docked Details is concealed with its tab. The
+native header close is hidden while a tab close serves the same docked panel.
+Keyboard arrows/Home/End select tabs and Delete closes. Explicit center merge
+and edge split targets share the reducer used by the resulting layout; preview
+bounds include the strip. Tab hit intervals are clipped to visible strip bounds.
+Selected-tab reveal scrolls only the strip. Escape/blur/redraw cancels gestures.
+Grouped pane bounds end inside the visible viewport so short windows retain
+local scrolling. Native title Help popups keep their parents and handlers;
+bounded positioning can flip them above the title, with exact style cleanup.
+
+Storage uses `plannerLift.workspace.v2`, containing only allowlisted public
+layout fields and group state. It reads v1 as a migration fallback and leaves
+the old key intact for rollback. Details retains separate bounded panel geometry;
+course expansion and native values are never stored or replayed.
+
+See `docs/V019_WORKSPACE.md` for scope. `harness/v019-design-draft.html` is an
+interactive fictional exploration; it also shows later course-list/details and
+calendar ideas that this first milestone does not implement. The user's real
+UCLA masthead remains unchanged. Fictional screenshots are in
+`outputs/v019-design-draft/` and `outputs/workspace-groups/` outside the repo.
+
+Typecheck, build and all 462 unit tests passed. The group browser suite passes
+2048/1440/1280/960/390 plus legacy migration, merging/splitting, filled previews,
+cancellation, native redraw, divider and Widen/Restore, tab reveal, print,
+all-closed and Original layout. Course Details action fixtures pass four widths
+and Plan Actions pass four viewport sizes. Native module controls also pass
+1440x900, 1280x900, 960x900 and 390x600, including Help, calendar redraw, native
+control identity and restoration. Logs: outputs/v019-unit-final.log,
+v019-groups-final.log, v019-details.log, v019-plan-actions.log and
+v019-module-final.log.
+No real account action or installed-page verification was performed for v0.19.
 
 ## Compact headers and panel control fixes (0.18.6 development)
 

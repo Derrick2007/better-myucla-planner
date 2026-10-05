@@ -37,7 +37,7 @@ describe("occupied panels fill the planner",()=>{
     await Promise.resolve();expect(saved).not.toHaveBeenCalled();
     button('button[data-pl-module=classes]').click();await Promise.resolve();
     expect(deck.classList.contains('pl-no-main-dock')).toBe(false);
-    if(side==='left')expect(value(calendar,'width')).toBe(340);
+    if(side==='left')expect(value(calendar,'width')).toBe(420);
     else expect(deck.style.getPropertyValue('--pl-schedule-width')).toBe('700px');
     expect(saved.mock.calls.at(-1)![0].dockSizes).toEqual({left:340});expect(saved.mock.calls.at(-1)![0].scheduleWidth).toBe(700);
   });
@@ -51,18 +51,20 @@ describe("occupied panels fill the planner",()=>{
     const before=value(left,'width');divider.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
     expect(value(left,'width')-before).toBeCloseTo(16,0);expect(value(left,'width')+value(right,'width')).toBeCloseTo(1188);
     divider.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}));
-    expect(value(left,'width')).toBe(988);expect(value(right,'width')).toBe(200);
-    await Promise.resolve();expect(saved.mock.calls.at(-1)![0].dockSizes).toEqual({left:988,right:200});
+    expect(value(left,'width')).toBe(768);expect(value(right,'width')).toBe(420);
+    await Promise.resolve();expect(saved.mock.calls.at(-1)![0].dockSizes).toEqual({left:768,right:420});
     button('[data-pl-panel-close=find]').click();expect(value(right,'width')).toBe(1200);expect(divider.hidden).toBe(true);
   });
 
   it('treats Find fallback and Information as occupied main areas, not standby native modules',()=>{
     document.body.innerHTML=new DOMParser().parseFromString(introductionFixtureHtml(),'text/html').body.innerHTML;
     mount({panels:[{id:'classes',placement:'main',hidden:true},{id:'schedule',placement:'left'}],dockSizes:{left:340}});
-    expect(element('.pl-workspace-host').dataset.plModule).toBe('find');expect(value(element('.pl-workspace-calendar'),'width')).toBe(340);
+    expect(element('.pl-workspace-host').dataset.plModule).toBe('find');expect(value(element('.pl-workspace-calendar'),'width')).toBe(420);
     button('[data-pl-panel-close=find]').click();expect(element('.pl-workspace-deck').classList.contains('pl-no-main-dock')).toBe(true);
     button('.pl-intro-info').click();expect(element('.pl-workspace-host').dataset.plModule).toBe('information');
-    expect(element('.pl-workspace-deck').classList.contains('pl-no-main-dock')).toBe(false);expect(value(element('.pl-workspace-calendar'),'width')).toBe(340);
+    expect(element('.pl-workspace-deck').classList.contains('pl-no-main-dock')).toBe(false);
+    expect(element('.pl-workspace-calendar').classList.contains('pl-group-inactive')).toBe(true);
+    expect((document.querySelector('right-sidebar') as HTMLElement).style.getPropertyValue('--pl-info-width')).toBe('1200px');
   });
 
   it('keeps full-width docked Classes in the wide details presentation',()=>{
@@ -74,6 +76,6 @@ describe("occupied panels fill the planner",()=>{
   it('keeps the empty-workspace placeholder when every dock is closed',()=>{
     mount({panels:[{id:'classes',placement:'main',hidden:true},{id:'find',placement:'main',hidden:true},{id:'schedule',placement:'right',hidden:true}]});
     expect(element('.pl-workspace-main').classList.contains('pl-main-empty')).toBe(true);
-    expect(element('.pl-workspace-deck').classList.contains('pl-no-main-dock')).toBe(false);
+    expect([...document.querySelectorAll<HTMLElement>('.pl-workspace-group-strip')].every(strip=>strip.hidden)).toBe(true);
   });
 });

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.19.0 — unreleased development
+
+- Group primary modules into tabs. My classes and Find classes share browsing
+  by default, with Schedule beside them. Opening a module selects its tab.
+- Merge tabs by dropping into a pane, or split into a second pane at an edge
+  when there is room. Filled previews describe the resulting group bounds.
+- Enforce readable widths and at most two docked groups. Narrow windows show
+  one group at a time without rewriting the saved desktop arrangement.
+- Save tab order, membership and active choices in a new v2 layout preference;
+  preserve the previous v1 data for rollback. Closing retains remembered placement.
+- Add keyboard tab selection and distinct tab close controls; floating panels
+  retain their own header close. Details and native actions keep their existing
+  original nodes, values, handlers and form association.
+- Keep active calendars visible in narrow views, fit module scrolling to short
+  windows and position native Help popups within the visible screen.
+- Include a clearly labeled fictional design draft for subsequent course-list,
+  details and calendar refinements. This is not a published release.
+
 ## 0.18.6 — unreleased development
 
 - Place the schedule's title and original display switches on one row when

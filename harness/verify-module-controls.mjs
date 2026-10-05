@@ -96,7 +96,9 @@ try {
   assert.deepEqual(await page.evaluate(()=>fixtureCommands),['ctl00$MainContent$toggleOptimizer|']);
   await page.locator('#ctl00_MainContent_planSectionHelpTipOpPop').click();assert.ok(await page.locator('#HelpOptimizerDiv').isVisible());
   await page.locator('#ctl00_MainContent_planSectionHelpTipOpPop').click();assert.equal(await page.locator('#HelpOptimizerDiv').isVisible(),false);
-  await page.locator('[name="exampleOptimizerPriority"]').selectOption('afternoon');await page.locator('[name="exampleOptimizerDays"]').check();
+  await page.locator('[name="exampleOptimizerPriority"]').selectOption('afternoon');
+  if(width===390)await page.screenshot({path:resolve(output,'optimizer-short-height-390.png')});
+  await page.locator('[name="exampleOptimizerDays"]').check();
   await page.locator('[data-fixture-module-action="optimizer"]').click();assert.equal(await page.locator('#panelOptimizer output').innerText(),'Example optimizer preview ready');
   for(const [module,body,toggle,help] of [['study','panelNotplan','toggleNotplan','slneTip'],['personal','panelPersonal','togglePersonal','ctl00_MainContent_helpPersonal']]){
    await nav(module).click();const control=page.locator(`#ctl00_MainContent_${toggle}`);
@@ -122,11 +124,22 @@ try {
   await nav('optimizer').click();assert.equal(await page.locator('[name="exampleOptimizerPriority"]').inputValue(),'afternoon');
   await nav('find').click();await page.locator('#faceTip').click();await closeClickover('#classSearchTitle');
   if(width<1100)await page.locator('.pl-workspace-schedule-toggle').click();
+  if(!await page.locator('#slCheck').isVisible()){
+   await page.screenshot({path:resolve(output,`calendar-open-failure-${width}.png`)});
+   console.log(await page.evaluate(()=>({calendar:document.querySelector('.pl-workspace-calendar')?.className,host:document.querySelector('.pl-workspace-host')?.dataset,mobile:document.querySelector('[data-pl-mobile-view=schedule]')?.outerHTML,strips:[...document.querySelectorAll('.pl-workspace-group-strip')].map(node=>({hidden:node.hidden,selected:node.querySelector('[aria-selected=true]')?.textContent})),toggle:document.getElementById('slCheck')?.getBoundingClientRect().toJSON()})));
+  }
   for(const [name,prefix,state] of [['studylist','sl','studylistChecked'],['plan','plan','planChecked'],['alternates','alt','alternatesChecked']]){
    const initial=await page.locator('.checkboxStateHolder').evaluate((node,state)=>node.classList.contains(state),state);
    await page.locator(`#${prefix}${initial?'Check':'Uncheck'}`).click();
    assert.equal(await page.locator('.checkboxStateHolder').evaluate((node,state)=>node.classList.contains(state),state),!initial);
-   await page.locator(`#${prefix}${initial?'Uncheck':'Check'}`).click();
+   const reverse=page.locator(`#${prefix}${initial?'Uncheck':'Check'}`);
+   await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
+   if(!await reverse.isVisible()){
+    await page.screenshot({path:resolve(output,`calendar-redraw-failure-${width}.png`)});
+    const state=await page.locator('.pl-workspace-calendar').evaluate(node=>({classes:node.className,placement:node.dataset.plPanelPlacement,calendar:node.getBoundingClientRect().toJSON(),grid:document.getElementById('gridDiv').className,toolbar:document.querySelector('.checkboxStateHolder').className,active:document.querySelector('[data-pl-mobile-view=schedule]')?.getAttribute('aria-pressed')}));
+    assert.fail(`Calendar reverse control hidden after native redraw: ${JSON.stringify(state)}`);
+   }
+   await reverse.click();
    assert.equal(await page.locator('.checkboxStateHolder').evaluate((node,state)=>node.classList.contains(state),state),initial);
    await page.locator(`#tip-${name}`).click();await closeHelp();
   }

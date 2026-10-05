@@ -11,7 +11,16 @@ describe("one-page native planner workspace", () => {
   let adapter: MyUclaPlannerAdapter;
   let optimizerPostback: ReturnType<typeof vi.fn>;
   let optimizerShrink: ReturnType<typeof vi.fn>;
-  const mount = () => workspace.reconcile(document, adapter.inspectContract().courses);
+  const mount = () => {
+    workspace.reconcile(document, adapter.inspectContract().courses);
+    // JSDOM has no layout: model the desktop fixture instead of inferring a
+    // compact one-pane workspace from a zero-width bounding box.
+    const deck=document.querySelector<HTMLElement>('.pl-workspace-deck');
+    if(deck&&!vi.isMockFunction(deck.getBoundingClientRect)){
+      vi.spyOn(deck,'getBoundingClientRect').mockReturnValue({left:180,top:120,width:1400,height:700,right:1580,bottom:820,x:180,y:120,toJSON(){}});
+      window.dispatchEvent(new Event('resize'));
+    }
+  };
   const nativeOptimizerHandler = (button:HTMLButtonElement) => {
     button.onclick=()=>{optimizerShrink('panelOptimizer');optimizerPostback('ctl00$MainContent$toggleOptimizer','');return false;};
   };
@@ -39,6 +48,7 @@ describe("one-page native planner workspace", () => {
     return {button,title,target,postback,setOpen};
   };
   beforeEach(() => {
+    vi.stubGlobal('innerWidth',1440);
     const fixture = new DOMParser().parseFromString(workspaceFixtureHtml(), "text/html");
     document.body.innerHTML = fixture.body.innerHTML;
     workspace = new PlannerWorkspace(); adapter = new MyUclaPlannerAdapter(document);
@@ -51,7 +61,7 @@ describe("one-page native planner workspace", () => {
     const native=document.getElementById('ctl00_MainContent_toggleOptimizer');if(native)nativeOptimizerHandler(native as HTMLButtonElement);
     document.querySelector('form')!.addEventListener('submit',event=>event.preventDefault());
   });
-  afterEach(() => workspace.restore());
+  afterEach(() => {workspace.restore();vi.restoreAllMocks();vi.unstubAllGlobals();});
 
   it("keeps the original form, inputs, course order and native handlers", () => {
     const form = document.querySelector("form");
@@ -108,9 +118,12 @@ describe("one-page native planner workspace", () => {
     const native=new DOMParser().parseFromString(workspaceFixtureHtml(),"text/html").querySelector<HTMLTableElement>("table.coursetable")!;
     const replacement=document.importNode(native,true),handler=vi.fn();replacement.querySelectorAll("button,a,input").forEach(control=>control.addEventListener("click",handler));oldTable.replaceWith(replacement);
     expect(workspace.needsReconcile(document)).toBe(true);mount();
-    expect(courses.map(course=>course.node.querySelector("[data-pl-workspace-details]")!.getAttribute("aria-expanded"))).toEqual(["true","true"]);
+    expect(courses.map(course=>course.node.querySelector("[data-pl-workspace-details]")!.getAttribute("aria-expanded"))).toEqual(["false","false"]);
+    expect(courses.every(course=>course.node.classList.contains('pl-details-concealed'))).toBe(true);
     expect(document.activeElement).toBe(find);expect(find.getAttribute("aria-pressed")).toBe("true");expect(handler).not.toHaveBeenCalled();
     expect(document.querySelectorAll(".pl-workspace-detail-space")).toHaveLength(2);expect(replacement.parentElement).toBe(oldTable.parentElement||courses[0].node.children[2].firstElementChild);
+    document.querySelector<HTMLButtonElement>("button[data-pl-module=classes]")!.click();
+    expect(courses.map(course=>course.node.querySelector("[data-pl-workspace-details]")!.getAttribute("aria-expanded"))).toEqual(["true","true"]);
     workspace.restore();expect(document.querySelector(".pl-workspace-detail-space")).toBeNull();expect(document.querySelector(".pl-workspace-preview")).toBeNull();
   });
   it("positions open rows as a non-overlapping stack and retains geometry while another module is hidden", () => {
@@ -323,7 +336,7 @@ describe("one-page native planner workspace", () => {
     expect(document.querySelector('.pl-workspace-calendar')!.parentElement).toBe(document.querySelector('.pl-workspace-deck'));
     expect(document.querySelector('.pl-workspace-detail-backdrop')).toBeNull();
     document.querySelector<HTMLButtonElement>('button[data-pl-module=personal]')!.click();
-    expect(details.getAttribute('aria-expanded')).toBe('true');expect(document.querySelector('.pl-workspace-calendar.pl-module-active')).not.toBeNull();
+    expect(document.querySelectorAll('.pl-workspace-detail-space')).toHaveLength(1);expect(document.querySelector('.pl-workspace-calendar.pl-module-active')).not.toBeNull();
     expect(adapter.inspectContract().ok).toBe(true);
   });
   it("offers an accessible close button and toggles the same course details", () => {
@@ -341,12 +354,12 @@ describe("one-page native planner workspace", () => {
   it("resizes supporting panes with the keyboard and restores original controls", () => {
     const controls = [...document.querySelectorAll(".ClassSearchWidget input,.ClassSearchWidget select")];
     mount();
-    const separators = [...document.querySelectorAll<HTMLElement>('[role="separator"][aria-label="Resize schedule"]')];
+    const separators = [...document.querySelectorAll<HTMLElement>('.pl-dock-divider:not([hidden])')];
     expect(separators).toHaveLength(1);
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
     expect(separators[0].getAttribute('aria-valuenow')).toBe('516');
     separators[0].dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));
-    expect(separators[0].getAttribute('aria-valuenow')).toBe('968');
+    expect(separators[0].getAttribute('aria-valuenow')).toBe('828');
     separators[0].dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
     expect(separators[0].getAttribute('aria-valuenow')).toBe('532');
     expect([...document.querySelectorAll(".ClassSearchWidget input,.ClassSearchWidget select")]).toEqual(controls);
@@ -355,9 +368,9 @@ describe("one-page native planner workspace", () => {
   });
   it("reserves the main workspace when clamping schedule width and reports its responsive size", () => {
     mount();const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,main=document.querySelector<HTMLElement>('.pl-workspace-main')!,splitter=document.querySelector<HTMLElement>('[role=separator][aria-label="Resize schedule"]')!;
-    const width=vi.spyOn(deck,'clientWidth','get').mockReturnValue(1100),bounds=vi.spyOn(main,'getBoundingClientRect').mockReturnValue({width:568} as DOMRect);
+    const width=vi.spyOn(deck,'clientWidth','get').mockReturnValue(1100),bounds=vi.spyOn(document.querySelector<HTMLElement>('.pl-workspace-plan')!,'getBoundingClientRect').mockReturnValue({width:568} as DOMRect);
     try {
-      splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('668');expect(splitter.getAttribute('aria-valuemax')).toBe('668');
+      splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('528');expect(splitter.getAttribute('aria-valuemax')).toBe('528');
       expect(main.dataset.plMainSize).toBe('medium');bounds.mockReturnValue({width:540} as DOMRect);window.dispatchEvent(new Event('resize'));expect(main.dataset.plMainSize).toBe('narrow');
       bounds.mockReturnValue({width:760} as DOMRect);window.dispatchEvent(new Event('resize'));expect(main.dataset.plMainSize).toBe('wide');
     } finally {width.mockRestore();bounds.mockRestore();}
@@ -368,9 +381,9 @@ describe("one-page native planner workspace", () => {
     try {
       splitter.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
       const previous=splitter.getAttribute('aria-valuenow');
-      widen.click();expect(splitter.getAttribute('aria-valuenow')).toBe('1068');expect(widen.getAttribute('aria-pressed')).toBe('true');
-      width.mockReturnValue(1200);window.dispatchEvent(new Event('resize'));expect(splitter.getAttribute('aria-valuenow')).toBe('768');
-      width.mockReturnValue(1500);window.dispatchEvent(new Event('resize'));expect(splitter.getAttribute('aria-valuenow')).toBe('1068');
+      widen.click();expect(splitter.getAttribute('aria-valuenow')).toBe('928');expect(widen.getAttribute('aria-pressed')).toBe('true');
+      width.mockReturnValue(1200);window.dispatchEvent(new Event('resize'));expect(splitter.getAttribute('aria-valuenow')).toBe('628');
+      width.mockReturnValue(1500);window.dispatchEvent(new Event('resize'));expect(splitter.getAttribute('aria-valuenow')).toBe('928');
       widen.click();expect(splitter.getAttribute('aria-valuenow')).toBe(previous);expect(widen.textContent).toBe('Widen');
       widen.click();splitter.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));expect(splitter.getAttribute('aria-valuenow')).toBe('570');expect(widen.getAttribute('aria-pressed')).toBe('false');
       workspace.restore();expect(document.querySelector('.pl-workspace-schedule-widen')).toBeNull();
@@ -444,8 +457,8 @@ describe("one-page native planner workspace", () => {
       mount();const course=adapter.inspectContract().courses[0],row=course.node.children[2],parent=row.parentElement;
       const fields=[...row.querySelectorAll('input,select,button')],details=course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!;details.click();
       const find=document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!;find.click();
-      expect(details.getAttribute('aria-expanded')).toBe('true');expect(course.node.classList.contains('pl-preview-docked')).toBe(true);expect(document.activeElement).toBe(find);
-      document.querySelector<HTMLButtonElement>('[data-pl-mobile-view=schedule]')!.click();expect(!!document.querySelector('.pl-show-schedule')).toBe(width<1100);
+      expect(document.querySelectorAll('.pl-workspace-detail-space')).toHaveLength(1);expect(course.node.classList.contains('pl-preview-docked')).toBe(true);expect(course.node.classList.contains('pl-details-concealed')).toBe(true);expect(document.activeElement).toBe(find);
+      document.querySelector<HTMLButtonElement>('[data-pl-mobile-view=schedule]')!.click();expect(document.querySelector('.pl-workspace-calendar')!.classList.contains('pl-module-active')).toBe(true);expect(document.querySelector('.pl-workspace-search')!.classList.contains('pl-group-inactive')).toBe(width<1100);
       document.querySelector<HTMLButtonElement>('[data-pl-mobile-view=main]')!.click();expect(document.querySelector('.pl-show-schedule')).toBeNull();
       document.querySelector<HTMLButtonElement>('button[data-pl-module=classes]')!.click();expect(document.querySelector('.pl-has-docked-details')).not.toBeNull();
       expect(row.parentElement).toBe(parent);expect(fields.every(field=>row.contains(field))).toBe(true);
@@ -831,7 +844,7 @@ describe("one-page native planner workspace", () => {
     help.addEventListener('click', handler); mount();
     const info = document.querySelector<HTMLButtonElement>('.pl-intro-info')!;
     document.querySelector<HTMLButtonElement>('button[data-pl-module=personal]')!.click();
-    const main=document.querySelector<HTMLElement>('.pl-workspace-main')!,bounds=vi.spyOn(main,'getBoundingClientRect').mockReturnValue({left:188,top:140,width:660,height:580} as DOMRect);
+    const deck=document.querySelector<HTMLElement>('.pl-workspace-deck')!,bounds=vi.spyOn(deck,'getBoundingClientRect').mockReturnValue({left:188,top:140,width:660,height:580,right:848,bottom:720} as DOMRect);
     info.click(); expect(sidebar.classList.contains('pl-intro-sidebar-open')).toBe(true);
     expect(info.closest('.pl-workspace-nav-footer')).not.toBeNull();expect(info.getAttribute('aria-pressed')).toBe('true');
     expect((sidebar as HTMLElement).style.getPropertyValue('--pl-info-width')).toBe('660px');
@@ -932,11 +945,11 @@ describe("one-page native planner workspace", () => {
       course.node.querySelector<HTMLButtonElement>('[data-pl-workspace-details]')!.click();expect(frame.hidden).toBe(false);expect(frame.dataset.plPanelPlacement).toBe('floating');
     });
 
-    it("resolves a hidden pane's occupied dock when reopened without submitting native actions",()=>{
-      mount();panelKey('find','ArrowLeft',{altKey:true});hide('find');panelKey('schedule','ArrowLeft',{altKey:true});
+    it("reopens a hidden pane in its shared dock without evicting siblings or submitting native actions",()=>{
+      mount();panelKey('find','ArrowRight',{altKey:true});hide('find');
       document.querySelector<HTMLButtonElement>('button[data-pl-module=find]')!.click();
-      expect(document.querySelector<HTMLElement>('.pl-workspace-search')!.dataset.plPanelPlacement).toBe('left');
-      expect(document.querySelector<HTMLElement>('.pl-workspace-calendar')!.dataset.plPanelPlacement).toBe('floating');expect(optimizerPostback).not.toHaveBeenCalled();
+      expect(document.querySelector<HTMLElement>('.pl-workspace-search')!.dataset.plPanelPlacement).toBe('right');
+      expect(document.querySelector<HTMLElement>('.pl-workspace-calendar')!.dataset.plPanelPlacement).toBe('right');expect(document.querySelector('[data-pl-tab=find]')!.getAttribute('aria-selected')).toBe('true');expect(optimizerPostback).not.toHaveBeenCalled();
     });
 
     it("makes space when docking Details back into hidden My classes at an occupied edge",()=>{
@@ -944,17 +957,19 @@ describe("one-page native planner workspace", () => {
       hide('classes');panelKey('find','ArrowLeft',{altKey:true});panelKey('details','ArrowUp',{altKey:true});
       const plan=document.querySelector<HTMLElement>('.pl-workspace-plan')!;
       expect(plan.classList.contains('pl-panel-hidden')).toBe(false);expect(plan.dataset.plPanelPlacement).toBe('left');
-      expect(document.querySelector<HTMLElement>('.pl-workspace-search')!.dataset.plPanelPlacement).toBe('main');
+      expect(document.querySelector<HTMLElement>('.pl-workspace-search')!.dataset.plPanelPlacement).toBe('left');
+      expect(document.querySelector('[data-pl-tab=classes]')!.getAttribute('aria-selected')).toBe('true');
       expect(document.querySelector<HTMLElement>('.pl-workspace-details-frame')!.dataset.plPanelPlacement).toBe('main');expect(optimizerPostback).not.toHaveBeenCalled();
     });
 
-    it("preserves closed panes across native redraw and reveals everything on Reset layout",()=>{
+    it("preserves closed panes across native redraw and restores the default open groups on Reset layout",()=>{
       mount();hide('schedule');hide('classes');hide('optimizer');
       const fixture=new DOMParser().parseFromString(workspaceFixtureHtml(),'text/html');
       document.getElementById('ctl00_MainContent_classPlanPanel')!.replaceWith(document.importNode(fixture.getElementById('ctl00_MainContent_classPlanPanel')!,true));mount();
-      expect(document.querySelectorAll('.pl-panel-hidden')).toHaveLength(3);
+      for(const name of ['schedule','classes','optimizer'])expect(document.querySelector(`[data-pl-panel-close=${name}]`)!.closest('section')!.classList.contains('pl-panel-hidden')).toBe(true);
       panelKey('find','ContextMenu');[...document.querySelectorAll<HTMLButtonElement>('.pl-panel-layout-menu button')].find(button=>button.textContent==='Reset layout')!.click();
-      expect(document.querySelectorAll('.pl-panel-hidden')).toHaveLength(0);expect(optimizerPostback).not.toHaveBeenCalled();
+      for(const name of ['schedule','classes','find'])expect(document.querySelector(`[data-pl-panel-close=${name}]`)!.closest('section')!.classList.contains('pl-panel-hidden')).toBe(false);
+      for(const name of ['optimizer','study','personal'])expect(document.querySelector(`[data-pl-panel-close=${name}]`)!.closest('section')!.classList.contains('pl-panel-hidden')).toBe(true);expect(optimizerPostback).not.toHaveBeenCalled();
     });
 
     it("removes all close controls and visibility changes in Original layout",()=>{
@@ -1039,7 +1054,8 @@ describe("one-page native planner workspace", () => {
       panelKey('schedule','ContextMenu');const reset=[...document.querySelectorAll<HTMLButtonElement>('.pl-panel-layout-menu button')].find(button=>button.textContent==='Reset layout')!;reset.click();
       expect(document.querySelector<HTMLElement>('.pl-workspace-calendar')!.dataset.plPanelPlacement).toBe('right');
       for(const section of document.querySelectorAll<HTMLElement>('.pl-workspace-main > section'))expect(section.dataset.plPanelPlacement).toBe('main');
-      expect(document.querySelectorAll('.pl-floating-panel,.pl-panel-docked')).toHaveLength(0);
+      expect(document.querySelectorAll('.pl-floating-panel')).toHaveLength(0);
+      expect(document.querySelector('[data-pl-tab=classes]')!.getAttribute('aria-selected')).toBe('true');expect(document.querySelector('[data-pl-tab=schedule]')!.getAttribute('aria-selected')).toBe('true');
       expect(document.querySelector('.pl-workspace-host')!.classList.contains('pl-navigation-collapsed')).toBe(false);
       expect(document.querySelector('button[data-pl-module=classes]')!.getAttribute('aria-pressed')).toBe('true');expect(optimizerPostback).not.toHaveBeenCalled();
     });

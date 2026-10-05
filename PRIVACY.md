@@ -86,6 +86,11 @@ Pane folding changes only local presentation. In v0.18.4, local primary-pane
 folding, workspace widths and navigation preferences are saved using public
 section identifiers as described above. A saved choice never overrides a
 natively closed body or triggers a request to expand it.
+Development v0.19 adds public tab order, group membership, open/closed state
+and the selected tab in each group under `plannerLift.workspace.v2`. It reads
+the earlier v1 preference when needed and leaves that key intact for rollback.
+Neither preference contains course names, course IDs, search inputs, native
+selections, account identifiers or enrollment data.
 Primary section-toggle clicks fold an already loaded pane locally
 inside the validated workspace. If UCLA has natively collapsed Calendar, Class
 Plan or Search, explicit expansion forwards its exact original disclosure once;
