@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.19.1 — dark appearance prerelease
+
+- Add a saved System / Light / Dark choice in the extension popup. System is
+  the default and follows browser appearance changes while the page is open.
+- Theme the enhanced planner's tabs, course details, search, native module
+  surfaces, menus, help and floating panels with readable dark colors.
+- Preserve UCLA's masthead and top navigation, native controls and statuses,
+  and calendar meeting geometry and course colors. Original layout restores
+  native presentation; printing remains light.
+- Includes the v0.19 tab groups, saved layout, course-details navigation and
+  calendar refinements described below.
+
 ## 0.19.0 — unreleased development
 
 - Group primary modules into tabs. My classes and Find classes share browsing

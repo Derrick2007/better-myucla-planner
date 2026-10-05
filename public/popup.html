@@ -16,12 +16,26 @@
         --ink: #4a4a4a;
         --muted: #6b7a88;
         --line: #dbe5ec;
+        --surface: #fff;
+        --control-line: #b9cede;
+      }
+
+      :root[data-pl-appearance="dark"] {
+        color-scheme: dark;
+        --ucla-blue: #7ebcf0;
+        --ucla-darkest: #daeafa;
+        --ucla-lightest: #1d3349;
+        --ink: #e0e6ee;
+        --muted: #a8b7c8;
+        --line: #344355;
+        --surface: #17212d;
+        --control-line: #53657a;
       }
 
       body {
         width: 300px;
         margin: 0;
-        background: #fff;
+        background: var(--surface);
         color: var(--ink);
         font-family: ProximaNova, "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-size: 13px;
@@ -111,15 +125,16 @@
       select {
         height: 27px;
         padding: 0 6px;
-        border: 1px solid #b9cede;
+        border: 1px solid var(--control-line);
         border-radius: 4px;
-        background: #fff;
-        color: var(--ucla-darker);
+        background: var(--surface);
+        color: var(--ink);
         font-family: inherit;
         font-size: 12px;
       }
 
       select:focus-visible { outline: 2px solid var(--ucla-blue); outline-offset: 1px; }
+      #appearance-status:empty { display: none; }
 
       footer {
         padding: 10px 16px 13px;
@@ -184,6 +199,19 @@
     </header>
 
     <section>
+      <div class="row">
+        <label class="label" for="appearance">Appearance</label>
+        <select id="appearance" disabled>
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+      <p class="note">Applies to the enhanced planner. System follows your device setting.</p>
+      <p class="note" id="appearance-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section>
       <h2>What it adds</h2>
       <ul>
         <li>Drag a class anywhere in your plan, or send it to the top in one click. MyUCLA only moves one step per click.</li>
@@ -202,20 +230,16 @@
         </label>
       </div>
       <p class="note">
-        Off by default. Named navigation opens each planner section while
-        the weekly schedule stays beside it. Search fields remain visible.
-        Class actions reveals ordering, color and note controls when you need them.
-        Details open beside your class list; × or Escape closes them.
-        Drag a blank part of a panel header, its dotted grip or its navigation
-        tab. Move toward the left or right side, or over the main panel's header;
-        a shaded area shows where the panel will land. Release there to dock,
-        or elsewhere to float. There is no bottom dock. The panel follows your
-        pointer; Escape cancels. Header buttons and Help still work normally.
-        Close a panel with its header ×; reopen it from navigation or a course's
-        Details button. Double-click its grip to return; right-click for layout
-        choices and Reset layout. Panel positions last until reload.
-        Information &amp; help and Original layout are always in the navigation.
-        UCLA navigation and native enrollment controls stay intact.
+        Off by default. Browse classes beside your weekly schedule. Drag tabs
+        together to group them, toward an edge to split, or outside to float.
+        The shaded preview shows the destination; Escape cancels.
+      </p>
+      <p class="note">
+        Your tab groups, closed panels and sizes are saved on this computer.
+        Reopen panels from navigation, or choose Default layout to reset.
+        Details can stay open for several classes. Information &amp; help and
+        Original layout remain available. UCLA navigation and native enrollment
+        controls stay intact.
       </p>
     </section>
 

@@ -1,5 +1,17 @@
 # MyUCLA Class Planner 脱敏页面合约
 
+## Appearance (0.19.1)
+
+System, Light and Dark change presentation only. Apply the appearance attribute
+only while a known enhanced planner workspace or introduction is active;
+Original layout and disabling the extension restore the previous attribute.
+Do not restyle UCLA's masthead/navigation, invert the page, rewrite status text
+or native icon markup, move native controls, or change calendar event geometry
+and course colors. Dark overrides are screen-only so printing remains light.
+Persist only the validated appearance enum using the existing storage permission.
+React to native redraw, preference changes and system-color changes without
+polling, replaying actions or reading additional page/account data.
+
 ## Grouped workspace (0.19 development)
 
 The six recognized primary panels may share main/left/right tab groups, with

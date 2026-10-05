@@ -1,6 +1,6 @@
 {
   "name": "better-myucla",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "private": true,
   "description": "A local-only, safety-first MyUCLA Class Planner enhancement.",
   "type": "module",
@@ -24,6 +24,7 @@
     "test:workspace-groups": "node harness/verify-workspace-groups.mjs",
     "test:v019-calendar": "node harness/verify-v019-calendar.mjs",
     "test:v019-courses": "node harness/verify-v019-course-polish.mjs",
+    "test:dark-mode": "node harness/verify-dark-mode.mjs",
     "preview:build": "node scripts/build-preview.mjs",
     "preview:verify": "node harness/verify-preview.mjs"
   },

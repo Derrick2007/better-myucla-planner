@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.19.0 fictional preview</title>
+<title>Better MyUCLA · v0.19.1 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -84,7 +84,7 @@
   #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.19.0"><meta name="planner-source-revision" content="7cb4d2a4743bbc64646d75f86857d433b025020f"><meta name="planner-production-css-sha256" content="e36338c42abaf702bee9a9d41f39a0043e0f83d406292cefab556a3a2ec2db57"><meta name="planner-production-content-sha256" content="5c22b5371f029fde52f268bdc17018bd3e10f4364b61fc18b3874138a0e74ea5"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.19.1"><meta name="planner-source-revision" content="a337a1625aebd074ddb7a80cc483221daccb3d93"><meta name="planner-production-css-sha256" content="e08e0c115609d0c805115bbd45cdd192f5d5f8eda7660dc9a5bbc345d5b7c01b"><meta name="planner-production-content-sha256" content="f47b0c4fab788bb3a12c308679b21707e2315d45fc2c9f23dfa59c5f94e631f4"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -2470,7 +2470,191 @@ section#layoutContentArea.pl-planner-introduction {
     line-height: 1.05;
   }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.19.0","cssSha256":"e36338c42abaf702bee9a9d41f39a0043e0f83d406292cefab556a3a2ec2db57","contentSha256":"5c22b5371f029fde52f268bdc17018bd3e10f4364b61fc18b3874138a0e74ea5","sourceRevision":"7cb4d2a4743bbc64646d75f86857d433b025020f"}</script><style>
+
+/* Dark appearance for the enhanced Class Planner only. The runtime applies
+   data-pl-appearance while a recognized workspace exists. Native UCLA's
+   masthead/navigation, native visibility, control geometry and course colors
+   remain unchanged. Print deliberately keeps the ordinary light stylesheet. */
+@media screen {
+  html[data-pl-appearance="dark"] {
+    --pl-dark-canvas: #111820;
+    --pl-dark-surface: #18222e;
+    --pl-dark-raised: #202d3c;
+    --pl-dark-hover: #293c51;
+    --pl-dark-selected: #263e57;
+    --pl-dark-line: #394c61;
+    --pl-dark-soft-line: #2d3d4f;
+    --pl-dark-text: #e7eef7;
+    --pl-dark-muted: #afbed1;
+    --pl-dark-link: #99ccff;
+    --pl-dark-focus: #9ed3ff;
+  }
+  html[data-pl-appearance="dark"] body { background-color: var(--pl-dark-canvas); }
+  html[data-pl-appearance="dark"] :is(.classPlannerWrapper.pl-workspace-host,#layoutContentArea.pl-planner-introduction,.pl-intro-sidebar-open,.pl-panel-layout-menu,.pl-finals-host,.pl-actionbar) {
+    color-scheme: dark; color: var(--pl-dark-text); background-color: var(--pl-dark-surface); border-color: var(--pl-dark-line);
+    scrollbar-color: #60748b var(--pl-dark-surface);
+  }
+  html[data-pl-appearance="dark"] #layoutContentArea.pl-planner-introduction { background: var(--pl-dark-canvas); }
+  html[data-pl-appearance="dark"] :is(.pl-bar,.pl-actionbar,.pl-card-tools,.pl-tag-badge,.pl-status-badge,.pl-conflict-badge,.pl-topbar,.pl-jump,.pl-native-toggle,.pl-finals-host,.pl-finals,.pl-plan-root) {
+    --pl-blue: #99ccff; --pl-blue-dark: #b5dcff; --pl-link: #99ccff; --pl-button: #bfddfa;
+    --pl-ink: #e7eef7; --pl-muted: #afbed1; --pl-cell: #263e57;
+    --pl-line: #394c61; --pl-line-soft: #2d3d4f; --pl-surface: #18222e;
+    --pl-warn: #f3c979; --pl-warn-bg: #3d321f; --pl-danger: #ff9ba6;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) :is(h2,h3,h4,legend) {
+    color: var(--pl-dark-text) !important;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) a { color: var(--pl-dark-link); }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) a:visited { color: #c5baff; }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) :is(button,summary,input[type="button"],input[type="submit"]) {
+    color: var(--pl-dark-text) !important; background-color: var(--pl-dark-raised) !important; border-color: var(--pl-dark-line) !important;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) :is(button,summary,input[type="button"],input[type="submit"]):hover:not(:disabled) {
+    color: #f5f9ff !important; background-color: var(--pl-dark-hover) !important; border-color: #6e8aaa !important;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) :is(button,input,select,textarea,summary,a):focus-visible {
+    outline-color: var(--pl-dark-focus) !important;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),select,textarea) {
+    color-scheme: dark; color: var(--pl-dark-text) !important; background-color: var(--pl-dark-canvas) !important;
+    border-color: #526a84 !important; box-shadow: none;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-actionbar) :is(input,textarea)::placeholder { color: #9aafc5; opacity: 1; }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-actionbar) :is(input[type="checkbox"],input[type="radio"]) { accent-color: #94caff; }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-host,.pl-planner-introduction,.pl-finals-host,.pl-panel-layout-menu,.pl-actionbar) :is(button,input,select,textarea):disabled {
+    background-color: #253344 !important; border-color: #41546a !important; color: #adbed0 !important; opacity: 1;
+  }
+  html[data-pl-appearance="dark"] .pl-workspace-host #classPlanHeader,
+  html[data-pl-appearance="dark"] .pl-workspace-host #classPlanHeader > div { color: var(--pl-dark-text); }
+  html[data-pl-appearance="dark"] :is(.pl-intro-about > #page_title_text,.pl-intro-notice,.pl-intro-term-label,.pl-search-hint,.pl-search-field-label,.pl-search-widget .searchType > div,.pl-browser-filter > span,.pl-browser-filter-status,.pl-browser-toolbar strong,.pl-workspace-information-placeholder,.pl-workspace-dock-placeholder) {
+    color: var(--pl-dark-muted) !important;
+  }
+  html[data-pl-appearance="dark"] .pl-planner-introduction .pl-intro-notice :is(b,strong) { color: var(--pl-dark-text); }
+  html[data-pl-appearance="dark"] .pl-workspace-host > .classPlanner_Messages { background: #312a1c; color: #f2d69b; }
+  html[data-pl-appearance="dark"] .pl-workspace-shell,
+  html[data-pl-appearance="dark"] .pl-workspace-nav-footer { border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-nav { background: #151f2b; border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-host .pl-workspace-nav button { background-color: transparent !important; color: var(--pl-dark-muted) !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-host .pl-workspace-nav button:is([aria-pressed="true"],[aria-current="page"]),
+  html[data-pl-appearance="dark"] .pl-workspace-mobile-tabs button[aria-pressed="true"] {
+    background-color: var(--pl-dark-selected) !important; color: #c6e3ff !important;
+  }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-group-strip,.pl-workspace-mobile-tabs) { background: #151f2b !important; border-color: var(--pl-dark-line) !important; }
+  html[data-pl-appearance="dark"] .pl-grouped-workspace .pl-workspace-group-tab-wrap { border-color: transparent; }
+  html[data-pl-appearance="dark"] .pl-grouped-workspace .pl-workspace-group-tab-wrap:has(> button.pl-workspace-group-tab[aria-selected="true"]) { background: var(--pl-dark-surface); border-color: var(--pl-dark-line); border-bottom-color: #89c8ff; }
+  html[data-pl-appearance="dark"] .pl-grouped-workspace :is(button.pl-workspace-group-tab,button.pl-workspace-group-tab-close) { color: var(--pl-dark-muted) !important; background: transparent !important; }
+  html[data-pl-appearance="dark"] .pl-grouped-workspace button.pl-workspace-group-tab[aria-selected="true"] { color: #c6e3ff !important; }
+  html[data-pl-appearance="dark"] .pl-grouped-workspace :is(button.pl-workspace-group-tab,button.pl-workspace-group-tab-close):hover { background-color: var(--pl-dark-hover) !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-main > section,
+  html[data-pl-appearance="dark"] .pl-workspace-deck > .pl-workspace-calendar,
+  html[data-pl-appearance="dark"] :is(.pl-workspace-details-frame,.pl-workspace-preview,.pl-browser-result-actions,.pl-browser-index .pl-browser-filter) { background: var(--pl-dark-surface); color: var(--pl-dark-text); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-main > section > .classPlanner_SectionTitle,
+  html[data-pl-appearance="dark"] .pl-workspace-calendar > .classPlanner_SectionTitle { background: var(--pl-dark-surface) !important; color: var(--pl-dark-text) !important; border-bottom-color: var(--pl-dark-line) !important; }
+  html[data-pl-appearance="dark"] .pl-pane-title > button.planSectionToggle,
+  html[data-pl-appearance="dark"] .pl-workspace-host button.pl-panel-grip { background-color: transparent !important; color: var(--pl-dark-text) !important; }
+  html[data-pl-appearance="dark"] .pl-pane-title > button.planSectionToggle label { color: inherit !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-host :is(.pl-panel-docked,.pl-floating-panel) { background: var(--pl-dark-surface); border-color: var(--pl-dark-line) !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-host .pl-floating-panel { box-shadow: 0 18px 50px #0008,0 2px 12px #0006; }
+  html[data-pl-appearance="dark"] :is(.pl-workspace-details-frame > .pl-panel-details-handle,.pl-workspace-detail-index) { background: #202d3c !important; color: var(--pl-dark-muted) !important; border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-detail-index { box-shadow: none !important; }
+  html[data-pl-appearance="dark"] button.pl-workspace-detail-jump[aria-current="true"] { background: var(--pl-dark-selected) !important; color: #c6e3ff !important; border-color: #739bc3 !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-details-slot { color: var(--pl-dark-muted); }
+  html[data-pl-appearance="dark"] .pl-has-docked-details .pl-workspace-details-slot { color: transparent; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan > #panelPlan { border-right-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-plan tbody.courseItem { color: var(--pl-dark-text); background: var(--pl-dark-surface); border-bottom-color: var(--pl-dark-soft-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-plan tbody.pl-workspace-preview-card { background: #203247; box-shadow: inset 3px 0 #92caff; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan .pl-headline .pl-code { color: var(--pl-dark-text); }
+  html[data-pl-appearance="dark"] .pl-workspace-plan .pl-headline .pl-course-title,
+  html[data-pl-appearance="dark"] .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary { color: var(--pl-dark-muted); }
+  html[data-pl-appearance="dark"] .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="open"],
+  html[data-pl-appearance="dark"] .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="enrolled"] { color: #8be0ae; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="waitlist"] { color: #f3c979; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary [data-pl-status-tone="closed"] { color: #ff9ba6; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan button.pl-workspace-detail-button[aria-expanded="true"] { background: #304e6d !important; border-color: #80a8ce !important; }
+  html[data-pl-appearance="dark"] .pl-conflict-badge { background: #3d321f; color: #f3d18d; }
+  html[data-pl-appearance="dark"] .pl-tag-badge { background: #283b50; color: #c4dfff; }
+  html[data-pl-appearance="dark"] .pl-status-badge:is([data-tone="open"],[data-tone="enrolled"]) { background: #223c30; color: #a3e6bd; }
+  html[data-pl-appearance="dark"] .pl-status-badge:is([data-tone="waitlist"],[data-tone="conflict"]) { background: #3d321f; color: #f3d18d; }
+  html[data-pl-appearance="dark"] .pl-status-badge[data-tone="closed"] { background: #422c37; color: #ffb7c0; }
+  html[data-pl-appearance="dark"] .pl-status-badge[data-tone="mixed"] { background: #283b50; color: #c4dfff; }
+  html[data-pl-appearance="dark"] .pl-plan-root.pl-dragging > tbody.courseItem.pl-drag-active > tr > td { background-color: #25384d !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { background: var(--pl-dark-surface); color: var(--pl-dark-text); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-preview-head p { color: var(--pl-dark-muted); }
+  html[data-pl-appearance="dark"] .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
+  html[data-pl-appearance="dark"] .ClassSearchList.pl-browser-list .pl-section-card { background: var(--pl-dark-surface) !important; border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card > .pl-section-field,
+  html[data-pl-appearance="dark"] .ClassSearchList.pl-browser-list .pl-section-card > .pl-section-field { color: var(--pl-dark-text) !important; background: transparent !important; }
+  html[data-pl-appearance="dark"] .pl-section-label,
+  html[data-pl-appearance="dark"] .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field:is([data-pl-field="6"],[data-pl-field="8"]) { color: var(--pl-dark-muted) !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading,
+  html[data-pl-appearance="dark"] .ClassSearchList.pl-browser-list .pl-section-result-heading { background: var(--pl-dark-raised); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-section-help-field { color: var(--pl-dark-muted) !important; background: transparent !important; }
+  html[data-pl-appearance="dark"] .pl-section-help-field > :is(button,a),
+  html[data-pl-appearance="dark"] .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button) {
+    background-color: var(--pl-dark-raised) !important; color: var(--pl-dark-link) !important; border-color: #526a84 !important;
+  }
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="8"] span[style*="background"],
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="8"] span[style*="background"] a,
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="8"] > span:has(a),
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="8"] > span:has(a) a {
+    background-color: #304861 !important; color: #d9ecff !important;
+  }
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="2"] > :is(i,span):is(.icon-lock,.icon-unlock,.icon-ok-sign)[style*="green"] { color: #8be0ae !important; }
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="2"] > :is(i,span):is(.icon-lock,.icon-unlock,.icon-ok-sign)[style*="orange"] { color: #f3c979 !important; }
+  html[data-pl-appearance="dark"] .pl-section-field[data-pl-field="2"] > :is(i,span):is(.icon-lock,.icon-unlock,.icon-ok-sign)[style*="red"] { color: #ff9ba6 !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-search .ClassSearchWidget { background: var(--pl-dark-surface); }
+  html[data-pl-appearance="dark"] .pl-workspace-search .ClassSearchWidget :is(#resultHeaderDiv,#searchLabel,.classSearchTableSubSectionHeader.info-bar) { color: var(--pl-dark-muted); background: transparent; }
+  html[data-pl-appearance="dark"] .pl-browser-index { background: #151f2b; border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-browser-index button { background-color: transparent !important; color: var(--pl-dark-muted) !important; }
+  html[data-pl-appearance="dark"] .pl-browser-index button[aria-pressed="true"] { background-color: var(--pl-dark-selected) !important; color: #c6e3ff !important; box-shadow: inset 3px 0 #92caff; }
+  html[data-pl-appearance="dark"] .pl-browser-selections { background: #20384d; color: #c5e0f9; border-color: #557899; }
+  html[data-pl-appearance="dark"] .pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:not(:disabled) { background: #a6d1ff !important; border-color: #a6d1ff !important; }
+  html[data-pl-appearance="dark"] .pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:not(:disabled):hover { background: #c4e2ff !important; }
+  html[data-pl-appearance="dark"] .pl-search-widget .pl-search-submit-label { color: #142b43; }
+  html[data-pl-appearance="dark"] .ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:disabled { background: #253344 !important; border-color: #41546a !important; }
+  html[data-pl-appearance="dark"] .ClassSearchWidget.pl-search-widget .pl-search-submit > input#ctl00_MainContent_cs_goButton.csGoButton:disabled + .pl-search-submit-label { color: #adbed0; }
+  /* Native autocomplete is appended to BODY. Limit its colors to the period
+     when a known planner search input owns focus; the native popup stays put. */
+  html[data-pl-appearance="dark"]:has(.pl-workspace-search input.ClassSearchBox:focus) .ui-autocomplete {
+    color-scheme: dark; background: var(--pl-dark-raised); color: var(--pl-dark-text); border-color: #526a84; box-shadow: 0 12px 30px #0006;
+  }
+  html[data-pl-appearance="dark"]:has(.pl-workspace-search input.ClassSearchBox:focus) .ui-autocomplete :is(li,a,.ui-menu-item-wrapper) { color: var(--pl-dark-text); background-color: transparent; }
+  html[data-pl-appearance="dark"]:has(.pl-workspace-search input.ClassSearchBox:focus) .ui-autocomplete :is(.ui-state-focus,.ui-state-active,.ui-menu-item-wrapper:hover) { color: #eaf5ff; background: #304e6d; border-color: #7ba4cb; }
+  html[data-pl-appearance="dark"] .pl-workspace-host :is(.pl-plan-action-surface,.plannerTopMenuLinks,.popover.clickover,.popover-title,.popover-content,.pl-course-menu-items,.pl-menu),
+  html[data-pl-appearance="dark"] .pl-intro-sidebar-open :is(.widget,.widget-content,.widget-header,.message) { color: var(--pl-dark-text); background: var(--pl-dark-raised); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-host :is(.pl-plan-action-surface,.popover.clickover,.pl-course-menu-items,.pl-menu) { box-shadow: 0 12px 32px #0006; }
+  html[data-pl-appearance="dark"] .pl-workspace-main > section > .pl-pane-body :is(fieldset,.message,.touchpanelmenu,.enrl-plan-actions),
+  html[data-pl-appearance="dark"] .pl-plan-action-surface :is(.message,header,footer),
+  html[data-pl-appearance="dark"] .pl-intro-sidebar-open :is(th,td) { color: var(--pl-dark-text); background-color: var(--pl-dark-surface); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) :is(table,thead,tbody,tr,th,td,label,p,output) { color: var(--pl-dark-text); background-color: transparent; border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) th { background-color: var(--pl-dark-raised); }
+  html[data-pl-appearance="dark"] .pl-panel-layout-menu { box-shadow: 0 12px 32px #0006; }
+  html[data-pl-appearance="dark"] .pl-panel-layout-menu button[aria-checked="true"] { background-color: var(--pl-dark-selected) !important; color: #c6e3ff !important; }
+  html[data-pl-appearance="dark"] .pl-panel-drop-preview { border-color: #94caff; color: #e3f2ff; background: #3966938c; box-shadow: inset 0 0 0 1px #a6d5ff40,0 8px 28px #0004; }
+  html[data-pl-appearance="dark"] .pl-workspace-splitter,
+  html[data-pl-appearance="dark"] .pl-panel-divider { background-color: var(--pl-dark-canvas); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] :is(.pl-navigation-divider,.pl-workspace-splitter,.pl-panel-divider):hover { background-color: #75bfff40; }
+  html[data-pl-appearance="dark"] .pl-actionbar { border-color: var(--pl-dark-line); box-shadow: 0 -4px 24px #0005; }
+  html[data-pl-appearance="dark"] .pl-actionbar .pl-solid { color: #142b43 !important; background: #a6d1ff !important; border-color: #a6d1ff !important; }
+  html[data-pl-appearance="dark"] .pl-finals-day { color: var(--pl-dark-text); background: var(--pl-dark-raised); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-finals-slot { color: var(--pl-dark-muted); background: var(--pl-dark-surface); }
+  html[data-pl-appearance="dark"] .pl-finals-block { background: var(--pl-dark-raised); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-finals-block.pl-finals-clash { background: #422c37; border-color: #b16e81; }
+  html[data-pl-appearance="dark"] .pl-finals-block.pl-finals-tight { background: #3d321f; border-color: #b99452; }
+  html[data-pl-appearance="dark"] .pl-finals-code { color: var(--pl-dark-link); }
+  html[data-pl-appearance="dark"] .pl-finals-when { color: var(--pl-dark-muted); }
+  html[data-pl-appearance="dark"] .pl-finals-host::backdrop { background: #050a12b3; }
+  /* Calendar event fill/border/geometry stay native. Only the surrounding grid
+     becomes dark, and every event keeps dark readable text on its light swatch. */
+  html[data-pl-appearance="dark"] .pl-workspace-calendar :is(#gridDiv,.hourbox,.timebox) { background-color: var(--pl-dark-surface); color: var(--pl-dark-muted); border-color: var(--pl-dark-line); }
+  html[data-pl-appearance="dark"] .pl-workspace-calendar #gridDiv tr.primary.light.headerBar.classPlanner > td { background: var(--pl-dark-raised); color: var(--pl-dark-text); }
+  html[data-pl-appearance="dark"] .pl-workspace-calendar .plannerMenuLinks,
+  html[data-pl-appearance="dark"] .pl-workspace-calendar .plannerMenuLinks .pl-native-label { color: var(--pl-dark-muted) !important; }
+  html[data-pl-appearance="dark"] .pl-workspace-calendar #gridDiv .planneritembox,
+  html[data-pl-appearance="dark"] .pl-workspace-calendar #gridDiv .planneritembox :is(a,span,strong,b) { color: #17334b; }
+  html[data-pl-appearance="dark"] .pl-workspace-calendar #gridDiv .planneritembox:focus-visible { outline-color: #17334b !important; }
+}
+</style><script id="preview-build-meta" type="application/json">{"version":"0.19.1","cssSha256":"e08e0c115609d0c805115bbd45cdd192f5d5f8eda7660dc9a5bbc345d5b7c01b","contentSha256":"f47b0c4fab788bb3a12c308679b21707e2315d45fc2c9f23dfa59c5f94e631f4","sourceRevision":"a337a1625aebd074ddb7a80cc483221daccb3d93"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -2488,7 +2672,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.19.0</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.19.1</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">

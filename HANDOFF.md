@@ -2,8 +2,44 @@
 
 Last updated: 2026-10-04
 
-Current development version: `0.19.0`, branch `v0.19-workspace`.
-Installed files: `0.19.0` (Chrome reload pending). Published prerelease: `0.18.2`.
+Current version: `0.19.1`, branch `v0.19-workspace`.
+Installed files: `0.19.1` (Chrome reload pending). Release: `v0.19.1` prerelease.
+
+## v0.19.1 dark appearance
+
+The user requested dark mode and publication. The extension popup now offers
+System / Light / Dark; System is the default. Only the validated string at
+`plannerLift.appearance.v1` is persisted through the existing storage permission.
+`PlannerAppearance` scopes the HTML theme attribute to recognized enhanced
+workspace/intro markup and restores it on Original layout, tidy off or disposal.
+Media/storage listeners are cleaned up; stale initial reads cannot overwrite
+newer changes. The popup waits for the first preference before enabling selection.
+
+`public/dark.css` is concatenated after injected.css and v019-calendar.css into
+the existing content stylesheet. All dark rules are screen-only. Native UCLA
+masthead/navigation, course status markup, event colors and geometry remain
+intact; dialogs, floating panels, search, details and the popup use dark surfaces.
+The fictional website preview is rebuilt from this CSS and shared production
+code, but intentionally shows light appearance; the README screenshot shows dark.
+
+Verification: typecheck, build and 477 tests in 34 files pass. The first highly
+parallel test run timed out in one existing DOM test; rerunning the suite with
+two workers passed. Dark/browser checks cover 2048/1440/1280/390px, popup keyboard
+selection, contrast, saved preference changes, native control identity, status
+markup, calendar geometry/colors, print and restoration. Group and course-action
+fixtures pass. The preview harness now checks v0.19 group behavior rather than
+obsolete v0.17 splitters; Information temporarily fills the deck and Escape
+restores the original calendar/controls. Four preview widths pass with no requests.
+
+Evidence: outputs/v0191-*.log, outputs/dark-mode/report.json and screenshots,
+outputs/planner-preview-v0.19.1/. The release ZIP contains dist/; all 19 entries
+were checked byte-for-byte against the build, with SHA256SUMS.txt supplied.
+Installed into C:\Users\freeb\Downloads\better-myucla-v0.10.3\dist, all 19 hashes
+verified. Backup: outputs/installed-backup-before-v0191-20261004-212206.
+Installation record: outputs/v0191-installed.json. No live authenticated page
+verification was performed for v0.19.1. Reload the extension and refresh Class
+Planner before verifying its loaded appearance. Do not claim live enrollment
+or Optimizer backend behavior based on fictional fixtures.
 
 ## v0.19 implementation and installation
 

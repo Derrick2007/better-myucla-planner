@@ -65,12 +65,16 @@ not a pixel-identical screenshot of the extension.
 - Run typecheck, unit tests, production build and fictional browser fixtures.
   Inspect the installed page separately before claiming live verification.
 
-v0.19.0 is installed in the user's existing unpacked extension folder, with all
-18 files verified by SHA-256 and v0.18.6 backed up. Reloading the extension and
-checking the loaded Class Planner page remain pending: Windows computer control
-stopped because it could not confidently determine Chrome's current URL.
+v0.19.1 adds saved System / Light / Dark appearance, with screen-only dark styles
+and a themed extension popup. UCLA navigation and native event colors stay intact.
+It is installed in the user's existing unpacked folder; all 19 files are verified
+by SHA-256, with v0.19.0 backed up. Reloading the extension and checking the loaded
+Class Planner page remain pending.
 
-Typecheck, production build and 466 unit tests pass. Production-browser fixtures
+Typecheck, production build and 477 unit tests pass. Production-browser fixtures
 cover groups, course details/actions, native modules and calendar presentation,
 including widths from 390 to 2048px and short 390x600 windows. These fixtures use
 fictional data and do not establish live enrollment behavior.
+Dark appearance checks additionally verify contrast, system changes, original
+control identity, calendar geometry/colors, popup keyboard access and restoration
+at 2048, 1440, 1280 and 390px. See HANDOFF.md for current release evidence.

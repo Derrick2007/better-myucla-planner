@@ -9,7 +9,9 @@ await rm(outputDirectory, { recursive: true, force: true });
 await mkdir(outputDirectory, { recursive: true });
 await cp(resolve(projectRoot, "public"), outputDirectory, { recursive: true });
 // Keep one injected stylesheet and the existing extension resource contract.
-await appendFile(resolve(outputDirectory, "injected.css"), "\n" + await readFile(resolve(projectRoot, "public/v019-calendar.css"), "utf8"));
+for (const stylesheet of ["v019-calendar.css", "dark.css"]) {
+  await appendFile(resolve(outputDirectory, "injected.css"), "\n" + await readFile(resolve(projectRoot, "public", stylesheet), "utf8"));
+}
 
 const sharedOptions = {
   bundle: true,

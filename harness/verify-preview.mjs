@@ -9,11 +9,11 @@ import { chromium } from 'playwright';
 const root = resolve(import.meta.dirname, '..');
 const previewPath = resolve(root, process.argv[2] || 'site/workspace-preview.html');
 const previewUrl = pathToFileURL(previewPath).href;
-const output = resolve(root, '../../outputs/planner-preview-v0.17.0');
 const widths = process.env.BETTER_MYUCLA_PREVIEW_WIDTHS?.split(',').map(Number) || [1440, 1280, 960, 390];
 assert.ok(widths.length && widths.every(width => Number.isInteger(width) && width >= 320 && width <= 3840), 'preview widths are bounded whole pixels');
 const digest = text => createHash('sha256').update(text).digest('hex');
 const manifest = JSON.parse(await readFile(resolve(root, 'dist/manifest.json'), 'utf8'));
+const output = resolve(root, `../../outputs/planner-preview-v${manifest.version}`);
 const productionCss = await readFile(resolve(root, 'dist/injected.css'), 'utf8');
 const productionContent = await readFile(resolve(root, 'dist/content.js'), 'utf8');
 await mkdir(output, { recursive: true });
@@ -39,6 +39,8 @@ async function snapshotNative(page) {
       resultControls: [...document.querySelectorAll('.ClassSearchList input, .ClassSearchList button, .ClassSearchList select')].map(node => ({ node, parent: node.parentElement })),
       detailRows: [...document.querySelectorAll('tbody.courseItem > tr:nth-child(3)')].map(node => ({ node, parent: node.parentElement })),
       statuses: [...document.querySelectorAll('table.coursetable td:nth-child(3), .ClassSearchList .data_row > .span3')].map(node => ({ node, html: node.innerHTML })),
+      calendar: document.querySelector('.classPlanner_CalendarSection'),
+      calendarControls: [...document.querySelectorAll('.classPlanner_CalendarSection button,.classPlanner_CalendarSection input')].filter(node => !node.closest('[data-planner-lift-owned]')).map(node => ({ node, parent: node.parentElement, form: node.form })),
       navigation: document.getElementById('fixture-native-navigation')?.outerHTML,
     };
   });
@@ -54,6 +56,8 @@ async function nativePreserved(page) {
       detailRows: saved.detailRows.every(({ node, parent }) => node.isConnected && node.parentElement === parent),
       statuses: saved.statuses.every(({ node, html }) => node.isConnected && node.innerHTML === html),
       navigation: document.getElementById('fixture-native-navigation')?.outerHTML === saved.navigation,
+      calendar: saved.calendar.isConnected && saved.calendar === document.querySelector('.classPlanner_CalendarSection'),
+      calendarControls: saved.calendarControls.every(({ node, parent, form }) => node.isConnected && node.parentElement === parent && node.form === form),
     };
   });
   assert.ok(Object.values(checks).every(Boolean), `native identity/form, detail ancestry, statuses and navigation are preserved: ${JSON.stringify(checks)}`);
@@ -87,11 +91,11 @@ try {
     const moduleButton = name => page.locator(`.pl-workspace-nav [data-pl-module="${name}"]`);
     const main = page.locator('.pl-workspace-main');
     const calendar = page.locator('.pl-workspace-calendar');
-    const checkCalendar = async () => {
-      assert.equal(await calendar.isVisible(), width >= 1100, 'the schedule is persistent on desktop and toggleable on narrow layouts');
-      if (width >= 1100) {
+    const checkCalendar = async (information = false) => {
+      assert.equal(await calendar.isVisible(), !information && width >= 1100, 'desktop browsing retains Schedule; Information uses the complete workspace and narrow layouts select one group');
+      if (width >= 1100 && !information) {
         const center = await usable(main, 'main workspace', 200), cal = await usable(calendar, 'weekly schedule', 200);
-        assert.ok(cal.width >= 420 && cal.width <= 640 && center.x + center.width <= cal.x + 1 && cal.y + cal.height <= 901, 'desktop schedule retains production proportions and fits the viewport');
+        assert.ok(cal.width >= 420 && center.width >= 560 && center.x + center.width <= cal.x + 1 && cal.y + cal.height <= 901, 'desktop groups retain readable widths without overlapping or leaving the viewport');
       }
     };
 
@@ -147,13 +151,17 @@ try {
     await moduleButton('information').click();
     assert.equal(await moduleButton('information').getAttribute('aria-pressed'), 'true');
     await usable(page.locator('right-sidebar'), 'original information and help');
-    await checkCalendar();
+    await checkCalendar(true);
+    await nativePreserved(page);
     await page.keyboard.press('Escape');
     assert.equal(await moduleButton('personal').getAttribute('aria-pressed'), 'true', 'Information Escape restores the prior module');
+    await checkCalendar();
+    await nativePreserved(page);
 
     await moduleButton('classes').click();
     if (width >= 1100) {
-      const splitter = page.locator('.pl-workspace-splitter');
+      const splitter = page.locator('.pl-dock-divider:visible');
+      assert.equal(await splitter.count(), 1, 'two dock groups expose one shared divider');
       await splitter.press('Home');
       const before = (await calendar.boundingBox()).width;
       await splitter.press('ArrowLeft');
@@ -163,11 +171,11 @@ try {
       const scheduleToggle = page.locator('.pl-workspace-schedule-toggle');
       await scheduleToggle.click();
       await usable(calendar, 'narrow schedule', 200);
-      assert.equal(await main.isVisible(), false);
+      assert.equal(await page.locator('.pl-workspace-plan').isVisible(), false, 'narrow Schedule conceals the inactive Classes panel while retaining its DOM ancestor');
       await noPageOverflow(page, 'narrow schedule');
       await page.screenshot({ path: resolve(output, `schedule-${width}.png`) });
       await page.keyboard.press('Escape');
-      assert.ok(await main.isVisible());
+      assert.ok(await page.locator('.pl-workspace-plan').isVisible(), 'Schedule Escape restores the active Classes panel');
       assert.ok(await scheduleToggle.evaluate(node => node === document.activeElement), 'Schedule Escape restores toggle focus');
     }
 

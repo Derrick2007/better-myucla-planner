@@ -5,6 +5,7 @@ import { applyBootHold, releaseBootHold } from "./boot-hold";
 import { publishSessionSettings } from "./session-keep";
 import { PlannerController } from "./controller";
 import { MyUclaPlannerController } from "./myucla-controller";
+import { PlannerAppearance } from "./planner-appearance";
 
 type ActivePlannerController = PlannerController | MyUclaPlannerController;
 let startGeneration = 0;
@@ -13,6 +14,7 @@ declare global {
   interface Window {
     __plannerLiftController?: ActivePlannerController;
     __plannerLiftWatching?: boolean;
+    __plannerLiftAppearance?: PlannerAppearance;
   }
 }
 
@@ -32,6 +34,8 @@ export async function startPlannerLift(): Promise<ActivePlannerController | null
   const generation = ++startGeneration;
   window.__plannerLiftController?.dispose();
   window.__plannerLiftController = undefined;
+  window.__plannerLiftAppearance?.dispose();
+  window.__plannerLiftAppearance = undefined;
 
   const enabled = await readEnabled();
   if (generation !== startGeneration || !enabled) return null;
@@ -40,6 +44,10 @@ export async function startPlannerLift(): Promise<ActivePlannerController | null
   if (!controller) return null;
 
   window.__plannerLiftController = controller;
+  if (controller instanceof MyUclaPlannerController) {
+    window.__plannerLiftAppearance = new PlannerAppearance();
+    window.__plannerLiftAppearance.start();
+  }
   await controller.start();
   return generation === startGeneration ? controller : null;
 }
@@ -48,6 +56,8 @@ export function stopPlannerLift(): void {
   startGeneration += 1;
   window.__plannerLiftController?.dispose();
   window.__plannerLiftController = undefined;
+  window.__plannerLiftAppearance?.dispose();
+  window.__plannerLiftAppearance = undefined;
   releaseBootHold();
 }
 

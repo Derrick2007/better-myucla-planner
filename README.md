@@ -8,24 +8,23 @@
 
 An unofficial Chrome extension that rearranges the existing MyUCLA Class Planner.
 
-[Download v0.18.2](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.18.2) ·
-[Source](https://github.com/comet-ctrl/better-myucla-planner/tree/v0.18.2) ·
+[Download v0.19.1](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.19.1) ·
+[Source](https://github.com/comet-ctrl/better-myucla-planner/tree/v0.19.1) ·
 [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md)
 
 </div>
 
-<img src="docs/images/multiple-details-v0.17.11.png" width="100%" alt="Fictional example: multiple course details open beside the class list and weekly schedule in v0.17.11.">
+<img src="docs/images/dark-v0.19.1.png" width="100%" alt="Fictional example: dark planner workspace with course details and the weekly schedule in v0.19.1.">
 
-*Fictional courses shown in the v0.17.11 layout, before draggable and floating
-panels. The extension works inside Class Planner; no separate planner website
+*Fictional courses shown in the v0.19.1 dark workspace. The extension works inside Class Planner; no separate planner website
 or account is required.*
 
-**Current release: v0.18.2, docking preview prerelease.** The redesigned layout is
+**Current release: v0.19.1, dark appearance prerelease.** The redesigned layout is
 opt-in, and the extension is not yet on the Chrome Web Store. This fork builds
 on [Astro-wen/better-myucla-planner](https://github.com/Astro-wen/better-myucla-planner).
 It is not made by, endorsed by, or affiliated with UCLA.
 
-**Development branch: v0.19-workspace (unreleased).** The next version replaces
+**Source branch: v0.19-workspace.** This version replaces
 accidental narrow columns with tab groups and readable panel widths. It also
 tightens course/section spacing, adds navigation between open course details,
 and refines the original calendar without changing meeting geometry. See the
@@ -33,11 +32,16 @@ and refines the original calendar without changing meeting geometry. See the
 [interactive fictional design draft](harness/v019-design-draft.html). The draft
 illustrates the intended hierarchy; production adapts it to UCLA's original
 controls. It is not an installed extension screenshot. The v0.18.6 baseline is preserved on `flexible-panels` at
-`1337c94`. The published v0.18.2 archive remains unchanged.
+`1337c94`. Earlier release archives remain available for rollback.
 
 ## Install or update
 
-**New in v0.18.2:** drag a blank part of a panel's header, its dotted grip or its
+**Appearance:** choose **System**, **Light** or **Dark** in the extension popup.
+System is the default. The choice is saved locally and updates the open enhanced
+planner. UCLA's masthead/navigation and the calendar's course colors stay intact.
+Printing remains light; Original layout restores UCLA's native presentation.
+
+Drag a blank part of a panel's header, its dotted grip or its
 navigation tab. Move toward the left or right side of the workspace, or over
 the main panel's header. A shaded preview shows the full area the panel will
 occupy when you release it. The drop regions are generous, and there is no
@@ -53,13 +57,12 @@ move. Click the small **×** in a panel header to hide it. Reopen modules and
 the calendar from navigation, or reopen the details panel from any course's
 **Details** button. Hidden panels retain their controls and selections; hiding
 the details panel retains its expanded courses. **Reset layout** reveals panels.
-In the published v0.18.2, layout choices live in page memory and reset on reload.
-In development v0.18.4, panel placement, size, hidden state and navigation choices
+Panel placement, size, hidden state, active tabs and navigation choices
 are saved in this browser profile. **Default layout** restores the starting
 workspace and remembers that reset; **Original layout** returns to UCLA's native
 presentation. Neither action changes your plan or course selections.
 
-1. Download `better-myucla-v0.18.2.zip` from the [prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.18.2).
+1. Download `better-myucla-v0.19.1.zip` from the [prerelease](https://github.com/comet-ctrl/better-myucla-planner/releases/tag/v0.19.1).
 2. Extract it into a folder you will keep. The ZIP contains a `dist` folder.
 3. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**,
    and select that `dist` folder.
@@ -169,14 +172,21 @@ UIDs, grades, DARS or Duo data. Saving a reordered plan uses UCLA's own requests
 the extension does not construct a separate API request.
 
 Local storage holds notes, existing view preferences, the compact-header choice
-and limited recovery state. Development v0.18.4 also saves workspace geometry
-and public module choices. Open course Details remain in memory. The optional
+and limited recovery state. Workspace geometry, public module choices and the
+appearance enum are also saved locally. Open course Details remain in memory. The optional
 **Stay signed in while reading** feature calls
 UCLA's existing session-extension function during visible, focused activity,
 subject to a user-selected time cap; it does not keep an unattended session alive
 or bypass sign-in. See [PRIVACY.md](PRIVACY.md) for the complete boundaries.
 
 ## Verification and known limitations
+
+v0.19.1 passes typecheck, the production build and **477 unit tests**. Automated
+dark/light/system and popup checks cover contrast,
+preference changes, printing, Original layout restoration, native control identity,
+and unchanged calendar geometry/colors. These tests use fictional courses at
+2048, 1440, 1280 and 390px. Release evidence is recorded in [HANDOFF.md](HANDOFF.md).
+Live v0.19.1 verification on an authenticated Class Planner page is still pending.
 
 For development v0.18.6, typecheck, the production build and **419 unit tests**
 passed. Production browser checks cover saved layouts across fresh documents,
@@ -209,8 +219,8 @@ requests; current release verification is recorded in [HANDOFF.md](HANDOFF.md).
   unresolved limitation; fixture success does not establish that it works live.
 - Course availability reflects what MyUCLA last rendered. There is no independent
   refresh or open-seat monitor.
-- In the published v0.18.2, layout widths reset on reload; development v0.18.4
-  remembers them. Expanded course Details still reset. Preferences and notes
+- Workspace layout and appearance are remembered. Expanded course Details still
+  reset. Preferences and notes
   stay local to this browser profile, not across devices.
 - MyUCLA markup can change. The extension requires recognized structures rather
   than guessing which native controls to use.
@@ -236,6 +246,7 @@ or an installed Chromium executable specified by `BETTER_MYUCLA_CHROMIUM`.
 
 | Command | Coverage |
 | --- | --- |
+| `npm run test:dark-mode` | System/Light/Dark changes, representative text contrast, native controls, calendar colors/geometry, print and restoration. |
 | `node harness/verify-workspace.mjs` | Responsive workspace, modules, resizing, native identity, redraws, printing, restoration and drag behavior. |
 | `npm run test:panel-layout` | Header/grip/navigation dragging, full destination previews, docking, floating, resizing, close/reopen, cancellation and retained native controls. |
 | `npm run test:details` | Native section layout, metadata, controls and hidden states. |
@@ -262,7 +273,7 @@ cannot read or change a MyUCLA account.
 `public/demo.html` is a separate reordering fixture and does not represent the
 current workspace.
 
-The v0.18.2 source is tagged **`v0.18.2`** on **`flexible-panels`** in this fork.
+The v0.19.1 source is tagged **`v0.19.1`** from **`v0.19-workspace`** in this fork.
 The GitHub Pages workflow publishes `site/` when its files change on `main`, so
 the hosted preview may lag this branch. Preview content is fictional; install
 the extension from the versioned release above to use the workspace inside

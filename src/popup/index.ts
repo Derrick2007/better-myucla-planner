@@ -6,6 +6,8 @@ import {
   saveLayoutSettings,
   saveSessionSettings
 } from "../storage/settings";
+import { normalizeAppearance, saveAppearance } from "../storage/appearance";
+import { subscribeAppearance, type AppearanceState } from "../appearance";
 
 const toggle = document.getElementById("toggle") as HTMLInputElement | null;
 const state = document.getElementById("state");
@@ -14,7 +16,33 @@ const cap = document.getElementById("cap") as HTMLSelectElement | null;
 const capRow = document.getElementById("cap-row");
 const tidy = document.getElementById("tidy") as HTMLInputElement | null;
 const version = document.getElementById("version");
+const appearance = document.getElementById("appearance") as HTMLSelectElement | null;
+const appearanceStatus = document.getElementById("appearance-status");
 if (version) version.textContent = `v${chrome.runtime.getManifest().version}`;
+
+let appearanceSave = 0;
+let pendingAppearance: string | null = null;
+function renderAppearance(state: AppearanceState): void {
+  if (pendingAppearance !== null && state.preference !== pendingAppearance) return;
+  if (appearance) { appearance.value = state.preference; appearance.disabled = false; }
+  document.documentElement.dataset.plAppearance = state.resolved;
+}
+const stopAppearance = subscribeAppearance(renderAppearance);
+window.addEventListener("pagehide", stopAppearance, { once: true });
+appearance?.addEventListener("change", () => {
+  if (appearance.disabled) return;
+  const preference = normalizeAppearance(appearance.value), generation = ++appearanceSave;
+  pendingAppearance = preference;
+  renderAppearance({ preference, resolved: preference === "dark" || (preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light" });
+  if (appearanceStatus) appearanceStatus.textContent = "";
+  void saveAppearance(preference).then(() => {
+    if (generation === appearanceSave) pendingAppearance = null;
+  }).catch(() => {
+    if (generation !== appearanceSave) return;
+    pendingAppearance = null;
+    if (appearanceStatus) appearanceStatus.textContent = "Could not save appearance. Try again.";
+  });
+});
 
 function renderEnabled(enabled: boolean): void {
   if (toggle) toggle.checked = enabled;

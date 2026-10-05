@@ -41,6 +41,9 @@ Everything below lives in this browser only.
 - **Compact header.** One boolean in `chrome.storage.local` remembers your
   Compact header / Show header choice across terms and reloads. It contains no
   account, term, course or page content.
+- **Appearance.** `plannerLift.appearance.v1` stores only `system`, `light` or
+  `dark`. System follows the browser's `prefers-color-scheme` setting. This
+  preference is local and contains no course, account or page data.
 - **Workspace layout (0.18.4 development).** A versioned preference in
   `chrome.storage.local` remembers public module identifiers, panel placement,
   floating coordinates and sizes, closed panels, divider sizes and navigation
