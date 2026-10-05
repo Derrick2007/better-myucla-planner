@@ -13,6 +13,7 @@ try {
   await page.goto(url);
   await page.evaluate(()=>{
     const stored={'plannerLift.layout.v1':{tidy:true},'plannerLift.header.v1':{compact:true}};
+    window.fixtureStored=stored;
     window.chrome={storage:{local:{get:async key=>({[key]:stored[key]}),set:async values=>Object.assign(stored,values)},onChanged:{addListener(){},removeListener(){}}}};
   });
   await page.addStyleTag({content:css});await page.addScriptTag({content:js});
@@ -32,5 +33,6 @@ try {
   await page.getByRole('button',{name:'Original layout',exact:true}).click();
   assert.equal(await page.locator('.pl-workspace-host').count(),0);
   assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('pl-workspace-page')),false);
+  assert.equal(await page.evaluate(()=>fixtureStored['plannerLift.layout.v1'].tidy),false,'Original layout switches off saved Tidy preference');
   console.log('Header access and Original layout restoration passed');
 } finally {await browser.close();}

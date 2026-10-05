@@ -3,6 +3,7 @@ import { CourseBrowserPresentation } from "./course-browser";
 import { SectionCards } from "./section-cards";
 import { PlannerIntroduction } from "./planner-introduction";
 import { formatSectionStatus } from "./section-status";
+import { saveLayoutSettings } from "../storage/settings";
 import { PanelLayoutController, type PanelPlacement, type PanelDock, type PanelBox, type PanelDockTarget, type PanelDropOperation, type PanelDropTarget, type PanelLayoutChangeReason } from "./panel-layout";
 import { normalizeWorkspaceLayout, type WorkspaceLayoutPreference, type WorkspaceModule } from "../storage/workspace-layout";
 import {createDefaultGroups,normalizeWorkspaceGroups,migrateLegacyGroups,selectWorkspaceTab,closeWorkspaceTab,mergeWorkspaceTab,floatWorkspaceTab,splitWorkspaceTab,openGroupTabs,activeGroupTab,readableGroupWidths,minimumGroupWidth,isWorkspacePanelId,WORKSPACE_DOCKS,WORKSPACE_PANEL_IDS,type WorkspaceGroups,type WorkspacePanelId} from "./workspace-groups";
@@ -368,8 +369,8 @@ export class PlannerWorkspace {
     if(previous&&(previous.button.parentElement!==host||previous.nativeTools!==nativeTools||previous.ownedTools!==ownedTools))this.removeActions(host);
     if(this.actionControls.has(host))return;
     const button=host.ownerDocument.createElement("button");button.type="button";button.className="pl-workspace-actions-button";
-    button.setAttribute(OWNED,"true");button.dataset.plWorkspaceActions="true";button.textContent="Class actions";
-    button.setAttribute("aria-label",`Class actions for ${course.label}`);button.setAttribute("aria-expanded","false");
+    button.setAttribute(OWNED,"true");button.dataset.plWorkspaceActions="true";button.textContent="Course tools";
+    button.setAttribute("aria-label",`Course tools for ${course.label}`);button.setAttribute("aria-expanded","false");
     // Blurring a note can insert its saved badge above this button. Keep that
     // layout change after click dispatch, rather than between mouse down/up.
     button.addEventListener("mousedown",event=>{if(event.button===0)event.preventDefault();});
@@ -442,7 +443,13 @@ export class PlannerWorkspace {
     const back=doc.createElement("button");back.type="button";back.className="pl-workspace-return";
     back.setAttribute(OWNED,"true");back.textContent="Open planner workspace";
     host.prepend(back);this.returnButton=back;
-    back.addEventListener("click",()=>{this.useOriginal=false;back.remove();this.returnButton=null;this.reconcile(doc,this.latestCourses);});
+    back.addEventListener("click",()=>{
+      this.useOriginal=false;back.remove();this.returnButton=null;this.reconcile(doc,this.latestCourses);
+      void saveLayoutSettings({tidy:true}).catch(()=>{
+        this.restore();this.useOriginal=true;this.ensureReturnButton(doc);
+        if(this.returnButton)this.returnButton.textContent="Preference could not be saved. Open planner workspace";
+      });
+    });
   }
 
   private mount(doc: Document): void {
@@ -538,10 +545,21 @@ export class PlannerWorkspace {
       const next=event.key==="Home"?0:event.key==="End"?choices.length-1:(index+(["ArrowUp","ArrowLeft"].includes(event.key)?-1:1)+choices.length)%choices.length;
       event.preventDefault();choices[next].click();choices[next].focus({preventScroll:true});
     });
-    const defaultLayout=owned(doc.createElement("button"),"pl-workspace-default");defaultLayout.type="button";defaultLayout.textContent="Default layout";defaultLayout.title="Reset panel positions, sizes and navigation; your classes stay unchanged.";navFooter.append(defaultLayout);
+    const layoutSettings=owned(doc.createElement("details"),"pl-workspace-layout-settings");
+    const layoutSummary=doc.createElement("summary");layoutSummary.textContent="Layout settings";layoutSummary.title="Layout settings";layoutSummary.setAttribute("aria-label","Layout settings");layoutSettings.append(layoutSummary);navFooter.append(layoutSettings);
+    const layoutOptions=doc.createElement("div");layoutOptions.className="pl-workspace-layout-options";if(typeof layoutOptions.showPopover==="function")layoutOptions.setAttribute("popover","auto");layoutSettings.append(layoutOptions);
+    layoutOptions.addEventListener("toggle",event=>{if((event as ToggleEvent).newState==="closed")layoutSettings.open=false;});
+    layoutSettings.addEventListener("toggle",()=>{if(!layoutSettings.open){if(layoutOptions.matches(":popover-open"))layoutOptions.hidePopover();return;}const rect=layoutSummary.getBoundingClientRect(),width=Math.min(180,doc.documentElement.clientWidth-16);layoutOptions.style.width=`${width}px`;layoutOptions.style.left=`${Math.max(8,Math.min(rect.left,doc.documentElement.clientWidth-width-8))}px`;layoutOptions.style.top=`${Math.max(8,Math.min(rect.bottom+4,(doc.defaultView?.innerHeight??600)-110))}px`;if(layoutOptions.hasAttribute("popover"))layoutOptions.showPopover();});
+    layoutSettings.addEventListener("keydown",event=>{if(event.key==="Escape"&&layoutSettings.open){event.preventDefault();event.stopPropagation();layoutSettings.open=false;layoutSummary.focus({preventScroll:true});}});
+    const defaultLayout=owned(doc.createElement("button"),"pl-workspace-default");defaultLayout.type="button";defaultLayout.textContent="Default layout";defaultLayout.title="Reset panel positions, sizes and navigation; your classes stay unchanged.";layoutOptions.append(defaultLayout);
     defaultLayout.addEventListener("click",()=>{this.state?.layout.reset();defaultLayout.focus({preventScroll:true});});
-    const original=owned(doc.createElement("button"),"pl-workspace-original");original.type="button";original.textContent="Original layout";navFooter.append(original);
-    original.addEventListener("click",()=>{this.restore();this.useOriginal=true;this.ensureReturnButton(doc);});
+    const original=owned(doc.createElement("button"),"pl-workspace-original");original.type="button";original.textContent="Original layout";layoutOptions.append(original);
+    original.addEventListener("click",()=>{
+      this.restore();this.useOriginal=true;this.ensureReturnButton(doc);
+      void saveLayoutSettings({tidy:false}).catch(()=>{
+        if(this.returnButton)this.returnButton.textContent="Layout restored; preference could not be saved. Open planner workspace";
+      });
+    });
     const tabs=owned(doc.createElement("div"),"pl-workspace-mobile-tabs");top.append(tabs);
     const mobileMain=doc.createElement("button"),mobileSchedule=doc.createElement("button");
     mobileMain.type=mobileSchedule.type="button";mobileMain.dataset.plMobileView="main";mobileSchedule.dataset.plMobileView="schedule";
