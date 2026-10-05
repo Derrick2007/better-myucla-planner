@@ -650,10 +650,10 @@ export class PlannerWorkspace {
     // UCLA navigation and original menus remain in their original ancestry.
     // Root scrolling is intentional: UCLA's unchanged header can scroll away.
     // BODY stays non-scrollable; only the document and individual panes scroll.
-    const marker=s.position.getBoundingClientRect(),top=Math.max(12,Math.ceil(marker.top));
-    s.host.style.setProperty("--pl-workspace-top",`${top}px`);s.host.classList.toggle("pl-workspace-flow",view.innerHeight-top<400);
+    const marker=s.position.getBoundingClientRect(),top=this.introduction.isHeaderCompact()||marker.top<=13?0:Math.ceil(marker.top);
+    s.host.style.setProperty("--pl-workspace-top",`${top}px`);s.host.classList.toggle("pl-workspace-flow",top>0&&view.innerHeight-top<400);
     s.host.style.setProperty("--pl-workspace-left",`${marker.left}px`);
-    s.host.style.setProperty("--pl-workspace-width",`${s.doc.documentElement.clientWidth - 32}px`);
+    s.host.style.setProperty("--pl-workspace-width",`${s.doc.documentElement.clientWidth}px`);
     s.scrollRoom.style.height=`${Math.max(0,view.innerHeight-28)}px`;
   }
 
@@ -1020,7 +1020,7 @@ export class PlannerWorkspace {
     // A short viewport keeps the native masthead in document flow. Its host can
     // be taller than the visible area, but fixed panes must scroll locally
     // inside that area instead of stranding controls below the viewport.
-    const bottomReserve=parseFloat(view.getComputedStyle(s.host).getPropertyValue("--pl-workspace-bottom"))||16;
+    const bottomReserve=parseFloat(view.getComputedStyle(s.host).getPropertyValue("--pl-workspace-bottom"))||0;
     const visibleBottom=Math.min(measured.bottom,view.innerHeight-bottomReserve);
     const rect=new DOMRect(measured.left,measured.top,measured.width,Math.max(0,visibleBottom-measured.top));
     let state=groupState||this.presentationGroups();

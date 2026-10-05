@@ -1394,18 +1394,21 @@ html.pl-calm-page .pl-headline .pl-code { color: #253547; text-transform: none; 
    BODY is not a scroll container: native focus cannot scroll it independently. */
 html.pl-workspace-page, html.pl-intro-page { height: auto; min-height: 100%; overflow: auto; }
 html.pl-workspace-page body, html.pl-intro-page body { height: auto; min-height: 100dvh; overflow: visible; }
+/* Panes supply visible scrollbars; retain root scrolling for Show header. */
+html.pl-workspace-page { scrollbar-width: none; }
+html.pl-workspace-page::-webkit-scrollbar { display: none; }
 html.pl-intro-page section#layoutContentArea.pl-planner-introduction { min-height: calc(100dvh - 12px); }
 .pl-intro-toolbar { justify-content: flex-end; }
 .classPlannerWrapper.pl-workspace-host {
-  position: fixed; top: var(--pl-workspace-top,12px); left: 16px; z-index: 100;
-  height: calc(100dvh - var(--pl-workspace-top,12px) - var(--pl-workspace-bottom,16px));
-  display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-rows: auto auto minmax(0,1fr); min-width: 0; width: var(--pl-workspace-width,calc(100vw - 32px)) !important;
+  position: fixed; top: var(--pl-workspace-top,0px); left: 0; z-index: 100;
+  height: calc(100dvh - var(--pl-workspace-top,0px) - var(--pl-workspace-bottom,0px));
+  display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-rows: auto auto minmax(0,1fr); min-width: 0; width: var(--pl-workspace-width,100%) !important;
   margin: 0 !important;
-  padding: 0; box-sizing: border-box; border: 1px solid #dce3eb;
-  border-radius: 8px; background: #fff; overflow: hidden;
+  padding: 0; box-sizing: border-box; border: 0;
+  border-radius: 0; background: #fff; overflow: hidden;
   color: #263344; font: 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { --pl-workspace-bottom: 68px; }
+html.pl-workspace-page.pl-has-actionbar .pl-workspace-host { --pl-workspace-bottom: 56px; }
 .classPlannerWrapper.pl-workspace-host.pl-workspace-flow { position: relative; top: auto; left: auto; height: 640px; margin-left: calc(16px - var(--pl-workspace-left,16px)) !important; }
 .pl-workspace-position { height: 0; margin: 0; padding: 0; }
 .pl-workspace-scroll-room { margin: 0; padding: 0; pointer-events: none; }
