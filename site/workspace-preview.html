@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-pl-fictional-preview="true"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-pl-fictional-preview'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'">
 <meta charset="utf-8">
-<title>Better MyUCLA · v0.18.2 fictional preview</title>
+<title>Better MyUCLA · v0.19.0 fictional preview</title>
 <style>
   body { margin:0; background:#fff; color:#4e4e4e; font-family: Verdana, Geneva, sans-serif; font-size:12px; }
   .pagehead { padding:14px 24px; border-bottom:3px solid #0055a6; }
@@ -84,7 +84,7 @@
   #panelSearch .ClassSearchList .data_row:nth-child(even) > [class*="span"] { background:#eaeaea; }
   .ClassSearchList .example-native-rating { display:inline-block; padding:2px 4px; background:#dcecff; }
   .ClassSearchList .icon-unlock::before { content:"◇"; }
-</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.18.2"><meta name="planner-source-revision" content="f4c272936b7043ae3d4e9089ac9d2fff6ba91d32"><meta name="planner-production-css-sha256" content="37fcee649c1cb75a7799f9661136f9b07c67fe527e6d673f78e071cee3fab77b"><meta name="planner-production-content-sha256" content="106c50090b346a7a369d486afac104617f02bafe993e8396937ed1e799b61317"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
+</style><style>html,body{height:100%;overflow:auto}body{margin:0}form{height:100%;padding:0}#layoutContentArea{width:min(1280px,100%);box-sizing:border-box;margin:-20px auto 100px;padding:50px 30px;background:white}#titleText{font-size:35px;line-height:42px;margin:0 0 20px;border-bottom:1px solid #ccd}#page_title_text{padding:0 0 10px;margin:0 0 10px;line-height:18.5px}layout-columnwrapper{display:inline-block;width:100%}main-content{display:block;float:left;width:calc(100% - 280px)}right-sidebar{display:block;float:right;width:260px;height:1200px}right-sidebar>*{padding:12px;margin:0 0 12px;border:1px solid #ccc;display:block}.enroll_term{padding:5px 12px;margin-bottom:10px;border:1px solid #888;background:#ddd;height:42px;box-sizing:border-box}.term_display{float:left}.term{float:right}</style><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="planner-build-version" content="0.19.0"><meta name="planner-source-revision" content="7cb4d2a4743bbc64646d75f86857d433b025020f"><meta name="planner-production-css-sha256" content="e36338c42abaf702bee9a9d41f39a0043e0f83d406292cefab556a3a2ec2db57"><meta name="planner-production-content-sha256" content="5c22b5371f029fde52f268bdc17018bd3e10f4364b61fc18b3874138a0e74ea5"><meta name="description" content="Interactive fictional preview using the Better MyUCLA production presentation code. No account connection or network requests."><style id="preview-production-css">/* Better MyUCLA — injected UI.
    Tokens are read off the live Class Planner so the injected controls read as
    part of MyUCLA rather than as a strip bolted on top of it. Measured on the
    real page: section title bars are #2C5E91 with a 7px radius, course titles
@@ -1550,7 +1550,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-top > button, .pl-workspace-top > details > summary { border-color: #b3c3d4; background: #f7f9fc; color: #405b77; }
 .pl-workspace-top button:focus-visible, .pl-pane-toggle:focus-visible, .pl-browser-toolbar button:focus-visible, .pl-browser-index button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 .pl-workspace-shell { grid-column: 1 / -1; grid-row: 3; display: grid; grid-template-columns: 168px minmax(0,1fr); min-height: 0; min-width: 0; border-top: 1px solid #e1e7ee; }
-.pl-workspace-nav { display: flex; flex-direction: column; min-height: 0; padding: 16px 8px 12px; box-sizing: border-box; background: #f8fafc; border-right: 1px solid #e1e7ee; }
+.pl-workspace-nav { display: flex; flex-direction: column; min-height: 0; padding: 16px 8px 12px; box-sizing: border-box; background: #f8fafc; border-right: 1px solid #e1e7ee; box-shadow: none; }
 .pl-workspace-nav-main, .pl-workspace-nav-footer { display: flex; flex-direction: column; gap: 6px; }
 .pl-workspace-nav-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid #e1e7ee; }
 .pl-workspace-nav button { min-height: 44px; padding: 10px 12px; border: 0; border-radius: 5px; background: transparent; color: #46566a; text-align: left; font: 500 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
@@ -1585,12 +1585,15 @@ section#layoutContentArea.pl-planner-introduction {
   margin: 0 !important; transform: none !important; z-index: 10;
 }
 .pl-workspace-main > section > .pl-pane-title > .popover.clickover > .arrow { display: none; }
-.pl-pane-title > button.planSectionToggle { flex: 1; min-width: 0; min-height: 38px; padding: 0; text-align: left; color: inherit; background: transparent; border: 0; font: inherit; }
+/* Keep native title hit areas on their labels. The remaining header margin
+   belongs to the noninteractive drag surface, not the disclosure button. */
+.pl-pane-title > button.planSectionToggle { flex: 0 1 auto; width: fit-content; max-width: 100%; min-width: 0; min-height: 38px; margin-right: auto; padding: 0; text-align: left; color: inherit; background: transparent; border: 0; font: inherit; }
 .pl-pane-title > button.planSectionHelpTip { box-sizing: border-box; min-width: 32px; min-height: 32px; margin: 0; padding: 5px; border: 1px solid #b3c3d4; border-radius: 6px; background: #f7f9fc; color: #405b77; cursor: pointer; }
 .pl-pane-title > button.planSectionHelpTip:hover { border-color: #7895b3; background: #eaf1f9; }
 .pl-pane-title > button.planSectionHelpTip:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-pane-title > button.planSectionToggle > .icon-minus-sign, .pl-pane-title > button.planSectionToggle > .icon-plus-sign { display: none; }
 .classPlannerWrapper .pl-pane-title > button.pl-pane-toggle { flex: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 38px; height: 38px; padding: 0; margin-left: auto; border: 1px solid #91a8c0; border-radius: 7px; background: #f1f5fa; color: #315776; font-size: 0; cursor: pointer; }
+.classPlannerWrapper .pl-pane-title > button.planSectionToggle ~ button.pl-pane-toggle { margin-left: 0; }
 /* Draw a consistent chevron instead of the tiny font-dependent down character.
    The real button retains its accessible label, title and expanded state. */
 .classPlannerWrapper .pl-pane-title > button.pl-pane-toggle::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); }
@@ -1604,6 +1607,8 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-main > .pl-module-active:not(.pl-workspace-plan):not(.pl-workspace-search) > .pl-pane-body { flex: none; min-height: auto; overflow: visible; padding: 16px; box-sizing: border-box; }
 .pl-workspace-information-placeholder { padding: 24px; color: #59687a; }
 .pl-workspace-information-placeholder:not(.pl-module-active) { display: none; }
+/* Long labels wrap within their native buttons, keeping header controls together. */
+.pl-workspace-main > :is(.pl-workspace-search,.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title { flex-wrap: nowrap; }
 /* Opaque secondary modules retain their own server-backed disclosures. */
 .pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle { display: flex; align-items: center; gap: 10px; box-sizing: border-box; padding: 7px 10px; border: 1px solid #b3c3d4; border-radius: 6px; background: #f7f9fc; cursor: pointer; order: 0; }
 .pl-workspace-main > :is(.classPlanner_ClassOptimizerSection,.classPlanner_EnrolledNotInPlanSection,.classPlanner_PersonalTimeBlocksSection) > .pl-pane-title > button.planSectionToggle:hover { border-color: #7895b3; background: #eaf1f9; }
@@ -1624,17 +1629,34 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-resizing { user-select: none; cursor: col-resize; }
 .pl-workspace-empty { margin: 32px; color: #647080; }
 .pl-workspace-empty[hidden] { display: none; }
-.pl-workspace-calendar #gridDiv { margin-top: 16px; }
+.pl-workspace-calendar #gridDiv { margin-top: 8px; }
 .pl-workspace-calendar .pl-workspace-schedule-widen { flex: none; min-height: 38px; padding: 7px 10px; border: 1px solid #91a8c0; border-radius: 7px; background: #f1f5fa; color: #315776; font: 500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer; }
 .pl-workspace-calendar .pl-workspace-schedule-widen:hover, .pl-workspace-calendar .pl-workspace-schedule-widen[aria-pressed="true"] { border-color: #5f82a6; background: #e4eef9; }
 .pl-workspace-calendar .pl-workspace-schedule-widen:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-workspace-calendar .pl-workspace-schedule-widen:disabled { opacity: .55; cursor: default; }
-.pl-workspace-calendar .plannerMenuLinks { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; justify-content: flex-start; padding: 0 12px; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.pl-workspace-host .pl-workspace-schedule-widen[hidden] { display: none !important; }
+.pl-workspace-calendar .plannerMenuLinks { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; justify-content: flex-start; margin: 0 0 8px; padding: 0 12px; color: #526174; font: 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-calendar .plannerMenuLinks button { min-height: 34px; padding: 5px 7px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: #526174; font: inherit; }
 .pl-workspace-calendar .plannerMenuLinks button:hover { background: #f0f3f6; }
 .pl-workspace-calendar .plannerMenuLinks button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
+/* Native checked/unchecked buttons overlap by design; reserve their full hit
+   area so the next control group cannot overlap the visible checkbox. */
+.pl-workspace-calendar .plannerMenuLinks .icontoggle.gridsizeicons { display: inline-block; position: relative; min-width: 36px; min-height: 34px; padding: 0 !important; vertical-align: middle; }
+.pl-workspace-calendar .plannerMenuLinks .icontoggle.gridsizeicons > button { left: 0; top: 0; }
 .pl-workspace-calendar .plannerMenuLinks input[type="checkbox"] { width: 16px; height: 16px; vertical-align: middle; accent-color: #246297; }
 .pl-workspace-calendar .plannerMenuLinks .pl-native-label { color: #46617d !important; font-weight: 500; }
+@media screen {
+  /* Project the measured native menu into spare header space without moving it
+     out of its native grid or form. Narrow panels retain the normal menu row. */
+  .pl-workspace-calendar.pl-calendar-inline-tools { position: relative; }
+  .pl-workspace-calendar.pl-calendar-inline-tools .pl-calendar-header-tools {
+    position: absolute; left: var(--pl-calendar-tools-left); top: var(--pl-calendar-tools-top);
+    width: var(--pl-calendar-tools-width); box-sizing: border-box; flex-wrap: nowrap;
+    margin: 0; padding: 0; z-index: 5;
+  }
+  .pl-workspace-calendar.pl-calendar-inline-tools .pl-calendar-header-tools > span { flex: none; white-space: nowrap; }
+  .pl-workspace-calendar.pl-calendar-inline-tools #gridDiv { margin-top: 4px; }
+}
 .pl-workspace-calendar #gridDiv tr.primary.light.headerBar.classPlanner > td { background: #eef3f7; color: #465b70; font-weight: 600; }
 @media (min-width: 781px) {
   .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] { font-size: 12px; }
@@ -1710,7 +1732,6 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-plan button.pl-workspace-detail-button:focus-visible, .pl-workspace-plan button.pl-workspace-actions-button:focus-visible { outline: 2px solid #4184c2; outline-offset: 2px; }
 .pl-workspace-plan .pl-conflict-badge, .pl-workspace-plan .pl-tag-badge { white-space: normal; max-width: 100%; margin-left: 0; font: 12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .pl-workspace-plan #plannerSectionClip { gap: 4px; }
-.pl-workspace-plan #plannerSectionClip > button.planSectionToggle { flex: 1; }
 .pl-workspace-plan .pl-bar { display: block; flex: 0 1 320px; width: min(320px,100%); margin-left: auto; }
 .pl-workspace-plan .pl-bar-main { flex-wrap: nowrap; }
 .pl-workspace-plan .pl-bar input[type="search"] { flex: 1; width: 100%; min-width: 0; height: 40px; padding: 8px 12px; border: 1px solid #cfd7e1; border-radius: 6px; font: 14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
@@ -1728,7 +1749,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-search .ClassSearchWidget.pl-search-widget .searchFields { display: grid; gap: 6px 10px; }
 .pl-workspace-search .goPanel { align-self: end; }
 .pl-workspace-search label.pl-search-field-label:not(:first-child) { margin-top: 0; }
-.pl-workspace-search > .pl-pane-title > button.planSectionToggle { order: 0; flex: 1; min-width: 0; }
+.pl-workspace-search > .pl-pane-title > button.planSectionToggle { order: 0; }
 .pl-workspace-search > .pl-pane-title > a { order: 1; margin-left: auto; font-size: 13px; }
 .pl-workspace-search > .pl-pane-title > .pl-pane-toggle { order: 2; }
 .pl-workspace-search .ClassSearchList { overflow: auto; }
@@ -2016,7 +2037,7 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) { padding: 14px; }
 @container pl-search (max-width: 420px) {
   .pl-workspace-search > .pl-pane-title { display: grid; grid-template-columns: minmax(0,1fr) 38px; gap: 8px 10px; }
-  .pl-workspace-search > .pl-pane-title > button.planSectionToggle { grid-column: 1; grid-row: 1; }
+  .pl-workspace-search > .pl-pane-title > button.planSectionToggle { grid-column: 1; grid-row: 1; justify-self: start; }
   .pl-workspace-search > .pl-pane-title > button.pl-pane-toggle { grid-column: 2; grid-row: 1; }
   .pl-workspace-search > .pl-pane-title > a { grid-column: 1; grid-row: 2; margin: 0; justify-self: start; }
   .pl-workspace-search > .pl-pane-title > button.planSectionHelpTip { grid-column: 2; grid-row: 2; justify-self: center; }
@@ -2143,9 +2164,12 @@ section#layoutContentArea.pl-planner-introduction {
 .pl-navigation-collapsed [data-pl-module='personal']::before { content: 'Own'; }
 .pl-navigation-collapsed .pl-workspace-nav-footer > button::before { content: 'i'; font: 600 16px/24px sans-serif; }
 .pl-navigation-collapsed .pl-workspace-nav-footer > .pl-workspace-original::before { content: '↶'; }
+.pl-navigation-collapsed .pl-workspace-nav-footer > .pl-workspace-default::before { content: '↺'; }
 @media screen {
   .pl-custom-docks { position: relative; display: block; }
   .pl-custom-docks > .pl-workspace-main { position: absolute; left: var(--pl-main-left,0px); right: var(--pl-main-right,0px); top: 0; bottom: 0; }
+  .pl-no-main-dock > .pl-workspace-main { min-width: 0; overflow: visible; }
+  .pl-no-main-dock > .pl-workspace-main > .pl-workspace-dock-placeholder { display: none; }
   .pl-custom-docks > .pl-workspace-splitter { display: none; }
   .pl-workspace-host .pl-panel-docked { position: fixed !important; left: var(--pl-dock-left) !important; top: var(--pl-dock-top) !important; width: var(--pl-dock-width) !important; height: var(--pl-dock-height) !important; box-sizing: border-box; border: 1px solid #dfe6ef !important; display: flex; flex-direction: column; }
   .pl-workspace-host .pl-floating-panel { position: fixed !important; left: var(--pl-panel-left) !important; top: var(--pl-panel-top) !important; width: var(--pl-panel-width) !important; height: var(--pl-panel-height) !important; max-width: none !important; max-height: none !important; min-width: 0 !important; min-height: 0 !important; margin: 0 !important; box-sizing: border-box; z-index: var(--pl-panel-z,130); background: #fff; border: 1px solid #aebed0 !important; border-radius: 10px !important; box-shadow: 0 14px 44px #142c4933,0 2px 8px #142c491a; overflow: auto; }
@@ -2205,6 +2229,7 @@ section#layoutContentArea.pl-planner-introduction {
 
 /* Closing a pane hides its presentation; native controls and selections stay put. */
 .pl-workspace-host button.pl-panel-close { flex: none; order: 30; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 0; border: 1px solid #c8d3e0; border-radius: 6px; background: #f8fafc; color: #5b6e84; font: 22px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; cursor: pointer; }
+.pl-workspace-host button.pl-panel-close[hidden] { display: none !important; }
 .pl-workspace-host button.pl-panel-close:hover { background: #eaf1fa; border-color: #8ea9c4; color: #24527b; }
 .pl-workspace-host button.pl-panel-close:focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
 .pl-workspace-main[data-pl-main-size="narrow"] .pl-workspace-plan > .pl-pane-title > button.pl-panel-close,
@@ -2226,7 +2251,226 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-panel-close { display: none !important; }
   .classPlannerWrapper.pl-workspace-host section.pl-panel-hidden { display: block !important; }
 }
-</style><script id="preview-build-meta" type="application/json">{"version":"0.18.2","cssSha256":"37fcee649c1cb75a7799f9661136f9b07c67fe527e6d673f78e071cee3fab77b","contentSha256":"106c50090b346a7a369d486afac104617f02bafe993e8396937ed1e799b61317","sourceRevision":"f4c272936b7043ae3d4e9089ac9d2fff6ba91d32"}</script><style>
+
+/* Workspace groups add only owned tab controls; native sections keep their
+   parents and their existing presentation beneath the measured 40px strip. */
+@media screen {
+  .classPlannerWrapper.pl-grouped-workspace .pl-workspace-group-strip {
+    position: fixed; left: var(--pl-group-left); top: var(--pl-group-top); width: var(--pl-group-width);
+    height: 40px; display: flex; align-items: stretch; gap: 4px; box-sizing: border-box;
+    padding: 4px 6px 0; margin: 0; border: 1px solid #dfe6ef; border-bottom-color: #d3dfea;
+    border-radius: 6px 6px 0 0; background: #f6f9fc; color: #596f85; z-index: 120;
+    overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+    scrollbar-width: thin; scrollbar-color: #c6d4e2 transparent;
+  }
+  .classPlannerWrapper.pl-grouped-workspace .pl-workspace-group-strip[hidden],
+  .classPlannerWrapper.pl-grouped-workspace .pl-workspace-group-tab-wrap[hidden],
+  .classPlannerWrapper.pl-grouped-workspace section.pl-group-inactive:not(.pl-details-only) { display: none !important; }
+  /* Group selection replaces the old mobile .pl-show-schedule switch. Keep
+     the actual calendar visible without hiding other groups' DOM ancestors. */
+  .pl-workspace-host.pl-grouped-workspace .pl-workspace-calendar.pl-module-active:not(.pl-group-inactive) {
+    display: flex !important; flex-direction: column;
+  }
+  /* Retain native Help in its header but let it escape a short pane's clip.
+     The search container otherwise becomes a containing block for fixed UI. */
+  .pl-grouped-workspace .pl-header-help-open { container-type: normal !important; z-index: 240 !important; }
+  .pl-grouped-workspace .pl-pane-title > .popover.clickover.pl-header-help-floating {
+    position: fixed !important; left: var(--pl-header-help-left) !important;
+    top: var(--pl-header-help-top) !important; right: auto !important;
+    width: var(--pl-header-help-width) !important; max-width: calc(100vw - 24px) !important;
+    max-height: var(--pl-header-help-max-height) !important;
+    box-sizing: border-box; overflow: auto; z-index: 230;
+  }
+  .pl-grouped-workspace .pl-workspace-group-tab-wrap {
+    flex: 0 0 auto; display: flex; align-items: center; min-width: 0; max-width: 230px;
+    margin: 0; padding: 0; border: 1px solid transparent; border-bottom: 2px solid transparent;
+    border-radius: 5px 5px 0 0; background: transparent;
+  }
+  .pl-grouped-workspace .pl-workspace-group-tab-wrap:has(> button.pl-workspace-group-tab[aria-selected="true"]) {
+    border-color: #d5e1ed; border-bottom-color: #347db5; background: #fff;
+  }
+  .pl-grouped-workspace button.pl-workspace-group-tab {
+    flex: 1 1 auto; min-width: 0; max-width: 194px; min-height: 30px; height: 30px;
+    box-sizing: border-box; margin: 0; padding: 5px 10px; border: 0; border-radius: 4px;
+    background: transparent; color: #60768d; text-align: left; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; font: 500 13px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: grab;
+  }
+  .pl-grouped-workspace button.pl-workspace-group-tab[aria-selected="true"] { color: #245e8d; font-weight: 600; }
+  .pl-grouped-workspace button.pl-workspace-group-tab:hover { background: #edf3f9; color: #245e8d; }
+  .pl-grouped-workspace button.pl-workspace-group-tab:active { cursor: grabbing; }
+  .pl-grouped-workspace button.pl-workspace-group-tab-close {
+    flex: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+    width: 30px; height: 30px; min-width: 30px; min-height: 30px; margin: 0; padding: 0;
+    border: 0; border-radius: 4px; background: transparent; color: #73869b;
+    font: 20px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
+  }
+  .pl-grouped-workspace button.pl-workspace-group-tab-close:hover { background: #e8f0f8; color: #245e8d; }
+  .pl-grouped-workspace button.pl-workspace-group-tab:focus-visible,
+  .pl-grouped-workspace button.pl-workspace-group-tab-close:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
+}
+@media print { .pl-workspace-group-strip { display: none !important; } }
+
+/* v0.19 course presentation: compact index, quiet section boundaries, readable
+   native metadata. Only recognized presentation marks are styled; native
+   status content, section controls and unknown table shapes stay untouched. */
+@media screen {
+  .pl-grouped-workspace .pl-workspace-plan tbody.courseItem {
+    padding: 12px; border-bottom-color: #e3e9ef;
+  }
+  .pl-grouped-workspace .pl-workspace-plan .pl-headline { gap: 2px; }
+  .pl-grouped-workspace .pl-workspace-plan .pl-headline .pl-code {
+    font-size: 15px; line-height: 1.4;
+  }
+  .pl-grouped-workspace .pl-workspace-plan .pl-headline .pl-course-title {
+    font-size: 14px; line-height: 1.4; color: #526174;
+  }
+  .pl-grouped-workspace .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary {
+    margin-top: 4px; font-size: 14px; line-height: 1.4;
+  }
+  .pl-grouped-workspace .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary p {
+    margin-top: 6px; gap: 1px 6px;
+  }
+  .pl-grouped-workspace .pl-workspace-plan td.linkPanelRight { margin-top: 9px; }
+  .pl-grouped-workspace .pl-workspace-plan button:is(.pl-workspace-detail-button,.pl-workspace-actions-button) {
+    min-height: 34px; padding: 6px 9px; font-size: 14px; line-height: 20px; border-radius: 6px;
+  }
+  .pl-grouped-workspace .pl-workspace-plan tbody.pl-workspace-preview-card {
+    background: #f3f7fc; box-shadow: inset 3px 0 #387eb4;
+  }
+  .pl-grouped-workspace .pl-workspace-preview {
+    padding-bottom: 12px; margin-bottom: 0; border-bottom-color: #e3e9ef;
+  }
+  .pl-grouped-workspace .pl-workspace-preview-head h2 {
+    margin-bottom: 10px; font-size: 20px; line-height: 1.35; overflow-wrap: anywhere;
+  }
+  .pl-grouped-workspace .pl-workspace-preview-head p { font-size: 14px; }
+  .pl-grouped-workspace .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) {
+    padding: 16px 18px; border-bottom-color: #dfe7ef;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card {
+    grid-template-columns: 32px minmax(58px,.8fr) minmax(90px,1.5fr) 34px;
+    padding: 12px 0; gap: 8px 10px; border: 0; border-bottom: 1px solid #e3e9ef;
+    border-radius: 0; margin: 0;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card > .pl-section-field {
+    font-size: 14px; line-height: 1.45; color: #263344;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="1"] {
+    font-weight: 600;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field:is([data-pl-field="6"],[data-pl-field="8"]) {
+    color: #46566a; font-size: 14px;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button) {
+    min-width: 32px; width: 32px; min-height: 32px; border-color: #c5d4e2;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button):not(:has(i,svg)) {
+    width: auto; max-width: 100%; overflow-wrap: anywhere;
+  }
+  .pl-grouped-workspace .pl-section-label { color: #637287; font-weight: 500; }
+  .pl-grouped-workspace .ClassSearchList h3.pl-browser-preview-title { font-size: 20px; line-height: 1.35; }
+  .pl-grouped-workspace .ClassSearchList.pl-browser-list .pl-section-card {
+    border-color: #e3e9ef; background: #fff;
+  }
+  .pl-grouped-workspace .ClassSearchList.pl-browser-list .pl-section-card > .pl-section-field {
+    font-size: 14px; line-height: 1.45;
+  }
+  .pl-grouped-workspace .ClassSearchList.pl-browser-list .pl-section-field[data-pl-field="1"] { font-weight: 600; }
+  .pl-grouped-workspace .pl-browser-index { border-color: #e1e7ee; background: #fafbfd; }
+  .pl-grouped-workspace .pl-browser-index button { padding: 10px 12px; border-radius: 0; line-height: 1.45; }
+  .pl-grouped-workspace .pl-browser-index button[aria-pressed="true"] { background: #edf4fc; }
+  .pl-grouped-workspace .pl-section-help-field > :is(button,a) {
+    display: inline-flex; align-items: center; box-sizing: border-box; min-height: 32px;
+    padding: 5px 7px; border: 1px solid #d1dce6; border-radius: 5px; background: #f8fafc;
+    color: #405c79; font-size: 14px;
+  }
+  .pl-grouped-workspace .pl-section-help-field > :is(button,a):hover { background: #edf3fa; border-color: #8eabc4; }
+  .pl-grouped-workspace .pl-section-help-field > :is(button,a):focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
+  @container pl-plan-detail (min-width: 640px) {
+    .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
+    .pl-grouped-workspace .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
+      grid-template-columns: 38px minmax(60px,.7fr) minmax(126px,1.15fr) 48px minmax(112px,1fr) 40px 28px;
+      padding: 10px 8px;
+    }
+    .pl-grouped-workspace .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
+      padding-top: 8px; padding-bottom: 8px; background: #f7f9fb;
+    }
+  }
+  /* Navigation between already-open details scrolls their original rows; it
+     never duplicates a course, and adds no second close action. */
+  .pl-workspace-detail-index {
+    flex: none; display: flex; gap: 5px; min-width: 0; overflow-x: auto; overflow-y: hidden;
+    padding: 6px 10px; border-bottom: 1px solid #e1e7ee; background: #fbfcfe;
+    scrollbar-width: thin; overscroll-behavior-x: contain; box-shadow: none !important;
+  }
+  .pl-workspace-detail-index[hidden] { display: none !important; }
+  button.pl-workspace-detail-jump {
+    flex: 0 0 auto; min-width: 0; max-width: 240px; min-height: 34px; margin: 0;
+    padding: 6px 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    border: 1px solid #d3dde7; border-radius: 6px; background: #fff; color: #486078;
+    font: 500 14px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
+  }
+  button.pl-workspace-detail-jump[aria-current="true"] { background: #eaf2fb; color: #245f8f; border-color: #a7c3dd; }
+  button.pl-workspace-detail-jump:hover { background: #edf3fa; border-color: #8eabc4; }
+  button.pl-workspace-detail-jump:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
+}
+@media print { .pl-workspace-detail-index { display: none !important; } }
+
+/* v0.19 calendar presentation. Loaded after injected.css. Native geometry,
+   meeting colors/borders, controls, hidden states and event handlers stay
+   authoritative. Only the recognized grouped workspace receives this skin. */
+@media screen {
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button {
+    border-color: #dce4ed;
+    background: #fff;
+    color: #43566d;
+    box-shadow: none;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button:hover {
+    border-color: #9eafc3;
+    background: #f0f5fa;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button:focus-visible {
+    outline: 2px solid #377ac0;
+    outline-offset: 2px;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button:disabled {
+    border-color: #dce4ed;
+    background: #f3f5f8;
+    color: #748093;
+    cursor: default;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv tr.primary.light.headerBar.classPlanner > td {
+    background: #f3f6fa;
+    color: #43566d;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] {
+    border-radius: 3px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"]:focus-visible {
+    outline: 2px solid #174f87;
+    outline-offset: -2px;
+  }
+}
+@media screen and (min-width: 781px) {
+  /* Three lines fit in the recorded 38px meetings. Add no outer padding or
+     border: native percentage widths already subtract their own borders. */
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] {
+    font-size: 12px;
+    line-height: 1.05;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox.smallitem[data-pl-grid="tidy"] {
+    font-size: 11px;
+    line-height: 1.05;
+  }
+}
+</style><script id="preview-build-meta" type="application/json">{"version":"0.19.0","cssSha256":"e36338c42abaf702bee9a9d41f39a0043e0f83d406292cefab556a3a2ec2db57","contentSha256":"5c22b5371f029fde52f268bdc17018bd3e10f4364b61fc18b3874138a0e74ea5","sourceRevision":"7cb4d2a4743bbc64646d75f86857d433b025020f"}</script><style>
   #preview-notice { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; box-sizing:border-box; padding:5px 12px; border-bottom:1px solid #dbe3ec; background:#f8fafc; color:#526174; font:11px/1.5 system-ui,sans-serif; }
   #preview-notice button { padding:0; border:0; background:none; color:#24528f; font:inherit; text-decoration:underline; cursor:pointer; }
   #preview-feedback { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); z-index:2147483601; width:max-content; max-width:min(520px,calc(100vw - 32px)); padding:12px 16px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; box-shadow:0 4px 20px #0002; color:#334155; font:13px/1.5 system-ui,sans-serif; }
@@ -2244,7 +2488,7 @@ section#layoutContentArea.pl-planner-introduction {
   }
   @media print { #preview-notice, #preview-feedback { display:none !important; } }
 </style></head>
-<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.18.2</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
+<body><aside id="preview-notice" aria-label="Fictional preview information"><span>Fictional preview · v0.19.0</span><button type="button" id="preview-about">What works here?</button></aside><layout-headerwrap style="display: block;"><nav id="fixture-native-navigation" aria-label="Example UCLA navigation" style="display: flex; align-items: center; gap: 24px; height: 166px; padding: 0px 24px; background: rgb(36, 82, 143); color: white; box-sizing: border-box;"><strong>UCLA</strong><a href="#">Home</a><a href="#">Academics</a><button type="button">Menu</button></nav></layout-headerwrap>
 <form id="aspnetForm" method="post" action="https://be.my.ucla.edu/ClassPlanner/ClassPlan.aspx" autocomplete="off">
 
   <div class="maincontentpanel" id="main_wrapper">
@@ -2958,12 +3202,12 @@ section#layoutContentArea.pl-planner-introduction {
         button.addEventListener("click", () => this.select(entry.key));
         choices.append(button);
       }
-      const bounded = knownWidgetLayout(widget, next.root);
+      const bounded2 = knownWidgetLayout(widget, next.root);
       widget.classList.add("pl-browser-results");
-      widget.classList.toggle("pl-browser-bounded", bounded);
+      widget.classList.toggle("pl-browser-bounded", bounded2);
       next.root.classList.add("pl-browser-list");
       const changed = () => this.syncSelections();
-      this.state = { ...next, widget, toolbar, index, cards, selected: "", filter, filterStatus, previewTitle, selections, selectionLabel, selectionActions, changed, resultActions, actionsHadClass, bounded };
+      this.state = { ...next, widget, toolbar, index, cards, selected: "", filter, filterStatus, previewTitle, selections, selectionLabel, selectionActions, changed, resultActions, actionsHadClass, bounded: bounded2 };
       next.root.addEventListener("change", changed);
       filter.addEventListener("input", () => this.filterCourses());
       filter.addEventListener("keydown", (event) => {
@@ -3365,6 +3609,8 @@ section#layoutContentArea.pl-planner-introduction {
     }
     panels = /* @__PURE__ */ new Map();
     gesture = null;
+    dragFrame = null;
+    dragPoint = null;
     menu = null;
     menuTrigger = null;
     clickSuppression = null;
@@ -3408,7 +3654,7 @@ section#layoutContentArea.pl-planner-introduction {
         box.width += event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
         box.height += event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
         this.applyBox(panel, box);
-        this.onChange(panel.id, panel.placement, "geometry");
+        this.onChange(panel.id, panel.placement, "commit");
       });
       this.addHandle(registration.id, registration.handle);
     }
@@ -3479,6 +3725,10 @@ section#layoutContentArea.pl-planner-introduction {
     getPlacement(id) {
       return this.panels.get(id)?.placement;
     }
+    /** Includes activation and queued frames, before any transient styles paint. */
+    isInteracting() {
+      return this.gesture?.started ?? false;
+    }
     isFloating(id) {
       return this.getPlacement(id) === "floating";
     }
@@ -3521,9 +3771,10 @@ section#layoutContentArea.pl-planner-introduction {
       this.raise(panel);
       this.onChange(id, "floating", "placement");
     }
-    dockPanel(id, placement = "main", activate = true) {
+    dockPanel(id, placement = "main", activate = true, operation = { kind: "merge", dock: placement }) {
       const panel = this.panels.get(id);
       if (!panel || !this.allowed(panel).includes(placement)) return;
+      if (activate && panel.canDrop && !panel.canDrop(operation)) return;
       if (activate) this.activateForPlacement(panel);
       if (this.panels.get(id) !== panel || !panel.element.isConnected) return;
       if (activate) this.setHidden(panel, false);
@@ -3531,11 +3782,11 @@ section#layoutContentArea.pl-planner-introduction {
       panel.element.classList.remove("pl-floating-panel");
       panel.resize.hidden = true;
       panel.element.setAttribute("data-pl-panel-placement", placement);
-      this.onChange(id, placement, "placement");
+      this.onChange(id, placement, "placement", operation);
     }
     snapshot() {
       return { panels: [...this.panels.values()].map((panel) => {
-        const state = this.gesture?.panel === panel && !this.gesture.resize ? this.gesture.before : panel;
+        const state = this.gesture?.panel === panel ? this.gesture.before : panel;
         return { id: panel.id, placement: state.placement, ...state.box ? { box: { ...state.box } } : {}, ...state.hidden ? { hidden: true } : {} };
       }) };
     }
@@ -3661,7 +3912,8 @@ section#layoutContentArea.pl-planner-introduction {
           styles: BOX_PROPERTIES.map((name) => ({ name, value: panel.element.style.getPropertyValue(name), priority: panel.element.style.getPropertyPriority(name) }))
         },
         // Leaving a dock can resize the workspace. Its targets stay still throughout this gesture.
-        targets: resize ? /* @__PURE__ */ new Map() : this.captureTargets(panel)
+        targets: resize ? [] : this.captureTargets(panel),
+        legacyTargets: !panel.getDropTargets
       };
     }
     move = (event) => {
@@ -3696,16 +3948,43 @@ section#layoutContentArea.pl-planner-introduction {
           this.createDragTargets(gesture);
         }
       }
-      if (gesture.resize) {
-        this.applyBox(gesture.panel, { ...gesture.original, width: gesture.original.width + dx, height: gesture.original.height + dy });
-        this.onChange(gesture.panel.id, "floating", "geometry");
-      } else {
-        this.applyBox(gesture.panel, { ...gesture.original, left: event.clientX - gesture.offsetX, top: event.clientY - gesture.offsetY });
-        this.onChange(gesture.panel.id, "floating", "geometry");
-        if (this.gesture !== gesture) return;
-        this.showTarget(gesture, this.dockAt(gesture, event.clientX, event.clientY));
+      this.dragPoint = { x: event.clientX, y: event.clientY };
+      if (this.dragFrame !== null) return;
+      const view = this.doc.defaultView;
+      if (!view) {
+        this.renderDrag();
+        return;
       }
+      this.dragFrame = view.requestAnimationFrame(() => {
+        this.dragFrame = null;
+        this.renderDrag();
+      });
     };
+    renderDrag() {
+      const gesture = this.gesture, point = this.dragPoint;
+      this.dragPoint = null;
+      if (!gesture?.started || !point) return;
+      if (!gesture.panel.element.isConnected || !gesture.source.isConnected) {
+        this.cancel();
+        return;
+      }
+      if (gesture.resize) {
+        this.applyBox(gesture.panel, {
+          ...gesture.original,
+          width: gesture.original.width + point.x - gesture.startX,
+          height: gesture.original.height + point.y - gesture.startY
+        });
+      } else {
+        this.applyBox(gesture.panel, { ...gesture.original, left: point.x - gesture.offsetX, top: point.y - gesture.offsetY }, false);
+      }
+      this.onChange(gesture.panel.id, "floating", "drag");
+      if (this.gesture === gesture && !gesture.resize) this.showTarget(gesture, this.dockAt(gesture, point.x, point.y));
+    }
+    clearDragFrame() {
+      if (this.dragFrame !== null) this.doc.defaultView?.cancelAnimationFrame(this.dragFrame);
+      this.dragFrame = null;
+      this.dragPoint = null;
+    }
     up = (event) => {
       const gesture = this.gesture;
       if (!gesture || event.pointerId !== gesture.pointerId) return;
@@ -3715,15 +3994,26 @@ section#layoutContentArea.pl-planner-introduction {
       }
       if (gesture.started) {
         this.clickSuppression = { node: gesture.source, until: Date.now() + 500 };
+        this.clearDragFrame();
+        this.dragPoint = { x: event.clientX, y: event.clientY };
+        this.renderDrag();
+        if (this.gesture !== gesture) return;
         if (!gesture.resize) {
           const target = this.dockAt(gesture, event.clientX, event.clientY);
+          if (target && gesture.panel.canDrop && !gesture.panel.canDrop(target.operation)) {
+            this.cancel();
+            return;
+          }
           this.finishGesture();
-          if (target) this.dockPanel(gesture.panel.id, target, false);
+          if (target) this.dockPanel(gesture.panel.id, target.operation.dock, false, target.operation);
           else this.floatPanel(gesture.panel.id, {
             ...gesture.original,
             left: event.clientX - gesture.offsetX,
             top: event.clientY - gesture.offsetY
           }, false);
+        } else {
+          this.finishGesture();
+          this.onChange(gesture.panel.id, "floating", "commit");
         }
       }
       this.finishGesture();
@@ -3754,6 +4044,7 @@ section#layoutContentArea.pl-planner-introduction {
       if (notify && gesture?.started && gesture.panel.element.isConnected) this.onChange(gesture.panel.id, gesture.panel.placement, "geometry");
     }
     finishGesture() {
+      this.clearDragFrame();
       const gesture = this.gesture;
       if (!gesture) return;
       gesture.panel.element.classList.toggle("pl-panel-dragging", gesture.before.dragging);
@@ -3772,25 +4063,26 @@ section#layoutContentArea.pl-planner-introduction {
       this.doc.body.append(overlay);
       gesture.overlay = overlay;
     }
-    showTarget(gesture, dock) {
-      if (gesture.target === dock) return;
-      gesture.target = dock;
+    showTarget(gesture, target) {
+      if (gesture.target === target) return;
+      gesture.target = target;
       gesture.overlay?.replaceChildren();
-      const target = dock ? gesture.targets.get(dock) : void 0;
       if (!target || !gesture.overlay) return;
       const preview = this.doc.createElement("div");
       preview.className = "pl-panel-drop-preview";
-      preview.dataset.plDockTarget = dock;
+      preview.dataset.plDockTarget = target.operation.dock;
+      preview.dataset.plDropOperation = target.operation.kind;
       const box = target.preview;
       Object.assign(preview.style, { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` });
       gesture.overlay.append(preview);
     }
     captureTargets(panel) {
-      const supplied = panel.getDockTargets?.(), targets = /* @__PURE__ */ new Map();
-      for (const dock of this.allowed(panel)) {
-        const target = supplied ? supplied[dock] : this.defaultTarget(dock);
+      const supplied = panel.getDockTargets?.(), targets = [];
+      const candidates = panel.getDropTargets?.() || HIT_PRIORITY.filter((dock) => this.allowed(panel).includes(dock)).map((dock) => ({ ...supplied ? supplied[dock] : this.defaultTarget(dock), operation: { kind: "merge", dock } }));
+      for (const target of candidates) {
+        if (!target?.operation || !this.allowed(panel).includes(target.operation.dock) || !["merge", "split"].includes(target.operation.kind)) continue;
         if (!target || !this.validBox(target.hit) || !this.validBox(target.preview) || target.hit.width <= 0 || target.hit.height <= 0 || target.preview.width <= 0 || target.preview.height <= 0) continue;
-        targets.set(dock, { hit: { ...target.hit }, preview: { ...target.preview } });
+        targets.push({ hit: { ...target.hit }, preview: { ...target.preview }, operation: { ...target.operation } });
       }
       return targets;
     }
@@ -3806,14 +4098,14 @@ section#layoutContentArea.pl-planner-introduction {
       return { hit: { left: left + width * 0.34, top: top + height * 0.3, width: width * 0.32, height: height * 0.28 }, preview: { left, top, width, height } };
     }
     dockAt(gesture, x, y) {
-      const contains = (dock, margin = 0) => {
-        const box = gesture.targets.get(dock)?.hit;
+      const contains = (target, margin = 0) => {
+        const box = target.hit;
         return !!box && x >= box.left - margin && x <= box.left + box.width + margin && y >= box.top - margin && y <= box.top + box.height + margin;
       };
-      const side = HIT_PRIORITY.find((dock) => dock !== "main" && contains(dock));
+      const side = gesture.legacyTargets ? gesture.targets.find((target) => target.operation.dock !== "main" && contains(target)) : gesture.targets.find((target) => target.operation.kind === "split" && contains(target));
       if (side) return side;
       if (gesture.target && contains(gesture.target, 12)) return gesture.target;
-      return contains("main") ? "main" : void 0;
+      return gesture.targets.find((target) => contains(target));
     }
     initialBox(panel) {
       const rect = panel.element.getBoundingClientRect(), viewport = this.viewport();
@@ -3831,9 +4123,16 @@ section#layoutContentArea.pl-planner-introduction {
       const height = Math.max(Math.min(180, maxHeight), Math.min(box.height, maxHeight));
       return { left: Math.max(12, Math.min(box.left, viewport.width - width - 12)), top: Math.max(12, Math.min(box.top, viewport.height - height - 12)), width, height };
     }
-    applyBox(panel, requested) {
+    applyBox(panel, requested, constrainPosition = true) {
       panel.box = this.bound(requested);
-      for (const key of ["left", "top", "width", "height"]) panel.element.style.setProperty(`--pl-panel-${key}`, `${panel.box[key]}px`);
+      if (!constrainPosition) {
+        panel.box.left = requested.left;
+        panel.box.top = requested.top;
+      }
+      for (const key of ["left", "top", "width", "height"]) {
+        const name = `--pl-panel-${key}`, value = `${panel.box[key]}px`;
+        if (panel.element.style.getPropertyValue(name) !== value) panel.element.style.setProperty(name, value);
+      }
     }
     raise(panel) {
       if (this.layer >= 79) {
@@ -3950,6 +4249,244 @@ section#layoutContentArea.pl-planner-introduction {
     }
   };
 
+  // src/content/workspace-groups.ts
+  var WORKSPACE_PANEL_IDS = ["classes", "find", "optimizer", "study", "personal", "schedule"];
+  var WORKSPACE_DOCKS = ["left", "main", "right"];
+  var WORKSPACE_GROUP_GAP = 12;
+  var WORKSPACE_MAX_DOCK_GROUPS = 2;
+  var WORKSPACE_PANEL_MIN_WIDTH = {
+    classes: 420,
+    find: 560,
+    optimizer: 480,
+    study: 480,
+    personal: 420,
+    schedule: 420
+  };
+  var isRecord = (value) => !!value && typeof value === "object" && !Array.isArray(value);
+  var isWorkspacePanelId = (value) => WORKSPACE_PANEL_IDS.includes(value);
+  var isDock = (value) => WORKSPACE_DOCKS.includes(value);
+  var isPlacement = (value) => isDock(value) || value === "floating";
+  function createDefaultGroups() {
+    return {
+      version: 1,
+      order: [...WORKSPACE_PANEL_IDS],
+      panels: {
+        classes: { placement: "main", open: true },
+        find: { placement: "main", open: true },
+        optimizer: { placement: "main", open: false },
+        study: { placement: "main", open: false },
+        personal: { placement: "main", open: false },
+        schedule: { placement: "right", open: true }
+      },
+      active: { left: null, main: "classes", right: "schedule" }
+    };
+  }
+  function openGroupTabs(state, dock) {
+    return state.order.filter((id) => state.panels[id].open && state.panels[id].placement === dock);
+  }
+  function activeGroupTab(state, dock) {
+    const tabs = openGroupTabs(state, dock), active = state.active[dock];
+    return active && tabs.includes(active) ? active : tabs[0] || null;
+  }
+  function settleActive(state) {
+    for (const dock of WORKSPACE_DOCKS) state.active[dock] = activeGroupTab(state, dock);
+    return state;
+  }
+  function visibleDockGroups(state) {
+    return WORKSPACE_DOCKS.filter((dock) => openGroupTabs(state, dock).length);
+  }
+  function browsingDock(state) {
+    const occupied = visibleDockGroups(state);
+    for (const id of ["classes", "find"]) {
+      const dock = state.panels[id].placement;
+      if (isDock(dock) && occupied.includes(dock)) return dock;
+    }
+    return occupied.find((dock) => openGroupTabs(state, dock).some((id) => id !== "schedule")) || occupied[0] || "main";
+  }
+  function limitDockGroups(state) {
+    const occupied = visibleDockGroups(state);
+    if (occupied.length <= WORKSPACE_MAX_DOCK_GROUPS) return settleActive(state);
+    const browsing = browsingDock(state), schedule = state.panels.schedule;
+    const other = schedule.open && isDock(schedule.placement) && schedule.placement !== browsing ? schedule.placement : occupied.find((dock) => dock !== browsing);
+    for (const dock of occupied) if (dock !== browsing && dock !== other) {
+      const active = state.active[dock];
+      for (const id of WORKSPACE_PANEL_IDS) if (state.panels[id].placement === dock) state.panels[id].placement = browsing;
+      if (active && state.panels[active].open) state.active[browsing] = active;
+    }
+    return settleActive(state);
+  }
+  function copy(state) {
+    return { version: 1, order: [...state.order], panels: Object.fromEntries(WORKSPACE_PANEL_IDS.map((id) => [id, { ...state.panels[id] }])), active: { ...state.active } };
+  }
+  function normalizeWorkspaceGroups(value) {
+    if (!isRecord(value) || value.version !== 1 || !isRecord(value.panels)) return null;
+    const state = createDefaultGroups();
+    for (const id of WORKSPACE_PANEL_IDS) {
+      const panel = value.panels[id];
+      if (isRecord(panel) && isPlacement(panel.placement) && typeof panel.open === "boolean") {
+        state.panels[id] = { placement: panel.placement, open: panel.open };
+      }
+    }
+    const order = Array.isArray(value.order) ? value.order.slice(0, 32).filter(isWorkspacePanelId) : [];
+    state.order = [.../* @__PURE__ */ new Set([...order, ...WORKSPACE_PANEL_IDS])];
+    const active = isRecord(value.active) ? value.active : {};
+    for (const dock of WORKSPACE_DOCKS) state.active[dock] = isWorkspacePanelId(active[dock]) ? active[dock] : null;
+    return limitDockGroups(state);
+  }
+  function migrateLegacyGroups(value) {
+    const state = createDefaultGroups();
+    if (!isRecord(value)) return state;
+    const legacy = /* @__PURE__ */ new Map();
+    if (Array.isArray(value.panels)) for (const panel of value.panels.slice(0, 32)) {
+      if (isRecord(panel) && isWorkspacePanelId(panel.id) && isPlacement(panel.placement) && !legacy.has(panel.id)) legacy.set(panel.id, panel);
+    }
+    for (const id of WORKSPACE_PANEL_IDS) {
+      const panel = legacy.get(id), placement = panel?.placement;
+      if (isPlacement(placement)) state.panels[id].placement = placement;
+      const selected = value.module === id || value.mainModule === id;
+      state.panels[id].open = panel?.hidden !== true && (id === "classes" || id === "find" || id === "schedule" || selected || isPlacement(placement) && placement !== "main");
+    }
+    if (legacy.get("find")?.hidden === true && state.panels.find.placement !== "floating" && state.panels.classes.placement !== "floating") {
+      state.panels.find.placement = state.panels.classes.placement;
+    }
+    state.active = { left: null, main: null, right: null };
+    for (const selected of [value.mainModule, value.module]) if (isWorkspacePanelId(selected)) {
+      const panel = state.panels[selected];
+      if (panel.open && isDock(panel.placement)) state.active[panel.placement] = selected;
+    }
+    return limitDockGroups(state);
+  }
+  function selectWorkspaceTab(state, id) {
+    if (!isWorkspacePanelId(id)) return state;
+    const next = copy(state), panel = next.panels[id];
+    panel.open = true;
+    if (visibleDockGroups(next).length > WORKSPACE_MAX_DOCK_GROUPS) return mergeWorkspaceTab(state, id, browsingDock(state));
+    if (isDock(panel.placement)) next.active[panel.placement] = id;
+    return settleActive(next);
+  }
+  function closeWorkspaceTab(state, id) {
+    if (!isWorkspacePanelId(id) || !state.panels[id].open) return state;
+    const next = copy(state), placement = next.panels[id].placement;
+    if (isDock(placement) && next.active[placement] === id) {
+      const tabs = openGroupTabs(state, placement), index = tabs.indexOf(id);
+      next.active[placement] = tabs[index + 1] || tabs[index - 1] || null;
+    }
+    next.panels[id].open = false;
+    return settleActive(next);
+  }
+  function mergeWorkspaceTab(state, id, target, index) {
+    if (!isWorkspacePanelId(id) || !isDock(target)) return state;
+    const next = copy(state);
+    next.panels[id] = { placement: target, open: true };
+    if (visibleDockGroups(next).length > WORKSPACE_MAX_DOCK_GROUPS) return state;
+    const order = next.order.filter((panel) => panel !== id), peers = order.filter((panel) => next.panels[panel].placement === target && next.panels[panel].open);
+    const position = typeof index === "number" && Number.isFinite(index) ? Math.max(0, Math.floor(index)) : peers.length;
+    const before = peers[position], after = peers.at(-1);
+    order.splice(before ? order.indexOf(before) : after ? order.indexOf(after) + 1 : order.length, 0, id);
+    next.order = order;
+    next.active[target] = id;
+    return settleActive(next);
+  }
+  function floatWorkspaceTab(state, id) {
+    if (!isWorkspacePanelId(id)) return state;
+    const next = copy(state);
+    next.panels[id] = { placement: "floating", open: true };
+    return settleActive(next);
+  }
+  function minimumGroupWidth(state, dock) {
+    return Math.max(0, ...openGroupTabs(state, dock).map((id) => WORKSPACE_PANEL_MIN_WIDTH[id]));
+  }
+  function readableGroupWidths(state, availableWidth, preferred = {}) {
+    if (!Number.isFinite(availableWidth) || availableWidth < 0) return null;
+    const widths = { left: 0, main: 0, right: 0 };
+    const docks = WORKSPACE_DOCKS.filter((dock) => openGroupTabs(state, dock).length);
+    if (!docks.length) return widths;
+    if (docks.length > WORKSPACE_MAX_DOCK_GROUPS) return null;
+    if (docks.length === 1) {
+      widths[docks[0]] = availableWidth;
+      return widths;
+    }
+    const usable = availableWidth - WORKSPACE_GROUP_GAP * (docks.length - 1);
+    const minimum = docks.reduce((sum, dock) => sum + minimumGroupWidth(state, dock), 0);
+    if (usable < minimum) return null;
+    const extra = usable - minimum;
+    const desired = docks.map((dock) => {
+      const value = preferred[dock];
+      return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.min(32768, value) - minimumGroupWidth(state, dock)) : 0;
+    });
+    const desiredTotal = desired.reduce((sum, value) => sum + value, 0);
+    docks.forEach((dock, index) => {
+      widths[dock] = minimumGroupWidth(state, dock) + (desiredTotal > extra ? desired[index] * extra / desiredTotal : desired[index] + (extra - desiredTotal) / docks.length);
+    });
+    return widths;
+  }
+  function splitWorkspaceTab(state, id, target, availableWidth) {
+    if (!isWorkspacePanelId(id) || !isDock(target)) return { state, accepted: false, reason: "invalid" };
+    if (openGroupTabs(state, target).some((panel) => panel !== id)) return { state, accepted: false, reason: "occupied" };
+    const proposed = copy(state);
+    proposed.panels[id] = { placement: target, open: true };
+    if (visibleDockGroups(proposed).length > WORKSPACE_MAX_DOCK_GROUPS) return { state, accepted: false, reason: "limit" };
+    const next = mergeWorkspaceTab(state, id, target);
+    if (!readableGroupWidths(next, availableWidth)) return { state, accepted: false, reason: "space" };
+    return { state: next, accepted: true };
+  }
+
+  // src/storage/workspace-layout.ts
+  var PANEL_IDS = ["classes", "find", "optimizer", "study", "personal", "schedule", "details"];
+  var MODULE_IDS = ["classes", "find", "optimizer", "study", "personal", "information"];
+  var PANE_IDS = ["plannerSectionClip", "plannerSectionCal", "classSearchTitle"];
+  var record = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : null;
+  var bounded = (value, min, max) => typeof value === "number" && Number.isFinite(value) && value >= min && value <= max ? Math.round(value) : null;
+  var moduleId = (value) => MODULE_IDS.includes(value) ? value : "classes";
+  function normalizeWorkspaceLayout(value) {
+    const candidate = record(value);
+    if (!candidate || candidate.version !== 1 && candidate.version !== 2 || !Array.isArray(candidate.panels)) return null;
+    const panels = [], seen = /* @__PURE__ */ new Set();
+    const occupied = /* @__PURE__ */ new Set();
+    for (const value2 of candidate.panels.slice(0, 32)) {
+      const panel = record(value2);
+      if (!panel || !PANEL_IDS.includes(panel.id) || seen.has(panel.id)) continue;
+      const id = panel.id;
+      let placement = panel.placement;
+      if (!["main", "left", "right", "floating"].includes(placement) || candidate.version === 1 && id === "schedule" && placement === "main" || id === "details" && placement !== "main" && placement !== "floating") continue;
+      if (candidate.version === 1 && panel.hidden !== true && (placement === "left" || placement === "right")) {
+        if (occupied.has(placement)) placement = id === "schedule" ? "floating" : "main";
+        else occupied.add(placement);
+      }
+      const source = record(panel.box);
+      const left2 = bounded(source?.left, 0, 32768), top = bounded(source?.top, 0, 32768);
+      const width = bounded(source?.width, 120, 16384), height = bounded(source?.height, 80, 16384);
+      const box = left2 !== null && top !== null && width !== null && height !== null ? { left: left2, top, width, height } : void 0;
+      panels.push({ id, placement, ...box ? { box } : {}, hidden: panel.hidden === true });
+      seen.add(id);
+    }
+    const groups = candidate.version === 1 ? migrateLegacyGroups({ ...candidate, panels }) : normalizeWorkspaceGroups(candidate.groups);
+    if (!groups) return null;
+    for (const id of WORKSPACE_PANEL_IDS) {
+      let panel = panels.find((panel2) => panel2.id === id);
+      if (!panel) {
+        panel = { id, placement: groups.panels[id].placement };
+        panels.push(panel);
+      }
+      panel.placement = groups.panels[id].placement;
+      panel.hidden = !groups.panels[id].open;
+    }
+    const sizes = record(candidate.dockSizes), left = bounded(sizes?.left, 200, 16384), right = bounded(sizes?.right, 200, 16384);
+    return {
+      version: 2,
+      groups,
+      panels,
+      module: moduleId(candidate.module),
+      mainModule: moduleId(candidate.mainModule),
+      navigationCollapsed: candidate.navigationCollapsed === true,
+      scheduleWidth: bounded(candidate.scheduleWidth, 420, 16384),
+      scheduleExpanded: candidate.scheduleExpanded === true,
+      dockSizes: { ...left === null ? {} : { left }, ...right === null ? {} : { right } },
+      collapsedPanes: Array.isArray(candidate.collapsedPanes) ? [...new Set(candidate.collapsedPanes.filter((id) => PANE_IDS.includes(id)))] : []
+    };
+  }
+  var writes = Promise.resolve();
+
   // src/content/planner-workspace.ts
   var OWNED6 = "data-planner-lift-owned";
   var PANEL = "ctl00_MainContent_classPlanPanel";
@@ -4020,13 +4557,13 @@ section#layoutContentArea.pl-planner-introduction {
   };
   function officialText(node) {
     if (node.matches("[hidden],.hidden") || node.style?.display === "none") return "";
-    const copy = node.cloneNode(true);
-    copy.querySelectorAll(`[${OWNED6}],script,input,textarea,[hidden],.hidden`).forEach((n) => n.remove());
-    copy.querySelectorAll("[style]").forEach((n) => {
+    const copy2 = node.cloneNode(true);
+    copy2.querySelectorAll(`[${OWNED6}],script,input,textarea,[hidden],.hidden`).forEach((n) => n.remove());
+    copy2.querySelectorAll("[style]").forEach((n) => {
       if (n.style.display === "none") n.remove();
     });
-    copy.querySelectorAll("br").forEach((n) => n.replaceWith(copy.ownerDocument.createTextNode(" ")));
-    return (copy.textContent || "").replace(/\s+/g, " ").trim().slice(0, 500);
+    copy2.querySelectorAll("br").forEach((n) => n.replaceWith(copy2.ownerDocument.createTextNode(" ")));
+    return (copy2.textContent || "").replace(/\s+/g, " ").trim().slice(0, 500);
   }
   function hasKnownDetails(card) {
     const rows = [...card.children];
@@ -4038,6 +4575,12 @@ section#layoutContentArea.pl-planner-introduction {
     return [...table.rows].filter((row) => row.cells.length === 9 && [...row.cells].every((cell) => cell.tagName === "TD" && cell.colSpan === 1 && cell.rowSpan === 1) && row.style.display !== "none" && !row.hidden && !row.classList.contains("hidden")).map((row) => [1, 4, 5, 2].map((index) => officialText(row.cells[index])));
   }
   var PlannerWorkspace = class {
+    constructor(onHeaderChange = () => {
+    }, onLayoutChange = () => {
+    }) {
+      this.onLayoutChange = onLayoutChange;
+      this.introduction = new PlannerIntroduction(onHeaderChange);
+    }
     state = null;
     selected = null;
     openDetails = /* @__PURE__ */ new Map();
@@ -4062,17 +4605,97 @@ section#layoutContentArea.pl-planner-introduction {
     mainModule = "classes";
     navigationCollapsed = false;
     updatingLayout = false;
+    savedLayout = null;
+    saveQueued = false;
+    dragPresentation = "";
+    groups = createDefaultGroups();
+    gestureChoices = null;
     dockSizes = {};
     dockDrag = null;
     planHeaderHeight = 60;
+    headerHelp = /* @__PURE__ */ new Map();
     summaries = /* @__PURE__ */ new Map();
     drag = null;
     browser = new CourseBrowserPresentation();
     introduction;
     introductionOnly = null;
-    constructor(onHeaderChange = () => {
-    }) {
-      this.introduction = new PlannerIntroduction(onHeaderChange);
+    /** Called once before mounting; restoration never activates a native control. */
+    setSavedLayout(value) {
+      if (this.state) return;
+      this.savedLayout = normalizeWorkspaceLayout(value);
+      if (!this.savedLayout) return;
+      const saved = this.savedLayout;
+      this.groups = normalizeWorkspaceGroups(saved.groups) || migrateLegacyGroups(saved);
+      this.module = saved.module;
+      this.mainModule = saved.mainModule;
+      this.navigationCollapsed = saved.navigationCollapsed;
+      this.scheduleWidth = saved.scheduleWidth;
+      this.scheduleExpanded = saved.scheduleExpanded;
+      this.dockSizes = { ...saved.dockSizes };
+      this.paneChoices = new Map(saved.collapsedPanes.map((id) => [id, true]));
+    }
+    rememberLayout() {
+      const s = this.state;
+      if (!s || this.updatingLayout || s.layout.isInteracting()) return;
+      const panels = s.layout.snapshot().panels;
+      for (const saved of this.savedLayout?.panels || []) if (!panels.some((panel) => panel.id === saved.id)) panels.push(saved);
+      const preference = normalizeWorkspaceLayout({
+        version: 2,
+        panels,
+        groups: this.groups,
+        module: this.module,
+        mainModule: this.mainModule,
+        navigationCollapsed: this.navigationCollapsed,
+        scheduleWidth: this.scheduleWidth,
+        scheduleExpanded: this.scheduleExpanded,
+        dockSizes: this.dockSizes,
+        collapsedPanes: [...this.paneChoices].filter(([, collapsed]) => collapsed).map(([id]) => id)
+      });
+      if (!preference || JSON.stringify(preference) === JSON.stringify(this.savedLayout)) return;
+      this.savedLayout = preference;
+      if (this.saveQueued) return;
+      this.saveQueued = true;
+      queueMicrotask(() => {
+        this.saveQueued = false;
+        if (this.savedLayout) void Promise.resolve(this.onLayoutChange(this.savedLayout)).catch(() => {
+        });
+      });
+    }
+    resetLayoutChoices() {
+      this.savedLayout = null;
+      this.groups = createDefaultGroups();
+      this.gestureChoices = null;
+      this.module = this.mainModule = this.previousModule = "classes";
+      this.navigationCollapsed = this.showSchedule = this.scheduleExpanded = false;
+      this.scheduleWidth = null;
+      this.dockSizes = {};
+      this.paneChoices.clear();
+      this.dragPresentation = "";
+      for (const pane of this.state?.panes || []) if (!pane.opaque) {
+        pane.collapsed = this.primaryTarget(pane.title, pane.body)?.classList.contains("hidden") === true;
+      }
+    }
+    captureGestureChoices() {
+      if (!this.state?.layout.isInteracting() || this.gestureChoices) return;
+      this.gestureChoices = {
+        module: this.module,
+        mainModule: this.mainModule,
+        showSchedule: this.showSchedule,
+        choices: new Map(this.paneChoices),
+        collapsed: new Map(this.state.panes.map((pane) => [pane, pane.collapsed])),
+        groups: normalizeWorkspaceGroups(this.groups)
+      };
+    }
+    restoreGestureChoices() {
+      const saved = this.gestureChoices;
+      if (!saved) return;
+      this.module = saved.module;
+      this.mainModule = saved.mainModule;
+      this.showSchedule = saved.showSchedule;
+      this.paneChoices = saved.choices;
+      this.groups = saved.groups;
+      for (const [pane, collapsed] of saved.collapsed) pane.collapsed = collapsed;
+      this.gestureChoices = null;
     }
     setHeaderCompact(compact) {
       this.introduction.setHeaderCompact(compact);
@@ -4090,9 +4713,15 @@ section#layoutContentArea.pl-planner-introduction {
     }
     reconcile(doc, courses2) {
       if (this.introductionOnly) this.restore();
+      this.state?.layout.cancelActiveDrag();
+      this.state?.navEnd();
+      this.state?.end();
+      this.restoreGestureChoices();
       const expanded = [...this.openDetails.values()].map((detail) => ({ id: this.latestCourses.find((course) => course.node === detail.card)?.id, examOpen: detail.preview.querySelector("details")?.open || false }));
+      const selectedDetail = this.latestCourses.find((course) => course.node === this.selected)?.id;
+      const focusedDetail = this.latestCourses.find((course) => this.openDetails.get(course.node)?.jump === doc.activeElement)?.id;
       const detailScroll = this.state?.slot.scrollTop || 0, activeModule = this.module, mainModule = this.mainModule;
-      const layoutSnapshot = this.state?.layout.snapshot(), navigationCollapsed = this.navigationCollapsed;
+      const layoutSnapshot = this.state?.layout.snapshot() || this.savedLayout, navigationCollapsed = this.navigationCollapsed;
       const active = doc.activeElement;
       const nativeFocus = active instanceof HTMLElement && active.matches("input,select,textarea,button,a,[tabindex]") && !active.closest(`[${OWNED6}]`) && courses2.some((course) => course.node.contains(active)) ? active : null;
       this.latestCourses = courses2;
@@ -4176,6 +4805,8 @@ section#layoutContentArea.pl-planner-introduction {
         this.openDetails = new Map(ordered.map((detail) => [detail.card, detail]));
         for (const detail of ordered) this.state.slot.append(detail.spacer);
       }
+      const restoredSelection = courses2.find((course) => course.id === selectedDetail);
+      if (restoredSelection && this.openDetails.has(restoredSelection.node)) this.selected = restoredSelection.node;
       this.module = activeModule;
       this.mainModule = mainModule;
       this.navigationCollapsed = navigationCollapsed;
@@ -4187,9 +4818,14 @@ section#layoutContentArea.pl-planner-introduction {
           this.updatingLayout = false;
         }
       }
+      this.syncGroupsToPanels();
       this.state.slot.scrollTop = detailScroll;
       this.state.resize();
       if (nativeFocus?.isConnected && doc.activeElement !== nativeFocus) nativeFocus.focus({ preventScroll: true });
+      if (focusedDetail && !this.state.detailIndex.hidden) {
+        const course = courses2.find((course2) => course2.id === focusedDetail), jump = course && this.openDetails.get(course.node)?.jump;
+        if (jump?.isConnected && doc.activeElement !== jump) jump.focus({ preventScroll: true });
+      }
       if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
         view.scrollTo({ ...redrawScroll, behavior: "instant" });
         this.state.resize();
@@ -4358,6 +4994,7 @@ section#layoutContentArea.pl-planner-introduction {
       navToggle.addEventListener("click", () => {
         this.navigationCollapsed = !this.navigationCollapsed;
         this.updatePanes();
+        this.rememberLayout();
       });
       const navDivider = owned(doc.createElement("div"), "pl-navigation-divider");
       navDivider.tabIndex = 0;
@@ -4379,22 +5016,37 @@ section#layoutContentArea.pl-planner-introduction {
           this.updatePanes();
         }
       };
-      const navEnd = () => {
+      const navEnd = (event) => {
+        if (!navDrag) return;
+        if (event?.type !== "pointerup") this.navigationCollapsed = navDrag.collapsed;
         navDrag = null;
+        this.updatePanes();
+        if (event?.type === "pointerup") this.rememberLayout();
       };
       navDivider.addEventListener("keydown", (event) => {
         if (["ArrowLeft", "Home", "ArrowRight", "End", "Enter"].includes(event.key)) {
           event.preventDefault();
           this.navigationCollapsed = event.key === "Enter" ? !this.navigationCollapsed : ["ArrowLeft", "Home"].includes(event.key);
           this.updatePanes();
+          this.rememberLayout();
         }
       });
       doc.addEventListener("pointermove", navMove);
       doc.addEventListener("pointerup", navEnd);
       doc.addEventListener("pointercancel", navEnd);
+      doc.defaultView?.addEventListener("blur", navEnd);
       const deck = doc.createElement("div");
       deck.className = "pl-workspace-deck";
       panel.append(deck);
+      const groupStrips = /* @__PURE__ */ new Map(), groupTabs = /* @__PURE__ */ new Map();
+      for (const dock of WORKSPACE_DOCKS) {
+        const strip = owned(doc.createElement("div"), "pl-workspace-group-strip");
+        strip.dataset.plGroup = dock;
+        strip.setAttribute("role", "tablist");
+        strip.setAttribute("aria-label", `${dock} workspace tabs`);
+        deck.append(strip);
+        groupStrips.set(dock, strip);
+      }
       const main = doc.createElement("div");
       main.className = "pl-workspace-main";
       deck.append(main);
@@ -4428,6 +5080,7 @@ section#layoutContentArea.pl-planner-introduction {
               this.paneChoices.set(title.id, false);
               this.beginPrimaryOpen(pane, expansion, false);
               this.updatePanes();
+              this.rememberLayout();
               return;
             }
             event.preventDefault();
@@ -4452,6 +5105,7 @@ section#layoutContentArea.pl-planner-introduction {
       widenSchedule.addEventListener("click", () => {
         this.scheduleExpanded = !this.scheduleExpanded;
         this.updatePanes();
+        this.rememberLayout();
       });
       secondary.forEach((matches, i) => {
         if (matches[0]) {
@@ -4475,6 +5129,10 @@ section#layoutContentArea.pl-planner-introduction {
       detailsClose.title = "Close panel \u2014 reopen with a course's Details button";
       detailsClose.addEventListener("click", () => this.state?.layout.hidePanel("details"));
       detailsFrame.append(detailsClose);
+      const detailIndex = owned(doc.createElement("nav"), "pl-workspace-detail-index");
+      detailIndex.setAttribute("aria-label", "Open class details");
+      detailIndex.hidden = true;
+      detailsFrame.append(detailIndex);
       const slot = owned(doc.createElement("div"), "pl-workspace-details-slot");
       detailsFrame.append(slot);
       const empty = owned(doc.createElement("p"), "pl-workspace-empty");
@@ -4510,11 +5168,13 @@ section#layoutContentArea.pl-planner-introduction {
       const revealSchedule = () => {
         const state = this.state;
         if (!state) return;
-        state.layout.showPanel("schedule");
-        this.showSchedule = doc.defaultView.innerWidth < 1100;
+        this.groups = selectWorkspaceTab(this.groups, "schedule");
+        this.syncGroupsToPanels();
+        this.showSchedule = true;
         this.setPaneCollapsed(panes[1], false);
         state.layout.bringToFront("schedule");
         this.updatePanes();
+        this.rememberLayout();
       };
       scheduleNav.addEventListener("click", revealSchedule);
       navMain.addEventListener("keydown", (event) => {
@@ -4525,6 +5185,15 @@ section#layoutContentArea.pl-planner-introduction {
         event.preventDefault();
         choices[next].click();
         choices[next].focus({ preventScroll: true });
+      });
+      const defaultLayout = owned(doc.createElement("button"), "pl-workspace-default");
+      defaultLayout.type = "button";
+      defaultLayout.textContent = "Default layout";
+      defaultLayout.title = "Reset panel positions, sizes and navigation; your classes stay unchanged.";
+      navFooter.append(defaultLayout);
+      defaultLayout.addEventListener("click", () => {
+        this.state?.layout.reset();
+        defaultLayout.focus({ preventScroll: true });
       });
       const original = owned(doc.createElement("button"), "pl-workspace-original");
       original.type = "button";
@@ -4545,8 +5214,7 @@ section#layoutContentArea.pl-planner-introduction {
       mobileSchedule.textContent = "Schedule";
       tabs.append(mobileMain, mobileSchedule);
       mobileMain.addEventListener("click", () => {
-        this.showSchedule = false;
-        this.updatePanes();
+        this.selectModule(this.module, false, true);
         mobileMain.focus({ preventScroll: true });
       });
       mobileSchedule.addEventListener("click", () => {
@@ -4563,6 +5231,10 @@ section#layoutContentArea.pl-planner-introduction {
       if (menu) place(menu, extras, true);
       else extras.hidden = true;
       place(panel, shell);
+      let sizingBefore = null;
+      const beginSizing = () => {
+        sizingBefore = { scheduleWidth: this.scheduleWidth, scheduleExpanded: this.scheduleExpanded, dockSizes: { ...this.dockSizes } };
+      };
       const splitter = owned(doc.createElement("div"), "pl-workspace-splitter");
       splitter.tabIndex = 0;
       splitter.setAttribute("role", "separator");
@@ -4574,6 +5246,7 @@ section#layoutContentArea.pl-planner-introduction {
         if (event.button !== 0) return;
         event.preventDefault();
         splitter.focus();
+        beginSizing();
         this.drag = { start: event.clientX, width: this.currentScheduleWidth(), pointerId: event.pointerId };
         deck.classList.add("pl-workspace-resizing");
       });
@@ -4581,6 +5254,7 @@ section#layoutContentArea.pl-planner-introduction {
         this.scheduleExpanded = false;
         this.scheduleWidth = null;
         this.updatePanes();
+        this.rememberLayout();
       });
       splitter.addEventListener("keydown", (event) => {
         if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -4588,7 +5262,9 @@ section#layoutContentArea.pl-planner-introduction {
         const current = this.currentScheduleWidth();
         this.scheduleExpanded = false;
         this.scheduleWidth = event.key === "Home" ? 420 : event.key === "End" ? this.maximumScheduleWidth() : current + (event.key === "ArrowLeft" ? 1 : -1) * (event.shiftKey ? 40 : 16);
+        this.scheduleWidth = this.currentScheduleWidth();
         this.updatePanes();
+        this.rememberLayout();
       });
       const dockSplitters = ["left", "right"].map((edge) => {
         const handle = owned(doc.createElement("div"), "pl-dock-divider");
@@ -4602,19 +5278,25 @@ section#layoutContentArea.pl-planner-introduction {
         handle.addEventListener("pointerdown", (event) => {
           if (event.button !== 0) return;
           event.preventDefault();
-          this.dockDrag = { edge, id: event.pointerId, x: event.clientX, size: Number(handle.getAttribute("aria-valuenow") || 300) };
+          beginSizing();
+          const geometry = this.dockGeometry();
+          this.dockDrag = { edge, id: event.pointerId, x: event.clientX, size: Number(handle.getAttribute("aria-valuenow") || 300), ...geometry.fillSides && geometry.left && geometry.right ? { splitTotal: geometry.leftSize + geometry.rightSize } : {} };
         });
         handle.addEventListener("dblclick", () => {
-          delete this.dockSizes[edge];
+          const geometry = this.dockGeometry();
+          if (geometry.fillSides && geometry.left && geometry.right) this.dockSizes = {};
+          else delete this.dockSizes[edge];
           this.updatePanes();
+          this.rememberLayout();
         });
         handle.addEventListener("keydown", (event) => {
           const positive = edge === "left" ? "ArrowRight" : "ArrowLeft", negative = edge === "left" ? "ArrowLeft" : "ArrowRight";
           if (![positive, negative, "Home", "End"].includes(event.key)) return;
           event.preventDefault();
           const current = Number(handle.getAttribute("aria-valuenow") || 300);
-          this.dockSizes[edge] = event.key === "Home" ? 200 : event.key === "End" ? Number(handle.getAttribute("aria-valuemax")) : current + (event.key === positive ? 1 : -1) * (event.shiftKey ? 40 : 16);
+          this.resizeDock(edge, event.key === "Home" ? 200 : event.key === "End" ? Number(handle.getAttribute("aria-valuemax")) : current + (event.key === positive ? 1 : -1) * (event.shiftKey ? 40 : 16));
           this.updatePanes();
+          this.rememberLayout();
         });
         return handle;
       });
@@ -4646,6 +5328,8 @@ section#layoutContentArea.pl-planner-introduction {
       slot.tabIndex = 0;
       const detailsScroll = () => this.positionPreview();
       slot.addEventListener("scroll", detailsScroll, { passive: true });
+      const calendarScroll = () => this.positionCalendarTools();
+      panes[1].section.addEventListener("scroll", calendarScroll, { passive: true });
       const resize = () => {
         this.introduction.positionHeader();
         this.positionWorkspace();
@@ -4655,6 +5339,12 @@ section#layoutContentArea.pl-planner-introduction {
       };
       const key = (event) => {
         if (event.key !== "Escape" || event.defaultPrevented) return;
+        if (navDrag || this.drag || this.dockDrag) {
+          navEnd();
+          end();
+          event.preventDefault();
+          return;
+        }
         const target = event.target;
         const dialog = target instanceof Element ? target.closest('[role="dialog"],dialog[open],.ui-dialog') : null;
         if (dialog && dialog !== this.activePlanSurface) return;
@@ -4688,7 +5378,7 @@ section#layoutContentArea.pl-planner-introduction {
       const move = (event) => {
         if (this.dockDrag && this.dockDrag.id === event.pointerId) {
           const d = this.dockDrag;
-          this.dockSizes[d.edge] = d.size + (d.edge === "left" ? event.clientX - d.x : d.x - event.clientX);
+          this.resizeDock(d.edge, d.size + (d.edge === "left" ? event.clientX - d.x : d.x - event.clientX), d.splitTotal);
           this.updatePanes();
         } else if (this.drag && event.pointerId === this.drag.pointerId) {
           this.scheduleExpanded = false;
@@ -4696,10 +5386,22 @@ section#layoutContentArea.pl-planner-introduction {
           this.updatePanes();
         }
       };
-      const end = () => {
+      const end = (event) => {
+        if (!sizingBefore) return;
+        if (event?.type !== "pointerup") {
+          this.scheduleWidth = sizingBefore.scheduleWidth;
+          this.scheduleExpanded = sizingBefore.scheduleExpanded;
+          this.dockSizes = sizingBefore.dockSizes;
+        } else {
+          if (this.drag) this.scheduleWidth = this.currentScheduleWidth();
+          if (this.dockDrag) this.resizeDock(this.dockDrag.edge, this.dockSizes[this.dockDrag.edge] || 200, this.dockDrag.splitTotal);
+        }
+        sizingBefore = null;
         this.drag = null;
         this.dockDrag = null;
         deck.classList.remove("pl-workspace-resizing");
+        this.updatePanes();
+        if (event?.type === "pointerup") this.rememberLayout();
       };
       let before = null;
       const beforePrint = () => {
@@ -4713,15 +5415,17 @@ section#layoutContentArea.pl-planner-introduction {
         }
       };
       const actionObserver = new MutationObserver(() => this.syncPlanSurfaces());
+      const helpObserver = new MutationObserver(() => this.positionHeaderHelp());
       const actionClick = (event) => {
         const target = event.target instanceof Element ? event.target : null;
         const entry = target?.closest("button");
         if (entry?.parentElement === this.currentPlanMenu(this.state)) this.pendingPlanAction = ["renamePlan", "savePlanAsMenuEntry", "loadMenuEntry", "aboutMenuEntry"].includes(entry.id) ? entry.id : null;
         this.syncPlanSurfaces();
+        this.positionHeaderHelp();
         if (!this.activePlanSurface && target && !extras.contains(target) && !target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog')) extras.open = false;
       };
-      const layout = new PanelLayoutController(doc, deck, (id, placement, reason) => this.panelLayoutChanged(id, placement, reason));
-      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter, ...dockSplitters], empty, widenSchedule, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, scheduleNav, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, detailsScroll, move, end, beforePrint, afterPrint, actionObserver, actionClick, layout, detailsFrame, navigation, navToggle, navDivider, navMove, navEnd };
+      const layout = new PanelLayoutController(doc, deck, (id, placement, reason, operation) => this.panelLayoutChanged(id, placement, reason, operation));
+      this.state = { doc, host, panel, deck, top, extras, menu, placements, preview, head, content, close, panes, splitters: [splitter, ...dockSplitters], empty, widenSchedule, shell, main, navMain, navFooter, slot, moduleButtons, mobileMain, mobileSchedule, scheduleNav, position, scrollRoom, hostHadStyle: host.hasAttribute("style"), resize, key, detailsScroll, calendarScroll, move, end, beforePrint, afterPrint, actionObserver, actionClick, helpObserver, layout, detailsFrame, detailIndex, navigation, navToggle, navDivider, navMove, navEnd, groupStrips, groupTabs };
       for (const pane of panes) {
         const id = pane.module || "schedule", handle = owned(doc.createElement("button"), "pl-panel-grip");
         handle.type = "button";
@@ -4729,9 +5433,13 @@ section#layoutContentArea.pl-planner-introduction {
         handle.dataset.plPanelHandle = id;
         handle.setAttribute("aria-label", `Move ${pane.label}`);
         pane.title.prepend(handle);
-        layout.addPanel({ id, label: pane.module ? MODULE_LABELS[pane.module] : "Weekly schedule", element: pane.section, handle, defaultDock: id === "schedule" ? "right" : "main", allowedDocks: id === "schedule" ? ["left", "right"] : ["main", "left", "right"], getDockTargets: () => this.panelDropTargets(id), onActivate: () => {
+        layout.addPanel({ id, label: pane.module ? MODULE_LABELS[pane.module] : "Weekly schedule", element: pane.section, handle, defaultDock: id === "schedule" ? "right" : "main", allowedDocks: ["main", "left", "right"], getDropTargets: () => this.groupDropTargets(id), canDrop: (operation) => this.groupDropAllowed(id, operation), onActivate: () => {
+          this.captureGestureChoices();
           if (pane.module) this.selectModule(pane.module, false, true);
-          else this.setPaneCollapsed(pane, false);
+          else {
+            this.groups = selectWorkspaceTab(this.groups, "schedule");
+            this.setPaneCollapsed(pane, false);
+          }
         } });
         layout.addHandle(id, pane.title);
         const proxy = pane.module && moduleButtons.get(pane.module);
@@ -4748,11 +5456,45 @@ section#layoutContentArea.pl-planner-introduction {
         closePanel.title = "Close panel \u2014 reopen from navigation";
         closePanel.addEventListener("click", () => layout.hidePanel(id));
         pane.title.append(closePanel);
+        const wrap = owned(doc.createElement("div"), "pl-workspace-group-tab-wrap"), tab = owned(doc.createElement("button"), "pl-workspace-group-tab"), closeTab = owned(doc.createElement("button"), "pl-workspace-group-tab-close");
+        tab.type = closeTab.type = "button";
+        tab.dataset.plTab = id;
+        tab.textContent = pane.label;
+        tab.id = `pl-workspace-tab-${id}`;
+        tab.setAttribute("role", "tab");
+        if (pane.body.id) tab.setAttribute("aria-controls", pane.body.id);
+        closeTab.textContent = "\xD7";
+        closeTab.setAttribute("aria-label", `Close ${pane.label} tab`);
+        closeTab.title = `Close ${pane.label}; reopen from navigation`;
+        closeTab.dataset.plTabClose = id;
+        tab.addEventListener("click", () => {
+          if (pane.module) this.selectModule(pane.module, false, true);
+          else revealSchedule();
+          tab.focus({ preventScroll: true });
+        });
+        closeTab.addEventListener("click", () => layout.hidePanel(id));
+        tab.addEventListener("keydown", (event) => {
+          if (event.altKey || !["ArrowLeft", "ArrowRight", "Home", "End", "Delete"].includes(event.key)) return;
+          event.preventDefault();
+          if (event.key === "Delete") {
+            layout.hidePanel(id);
+            return;
+          }
+          const place2 = this.groups.panels[id].placement;
+          if (place2 === "floating") return;
+          const peers = openGroupTabs(this.groups, place2), index = peers.indexOf(id), next = event.key === "Home" ? 0 : event.key === "End" ? peers.length - 1 : (index + (event.key === "ArrowLeft" ? -1 : 1) + peers.length) % peers.length;
+          groupTabs.get(peers[next])?.button.click();
+        });
+        wrap.append(tab, closeTab);
+        groupStrips.get("main").append(wrap);
+        groupTabs.set(id, { wrap, button: tab, close: closeTab });
+        layout.addHandle(id, tab);
       }
       layout.addHandle("schedule", scheduleNav);
       layout.addPanel({ id: "details", label: "Class details", element: detailsFrame, handle: detailsHandle, defaultDock: "main", allowedDocks: ["main"], getDockTargets: () => this.panelDropTargets("details") });
       actionObserver.observe(host, { childList: true });
       doc.addEventListener("click", actionClick);
+      for (const pane of panes) helpObserver.observe(pane.title, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class", "hidden"] });
       this.syncPlanSurfaces();
       for (const name of ["resize", "scroll", "focus", "pageshow", "load"]) doc.defaultView?.addEventListener(name, resize);
       doc.addEventListener("visibilitychange", resize);
@@ -4764,8 +5506,9 @@ section#layoutContentArea.pl-planner-introduction {
       doc.defaultView?.addEventListener("blur", end);
       doc.defaultView?.addEventListener("beforeprint", beforePrint);
       doc.defaultView?.addEventListener("afterprint", afterPrint);
-      host.classList.add("pl-workspace-host");
+      host.classList.add("pl-workspace-host", "pl-grouped-workspace");
       doc.documentElement.classList.add("pl-workspace-page");
+      this.syncGroupsToPanels();
       resize();
     }
     positionWorkspace() {
@@ -4792,14 +5535,14 @@ section#layoutContentArea.pl-planner-introduction {
       if (!s) return;
       const previousActive = this.activePlanSurface;
       const candidates = [...s.host.children].filter((node) => node instanceof HTMLElement && (node.matches("div.mobileloadmenupanel.touchpanelmenu.noprint") && [...node.children].filter((child) => !child.hasAttribute(OWNED6)).length === 1 && !!node.querySelector(":scope > div.message > ul") || node.matches("div#AboutDragger.message.info,div#SaveDragger.message.info") && node.firstElementChild?.tagName === "HEADER" || node.matches("div#ResponseMessageDragger") && !!node.querySelector(":scope > table")) && node.closest("form") === s.host.closest("form"));
-      for (const [node, record] of this.planSurfaces) if (!candidates.includes(node)) {
-        this.restorePlanSurface(record);
+      for (const [node, record2] of this.planSurfaces) if (!candidates.includes(node)) {
+        this.restorePlanSurface(record2);
         this.planSurfaces.delete(node);
       }
       for (const node of candidates) {
         if (!this.planSurfaces.has(node)) {
-          const record = { node, close: null, hadStyle: node.hasAttribute("style"), visible: false };
-          this.planSurfaces.set(node, record);
+          const record2 = { node, close: null, hadStyle: node.hasAttribute("style"), visible: false };
+          this.planSurfaces.set(node, record2);
           node.classList.add("pl-plan-action-surface");
           if (node.matches(".mobileloadmenupanel")) {
             const close = s.doc.createElement("button");
@@ -4809,7 +5552,7 @@ section#layoutContentArea.pl-planner-introduction {
             close.setAttribute(OWNED6, "true");
             close.addEventListener("click", () => this.dismissPlanSurface(node));
             node.prepend(close);
-            record.close = close;
+            record2.close = close;
           }
           s.actionObserver.observe(node, { attributes: true, attributeFilter: ["style", "hidden", "class"] });
         }
@@ -4892,15 +5635,18 @@ section#layoutContentArea.pl-planner-introduction {
       };
       (input && visible(input) ? input : controls.find(visible))?.focus({ preventScroll: true });
     }
-    restorePlanSurface(record) {
-      record.close?.remove();
-      record.node.classList.remove("pl-plan-action-surface", "pl-plan-action-surface-open");
-      for (const key of ["left", "top", "width", "max-height"]) record.node.style.removeProperty(`--pl-plan-action-${key}`);
-      if (!record.hadStyle && !record.node.getAttribute("style")) record.node.removeAttribute("style");
-      this.planSurfaceTrigger.delete(record.node);
+    restorePlanSurface(record2) {
+      record2.close?.remove();
+      record2.node.classList.remove("pl-plan-action-surface", "pl-plan-action-surface-open");
+      for (const key of ["left", "top", "width", "max-height"]) record2.node.style.removeProperty(`--pl-plan-action-${key}`);
+      if (!record2.hadStyle && !record2.node.getAttribute("style")) record2.node.removeAttribute("style");
+      this.planSurfaceTrigger.delete(record2.node);
     }
     maximumScheduleWidth() {
-      return Math.max(420, (this.state?.deck.clientWidth || 1400) - 432);
+      const placement = this.groups.panels.schedule.placement;
+      const others = WORKSPACE_DOCKS.filter((dock) => dock !== placement && openGroupTabs(this.groups, dock).length);
+      const remaining = others.reduce((sum, dock) => sum + minimumGroupWidth(this.groups, dock) + 12, 0);
+      return Math.max(420, (this.state?.deck.clientWidth || 1400) - remaining);
     }
     currentScheduleWidth() {
       const s = this.state, available = s?.deck.clientWidth || 1400;
@@ -4911,7 +5657,10 @@ section#layoutContentArea.pl-planner-introduction {
       const s = this.state;
       if (!s) return;
       if (module !== "information" && !s.panes.some((p) => p.module === module)) return;
-      if (explicitNavigation && module !== "information") s.layout.showPanel(module);
+      if (explicitNavigation && module !== "information") {
+        this.groups = selectWorkspaceTab(this.groups, module);
+        this.syncGroupsToPanels();
+      }
       if (module === "information" && this.module !== "information") this.previousModule = this.module;
       this.closeActions(false);
       this.module = module;
@@ -4930,6 +5679,7 @@ section#layoutContentArea.pl-planner-introduction {
       this.updatePanes();
       if (focus) (module === "information" ? s.doc.querySelector(".pl-intro-info") : s.moduleButtons.get(module))?.focus({ preventScroll: true });
       if (pane?.opaque && explicitNavigation) this.openNativeModule(pane);
+      if (explicitNavigation || focus) this.rememberLayout();
     }
     /** The navigation may forward only a user's explicit request to the exact
      * native expand control. Restoring a selected module never opens it. */
@@ -5074,18 +5824,32 @@ section#layoutContentArea.pl-planner-introduction {
       pane.collapsed = collapsed;
       this.paneChoices.set(pane.title.id, collapsed);
       this.updatePanes();
+      this.rememberLayout();
       if (focus) (collapsed && pane.reopen ? pane.reopen : pane.toggle)?.focus({ preventScroll: true });
     }
-    panelLayoutChanged(id, placement, reason) {
+    panelLayoutChanged(id, placement, reason, operation) {
       const s = this.state;
       if (!s || this.updatingLayout) return;
+      const committedGroups = this.gestureChoices?.groups;
+      if (reason === "drag") {
+        const signature = s.panes.map((pane) => `${pane.module}:${s.layout.getPlacement(pane.module || "schedule")}:${s.layout.isHidden(pane.module || "schedule")}`).join("|") + `|${id}:${s.detailsFrame.classList.contains("pl-panel-dragging")}`;
+        if (this.dragPresentation !== signature) {
+          this.dragPresentation = signature;
+          this.updatePanes();
+        } else if (id === "classes" || id === "details") this.positionPreview();
+        return;
+      }
+      this.dragPresentation = "";
+      if (reason === "geometry" && !s.layout.isInteracting()) this.restoreGestureChoices();
+      else if (reason === "placement" || reason === "commit" || reason === "reset") this.gestureChoices = null;
       this.updatingLayout = true;
       try {
-        if (reason === "reset") {
-          this.module = this.mainModule = "classes";
-          this.navigationCollapsed = false;
-          this.dockSizes = {};
+        if (reason === "reset") this.resetLayoutChoices();
+        if (isWorkspacePanelId(id)) {
+          if (reason === "placement") this.groups = placement === "floating" ? floatWorkspaceTab(committedGroups || this.groups, id) : this.groupDropState(id, operation || { kind: "merge", dock: placement }, committedGroups || this.groups);
+          if (reason === "visibility") this.groups = s.layout.isHidden(id) ? closeWorkspaceTab(this.groups, id) : selectWorkspaceTab(this.groups, id);
         }
+        if (reason !== "geometry") this.syncGroupsToPanels();
         if (reason === "placement" && id === "details" && placement === "main") {
           this.makeDockSpace("classes", s.layout.getPlacement("classes") || "main");
           this.selectModule("classes", false, true);
@@ -5107,45 +5871,131 @@ section#layoutContentArea.pl-planner-introduction {
       } finally {
         this.updatingLayout = false;
       }
+      if (reason !== "geometry") this.rememberLayout();
     }
     makeDockSpace(id, placement) {
+    }
+    syncGroupsToPanels() {
       const s = this.state;
-      if (!s || placement === "main" || placement === "floating") return;
-      for (const pane of s.panes) {
-        const other = pane.module || "schedule";
-        if (other !== id && !s.layout.isHidden(other) && s.layout.getPlacement(other) === placement) {
-          if (other === "schedule") s.layout.floatPanel(other, void 0, false);
-          else s.layout.dockPanel(other, "main", false);
+      if (!s) return;
+      const before = this.updatingLayout;
+      this.updatingLayout = true;
+      try {
+        for (const id of WORKSPACE_PANEL_IDS) {
+          const panel = this.groups.panels[id];
+          if (s.layout.getPlacement(id) !== panel.placement) {
+            if (panel.placement === "floating") s.layout.floatPanel(id, void 0, false);
+            else s.layout.dockPanel(id, panel.placement, false);
+          }
+          if (panel.open) s.layout.showPanel(id);
+          else s.layout.hidePanel(id);
         }
+      } finally {
+        this.updatingLayout = before;
       }
     }
+    groupDropState(id, operation, source = this.gestureChoices?.groups || this.groups) {
+      return operation.kind === "split" ? splitWorkspaceTab(source, id, operation.dock, this.state?.deck.getBoundingClientRect().width || 0).state : mergeWorkspaceTab(source, id, operation.dock, operation.index);
+    }
+    groupDropAllowed(id, operation) {
+      const source = this.gestureChoices?.groups || this.groups, next = this.groupDropState(id, operation, source);
+      if (operation.kind === "split") return splitWorkspaceTab(source, id, operation.dock, this.state?.deck.getBoundingClientRect().width || 0).accepted;
+      return next.panels[id].placement === operation.dock && WORKSPACE_DOCKS.filter((dock) => openGroupTabs(next, dock).length).length <= 2;
+    }
+    presentationGroups() {
+      let groups = this.groups;
+      for (const pane of this.state?.panes || []) {
+        const id = pane.module || "schedule";
+        if (isWorkspacePanelId(id) && pane.section.classList.contains("pl-panel-dragging")) groups = floatWorkspaceTab(groups, id);
+      }
+      return groups;
+    }
     /** Shared by the drop preview and the committed layout so their bounds agree. */
-    dockGeometry(override) {
-      const s = this.state, rect = s.deck.getBoundingClientRect(), wide = s.doc.defaultView.innerWidth >= 1100;
-      const placements = /* @__PURE__ */ new Map();
+    visiblePanelPlacements() {
+      const s = this.state, placements = /* @__PURE__ */ new Map();
       for (const pane of s.panes) {
         const id = pane.module || "schedule";
-        if (!s.layout.isHidden(id) || override?.id === id) placements.set(id, s.layout.getPlacement(id) || "main");
+        if (!s.layout.isHidden(id)) placements.set(id, s.layout.getPlacement(id) || "main");
       }
-      if (override) {
-        if (override.placement !== "main" && override.placement !== "floating") {
-          for (const [id, place] of placements) if (id !== override.id && place === override.placement) placements.set(id, id === "schedule" ? "floating" : "main");
-        }
-        placements.set(override.id, override.placement);
+      return placements;
+    }
+    activeMainFor(placements, requested = this.mainModule) {
+      if (requested === "information") return requested;
+      if (placements.get(requested) === "main") return requested;
+      return this.state.panes.find((pane) => (pane.module === "classes" || pane.module === "find") && placements.get(pane.module) === "main")?.module || null;
+    }
+    resizeDock(edge, requested, splitTotal) {
+      const geometry = this.dockGeometry();
+      const group = edge === "left" ? geometry.displayDocks[0] : geometry.displayDocks.at(-1), other = geometry.displayDocks.find((dock) => dock !== group);
+      const minimum = group ? minimumGroupWidth(geometry.state, group) : 200, maximum = Math.max(minimum, geometry.rect.width - 12 - (other ? minimumGroupWidth(geometry.state, other) : 0));
+      const size = Math.max(minimum, Math.min(maximum, requested));
+      if (group === this.groups.panels.schedule.placement) this.scheduleExpanded = false;
+      this.dockSizes[edge] = size;
+      if (other === "left" || other === "right") this.dockSizes[other] = geometry.rect.width - 12 - size;
+    }
+    dockGeometry(override, groupState, focusId) {
+      const s = this.state, measured = s.deck.getBoundingClientRect(), view = s.doc.defaultView;
+      const bottomReserve = parseFloat(view.getComputedStyle(s.host).getPropertyValue("--pl-workspace-bottom")) || 16;
+      const visibleBottom = Math.min(measured.bottom, view.innerHeight - bottomReserve);
+      const rect = new DOMRect(measured.left, measured.top, measured.width, Math.max(0, visibleBottom - measured.top));
+      let state = groupState || this.presentationGroups();
+      if (override && isWorkspacePanelId(override.id)) state = override.placement === "floating" ? floatWorkspaceTab(state, override.id) : mergeWorkspaceTab(state, override.id, override.placement);
+      const docks = WORKSPACE_DOCKS.filter((dock) => openGroupTabs(state, dock).some((id) => s.groupTabs.has(id)));
+      const preferredRight = this.scheduleExpanded && state.panels.schedule.placement === "right" ? this.currentScheduleWidth() : this.dockSizes.right ?? this.currentScheduleWidth(), preferredLeft = this.scheduleExpanded && state.panels.schedule.placement === "left" ? this.currentScheduleWidth() : this.dockSizes.left ?? this.currentScheduleWidth();
+      const preferred = { left: preferredLeft, right: preferredRight, main: Math.max(0, rect.width - (docks.includes("left") ? preferredLeft + 12 : 0) - (docks.includes("right") ? preferredRight + 12 : 0)) };
+      const widths = readableGroupWidths(state, rect.width, preferred);
+      const selected = focusId || (this.showSchedule ? "schedule" : this.module !== "information" ? this.module : null);
+      const chosen = selected ? state.panels[selected].placement : null;
+      const focused = chosen && chosen !== "floating" && docks.includes(chosen) ? chosen : docks.includes("main") ? "main" : docks[0];
+      const compact = s.doc.defaultView.innerWidth < 1100 || widths === null;
+      const information = this.module === "information" && !groupState;
+      const displayDocks = information ? [] : compact ? focused ? [focused] : [] : docks;
+      const boxes = { left: { left: rect.left, top: rect.top + 40, width: 0, height: Math.max(0, rect.height - 40) }, main: { left: rect.left, top: rect.top + 40, width: 0, height: Math.max(0, rect.height - 40) }, right: { left: rect.left, top: rect.top + 40, width: 0, height: Math.max(0, rect.height - 40) } };
+      const wholeBoxes = { left: { ...boxes.left, top: rect.top, height: rect.height }, main: { ...boxes.main, top: rect.top, height: rect.height }, right: { ...boxes.right, top: rect.top, height: rect.height } };
+      let left = rect.left;
+      for (const dock of displayDocks) {
+        const width = compact ? rect.width : widths[dock];
+        wholeBoxes[dock] = { left, top: rect.top, width, height: rect.height };
+        boxes[dock] = { left, top: rect.top + 40, width, height: Math.max(0, rect.height - 40) };
+        left += width + 12;
       }
-      const customized = placements.get("schedule") !== "right" || [...placements].some(([id, place]) => id !== "schedule" && place !== "main");
-      const left = [...placements].find(([, place]) => place === "left")?.[0], right = [...placements].find(([, place]) => place === "right")?.[0];
-      const count = Number(!!left) + Number(!!right), sideMax = count ? Math.max(0, rect.width - 300 - 12 * count) / count : 0;
-      const leftSize = wide && left ? Math.min(sideMax, Math.max(200, this.dockSizes.left ?? Math.min(this.currentScheduleWidth(), rect.width * 0.42))) : 0;
-      const rightSize = wide && right ? customized ? Math.min(sideMax, Math.max(200, this.dockSizes.right ?? Math.min(this.currentScheduleWidth(), rect.width * 0.42))) : this.currentScheduleWidth() : 0;
-      const leftWidth = leftSize ? leftSize + 12 : 0, rightWidth = rightSize ? rightSize + 12 : 0;
-      const whole = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
-      const boxes = {
-        main: { ...whole, left: rect.left + leftWidth, width: Math.max(0, rect.width - leftWidth - rightWidth) },
-        left: wide ? { ...whole, width: leftSize } : whole,
-        right: wide ? { ...whole, left: rect.right - rightSize, width: rightSize } : whole
-      };
-      return { rect, wide, customized, left, right, sideMax, leftSize, rightSize, leftWidth, rightWidth, boxes };
+      if (information || !docks.length) {
+        boxes.main = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+        wholeBoxes.main = boxes.main;
+      }
+      const activeMain = information ? "information" : displayDocks.includes("main") ? activeGroupTab(state, "main") : null;
+      const leftId = displayDocks.includes("left") ? activeGroupTab(state, "left") : null, rightId = displayDocks.includes("right") ? activeGroupTab(state, "right") : null;
+      const sideMax = Math.max(0, rect.width - 12 - Math.min(...docks.map((dock) => minimumGroupWidth(state, dock)), 420));
+      return { rect, wide: !compact, customized: true, left: leftId, right: rightId, sideMax, leftSize: boxes.left.width, rightSize: boxes.right.width, leftWidth: boxes.main.left - rect.left, rightWidth: rect.right - boxes.main.left - boxes.main.width, boxes, wholeBoxes, activeMain, fillSides: !activeMain && displayDocks.length > 0, displayDocks, state, information };
+    }
+    groupDropTargets(id) {
+      const s = this.state;
+      if (!s) return [];
+      const source = this.gestureChoices?.groups || this.groups, geometry = this.dockGeometry(void 0, source), targets = [], rect = geometry.rect;
+      for (const dock of ["left", "right"]) {
+        const operation = { kind: "split", dock };
+        if (!this.groupDropAllowed(id, operation)) continue;
+        const next = this.groupDropState(id, operation, source), preview = this.dockGeometry(void 0, next, id).wholeBoxes[dock];
+        targets.push({ operation, preview, hit: { left: dock === "left" ? rect.left : rect.right - 56, top: rect.top, width: 56, height: rect.height } });
+      }
+      for (const dock of geometry.displayDocks) {
+        const box = geometry.wholeBoxes[dock], strip = s.groupStrips.get(dock).getBoundingClientRect(), peers = openGroupTabs(source, dock).filter((peer) => peer !== id);
+        const visibleLeft = Math.max(box.left, strip.left), visibleRight = Math.min(box.left + box.width, strip.right);
+        let last = visibleLeft;
+        peers.forEach((peer, index) => {
+          const button = s.groupTabs.get(peer)?.wrap.getBoundingClientRect();
+          if (!button || button.width <= 0) return;
+          const right = Math.min(visibleRight, button.left + button.width / 2);
+          if (right <= last) return;
+          const operation2 = { kind: "merge", dock, index };
+          targets.push({ operation: operation2, preview: this.dockGeometry(void 0, this.groupDropState(id, operation2, source), id).wholeBoxes[dock], hit: { left: last, top: box.top, width: right - last, height: 40 } });
+          last = right;
+        });
+        const operation = { kind: "merge", dock, index: peers.length };
+        targets.push({ operation, preview: this.dockGeometry(void 0, this.groupDropState(id, operation, source), id).wholeBoxes[dock], hit: { left: box.left, top: box.top + 40, width: box.width, height: Math.max(0, box.height - 40) } });
+        if (visibleRight > last) targets.push({ operation, preview: this.dockGeometry(void 0, this.groupDropState(id, operation, source), id).wholeBoxes[dock], hit: { left: last, top: box.top, width: visibleRight - last, height: 40 } });
+      }
+      return targets;
     }
     panelDropTargets(id) {
       const s = this.state;
@@ -5173,7 +6023,7 @@ section#layoutContentArea.pl-planner-introduction {
       const rect = place === "floating" ? s.layout.snapshot().panels.find((panel) => panel.id === "classes")?.box || plan.getBoundingClientRect() : geometry.boxes[place === "left" || place === "right" ? place : "main"];
       const measurable = !s.layout.isHidden("classes") && !plan.classList.contains("pl-details-only") && plan.getBoundingClientRect().width > 0;
       const titleHeight = measurable ? s.panes[0].title.getBoundingClientRect().height || this.planHeaderHeight : this.planHeaderHeight;
-      const available = Math.max(0, rect.height - titleHeight), mainWidth = geometry.boxes.main.width;
+      const available = Math.max(0, rect.height - titleHeight), mainWidth = place === "main" ? geometry.boxes.main.width : rect.width;
       const narrow = s.doc.defaultView.innerWidth < 1100 || mainWidth < 560 || (place === "floating" || place === "left" || place === "right") && rect.width < 700;
       if (narrow) {
         const small = (place === "floating" || place === "left" || place === "right") && rect.width < 700;
@@ -5186,9 +6036,10 @@ section#layoutContentArea.pl-planner-introduction {
     positionPanels() {
       const s = this.state;
       if (!s) return;
-      const { rect, wide, customized, left, right, leftSize, rightSize, leftWidth, rightWidth, sideMax, boxes } = this.dockGeometry();
-      s.deck.classList.toggle("pl-custom-docks", customized && wide);
-      s.host.classList.toggle("pl-navigation-collapsed", this.navigationCollapsed);
+      const geometry = this.dockGeometry(), { rect, boxes, wholeBoxes, displayDocks, state } = geometry;
+      s.deck.classList.add("pl-custom-docks");
+      s.deck.classList.toggle("pl-no-main-dock", displayDocks.length > 0 && !displayDocks.includes("main") && !geometry.information);
+      s.host.dataset.plGroupsCompact = String(!geometry.wide);
       s.navToggle.textContent = this.navigationCollapsed ? "\u203A" : "\u2039";
       s.navToggle.setAttribute("aria-label", `${this.navigationCollapsed ? "Expand" : "Collapse"} navigation`);
       s.navToggle.title = s.navToggle.getAttribute("aria-label");
@@ -5196,30 +6047,54 @@ section#layoutContentArea.pl-planner-introduction {
       s.navDivider.setAttribute("aria-valuemin", "0");
       s.navDivider.setAttribute("aria-valuemax", "1");
       s.navDivider.setAttribute("aria-valuenow", this.navigationCollapsed ? "0" : "1");
-      if (customized && wide) {
-        s.main.style.setProperty("--pl-main-left", `${leftWidth}px`);
-        s.main.style.setProperty("--pl-main-right", `${rightWidth}px`);
+      s.main.style.setProperty("--pl-main-left", `${Math.max(0, boxes.main.left - rect.left)}px`);
+      s.main.style.setProperty("--pl-main-right", `${Math.max(0, rect.right - boxes.main.left - boxes.main.width)}px`);
+      for (const dock of WORKSPACE_DOCKS) {
+        const strip = s.groupStrips.get(dock);
+        strip.hidden = !displayDocks.includes(dock);
+        const box = wholeBoxes[dock];
+        for (const name of ["left", "top", "width"]) strip.style.setProperty(`--pl-group-${name}`, `${box[name]}px`);
+        const tabs = openGroupTabs(this.groups, dock).filter((id) => s.groupTabs.has(id));
+        tabs.forEach((id, index) => {
+          const tab = s.groupTabs.get(id);
+          if (strip.children[index] !== tab.wrap) strip.insertBefore(tab.wrap, strip.children[index] || null);
+          tab.wrap.hidden = false;
+          const selected = activeGroupTab(state, dock) === id;
+          tab.button.setAttribute("aria-selected", String(selected));
+          tab.button.tabIndex = selected ? 0 : -1;
+        });
+        if (!strip.hidden && !s.layout.isInteracting()) {
+          const active = activeGroupTab(state, dock), tab = active && s.groupTabs.get(active), view = strip.getBoundingClientRect(), item = tab?.wrap.getBoundingClientRect();
+          if (item && view.width > 0) {
+            const delta = item.left < view.left ? item.left - view.left : item.right > view.right ? Math.min(item.right - view.right, item.left - view.left) : 0;
+            if (delta) strip.scrollLeft += delta;
+          }
+        }
+      }
+      for (const [id, tab] of s.groupTabs) {
+        const panel = this.groups.panels[id];
+        if (!panel.open || panel.placement === "floating") tab.wrap.hidden = true;
       }
       for (const pane of s.panes) {
-        const place = s.layout.getPlacement(pane.module || "schedule");
-        const docked = customized && wide && !s.layout.isHidden(pane.module || "schedule") && place !== "main" && place !== "floating";
+        const id = pane.module || "schedule", place = s.layout.getPlacement(id), docked = place !== "floating" && place !== void 0 && displayDocks.includes(place) && activeGroupTab(state, place) === id;
         pane.section.classList.toggle("pl-panel-docked", docked);
-        if (docked) {
-          for (const [name, value] of Object.entries(boxes[place])) pane.section.style.setProperty(`--pl-dock-${name}`, `${Math.max(0, value)}px`);
-        }
+        const headerClose = pane.title.querySelector(`[data-pl-panel-close="${id}"]`);
+        if (headerClose) headerClose.hidden = docked;
+        if (docked) for (const [name, value] of Object.entries(boxes[place])) pane.section.style.setProperty(`--pl-dock-${name}`, `${Math.max(0, value)}px`);
         pane.section.classList.toggle("pl-panel-small", pane.module === "classes" && (place === "floating" || docked) && pane.section.getBoundingClientRect().width < 700);
       }
+      s.splitters[0].hidden = true;
       for (const handle of s.splitters.slice(1)) {
-        const edge = handle.dataset.plDockDivider, exists = !!(edge === "left" ? left : right);
-        handle.hidden = !customized || !wide || !exists;
-        const size = edge === "left" ? leftSize : rightSize;
-        const bounds = { left: edge === "left" ? rect.left + leftSize : rect.right - rightSize - 12, top: rect.top, width: 12, height: rect.height };
-        for (const [name, value] of Object.entries(bounds)) handle.style.setProperty(name, `${Math.max(0, value)}px`);
-        handle.setAttribute("aria-valuemin", "200");
-        handle.setAttribute("aria-valuemax", String(Math.round(sideMax)));
-        handle.setAttribute("aria-valuenow", String(Math.round(size)));
+        const edge = handle.dataset.plDockDivider, first = displayDocks[0], selectedEdge = first === "left" ? "left" : "right";
+        handle.hidden = displayDocks.length !== 2 || edge !== selectedEdge;
+        const group = edge === "left" ? first : displayDocks[1], box = wholeBoxes[group || "main"], other = displayDocks.find((dock) => dock !== group);
+        const position = edge === "left" ? box.left + box.width : box.left - 12;
+        Object.assign(handle.style, { left: `${position}px`, top: `${rect.top}px`, width: "12px", height: `${rect.height}px` });
+        handle.setAttribute("aria-valuemin", String(group ? minimumGroupWidth(state, group) : 0));
+        handle.setAttribute("aria-valuemax", String(Math.max(0, rect.width - 12 - (other ? minimumGroupWidth(state, other) : 0))));
+        handle.setAttribute("aria-valuenow", String(Math.round(box.width)));
       }
-      s.widenSchedule.hidden = s.layout.getPlacement("schedule") !== "right" || customized;
+      s.widenSchedule.hidden = this.groups.panels.schedule.placement !== "right" || displayDocks.length !== 2 || activeGroupTab(state, "right") !== "schedule" || s.widenSchedule.disabled;
       const plan = s.panes[0].section, titleHeight = s.panes[0].title.getBoundingClientRect().height;
       if (titleHeight && !s.layout.isHidden("classes") && !plan.classList.contains("pl-details-only") && plan.getBoundingClientRect().width > 0) this.planHeaderHeight = titleHeight;
       s.detailsFrame.hidden = !this.openDetails.size || s.layout.isHidden("details");
@@ -5228,17 +6103,22 @@ section#layoutContentArea.pl-planner-introduction {
     updatePanes() {
       const s = this.state;
       if (!s) return;
+      s.host.classList.toggle("pl-navigation-collapsed", this.navigationCollapsed);
       this.refreshModulePending();
       if (this.module !== "information" && !s.panes.some((pane) => pane.module === this.module)) this.module = "classes";
-      const movingMain = s.panes.some((pane) => pane.module === this.mainModule && pane.section.classList.contains("pl-panel-dragging"));
-      if (!movingMain && (s.layout.getPlacement(this.mainModule) !== "main" || s.layout.isHidden(this.mainModule)) && this.mainModule !== "information") {
-        const fallback = s.panes.find((pane) => (pane.module === "classes" || pane.module === "find") && !s.layout.isHidden(pane.module) && s.layout.getPlacement(pane.module) === "main");
-        if (fallback?.module) this.mainModule = fallback.module;
+      if (this.module !== "information" && !this.showSchedule) {
+        const panel = this.groups.panels[this.module], active = panel.placement !== "floating" ? activeGroupTab(this.groups, panel.placement) : null;
+        if (!panel.open || panel.placement !== "floating" && active !== this.module) {
+          const fallback = active || activeGroupTab(this.groups, "main") || WORKSPACE_DOCKS.map((dock) => activeGroupTab(this.groups, dock)).find(Boolean);
+          if (fallback === "schedule") this.showSchedule = true;
+          else if (fallback) this.module = fallback;
+        }
       }
-      const wide = s.doc.defaultView.innerWidth >= 1100, activeMain = wide ? this.mainModule === "information" || !s.layout.isHidden(this.mainModule) && s.layout.getPlacement(this.mainModule) === "main" ? this.mainModule : null : s.layout.isHidden(this.module) ? null : this.module;
+      const geometry = this.dockGeometry(), activeMain = geometry.activeMain, wide = geometry.wide;
+      if (activeMain && activeMain !== "schedule") this.mainModule = activeMain;
       s.main.classList.toggle("pl-main-empty", activeMain === null);
-      s.host.dataset.plModule = activeMain || "empty";
-      s.host.classList.toggle("pl-show-schedule", this.showSchedule);
+      s.host.dataset.plModule = this.module;
+      s.host.classList.remove("pl-show-schedule");
       for (const [module, button] of s.moduleButtons) {
         button.setAttribute("aria-pressed", String(this.module === module && !s.layout.isHidden(module)));
         button.classList.toggle("pl-panel-nav-closed", s.layout.isHidden(module));
@@ -5247,9 +6127,10 @@ section#layoutContentArea.pl-planner-introduction {
       s.scheduleNav.classList.toggle("pl-panel-nav-closed", s.layout.isHidden("schedule"));
       for (const pane of s.panes) {
         if (!pane.opaque && this.primaryTarget(pane.title, pane.body)?.classList.contains("hidden") && this.pendingModuleOpen?.pane !== pane) pane.collapsed = true;
-        const placement = s.layout.getPlacement(pane.module || "schedule"), detached = placement === "floating" || wide && placement !== "main" && pane.module !== null;
-        const visible = !s.layout.isHidden(pane.module || "schedule") && (pane.module === activeMain || pane.module === null || detached);
+        const id = pane.module || "schedule", placement = s.layout.getPlacement(id);
+        const visible = !s.layout.isHidden(id) && (placement === "floating" || placement !== void 0 && geometry.displayDocks.includes(placement) && activeGroupTab(geometry.state, placement) === id);
         pane.section.classList.toggle("pl-module-active", visible);
+        pane.section.classList.toggle("pl-group-inactive", !visible);
         pane.section.classList.toggle("pl-details-only", pane.module === "classes" && !visible && s.layout.isFloating("details") && !s.layout.isHidden("details") && this.openDetails.size > 0);
         if (!pane.opaque) {
           pane.section.classList.toggle("pl-pane-collapsed", pane.collapsed);
@@ -5282,18 +6163,151 @@ section#layoutContentArea.pl-planner-introduction {
       s.mobileSchedule.setAttribute("aria-pressed", String(this.showSchedule));
       s.panes[0].section.classList.toggle("pl-has-docked-details", !!this.selected);
       s.empty.hidden = !!this.selected;
+      this.updateDetailsCloseControls();
       this.positionPanels();
+      this.positionCalendarTools();
       for (const detail of this.openDetails.values()) {
-        const concealed = s.layout.isHidden("details") || s.layout.isHidden("classes") && !s.layout.isFloating("details");
+        const concealed = s.layout.isHidden("details") || (s.layout.isHidden("classes") || !s.panes[0].section.classList.contains("pl-module-active")) && !s.layout.isFloating("details");
         detail.card.classList.toggle("pl-details-concealed", concealed);
         detail.trigger?.setAttribute("aria-expanded", String(!concealed));
         detail.card.classList.toggle("pl-details-moving", s.detailsFrame.classList.contains("pl-panel-dragging"));
       }
       s.doc.documentElement.classList.toggle("pl-panel-drag-in-progress", !!s.host.querySelector(".pl-panel-dragging"));
-      const mainWidth = s.main.getBoundingClientRect().width;
+      const mainWidth = s.panes[0].section.getBoundingClientRect().width;
       s.main.dataset.plMainSize = mainWidth >= 700 ? "wide" : mainWidth >= 560 ? "medium" : "narrow";
       this.positionPreview();
-      this.introduction.showInformationInWorkspace(activeMain === "information" && !(this.showSchedule && s.doc.defaultView.innerWidth < 1100), s.main.getBoundingClientRect(), activeMain === "information");
+      this.positionHeaderHelp();
+      const info = geometry.boxes.main;
+      this.introduction.showInformationInWorkspace(geometry.information, new DOMRect(info.left, info.top, info.width, info.height), geometry.information);
+    }
+    restoreHeaderHelp(node) {
+      const previous = this.headerHelp.get(node);
+      if (!previous) return;
+      if (!previous.hadClass) node.classList.remove("pl-header-help-floating");
+      for (const property of previous.properties) {
+        if (property.value) node.style.setProperty(property.name, property.value, property.priority);
+        else node.style.removeProperty(property.name);
+      }
+      if (!previous.hadStyle && !node.getAttribute("style")) node.removeAttribute("style");
+      this.headerHelp.delete(node);
+    }
+    positionHeaderHelp() {
+      const s = this.state, view = s?.doc.defaultView;
+      if (!s || !view) return;
+      const visible = /* @__PURE__ */ new Set();
+      for (const pane of s.panes) {
+        const shown = !pane.section.classList.contains("pl-group-inactive") && !pane.section.classList.contains("pl-panel-hidden");
+        const popups = shown ? [...pane.title.querySelectorAll(":scope > .popover.clickover")].filter((node) => !node.hidden && view.getComputedStyle(node).display !== "none" && view.getComputedStyle(node).visibility !== "hidden") : [];
+        pane.section.classList.toggle("pl-header-help-open", popups.length > 0);
+        for (const popup of popups) {
+          visible.add(popup);
+          if (!this.headerHelp.has(popup)) this.headerHelp.set(popup, { hadStyle: popup.hasAttribute("style"), hadClass: popup.classList.contains("pl-header-help-floating"), properties: ["left", "top", "width", "max-height"].map((name) => {
+            name = `--pl-header-help-${name}`;
+            return { name, value: popup.style.getPropertyValue(name), priority: popup.style.getPropertyPriority(name) };
+          }) });
+          if (!popup.classList.contains("pl-header-help-floating")) popup.classList.add("pl-header-help-floating");
+          const bounds = pane.title.getBoundingClientRect(), width = Math.max(0, Math.min(380, view.innerWidth - 24, bounds.width - 16));
+          if (width <= 0) continue;
+          const left = Math.max(12, Math.min(bounds.left + 8, view.innerWidth - width - 12)), below = Math.max(0, view.innerHeight - bounds.bottom - 16), above = Math.max(0, bounds.top - 16);
+          const flip = below < 120 && above > below, maximum = Math.max(0, Math.min(360, flip ? above : below));
+          const set = (name, value) => {
+            const key = `--pl-header-help-${name}`, text = `${value}px`;
+            if (popup.style.getPropertyValue(key) !== text) popup.style.setProperty(key, text);
+          };
+          set("left", left);
+          set("width", width);
+          set("max-height", maximum);
+          const height = Math.min(maximum, popup.scrollHeight || popup.getBoundingClientRect().height);
+          set("top", Math.max(12, flip ? bounds.top - 4 - height : bounds.bottom + 4));
+        }
+      }
+      for (const popup of this.headerHelp.keys()) if (!visible.has(popup)) this.restoreHeaderHelp(popup);
+    }
+    updateDetailsCloseControls() {
+      const s = this.state;
+      if (!s) return;
+      const multiple = this.openDetails.size > 1;
+      const group = s.detailsFrame.querySelector('[data-pl-panel-close="details"]');
+      if (group) {
+        group.hidden = !multiple;
+        group.setAttribute("aria-label", "Close all class details");
+        group.title = "Close all open details \u2014 reopen them with a course's Details button";
+      }
+      for (const detail of this.openDetails.values()) {
+        const title = detail.preview.querySelector("h2")?.textContent?.trim() || "this class";
+        detail.close.setAttribute("aria-label", multiple ? `Close details for ${title}` : "Close details");
+        detail.close.title = multiple ? `Close only ${title}` : "Close class details";
+      }
+      this.updateDetailIndex();
+    }
+    /** Navigate the existing open stack without replacing or concealing native rows. */
+    updateDetailIndex() {
+      const s = this.state;
+      if (!s) return;
+      s.detailIndex.hidden = this.openDetails.size < 2;
+      let index = 0;
+      for (const detail of this.openDetails.values()) {
+        if (s.detailIndex.children[index] !== detail.jump) s.detailIndex.insertBefore(detail.jump, s.detailIndex.children[index] || null);
+        detail.jump.setAttribute("aria-current", String(detail.card === this.selected));
+        index++;
+      }
+    }
+    jumpToDetail(card) {
+      const s = this.state, detail = this.openDetails.get(card);
+      if (!s || !detail) return;
+      this.selected = card;
+      this.updateDetailIndex();
+      this.positionPreview();
+      const box = s.slot.getBoundingClientRect();
+      if (box.height) s.slot.scrollTop = Math.max(0, s.slot.scrollTop + detail.spacer.getBoundingClientRect().top - box.top);
+      this.positionPreview();
+      const bounds = s.detailIndex.getBoundingClientRect(), button = detail.jump.getBoundingClientRect();
+      if (button.left < bounds.left) s.detailIndex.scrollLeft += button.left - bounds.left;
+      else if (button.right > bounds.right) s.detailIndex.scrollLeft += button.right - bounds.right;
+    }
+    /** Place the original calendar switches in unused header space when they fit.
+     * Their native parents and handlers stay intact; narrow panels keep two rows. */
+    positionCalendarTools() {
+      const s = this.state;
+      if (!s) return;
+      const pane = s.panes[1], section = pane.section;
+      const menu = pane.body.querySelector(":scope > #gridDiv > .classPlanner_SectionMenu.plannerMenuLinks.checkboxStateHolder");
+      const clear = () => {
+        section.classList.remove("pl-calendar-inline-tools");
+        section.querySelectorAll(".pl-calendar-header-tools").forEach((node) => node.classList.remove("pl-calendar-header-tools"));
+        for (const name of ["left", "top", "width"]) section.style.removeProperty(`--pl-calendar-tools-${name}`);
+      };
+      const title = pane.title.querySelector("#ctl00_MainContent_toggleGrid"), grip = pane.title.querySelector(".pl-panel-grip");
+      const bounds = section.getBoundingClientRect(), header = pane.title.getBoundingClientRect();
+      if (!menu || !title || !grip || pane.collapsed || s.layout.isHidden("schedule") || bounds.width <= 0 || header.height <= 0) {
+        clear();
+        return;
+      }
+      const leadingRight = Math.max(title.getBoundingClientRect().right, grip.getBoundingClientRect().right);
+      const trailing = [...pane.title.children].filter((node) => node instanceof HTMLElement && node !== title && node !== grip && !node.hidden).map((node) => node.getBoundingClientRect()).filter((box) => box.width > 0 && box.height > 0);
+      const right = Math.min(header.right - 12, ...trailing.map((box) => box.left - 12));
+      const left = leadingRight + 12, width = right - left;
+      if (width < 320) {
+        clear();
+        return;
+      }
+      section.querySelectorAll(".pl-calendar-header-tools").forEach((node) => {
+        if (node !== menu) node.classList.remove("pl-calendar-header-tools");
+      });
+      section.classList.add("pl-calendar-inline-tools");
+      menu.classList.add("pl-calendar-header-tools");
+      if (menu.offsetParent !== section) {
+        clear();
+        return;
+      }
+      section.style.setProperty("--pl-calendar-tools-left", `${left - bounds.left - section.clientLeft}px`);
+      section.style.setProperty("--pl-calendar-tools-width", `${width}px`);
+      const menuHeight = menu.getBoundingClientRect().height;
+      if (menu.scrollWidth > width + 1 || menuHeight > header.height - 4) {
+        clear();
+        return;
+      }
+      section.style.setProperty("--pl-calendar-tools-top", `${pane.title.getBoundingClientRect().top - bounds.top - section.clientTop + section.scrollTop + (header.height - menuHeight) / 2}px`);
     }
     summaryChanged(card) {
       const table = card.querySelector("table.coursetable"), previous = this.summaries.get(card);
@@ -5345,6 +6359,8 @@ section#layoutContentArea.pl-planner-introduction {
         this.closeActions(false);
         s.extras.open = false;
         this.module = "classes";
+        this.groups = selectWorkspaceTab(this.groups, "classes");
+        this.syncGroupsToPanels();
         if (s.layout.getPlacement("classes") === "main") this.mainModule = "classes";
         this.showSchedule = false;
       }
@@ -5426,11 +6442,14 @@ section#layoutContentArea.pl-planner-introduction {
       };
       const onFocus = (event) => {
         this.selected = course.node;
+        this.updateDetailIndex();
         if (s.layout.isFloating("details")) s.layout.bringToFront("classes");
         s.layout.bringToFront("details");
         if (event.target instanceof HTMLElement) this.revealDetailTarget(event.target);
       };
       const pointer = () => {
+        this.selected = course.node;
+        this.updateDetailIndex();
         if (s.layout.isFloating("details")) s.layout.bringToFront("classes");
         s.layout.bringToFront("details");
       };
@@ -5442,7 +6461,26 @@ section#layoutContentArea.pl-planner-introduction {
         s.slot.scrollTop = event.key === "Home" ? 0 : event.key === "End" ? s.slot.scrollHeight : s.slot.scrollTop + (event.key === "PageDown" ? 1 : -1) * s.slot.clientHeight * 0.85;
         this.positionPreview();
       };
-      const detail = { card: course.node, table, row, destination, preview, close, spacer, trigger, cards, hadStyle: course.node.hasAttribute("style"), observer: null, wheel, focus: onFocus, pointer, key, touchStart, touchMove, touchEnd };
+      const jump = s.doc.createElement("button");
+      jump.className = "pl-workspace-detail-jump";
+      jump.setAttribute(OWNED6, "true");
+      jump.type = "button";
+      jump.textContent = course.label.replace(/^Class\s+\d+:\s*/, "");
+      jump.title = jump.textContent;
+      jump.setAttribute("aria-label", `Show open details for ${jump.textContent}`);
+      jump.addEventListener("click", () => this.jumpToDetail(course.node));
+      jump.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key) || event.altKey || event.ctrlKey || event.metaKey) return;
+        event.preventDefault();
+        const details = [...this.openDetails.values()], index = details.findIndex((detail2) => detail2.card === course.node);
+        const next = event.key === "Home" ? 0 : event.key === "End" ? details.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + details.length) % details.length;
+        const target = details[next];
+        if (target) {
+          this.jumpToDetail(target.card);
+          target.jump.focus({ preventScroll: true });
+        }
+      });
+      const detail = { card: course.node, table, row, destination, preview, close, spacer, trigger, jump, cards, hadStyle: course.node.hasAttribute("style"), observer: null, wheel, focus: onFocus, pointer, key, touchStart, touchMove, touchEnd };
       this.openDetails.set(course.node, detail);
       this.selected = course.node;
       trigger?.setAttribute("aria-expanded", "true");
@@ -5551,6 +6589,7 @@ section#layoutContentArea.pl-planner-introduction {
       if (!detail.hadStyle && !detail.card.getAttribute("style")) detail.card.removeAttribute("style");
       this.openDetails.delete(detail.card);
       detail.spacer.remove();
+      detail.jump.remove();
       const s = this.state;
       if (s && detail.preview === s.preview) {
         s.preview.hidden = true;
@@ -5561,6 +6600,7 @@ section#layoutContentArea.pl-planner-introduction {
         s.panes[0].section.classList.toggle("pl-has-docked-details", !!this.openDetails.size);
         s.empty.hidden = !!this.openDetails.size;
         s.detailsFrame.hidden = !this.openDetails.size || s.layout.isHidden("details");
+        this.updateDetailsCloseControls();
         this.positionPreview();
       }
       if (focus) this.returnDetailsFocus(detail.trigger);
@@ -5598,23 +6638,29 @@ section#layoutContentArea.pl-planner-introduction {
       }
       const s = this.state;
       if (!s) return;
+      s.helpObserver.disconnect();
+      s.navEnd();
+      s.end();
+      this.restoreGestureChoices();
       s.layout.restore();
       this.closePreview(false);
       s.slot.removeEventListener("scroll", s.detailsScroll);
+      s.panes[1].section.removeEventListener("scroll", s.calendarScroll);
       s.actionObserver.disconnect();
       s.doc.removeEventListener("click", s.actionClick);
       s.doc.removeEventListener("pointermove", s.navMove);
       s.doc.removeEventListener("pointerup", s.navEnd);
       s.doc.removeEventListener("pointercancel", s.navEnd);
-      this.navigationCollapsed = false;
-      this.mainModule = "classes";
-      for (const record of this.planSurfaces.values()) this.restorePlanSurface(record);
+      s.doc.defaultView?.removeEventListener("blur", s.navEnd);
+      this.dragPresentation = "";
+      for (const record2 of this.planSurfaces.values()) this.restorePlanSurface(record2);
       this.planSurfaces.clear();
       this.activePlanSurface = null;
       this.pendingPlanAction = null;
       this.state = null;
       this.drag = null;
       s.widenSchedule.remove();
+      for (const popup of this.headerHelp.keys()) this.restoreHeaderHelp(popup);
       s.doc.defaultView?.removeEventListener("beforeprint", s.beforePrint);
       s.doc.defaultView?.removeEventListener("afterprint", s.afterPrint);
       s.afterPrint();
@@ -5632,7 +6678,9 @@ section#layoutContentArea.pl-planner-introduction {
       s.doc.defaultView?.removeEventListener("blur", s.end);
       for (const pane of s.panes) {
         pane.title.querySelectorAll(".pl-panel-grip,.pl-panel-close").forEach((node) => node.remove());
-        pane.section.classList.remove("pl-panel-docked", "pl-panel-small", "pl-details-only", "pl-details-floating");
+        pane.section.classList.remove("pl-panel-docked", "pl-panel-small", "pl-details-only", "pl-details-floating", "pl-calendar-inline-tools", "pl-group-inactive", "pl-header-help-open");
+        pane.section.querySelectorAll(".pl-calendar-header-tools").forEach((node) => node.classList.remove("pl-calendar-header-tools"));
+        for (const name of ["left", "top", "width"]) pane.section.style.removeProperty(`--pl-calendar-tools-${name}`);
         for (const name of ["left", "top", "width", "height"]) pane.section.style.removeProperty(`--pl-dock-${name}`);
         if (!pane.sectionHadStyle && !pane.section.getAttribute("style")) pane.section.removeAttribute("style");
         pane.title.removeEventListener("click", pane.click, true);
@@ -5660,8 +6708,9 @@ section#layoutContentArea.pl-planner-introduction {
       s.scrollRoom.remove();
       ["--pl-workspace-top", "--pl-workspace-left", "--pl-workspace-width"].forEach((p) => s.host.style.removeProperty(p));
       if (!s.hostHadStyle && !s.host.getAttribute("style")) s.host.removeAttribute("style");
-      s.host.classList.remove("pl-workspace-host", "pl-workspace-flow", "pl-task-plan", "pl-task-find", "pl-show-schedule", "pl-workspace-empty-plan", "pl-navigation-collapsed");
+      s.host.classList.remove("pl-workspace-host", "pl-workspace-flow", "pl-task-plan", "pl-task-find", "pl-show-schedule", "pl-workspace-empty-plan", "pl-navigation-collapsed", "pl-grouped-workspace");
       delete s.host.dataset.plModule;
+      delete s.host.dataset.plGroupsCompact;
       s.doc.documentElement.classList.remove("pl-workspace-page", "pl-panel-drag-in-progress");
     }
   };

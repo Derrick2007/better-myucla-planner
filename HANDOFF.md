@@ -3,7 +3,40 @@
 Last updated: 2026-10-04
 
 Current development version: `0.19.0`, branch `v0.19-workspace`.
-Installed version: `0.18.6`. Published prerelease: `0.18.2`.
+Installed files: `0.19.0` (Chrome reload pending). Published prerelease: `0.18.2`.
+
+## v0.19 implementation and installation
+
+The user requested implementing/testing v0.19 after the initial branch push.
+Completed course/detail spacing, 14px body text, always-visible room/instructor
+metadata and keyboard detail-jump navigation. Multiple native details remain
+expanded; the jump row scrolls the existing stack. It preserves current course
+and owned-button focus across recognized redraws, never storing course data.
+The index resets UCLA's inherited navigation shadow. Native course ancestry,
+controls, statuses and form association remain intact.
+
+Calendar CSS is in public/v019-calendar.css, concatenated after injected.css by
+scripts/build.mjs. The preview builder validates both CSS sources against dist.
+Event geometry, inline styles and colors stay native; labels/borders/focus are
+refined. Rebuilt the fictional site/workspace-preview.html from this build.
+
+Typecheck/build and all 466 unit tests passed. Current production fixture runs:
+workspace groups (2048/1440/1280/960/390), course presentation/navigation
+(same five widths), course actions (2048/1440/1280/390), native module controls
+(1440/1280/960x900 and 390x600), calendar geometry/control/restore (seven cases,
+including 1366 and 390x600). Evidence outside repo: outputs/v019-ready-*.log,
+outputs/v019-course-polish/, outputs/v019-calendar/.
+
+Installed and SHA-256 verified all 18 files into the previously authorized folder
+C:\Users\freeb\Downloads\better-myucla-v0.10.3\dist. Record:
+outputs/v019-installed.json. Backup:
+outputs/installed-backup-before-v019-20261004-173404.
+The user signed in and Class Planner was found, but live v0.19 verification is
+NOT complete: Windows computer control stopped because it could not determine
+Chrome's URL confidently while attempting to reach the existing Extensions tab.
+No extension reload or further browser action was attempted after that stop.
+Next: user reloads Better MyUCLA, refreshes Class Planner, then verify via the
+browser connector in a new turn. Do not claim installed-page verification yet.
 
 ## v0.19 tab-group milestone
 
@@ -11,8 +44,7 @@ The user requested saving GitHub first, then beginning v0.19. Baseline v0.18.6
 is committed and pushed as `1337c94b32a8a095ff36061ec8cb04ff272d5626` on
 `fork/flexible-panels`. Draft PR #1 targets the user's fork main and CI passed:
 https://github.com/comet-ctrl/better-myucla-planner/pull/1.
-Do not overwrite the installed v0.18.6 build until the development milestone
-is ready for a separately identified live check.
+The v0.18.6 baseline is backed up; see the newer installation record above.
 
 `workspace-groups.ts` is a pure six-panel model (Classes, Find, Optimizer, Study,
 Personal, Schedule). It supports open/closed remembered membership, active tabs,

@@ -26,11 +26,13 @@ on [Astro-wen/better-myucla-planner](https://github.com/Astro-wen/better-myucla-
 It is not made by, endorsed by, or affiliated with UCLA.
 
 **Development branch: v0.19-workspace (unreleased).** The next version replaces
-accidental narrow columns with tab groups and readable panel widths. See the
+accidental narrow columns with tab groups and readable panel widths. It also
+tightens course/section spacing, adds navigation between open course details,
+and refines the original calendar without changing meeting geometry. See the
 [v0.19 scope and validation checklist](docs/V019_WORKSPACE.md) and the
 [interactive fictional design draft](harness/v019-design-draft.html). The draft
-also explores later course-list and calendar refinements; it is not an installed
-extension screenshot. The v0.18.6 baseline is preserved on `flexible-panels` at
+illustrates the intended hierarchy; production adapts it to UCLA's original
+controls. It is not an installed extension screenshot. The v0.18.6 baseline is preserved on `flexible-panels` at
 `1337c94`. The published v0.18.2 archive remains unchanged.
 
 ## Install or update

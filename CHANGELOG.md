@@ -15,6 +15,11 @@
   original nodes, values, handlers and form association.
 - Keep active calendars visible in narrow views, fit module scrolling to short
   windows and position native Help popups within the visible screen.
+- Tighten course and section spacing with readable body text and visible rooms
+  and instructors. Add a keyboard-accessible jump row for multiple open details,
+  preserving selection and focus across recognized native redraws.
+- Refine calendar borders, labels and focus rings without altering native event
+  geometry, colors, Grid/Agenda state or meeting controls.
 - Include a clearly labeled fictional design draft for subsequent course-list,
   details and calendar refinements. This is not a published release.
 

@@ -1,0 +1,54 @@
+/* v0.19 calendar presentation. Loaded after injected.css. Native geometry,
+   meeting colors/borders, controls, hidden states and event handlers stay
+   authoritative. Only the recognized grouped workspace receives this skin. */
+@media screen {
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button {
+    border-color: #dce4ed;
+    background: #fff;
+    color: #43566d;
+    box-shadow: none;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button:hover {
+    border-color: #9eafc3;
+    background: #f0f5fa;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button:focus-visible {
+    outline: 2px solid #377ac0;
+    outline-offset: 2px;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar .plannerMenuLinks button:disabled {
+    border-color: #dce4ed;
+    background: #f3f5f8;
+    color: #748093;
+    cursor: default;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv tr.primary.light.headerBar.classPlanner > td {
+    background: #f3f6fa;
+    color: #43566d;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] {
+    border-radius: 3px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"]:focus-visible {
+    outline: 2px solid #174f87;
+    outline-offset: -2px;
+  }
+}
+@media screen and (min-width: 781px) {
+  /* Three lines fit in the recorded 38px meetings. Add no outer padding or
+     border: native percentage widths already subtract their own borders. */
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox[data-pl-grid="tidy"] {
+    font-size: 12px;
+    line-height: 1.05;
+  }
+  .pl-grouped-workspace .pl-workspace-calendar #gridDiv .planneritembox.smallitem[data-pl-grid="tidy"] {
+    font-size: 11px;
+    line-height: 1.05;
+  }
+}

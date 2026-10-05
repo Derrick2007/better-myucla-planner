@@ -22,6 +22,8 @@
     "test:course-detail-actions": "node harness/verify-course-detail-actions.mjs",
     "test:panel-layout": "node harness/verify-panel-layout.mjs",
     "test:workspace-groups": "node harness/verify-workspace-groups.mjs",
+    "test:v019-calendar": "node harness/verify-v019-calendar.mjs",
+    "test:v019-courses": "node harness/verify-v019-course-polish.mjs",
     "preview:build": "node scripts/build-preview.mjs",
     "preview:verify": "node harness/verify-preview.mjs"
   },

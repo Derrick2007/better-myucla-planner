@@ -2223,3 +2223,109 @@ section#layoutContentArea.pl-planner-introduction {
   .pl-grouped-workspace button.pl-workspace-group-tab-close:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
 }
 @media print { .pl-workspace-group-strip { display: none !important; } }
+
+/* v0.19 course presentation: compact index, quiet section boundaries, readable
+   native metadata. Only recognized presentation marks are styled; native
+   status content, section controls and unknown table shapes stay untouched. */
+@media screen {
+  .pl-grouped-workspace .pl-workspace-plan tbody.courseItem {
+    padding: 12px; border-bottom-color: #e3e9ef;
+  }
+  .pl-grouped-workspace .pl-workspace-plan .pl-headline { gap: 2px; }
+  .pl-grouped-workspace .pl-workspace-plan .pl-headline .pl-code {
+    font-size: 15px; line-height: 1.4;
+  }
+  .pl-grouped-workspace .pl-workspace-plan .pl-headline .pl-course-title {
+    font-size: 14px; line-height: 1.4; color: #526174;
+  }
+  .pl-grouped-workspace .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary {
+    margin-top: 4px; font-size: 14px; line-height: 1.4;
+  }
+  .pl-grouped-workspace .pl-workspace-plan td.SubjectAreaName_ClassName .pl-workspace-course-summary p {
+    margin-top: 6px; gap: 1px 6px;
+  }
+  .pl-grouped-workspace .pl-workspace-plan td.linkPanelRight { margin-top: 9px; }
+  .pl-grouped-workspace .pl-workspace-plan button:is(.pl-workspace-detail-button,.pl-workspace-actions-button) {
+    min-height: 34px; padding: 6px 9px; font-size: 14px; line-height: 20px; border-radius: 6px;
+  }
+  .pl-grouped-workspace .pl-workspace-plan tbody.pl-workspace-preview-card {
+    background: #f3f7fc; box-shadow: inset 3px 0 #387eb4;
+  }
+  .pl-grouped-workspace .pl-workspace-preview {
+    padding-bottom: 12px; margin-bottom: 0; border-bottom-color: #e3e9ef;
+  }
+  .pl-grouped-workspace .pl-workspace-preview-head h2 {
+    margin-bottom: 10px; font-size: 20px; line-height: 1.35; overflow-wrap: anywhere;
+  }
+  .pl-grouped-workspace .pl-workspace-preview-head p { font-size: 14px; }
+  .pl-grouped-workspace .pl-workspace-plan .pl-plan-root tbody.courseItem.pl-preview-docked > tr:nth-child(3) {
+    padding: 16px 18px; border-bottom-color: #dfe7ef;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card {
+    grid-template-columns: 32px minmax(58px,.8fr) minmax(90px,1.5fr) 34px;
+    padding: 12px 0; gap: 8px 10px; border: 0; border-bottom: 1px solid #e3e9ef;
+    border-radius: 0; margin: 0;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card > .pl-section-field {
+    font-size: 14px; line-height: 1.45; color: #263344;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="1"] {
+    font-weight: 600;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field:is([data-pl-field="6"],[data-pl-field="8"]) {
+    color: #46566a; font-size: 14px;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button) {
+    min-width: 32px; width: 32px; min-height: 32px; border-color: #c5d4e2;
+  }
+  .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-field[data-pl-field="0"] > :is(a,button):not(:has(i,svg)) {
+    width: auto; max-width: 100%; overflow-wrap: anywhere;
+  }
+  .pl-grouped-workspace .pl-section-label { color: #637287; font-weight: 500; }
+  .pl-grouped-workspace .ClassSearchList h3.pl-browser-preview-title { font-size: 20px; line-height: 1.35; }
+  .pl-grouped-workspace .ClassSearchList.pl-browser-list .pl-section-card {
+    border-color: #e3e9ef; background: #fff;
+  }
+  .pl-grouped-workspace .ClassSearchList.pl-browser-list .pl-section-card > .pl-section-field {
+    font-size: 14px; line-height: 1.45;
+  }
+  .pl-grouped-workspace .ClassSearchList.pl-browser-list .pl-section-field[data-pl-field="1"] { font-weight: 600; }
+  .pl-grouped-workspace .pl-browser-index { border-color: #e1e7ee; background: #fafbfd; }
+  .pl-grouped-workspace .pl-browser-index button { padding: 10px 12px; border-radius: 0; line-height: 1.45; }
+  .pl-grouped-workspace .pl-browser-index button[aria-pressed="true"] { background: #edf4fc; }
+  .pl-grouped-workspace .pl-section-help-field > :is(button,a) {
+    display: inline-flex; align-items: center; box-sizing: border-box; min-height: 32px;
+    padding: 5px 7px; border: 1px solid #d1dce6; border-radius: 5px; background: #f8fafc;
+    color: #405c79; font-size: 14px;
+  }
+  .pl-grouped-workspace .pl-section-help-field > :is(button,a):hover { background: #edf3fa; border-color: #8eabc4; }
+  .pl-grouped-workspace .pl-section-help-field > :is(button,a):focus-visible { outline: 2px solid #3477b5; outline-offset: 2px; }
+  @container pl-plan-detail (min-width: 640px) {
+    .pl-grouped-workspace .pl-workspace-plan table.coursetable.pl-section-table .pl-section-card,
+    .pl-grouped-workspace .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
+      grid-template-columns: 38px minmax(60px,.7fr) minmax(126px,1.15fr) 48px minmax(112px,1fr) 40px 28px;
+      padding: 10px 8px;
+    }
+    .pl-grouped-workspace .pl-workspace-plan .pl-plan-root tbody.courseItem table.pl-section-table tr.pl-section-heading {
+      padding-top: 8px; padding-bottom: 8px; background: #f7f9fb;
+    }
+  }
+  /* Navigation between already-open details scrolls their original rows; it
+     never duplicates a course, and adds no second close action. */
+  .pl-workspace-detail-index {
+    flex: none; display: flex; gap: 5px; min-width: 0; overflow-x: auto; overflow-y: hidden;
+    padding: 6px 10px; border-bottom: 1px solid #e1e7ee; background: #fbfcfe;
+    scrollbar-width: thin; overscroll-behavior-x: contain; box-shadow: none !important;
+  }
+  .pl-workspace-detail-index[hidden] { display: none !important; }
+  button.pl-workspace-detail-jump {
+    flex: 0 0 auto; min-width: 0; max-width: 240px; min-height: 34px; margin: 0;
+    padding: 6px 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    border: 1px solid #d3dde7; border-radius: 6px; background: #fff; color: #486078;
+    font: 500 14px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor: pointer;
+  }
+  button.pl-workspace-detail-jump[aria-current="true"] { background: #eaf2fb; color: #245f8f; border-color: #a7c3dd; }
+  button.pl-workspace-detail-jump:hover { background: #edf3fa; border-color: #8eabc4; }
+  button.pl-workspace-detail-jump:focus-visible { outline: 2px solid #3477b5; outline-offset: -2px; }
+}
+@media print { .pl-workspace-detail-index { display: none !important; } }

@@ -72,7 +72,7 @@ interface ClassActions {
 }
 interface OpenDetails {
   card: HTMLElement; table: HTMLTableElement; row: HTMLElement; destination: HTMLElement;
-  preview: HTMLElement; close: HTMLButtonElement; spacer: HTMLElement; trigger: HTMLElement | null;
+  preview: HTMLElement; close: HTMLButtonElement; spacer: HTMLElement; trigger: HTMLElement | null; jump: HTMLButtonElement;
   cards: SectionCards; hadStyle: boolean; observer: ResizeObserver | null;
   wheel: (event: WheelEvent) => void; focus: (event: FocusEvent) => void;
   pointer: () => void;
@@ -111,7 +111,7 @@ interface Workspace {
   resize: () => void; key: (event: KeyboardEvent) => void;
   detailsScroll: () => void;
   calendarScroll: () => void;
-  layout: PanelLayoutController; detailsFrame: HTMLElement; navigation: HTMLElement;
+  layout: PanelLayoutController; detailsFrame: HTMLElement; detailIndex: HTMLElement; navigation: HTMLElement;
   navToggle: HTMLButtonElement; navDivider: HTMLElement; navEnd: (event?: Event) => void; navMove: (event: PointerEvent) => void;
   groupStrips: Map<PanelDock,HTMLElement>; groupTabs: Map<WorkspacePanelId,{wrap:HTMLElement;button:HTMLButtonElement;close:HTMLButtonElement}>;
   move: (event: PointerEvent) => void; end: (event?: Event) => void;
@@ -276,6 +276,8 @@ export class PlannerWorkspace {
     // This snapshot exists only through this reconciliation. The controller
     // explicitly restores the workspace before a term/plan context change.
     const expanded=[...this.openDetails.values()].map(detail=>({id:this.latestCourses.find(course=>course.node===detail.card)?.id,examOpen:detail.preview.querySelector("details")?.open||false}));
+    const selectedDetail=this.latestCourses.find(course=>course.node===this.selected)?.id;
+    const focusedDetail=this.latestCourses.find(course=>this.openDetails.get(course.node)?.jump===doc.activeElement)?.id;
     const detailScroll=this.state?.slot.scrollTop||0,activeModule=this.module,mainModule=this.mainModule;
     const layoutSnapshot=this.state?.layout.snapshot()||this.savedLayout,navigationCollapsed=this.navigationCollapsed;
     const active=doc.activeElement;
@@ -339,6 +341,8 @@ export class PlannerWorkspace {
       // Only extension placeholders move. Native course/section ancestry stays put.
       for(const detail of ordered)this.state.slot.append(detail.spacer);
     }
+    const restoredSelection=courses.find(course=>course.id===selectedDetail);
+    if(restoredSelection&&this.openDetails.has(restoredSelection.node))this.selected=restoredSelection.node;
     this.module=activeModule;this.mainModule=mainModule;this.navigationCollapsed=navigationCollapsed;
     if(layoutSnapshot&&old!==this.state){this.updatingLayout=true;try{this.state.layout.restoreSnapshot(layoutSnapshot);}finally{this.updatingLayout=false;}}
     this.syncGroupsToPanels();
@@ -347,6 +351,10 @@ export class PlannerWorkspace {
     // Moving a newly rendered native section into the workspace can blur its
     // focused field. Restore only that exact still-connected native node.
     if(nativeFocus?.isConnected&&doc.activeElement!==nativeFocus)nativeFocus.focus({preventScroll:true});
+    if(focusedDetail&&!this.state.detailIndex.hidden){
+      const course=courses.find(course=>course.id===focusedDetail),jump=course&&this.openDetails.get(course.node)?.jump;
+      if(jump?.isConnected&&doc.activeElement!==jump)jump.focus({preventScroll:true});
+    }
     if (view && redrawScroll && (view.scrollX !== redrawScroll.left || view.scrollY !== redrawScroll.top)) {
       view.scrollTo({...redrawScroll, behavior: "instant"});
       // Height is restored now; saved compaction still supplies its minimum.
@@ -510,6 +518,7 @@ export class PlannerWorkspace {
     const detailsFrame=owned(doc.createElement("div"),"pl-workspace-details-frame");panes[0].section.append(detailsFrame);
     const detailsHandle=owned(doc.createElement("button"),"pl-panel-details-handle");detailsHandle.type="button";detailsHandle.textContent="Class details";detailsHandle.dataset.plPanelHandle="details";detailsFrame.append(detailsHandle);
     const detailsClose=owned(doc.createElement("button"),"pl-panel-close");detailsClose.type="button";detailsClose.textContent="×";detailsClose.dataset.plPanelClose="details";detailsClose.setAttribute("aria-label","Close class details panel");detailsClose.title="Close panel — reopen with a course's Details button";detailsClose.addEventListener("click",()=>this.state?.layout.hidePanel("details"));detailsFrame.append(detailsClose);
+    const detailIndex=owned(doc.createElement("nav"),"pl-workspace-detail-index");detailIndex.setAttribute("aria-label","Open class details");detailIndex.hidden=true;detailsFrame.append(detailIndex);
     const slot=owned(doc.createElement("div"),"pl-workspace-details-slot");detailsFrame.append(slot);
     const empty=owned(doc.createElement("p"),"pl-workspace-empty");empty.textContent="Select a class to see its sections and details.";slot.append(empty);
     const infoPlaceholder=owned(doc.createElement("div"),"pl-workspace-information-placeholder");infoPlaceholder.textContent="Information & help";main.append(infoPlaceholder);
@@ -609,7 +618,7 @@ export class PlannerWorkspace {
       if(!this.activePlanSurface&&target&&!extras.contains(target)&&!target.closest('.pl-plan-action-surface,[role="dialog"],dialog[open],.ui-dialog'))extras.open=false;
     };
     const layout=new PanelLayoutController(doc,deck,(id,placement,reason,operation)=>this.panelLayoutChanged(id,placement,reason,operation));
-    this.state={doc,host,panel,deck,top,extras,menu,placements,preview,head,content,close,panes,splitters:[splitter,...dockSplitters],empty,widenSchedule,shell,main,navMain,navFooter,slot,moduleButtons,mobileMain,mobileSchedule,scheduleNav,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,detailsScroll,calendarScroll,move,end,beforePrint,afterPrint,actionObserver,actionClick,helpObserver,layout,detailsFrame,navigation,navToggle,navDivider,navMove,navEnd,groupStrips,groupTabs};
+    this.state={doc,host,panel,deck,top,extras,menu,placements,preview,head,content,close,panes,splitters:[splitter,...dockSplitters],empty,widenSchedule,shell,main,navMain,navFooter,slot,moduleButtons,mobileMain,mobileSchedule,scheduleNav,position,scrollRoom,hostHadStyle:host.hasAttribute("style"),resize,key,detailsScroll,calendarScroll,move,end,beforePrint,afterPrint,actionObserver,actionClick,helpObserver,layout,detailsFrame,detailIndex,navigation,navToggle,navDivider,navMove,navEnd,groupStrips,groupTabs};
     for(const pane of panes){
       const id=pane.module||"schedule",handle=owned(doc.createElement("button"),"pl-panel-grip");handle.type="button";handle.textContent="⠿";handle.dataset.plPanelHandle=id;handle.setAttribute("aria-label",`Move ${pane.label}`);pane.title.prepend(handle);
       layout.addPanel({id,label:pane.module?MODULE_LABELS[pane.module]:"Weekly schedule",element:pane.section,handle,defaultDock:id==="schedule"?"right":"main",allowedDocks:["main","left","right"],getDropTargets:()=>this.groupDropTargets(id as WorkspacePanelId),canDrop:operation=>this.groupDropAllowed(id as WorkspacePanelId,operation),onActivate:()=>{this.captureGestureChoices();if(pane.module)this.selectModule(pane.module,false,true);else {this.groups=selectWorkspaceTab(this.groups,"schedule");this.setPaneCollapsed(pane,false);}}});
@@ -1233,6 +1242,29 @@ export class PlannerWorkspace {
       detail.close.setAttribute("aria-label",multiple?`Close details for ${title}`:"Close details");
       detail.close.title=multiple?`Close only ${title}`:"Close class details";
     }
+    this.updateDetailIndex();
+  }
+
+  /** Navigate the existing open stack without replacing or concealing native rows. */
+  private updateDetailIndex():void {
+    const s=this.state;if(!s)return;
+    s.detailIndex.hidden=this.openDetails.size<2;
+    let index=0;
+    for(const detail of this.openDetails.values()){
+      if(s.detailIndex.children[index]!==detail.jump)s.detailIndex.insertBefore(detail.jump,s.detailIndex.children[index]||null);
+      detail.jump.setAttribute("aria-current",String(detail.card===this.selected));index++;
+    }
+  }
+
+  private jumpToDetail(card:HTMLElement):void {
+    const s=this.state,detail=this.openDetails.get(card);if(!s||!detail)return;
+    this.selected=card;this.updateDetailIndex();this.positionPreview();
+    const box=s.slot.getBoundingClientRect();
+    if(box.height)s.slot.scrollTop=Math.max(0,s.slot.scrollTop+detail.spacer.getBoundingClientRect().top-box.top);
+    this.positionPreview();
+    const bounds=s.detailIndex.getBoundingClientRect(),button=detail.jump.getBoundingClientRect();
+    if(button.left<bounds.left)s.detailIndex.scrollLeft+=button.left-bounds.left;
+    else if(button.right>bounds.right)s.detailIndex.scrollLeft+=button.right-bounds.right;
   }
 
   /** Place the original calendar switches in unused header space when they fit.
@@ -1345,18 +1377,26 @@ export class PlannerWorkspace {
     };
     const touchEnd=()=>{touch=null;};
     const onFocus=(event:FocusEvent)=>{
-      this.selected=course.node;
+      this.selected=course.node;this.updateDetailIndex();
       if(s.layout.isFloating("details"))s.layout.bringToFront("classes");s.layout.bringToFront("details");
       if(event.target instanceof HTMLElement)this.revealDetailTarget(event.target);
     };
-    const pointer=()=>{if(s.layout.isFloating("details"))s.layout.bringToFront("classes");s.layout.bringToFront("details");};
+    const pointer=()=>{this.selected=course.node;this.updateDetailIndex();if(s.layout.isFloating("details"))s.layout.bringToFront("classes");s.layout.bringToFront("details");};
     const key=(event:KeyboardEvent)=>{
       const target=event.target instanceof Element?event.target:null;
       if(event.defaultPrevented||target?.closest("input,select,textarea,[contenteditable=true]"))return;
       if(!["PageDown","PageUp","Home","End"].includes(event.key))return;
       event.preventDefault();s.slot.scrollTop=event.key==="Home"?0:event.key==="End"?s.slot.scrollHeight:s.slot.scrollTop+(event.key==="PageDown"?1:-1)*s.slot.clientHeight*.85;this.positionPreview();
     };
-    const detail:OpenDetails={card:course.node,table,row,destination,preview,close,spacer,trigger,cards,hadStyle:course.node.hasAttribute("style"),observer:null,wheel,focus:onFocus,pointer,key,touchStart,touchMove,touchEnd};
+    const jump=s.doc.createElement("button");jump.className="pl-workspace-detail-jump";jump.setAttribute(OWNED,"true");jump.type="button";jump.textContent=course.label.replace(/^Class\s+\d+:\s*/,"");jump.title=jump.textContent;jump.setAttribute("aria-label",`Show open details for ${jump.textContent}`);
+    jump.addEventListener("click",()=>this.jumpToDetail(course.node));
+    jump.addEventListener("keydown",event=>{
+      if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)||event.altKey||event.ctrlKey||event.metaKey)return;
+      event.preventDefault();const details=[...this.openDetails.values()],index=details.findIndex(detail=>detail.card===course.node);
+      const next=event.key==="Home"?0:event.key==="End"?details.length-1:(index+(event.key==="ArrowRight"?1:-1)+details.length)%details.length;
+      const target=details[next];if(target){this.jumpToDetail(target.card);target.jump.focus({preventScroll:true});}
+    });
+    const detail:OpenDetails={card:course.node,table,row,destination,preview,close,spacer,trigger,jump,cards,hadStyle:course.node.hasAttribute("style"),observer:null,wheel,focus:onFocus,pointer,key,touchStart,touchMove,touchEnd};
     this.openDetails.set(course.node,detail);this.selected=course.node;
     trigger?.setAttribute("aria-expanded","true");
     const title=s.doc.createElement("h2");title.textContent=course.label.replace(/^Class\s+\d+:\s*/,"");head.replaceChildren(title);
@@ -1435,7 +1475,7 @@ export class PlannerWorkspace {
     detail.card.classList.remove("pl-workspace-preview-card","pl-preview-inline","pl-preview-docked","pl-details-concealed","pl-details-moving");
     for(const name of ["left","top","width","height","clip-top","clip-bottom","z"])detail.card.style.removeProperty(`--pl-detail-${name}`);
     if(!detail.hadStyle&&!detail.card.getAttribute("style"))detail.card.removeAttribute("style");
-    this.openDetails.delete(detail.card);detail.spacer.remove();
+    this.openDetails.delete(detail.card);detail.spacer.remove();detail.jump.remove();
     const s=this.state;
     if(s&&detail.preview===s.preview){s.preview.hidden=true;s.slot.prepend(s.preview);}else detail.preview.remove();
     if(this.selected===detail.card)this.selected=[...this.openDetails.keys()].at(-1)||null;

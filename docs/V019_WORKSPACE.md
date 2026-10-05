@@ -11,7 +11,7 @@ Search and native sections then became difficult to read. Sidebar selection,
 closing and floating also behaved like independent panels rather than familiar
 tabs within a workspace.
 
-## First milestone
+## Implemented in v0.19
 
 - My classes and Find classes share a browsing group by default; Schedule has
   the other pane. Other native modules open as tabs through named navigation.
@@ -28,20 +28,27 @@ tabs within a workspace.
   old key for rollback. No course, account, search or enrollment data is saved.
 - Default layout and Original layout retain their existing meanings. Native
   UCLA masthead, plan actions, statuses and enrollment workflows are unchanged.
+- A denser course index and section layout keep 14px body text, visible rooms
+  and instructors, original per-section statuses and bounded action targets.
+- Multiple open details have a compact jump row. It scrolls the existing local
+  stack and supports arrow/Home/End keys; it does not close other courses.
+  Selected-course presentation and focused jump survive recognized redraws.
+- Calendar labels, borders and keyboard focus receive restrained styling;
+  native meeting geometry, colors and controls remain authoritative.
 
 ## Design draft and later work
 
 ![Fictional v0.19 design exploration, including later course and calendar refinements](images/v019-design-draft.png)
 
 Open `harness/v019-design-draft.html` locally for an interactive fictional draft.
-It explores a denser course index, a more structured details view and clearer
-calendar typography after the group model works. It is not a replacement
+It explores the course index, details and calendar hierarchy. The implementation
+adapts that hierarchy to native MyUCLA controls and their exact DOM. It is not a replacement
 website, a live MyUCLA page or a promise that the first milestone matches every
 pixel. Its masthead is schematic; the extension must retain UCLA's masthead.
 
-Course-list density, multi-course details navigation and calendar presentation
-are follow-up passes. Keep rooms and instructors visible, preserve each
-section's original status, and avoid adding redundant toolbars.
+Very narrow screens retain stacked native content and local scrolling. Further
+mobile simplification can follow live feedback; the draft is a visual direction,
+not a pixel-identical screenshot of the extension.
 
 ## Acceptance checks
 
@@ -58,4 +65,12 @@ section's original status, and avoid adding redundant toolbars.
 - Run typecheck, unit tests, production build and fictional browser fixtures.
   Inspect the installed page separately before claiming live verification.
 
-The installed v0.18.6 build stays in place while this milestone is developed.
+v0.19.0 is installed in the user's existing unpacked extension folder, with all
+18 files verified by SHA-256 and v0.18.6 backed up. Reloading the extension and
+checking the loaded Class Planner page remain pending: Windows computer control
+stopped because it could not confidently determine Chrome's current URL.
+
+Typecheck, production build and 466 unit tests pass. Production-browser fixtures
+cover groups, course details/actions, native modules and calendar presentation,
+including widths from 390 to 2048px and short 390x600 windows. These fixtures use
+fictional data and do not establish live enrollment behavior.

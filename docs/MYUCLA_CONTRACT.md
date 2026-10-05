@@ -18,6 +18,12 @@ Grouped pane bounds fit the visible viewport. A native Help popup directly
 under a recognized title may receive bounded viewport positioning and flip
 above the title when needed. Keep its parent, visibility and handlers intact;
 restore prior presentation properties on dismissal or Original layout.
+An owned navigation row may jump between multiple open course details. It
+scrolls only the existing local stack; native tables, actions and section
+statuses stay under their original course parents. Course selection and focused
+jump continuity are ephemeral across recognized same-context redraws. Context
+changes clear them. Calendar refinements must preserve native event bounds,
+inline styles, colors, visibility and all original control identities.
 
 ## Compact panel controls (0.18.6 development)
 
